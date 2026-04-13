@@ -9,7 +9,7 @@ class AppConstants {
   static const double limitOfPickedVideoSizeInMB = 50;
   static const double maxSizeOfASingleFile = 10;
 
-  static const String baseUrl = 'YOUR_BASE_URL';
+  static const String baseUrl = 'https://market.shoplanser.com';
 
   static const String configUri = '/api/v1/config';
   static const String loginUri = '/api/v1/auth/vendor/login';
