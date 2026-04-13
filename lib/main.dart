@@ -5,6 +5,7 @@ import 'package:sixam_mart_store/features/language/controllers/language_controll
 import 'package:sixam_mart_store/common/controllers/theme_controller.dart';
 import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
 import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
+import 'package:sixam_mart_store/firebase_options.dart';
 import 'package:sixam_mart_store/helper/date_converter_helper.dart';
 import 'package:sixam_mart_store/helper/notification_helper.dart';
 import 'package:sixam_mart_store/helper/route_helper.dart';
@@ -25,18 +26,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Map<String, Map<String, String>> languages = await di.init();
 
-  if(GetPlatform.isAndroid) {
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyCc3OCd5I2xSlnftZ4bFAbuCzMhgQHLivA",
-        appId: "1:491987943015:android:9795ba69e89c684b8f1ec2",
-        messagingSenderId: "491987943015",
-        projectId: "stackmart-500c7",
-      ),
-    );
-  }else {
-    await Firebase.initializeApp();
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   NotificationBodyModel? body;
   try {

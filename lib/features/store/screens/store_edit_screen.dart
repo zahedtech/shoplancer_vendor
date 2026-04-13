@@ -641,7 +641,7 @@ class _StoreEditScreenState extends State<StoreEditScreen> with TickerProviderSt
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
-                                  value: storeController.imagePreviewSelectedType,
+                                  value: storeController.imagePreviewType.contains(storeController.imagePreviewSelectedType) ? storeController.imagePreviewSelectedType : storeController.imagePreviewType.first,
                                   items: storeController.imagePreviewType.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
