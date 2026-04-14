@@ -15,40 +15,70 @@ class AuthRepository implements AuthRepositoryInterface {
   AuthRepository({required this.apiClient, required this.sharedPreferences});
 
   @override
-  Future<Response> login(String? email, String password, String type) async {
-    return await apiClient.postData(AppConstants.loginUri, {"email": email, "password": password, 'vendor_type': type}, handleError: false);
+  Future<Response> login(String? phone, String password, String type) async {
+    return await apiClient.postData(AppConstants.loginUri, {
+      "phone": phone,
+      "password": password,
+      'vendor_type': type,
+    }, handleError: false);
   }
 
   @override
-  Future<Response> registerRestaurant(Map<String, String> data, XFile? logo, XFile? cover, List<MultipartDocument> tinFiles) async {
-    return await apiClient.postMultipartData(AppConstants.restaurantRegisterUri, data, [MultipartBody('logo', logo), MultipartBody('cover_photo', cover)], multipartDocument: tinFiles);
+  Future<Response> registerRestaurant(
+    Map<String, String> data,
+    XFile? logo,
+    XFile? cover,
+    List<MultipartDocument> tinFiles,
+  ) async {
+    return await apiClient.postMultipartData(
+      AppConstants.restaurantRegisterUri,
+      data,
+      [MultipartBody('logo', logo), MultipartBody('cover_photo', cover)],
+      multipartDocument: tinFiles,
+    );
   }
 
   @override
   Future<Response> updateToken() async {
     String? deviceToken;
     if (GetPlatform.isIOS) {
-      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
-      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-        alert: true, announcement: false, badge: true, carPlay: false,
-        criticalAlert: false, provisional: false, sound: true,
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
       );
-      if(settings.authorizationStatus == AuthorizationStatus.authorized) {
+      NotificationSettings settings = await FirebaseMessaging.instance
+          .requestPermission(
+            alert: true,
+            announcement: false,
+            badge: true,
+            carPlay: false,
+            criticalAlert: false,
+            provisional: false,
+            sound: true,
+          );
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         deviceToken = await _saveDeviceToken();
       }
-    }else {
+    } else {
       deviceToken = await _saveDeviceToken();
     }
-    if(!GetPlatform.isWeb) {
+    if (!GetPlatform.isWeb) {
       FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-      FirebaseMessaging.instance.subscribeToTopic(sharedPreferences.getString(AppConstants.zoneTopic)!);
+      FirebaseMessaging.instance.subscribeToTopic(
+        sharedPreferences.getString(AppConstants.zoneTopic)!,
+      );
     }
-    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "token": getUserToken(), "fcm_token": deviceToken}, handleError: false);
+    return await apiClient.postData(AppConstants.tokenUri, {
+      "_method": "put",
+      "token": getUserToken(),
+      "fcm_token": deviceToken,
+    }, handleError: false);
   }
 
   Future<String?> _saveDeviceToken() async {
     String? deviceToken = '';
-    if(!GetPlatform.isWeb) {
+    if (!GetPlatform.isWeb) {
       deviceToken = (await FirebaseMessaging.instance.getToken())!;
     }
     if (kDebugMode) {
@@ -58,8 +88,17 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<bool> saveUserToken(String token, String zoneTopic, String type) async {
-    apiClient.updateHeader(token, sharedPreferences.getString(AppConstants.languageCode), null, type);
+  Future<bool> saveUserToken(
+    String token,
+    String zoneTopic,
+    String type,
+  ) async {
+    apiClient.updateHeader(
+      token,
+      sharedPreferences.getString(AppConstants.languageCode),
+      null,
+      type,
+    );
     sharedPreferences.setString(AppConstants.zoneTopic, zoneTopic);
     sharedPreferences.setString(AppConstants.type, type);
     return await sharedPreferences.setString(AppConstants.token, token);
@@ -77,9 +116,15 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<bool> clearSharedData() async {
-    if(!GetPlatform.isWeb) {
-      apiClient.postData(AppConstants.tokenUri, {"_method": "put", "token": getUserToken(), "fcm_token": '@'}, handleError: false);
-      FirebaseMessaging.instance.unsubscribeFromTopic(sharedPreferences.getString(AppConstants.zoneTopic)!);
+    if (!GetPlatform.isWeb) {
+      apiClient.postData(AppConstants.tokenUri, {
+        "_method": "put",
+        "token": getUserToken(),
+        "fcm_token": '@',
+      }, handleError: false);
+      FirebaseMessaging.instance.unsubscribeFromTopic(
+        sharedPreferences.getString(AppConstants.zoneTopic)!,
+      );
     }
     await sharedPreferences.remove(AppConstants.token);
     await sharedPreferences.remove(AppConstants.userAddress);
@@ -89,7 +134,11 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<void> saveUserNumberAndPassword(String number, String password, String type) async {
+  Future<void> saveUserNumberAndPassword(
+    String number,
+    String password,
+    String type,
+  ) async {
     try {
       await sharedPreferences.setString(AppConstants.userPassword, password);
       await sharedPreferences.setString(AppConstants.userNumber, number);
@@ -120,14 +169,20 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<void> setNotificationActive(bool isActive) async{
-    if(isActive) {
+  Future<void> setNotificationActive(bool isActive) async {
+    if (isActive) {
       updateToken();
-    }else {
-      if(!GetPlatform.isWeb) {
-        apiClient.postData(AppConstants.tokenUri, {"_method": "put", "token": getUserToken(), "fcm_token": '@'}, handleError: false);
+    } else {
+      if (!GetPlatform.isWeb) {
+        apiClient.postData(AppConstants.tokenUri, {
+          "_method": "put",
+          "token": getUserToken(),
+          "fcm_token": '@',
+        }, handleError: false);
         FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-        FirebaseMessaging.instance.unsubscribeFromTopic(sharedPreferences.getString(AppConstants.zoneTopic)!);
+        FirebaseMessaging.instance.unsubscribeFromTopic(
+          sharedPreferences.getString(AppConstants.zoneTopic)!,
+        );
       }
     }
     sharedPreferences.setBool(AppConstants.notification, isActive);
@@ -142,13 +197,19 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<bool> toggleStoreClosedStatus() async {
-    Response response = await apiClient.postData(AppConstants.updateVendorStatusUri, {});
+    Response response = await apiClient.postData(
+      AppConstants.updateVendorStatusUri,
+      {},
+    );
     return (response.statusCode == 200);
   }
 
   @override
   Future<bool> saveIsStoreRegistration(bool status) async {
-    return await sharedPreferences.setBool(AppConstants.isStoreRegister, status);
+    return await sharedPreferences.setBool(
+      AppConstants.isStoreRegister,
+      status,
+    );
   }
 
   @override
@@ -159,8 +220,10 @@ class AuthRepository implements AuthRepositoryInterface {
   @override
   Future<PackageModel?> getPackageList({int? moduleId}) async {
     PackageModel? packageModel;
-    Response response = await apiClient.getData('${AppConstants.restaurantPackagesUri}?module_id=$moduleId');
-    if(response.statusCode == 200) {
+    Response response = await apiClient.getData(
+      '${AppConstants.restaurantPackagesUri}?module_id=$moduleId',
+    );
+    if (response.statusCode == 200) {
       packageModel = PackageModel.fromJson(response.body);
     }
     return packageModel;
@@ -200,5 +263,4 @@ class AuthRepository implements AuthRepositoryInterface {
   Future getList() {
     throw UnimplementedError();
   }
-
 }
