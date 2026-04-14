@@ -13,6 +13,7 @@ import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -23,17 +24,19 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
 
-  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState>? _formKeyLogin;
+  String? _countryDialCode;
 
   @override
   void initState() {
     super.initState();
     _formKeyLogin = GlobalKey<FormState>();
-    _emailController.text = Get.find<AuthController>().getUserNumber();
+    _countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+    _phoneController.text = Get.find<AuthController>().getUserNumber();
     _passwordController.text = Get.find<AuthController>().getUserPassword();
     if(Get.find<AuthController>().getUserType() == 'employee'){
       Get.find<AuthController>().changeVendorType(1, isUpdate: false);
@@ -131,15 +134,17 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: Column(children: [
 
                   CustomTextFieldWidget(
-                    labelText: 'email'.tr,
-                    hintText: 'enter_email'.tr,
-                    controller: _emailController,
-                    focusNode: _emailFocus,
+                    labelText: 'phone'.tr,
+                    hintText: 'enter_phone_number'.tr,
+                    controller: _phoneController,
+                    focusNode: _phoneFocus,
                     nextFocus: _passwordFocus,
-                    inputType: TextInputType.emailAddress,
-                    prefixImage: Images.mail,
+                    inputType: TextInputType.phone,
+                    isPhone: true,
+                    countryDialCode: _countryDialCode,
+                    onCountryChanged: (CountryCode countryCode) => _countryDialCode = countryCode.dialCode,
                     required: true,
-                    validator: (value) => ValidateCheck.validateEmail(value),
+                    validator: (value) => ValidateCheck.validateEmptyText(value, 'enter_phone_number'.tr),
                   ),
                   const SizedBox(height: 20),
 
@@ -217,25 +222,23 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _login(AuthController authController) async {
-    String email = _emailController.text.trim();
+    String phone = _phoneController.text.trim();
     String password = _passwordController.text.trim();
     String type = authController.vendorTypeIndex == 0 ? 'owner' : 'employee';
 
     if(_formKeyLogin!.currentState!.validate()) {
-      if (email.isEmpty) {
-        showCustomSnackBar('enter_email_address'.tr);
-      }else if (!GetUtils.isEmail(email)) {
-        showCustomSnackBar('enter_a_valid_email_address'.tr);
+      if (phone.isEmpty) {
+        showCustomSnackBar('enter_phone_number'.tr);
       }else if (password.isEmpty) {
         showCustomSnackBar('enter_password'.tr);
       }else if (password.length < 6) {
         showCustomSnackBar('password_should_be'.tr);
       }else {
-        authController.login(email, password, type).then((status) async {
+        authController.login(_countryDialCode! + phone, password, type).then((status) async {
           if(status != null){
             if (status.isSuccess) {
               if (authController.isActiveRememberMe) {
-                authController.saveUserNumberAndPassword(email, password, type);
+                authController.saveUserNumberAndPassword(phone, password, type);
               } else {
                 authController.clearUserNumberAndPassword();
               }

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 
 abstract class AuthRepositoryInterface implements RepositoryInterface {
-  Future<dynamic> login(String? email, String password, String type);
+  Future<dynamic> login(String? phone, String password, String type);
   Future<dynamic> registerRestaurant(Map<String, String> data, XFile? logo, XFile? cover, List<MultipartDocument> tinFiles);
   Future<dynamic> updateToken();
   Future<bool> saveUserToken(String token, String zoneTopic, String type);

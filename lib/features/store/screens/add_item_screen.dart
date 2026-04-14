@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
@@ -37,9 +38,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart_store/features/store/widgets/food_variation_view_widget.dart';
 
-import '../../../common/widgets/custom_card.dart';
 import '../../profile/domain/models/profile_model.dart' hide Module;
-import '../widgets/meta_seo_item_widget.dart';
 
 class AddItemScreen extends StatefulWidget {
   final Item? item;
@@ -66,16 +65,11 @@ class _AddItemScreenState extends State<AddItemScreen>
       TextEditingController();
   final TextEditingController _genericNameSuggestionController =
       TextEditingController();
-  final TextEditingController _metaTitleController = TextEditingController();
-  final TextEditingController _metaDescriptionController =
-      TextEditingController();
-  final TextEditingController _maxSnippetController = TextEditingController();
   final TextEditingController _maxVideoPreviewController =
       TextEditingController();
   final FocusNode _priceNode = FocusNode();
   final FocusNode _discountNode = FocusNode();
-  final FocusNode _metaTitleNode = FocusNode();
-  final FocusNode _metaDescriptionNode = FocusNode();
+  final FocusNode _genericNameNode = FocusNode();
 
   final List<FocusNode> _nameFocusList = [];
   final List<FocusNode> _descriptionFocusList = [];
@@ -168,17 +162,9 @@ class _AddItemScreenState extends State<AddItemScreen>
 
     if (isEcommerce && _update) {
       storeController.getBrandList(widget.item);
-      // storeController.pickedMetaImage?.path;
       storeController.initializeMetaData(widget.item?.metaData);
 
-      if (widget.item != null) {
-        _metaTitleController.text = widget.item!.metaTitle ?? '';
-        _metaDescriptionController.text = widget.item!.metaDescription ?? '';
-      }
-
       if (widget.item?.metaData != null) {
-        _maxSnippetController.text =
-            widget.item!.metaData!.metaMaxSnippetValue?.toString() ?? '';
         _maxVideoPreviewController.text =
             widget.item!.metaData!.metaMaxVideoPreviewValue?.toString() ?? '';
       }
@@ -264,10 +250,11 @@ class _AddItemScreenState extends State<AddItemScreen>
 
   @override
   void dispose() {
-    _metaTitleController.dispose();
-    _metaDescriptionController.dispose();
+    _priceController.dispose();
+    _discountController.dispose();
+    _stockController.dispose();
+    _maxOrderQuantityController.dispose();
     _maxVideoPreviewController.dispose();
-    _maxSnippetController.dispose();
     super.dispose();
   }
 
@@ -858,39 +845,44 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            CustomDropdownButton(
-                                              hintText: 'category'.tr,
-                                              dropdownMenuItems: categoryController
-                                                  .categoryList
-                                                  ?.map(
-                                                    (
-                                                      item,
-                                                    ) => DropdownMenuItem<String>(
-                                                      value: item.id.toString(),
-                                                      child: Text(
-                                                        item.name ?? '',
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeDefault,
-                                                            ),
+                                            LabelWidget(
+                                              labelText: 'category'.tr,
+                                              child: CustomDropdownButton(
+                                                hintText: 'category'.tr,
+                                                dropdownMenuItems: categoryController
+                                                    .categoryList
+                                                    ?.map(
+                                                      (
+                                                        item,
+                                                      ) => DropdownMenuItem<String>(
+                                                        value: item.id
+                                                            .toString(),
+                                                        child: Text(
+                                                          item.name ?? '',
+                                                          style: robotoRegular.copyWith(
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  )
-                                                  .toList(),
-                                              onChanged: (String? value) {
-                                                categoryController
-                                                    .setSelectedCategory(
-                                                      value!,
-                                                    );
-                                              },
-                                              selectedValue: categoryController
-                                                  .selectedCategoryID,
-                                            ),
-                                            const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraLarge,
-                                            ),
+                                                    )
+                                                    .toList(),
+                                                onChanged: (String? value) {
+                                                  categoryController
+                                                      .setSelectedCategory(
+                                                        value!,
+                                                      );
+                                                },
+                                                selectedValue:
+                                                   categoryController
+                                                       .selectedCategoryID,
+                                             ),
+                                           ),
+                                           SizedBox(
+                                             height: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
+                                                 ? Dimensions.paddingSizeExtraLarge
+                                                 : 0,
+                                           ),
 
                                             categoryController
                                                             .selectedSubCategoryID !=
@@ -899,19 +891,18 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             .subCategoryList !=
                                                         null &&
                                                     categoryController
-                                                        .subCategoryList!
-                                                        .isNotEmpty
-                                                ? CustomDropdownButton(
-                                                    hintText:
-                                                        categoryController
-                                                                    .subCategoryList !=
+                                                            .subCategoryList!
+                                                            .isNotEmpty &&
+                                                    (!_update ||
+                                                        (widget.item?.categoryIds !=
                                                                 null &&
-                                                            categoryController
-                                                                .subCategoryList!
-                                                                .isNotEmpty
-                                                        ? 'sub_category'.tr
-                                                        : 'no_sub_category_found'
-                                                              .tr,
+                                                            widget
+                                                                    .item!
+                                                                    .categoryIds!
+                                                                    .length >
+                                                                1))
+                                                ? CustomDropdownButton(
+                                                    hintText: 'sub_category'.tr,
                                                     dropdownMenuItems: categoryController
                                                         .subCategoryList
                                                         ?.map(
@@ -959,95 +950,130 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            isPharmacy
-                                                ? Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            Dimensions
-                                                                .radiusDefault,
-                                                          ),
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).cardColor,
-                                                      border: Border.all(
-                                                        color: Theme.of(context)
-                                                            .disabledColor
-                                                            .withValues(
-                                                              alpha: 0.5,
-                                                            ),
-                                                      ),
+                                            isPharmacy &&
+                                                    (!_update ||
+                                                        (widget.item?.conditionId !=
+                                                                null &&
+                                                            widget
+                                                                    .item!
+                                                                    .conditionId !=
+                                                                0)) && suitableTagList.isNotEmpty
+                                                ? LabelWidget(
+                                                    labelText:
+                                                        'suitable_for'.tr,
+                                                    child: CustomDropdownButton(
+                                                      hintText:
+                                                          'suitable_for'.tr,
+                                                      dropdownMenuItems: suitableTagList
+                                                          .map(
+                                                            (item) =>
+                                                                DropdownMenuItem<
+                                                                  String
+                                                                >(
+                                                                  value: item
+                                                                      .value
+                                                                      .toString(),
+                                                                  child: item
+                                                                      .child!,
+                                                                ),
+                                                          )
+                                                          .toList(),
+                                                      onChanged: (String? value) {
+                                                        storeController
+                                                            .setSuitableTagIndex(
+                                                              int.parse(value!),
+                                                              true,
+                                                            );
+                                                      },
+                                                      selectedValue:
+                                                          storeController
+                                                              .suitableTagIndex
+                                                              ?.toString(),
                                                     ),
-                                                    child: CustomDropdown(
-                                                      onChange:
-                                                          (
-                                                            int? value,
-                                                            int index,
-                                                          ) {
-                                                            storeController
-                                                                .setSuitableTagIndex(
-                                                                  value!,
-                                                                  true,
-                                                                );
-                                                          },
-                                                      dropdownButtonStyle: DropdownButtonStyle(
-                                                        height: 45,
-                                                        padding: const EdgeInsets.symmetric(
-                                                          vertical: Dimensions
-                                                              .paddingSizeExtraSmall,
-                                                          horizontal: Dimensions
-                                                              .paddingSizeExtraSmall,
-                                                        ),
-                                                        primaryColor:
-                                                            Theme.of(context)
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .color,
-                                                      ),
-                                                      iconColor: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      dropdownStyle: DropdownStyle(
-                                                        elevation: 10,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusDefault,
-                                                            ),
-                                                        padding:
-                                                            const EdgeInsets.all(
-                                                              Dimensions
-                                                                  .paddingSizeExtraSmall,
-                                                            ),
-                                                      ),
-                                                      items: suitableTagList,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                              left: 8,
-                                                            ),
-                                                        child: Text(
-                                                          widget.item != null &&
-                                                                  storeController
-                                                                          .suitableTagIndex !=
-                                                                      null
-                                                              ? storeController
-                                                                    .suitableTagList![storeController
-                                                                        .suitableTagIndex!]
-                                                                    .name!
-                                                              : 'suitable_for'
-                                                                    .tr,
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).disabledColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeLarge,
+                                                  )
+                                                : const SizedBox(),
+                                            SizedBox(
+                                              height: isPharmacy &&
+                                                  (!_update ||
+                                                      (widget.item?.conditionId !=
+                                                              null &&
+                                                          widget
+                                                                  .item!
+                                                                  .conditionId !=
+                                                              0)) && suitableTagList.isNotEmpty || brandList.isNotEmpty
+                                                  ? Dimensions
+                                                        .paddingSizeExtraLarge
+                                                  : 0,
+                                            ),
+
+                                            isEcommerce &&
+                                                    (!_update ||
+                                                        (widget.item?.brandId !=
+                                                                null &&
+                                                            widget
+                                                                    .item!
+                                                                    .brandId !=
+                                                                0)) && brandList.isNotEmpty
+                                                ? LabelWidget(
+                                                    labelText: 'brand'.tr,
+                                                    child: CustomDropdownButton(
+                                                      hintText: 'brand'.tr,
+                                                      dropdownMenuItems: brandList
+                                                          .map(
+                                                            (e) =>
+                                                                DropdownMenuItem<
+                                                                  String
+                                                                >(
+                                                                  value: e.value
+                                                                      .toString(),
+                                                                  child:
+                                                                      e.child!,
+                                                                ),
+                                                          )
+                                                          .toList(),
+                                                      selectedValue:
+                                                          storeController
+                                                              .brandIndex
+                                                              ?.toString(),
+                                                      onChanged: (id) =>
+                                                          storeController
+                                                              .setBrandIndex(
+                                                                int.parse(id!),
+                                                                true,
                                                               ),
-                                                        ),
-                                                      ),
                                                     ),
+                                                  )
+                                                : const SizedBox(),
+                                            SizedBox(
+                                              height:
+                                                  isEcommerce &&
+                                                      (!_update ||
+                                                          (widget.item?.brandId !=
+                                                                  null &&
+                                                              widget
+                                                                      .item!
+                                                                      .brandId !=
+                                                                  0)) && brandList.isNotEmpty
+                                                  ? Dimensions
+                                                        .paddingSizeExtraLarge
+                                                  : 0,
+                                            ),
+
+                                            isPharmacy &&
+                                                    (!_update ||
+                                                        (widget.item?.genericName !=
+                                                                null &&
+                                                            widget
+                                                                .item!
+                                                                .genericName!
+                                                                .isNotEmpty))
+                                                ? CustomTextFieldWidget(
+                                                    hintText: 'generic_name'.tr,
+                                                    labelText:
+                                                        'generic_name'.tr,
+                                                    controller:
+                                                        _genericNameSuggestionController,
+                                                    focusNode: _genericNameNode,
                                                   )
                                                 : const SizedBox(),
                                             SizedBox(
@@ -1057,337 +1083,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            isEcommerce
-                                                ? Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            Dimensions
-                                                                .radiusDefault,
-                                                          ),
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).cardColor,
-                                                      border: Border.all(
-                                                        color: Theme.of(context)
-                                                            .disabledColor
-                                                            .withValues(
-                                                              alpha: 0.5,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    child: CustomDropdown(
-                                                      onChange:
-                                                          (
-                                                            int? value,
-                                                            int index,
-                                                          ) {
-                                                            storeController
-                                                                .setBrandIndex(
-                                                                  value!,
-                                                                  true,
-                                                                );
-                                                          },
-                                                      dropdownButtonStyle: DropdownButtonStyle(
-                                                        height: 45,
-                                                        padding: const EdgeInsets.symmetric(
-                                                          vertical: Dimensions
-                                                              .paddingSizeExtraSmall,
-                                                          horizontal: Dimensions
-                                                              .paddingSizeExtraSmall,
-                                                        ),
-                                                        primaryColor:
-                                                            Theme.of(context)
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .color,
-                                                      ),
-                                                      iconColor: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      dropdownStyle: DropdownStyle(
-                                                        elevation: 10,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusDefault,
-                                                            ),
-                                                        padding:
-                                                            const EdgeInsets.all(
-                                                              Dimensions
-                                                                  .paddingSizeExtraSmall,
-                                                            ),
-                                                      ),
-                                                      items: brandList,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                              left: 8,
-                                                            ),
-                                                        child: Text(
-                                                          widget.item != null &&
-                                                                  storeController
-                                                                          .brandIndex !=
-                                                                      null
-                                                              ? storeController
-                                                                    .brandList![storeController
-                                                                        .brandIndex!]
-                                                                    .name!
-                                                              : 'brand'.tr,
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).disabledColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeLarge,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                            SizedBox(
-                                              height: isEcommerce
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
-                                            ),
-
-                                            isPharmacy
-                                                ? Column(
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: Autocomplete<int>(
-                                                              optionsBuilder:
-                                                                  (
-                                                                    TextEditingValue
-                                                                    value,
-                                                                  ) {
-                                                                    if (value
-                                                                        .text
-                                                                        .isEmpty) {
-                                                                      return const Iterable<
-                                                                        int
-                                                                      >.empty();
-                                                                    } else {
-                                                                      return genericNameSuggestion.where(
-                                                                        (
-                                                                          genericName,
-                                                                        ) => storeController
-                                                                            .genericNameSuggestionList![genericName]!
-                                                                            .toLowerCase()
-                                                                            .contains(
-                                                                              value.text.toLowerCase(),
-                                                                            ),
-                                                                      );
-                                                                    }
-                                                                  },
-                                                              optionsViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    onAutoCompleteSelect,
-                                                                    options,
-                                                                  ) {
-                                                                    List<int>
-                                                                    result = TypeConverter.convertIntoListOfInteger(
-                                                                      options
-                                                                          .toString(),
-                                                                    );
-
-                                                                    return Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .topLeft,
-                                                                      child: Material(
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).primaryColorLight,
-                                                                        elevation:
-                                                                            4.0,
-                                                                        child: Container(
-                                                                          color: Theme.of(
-                                                                            context,
-                                                                          ).cardColor,
-                                                                          width:
-                                                                              MediaQuery.of(
-                                                                                context,
-                                                                              ).size.width -
-                                                                              110,
-                                                                          child: ListView.separated(
-                                                                            shrinkWrap:
-                                                                                true,
-                                                                            padding: const EdgeInsets.all(
-                                                                              8.0,
-                                                                            ),
-                                                                            itemCount:
-                                                                                result.length,
-                                                                            separatorBuilder:
-                                                                                (
-                                                                                  context,
-                                                                                  i,
-                                                                                ) {
-                                                                                  return const Divider(
-                                                                                    height: 0,
-                                                                                  );
-                                                                                },
-                                                                            itemBuilder:
-                                                                                (
-                                                                                  BuildContext context,
-                                                                                  int index,
-                                                                                ) {
-                                                                                  return CustomInkWellWidget(
-                                                                                    onTap: () {
-                                                                                      if (storeController.selectedGenericNameList!.length >
-                                                                                          1) {
-                                                                                      } else {
-                                                                                        _genericNameSuggestionController.text = storeController.genericNameSuggestionList![result[index]]!;
-                                                                                        storeController.setSelectedGenericNameIndex(
-                                                                                          result[index],
-                                                                                          true,
-                                                                                        );
-                                                                                      }
-                                                                                    },
-                                                                                    child: Padding(
-                                                                                      padding: const EdgeInsets.symmetric(
-                                                                                        vertical: Dimensions.paddingSizeSmall,
-                                                                                      ),
-                                                                                      child: Text(
-                                                                                        storeController.genericNameSuggestionList![result[index]]!,
-                                                                                      ),
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              fieldViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    genericNameController,
-                                                                    node,
-                                                                    onComplete,
-                                                                  ) {
-                                                                    genericNameController
-                                                                            .text =
-                                                                        _genericNameSuggestionController
-                                                                            .text;
-                                                                    return Container(
-                                                                      height:
-                                                                          50,
-                                                                      decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(
-                                                                          Dimensions
-                                                                              .radiusSmall,
-                                                                        ),
-                                                                      ),
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            genericNameController,
-                                                                        focusNode:
-                                                                            node,
-                                                                        onEditingComplete: () {
-                                                                          node.unfocus();
-                                                                          _genericNameSuggestionController
-                                                                              .text = genericNameController
-                                                                              .text;
-                                                                        },
-                                                                        decoration: InputDecoration(
-                                                                          hintText:
-                                                                              'generic_name'.tr,
-                                                                          labelText:
-                                                                              'generic_name'.tr,
-                                                                          hintStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          labelStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          enabledBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          focusedBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          suffixIcon: CustomToolTip(
-                                                                            message:
-                                                                                'specify_the_medicine_active_ingredient_that_makes_it_work'.tr,
-                                                                            preferredDirection:
-                                                                                AxisDirection.up,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              displayStringForOption:
-                                                                  (
-                                                                    value,
-                                                                  ) => storeController
-                                                                      .genericNameSuggestionList![value]!,
-                                                              onSelected: (int value) {
-                                                                if (storeController
-                                                                        .selectedGenericNameList!
-                                                                        .length >
-                                                                    1) {
-                                                                } else {
-                                                                  _genericNameSuggestionController
-                                                                          .text =
-                                                                      storeController
-                                                                          .genericNameSuggestionList![value]!;
-                                                                  storeController
-                                                                      .setSelectedGenericNameIndex(
-                                                                        value,
-                                                                        true,
-                                                                      );
-                                                                }
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  )
-                                                : const SizedBox(),
-                                            SizedBox(
-                                              height: isPharmacy
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
-                                            ),
-
-                                            isFood || isGrocery
+                                            (isFood || isGrocery) &&
+                                                    (!_update ||
+                                                        (widget.item?.nutrition !=
+                                                                null &&
+                                                            widget
+                                                                .item!
+                                                                .nutrition!
+                                                                .isNotEmpty))
                                                 ? Column(
                                                     children: [
                                                       Row(
@@ -1756,7 +1459,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            isFood || isGrocery
+                                            (isFood || isGrocery) &&
+                                                    (!_update ||
+                                                        (widget.item?.allergies !=
+                                                                null &&
+                                                            widget
+                                                                .item!
+                                                                .allergies!
+                                                                .isNotEmpty))
                                                 ? Column(
                                                     children: [
                                                       Row(
@@ -2125,10 +1835,15 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            (_module.vegNonVeg! &&
-                                                    Get.find<SplashController>()
-                                                        .configModel!
-                                                        .toggleVegNonVeg!)
+                                            ((_module.vegNonVeg! &&
+                                                        Get.find<
+                                                              SplashController
+                                                            >()
+                                                            .configModel!
+                                                            .toggleVegNonVeg!)) &&
+                                                    (!_update ||
+                                                        (widget.item?.veg !=
+                                                            null))
                                                 ? LabelWidget(
                                                     labelText: 'food_type'.tr,
                                                     child: Row(
@@ -2254,23 +1969,29 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 : const SizedBox(),
                                             SizedBox(
                                               height:
-                                                  Get.find<SplashController>()
-                                                              .configModel!
-                                                              .systemTaxType ==
-                                                          'product_wise' &&
-                                                      (_module.vegNonVeg! &&
+                                                  ((_module.vegNonVeg! &&
                                                           Get.find<
                                                                 SplashController
                                                               >()
                                                               .configModel!
-                                                              .toggleVegNonVeg!)
+                                                              .toggleVegNonVeg!) &&
+                                                      (!_update ||
+                                                          (widget.item?.veg !=
+                                                              null)))
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
                                             ),
 
-                                            (isFood || isGrocery) &&
-                                                    storeHalalActive
+                                            ((isFood || isGrocery) &&
+                                                        storeHalalActive) &&
+                                                    (!_update ||
+                                                        (widget.item?.isHalal !=
+                                                                null &&
+                                                            widget
+                                                                    .item!
+                                                                    .isHalal ==
+                                                                1))
                                                 ? LabelWidget(
                                                     labelText: 'halal_tag'.tr,
                                                     padding: const EdgeInsets.only(
@@ -2313,14 +2034,28 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 : const SizedBox(),
                                             SizedBox(
                                               height:
-                                                  (isFood || isGrocery) &&
-                                                      storeHalalActive
+                                                  ((isFood || isGrocery) &&
+                                                          storeHalalActive) &&
+                                                      (!_update ||
+                                                          (widget.item?.isHalal !=
+                                                                  null &&
+                                                              widget
+                                                                      .item!
+                                                                      .isHalal ==
+                                                                  1))
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
                                             ),
 
-                                            isPharmacy
+                                            isPharmacy &&
+                                                    (!_update ||
+                                                        (widget.item?.isBasicMedicine !=
+                                                                null &&
+                                                            widget
+                                                                    .item!
+                                                                    .isBasicMedicine ==
+                                                                1))
                                                 ? LabelWidget(
                                                     labelText:
                                                         'basic_medicine'.tr,
@@ -2363,7 +2098,15 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   )
                                                 : const SizedBox(),
                                             SizedBox(
-                                              height: isPharmacy
+                                              height:
+                                                  isPharmacy &&
+                                                      (!_update ||
+                                                          (widget.item?.isBasicMedicine !=
+                                                                  null &&
+                                                              widget
+                                                                      .item!
+                                                                      .isBasicMedicine ==
+                                                                  1))
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
@@ -2557,7 +2300,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                         height: Dimensions.paddingSizeDefault,
                                       ),
 
-                                      isPharmacy
+                                      isPharmacy &&
+                                              (!_update ||
+                                                  (widget.item?.isPrescriptionRequired !=
+                                                          null &&
+                                                      widget
+                                                              .item!
+                                                              .isPrescriptionRequired ==
+                                                          1))
                                           ? Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -2607,7 +2357,15 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             )
                                           : const SizedBox(),
                                       SizedBox(
-                                        height: isPharmacy
+                                        height:
+                                            isPharmacy &&
+                                                (!_update ||
+                                                    (widget.item?.isPrescriptionRequired !=
+                                                            null &&
+                                                        widget
+                                                                .item!
+                                                                .isPrescriptionRequired ==
+                                                            1))
                                             ? Dimensions.paddingSizeDefault
                                             : 0,
                                       ),
@@ -2774,7 +2532,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            (_module.stock! || _module.unit!)
+                                            ((_module.stock! && (_update || true)) || (_module.unit! && unitList.isNotEmpty))
                                                 ? Row(
                                                     children: [
                                                       _module.stock!
@@ -2803,7 +2561,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             : 0,
                                                       ),
 
-                                                      _module.unit!
+                                                      _module.unit! && unitList.isNotEmpty
                                                           ? Expanded(
                                                               child: Container(
                                                                 decoration: BoxDecoration(
@@ -2909,147 +2667,152 @@ class _AddItemScreenState extends State<AddItemScreen>
                                         height: Dimensions.paddingSizeDefault,
                                       ),
 
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Get.find<SplashController>()
-                                                  .getStoreModuleConfig()
-                                                  .newVariation!
-                                              ? Row(
-                                                  children: [
-                                                    Text(
-                                                      'food_variation'.tr,
-                                                      style: robotoBold,
-                                                    ),
-                                                    Text(
-                                                      ' (${'optional'.tr})',
-                                                      style: robotoRegular
-                                                          .copyWith(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).disabledColor,
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                          ),
-                                                    ),
-                                                  ],
-                                                )
-                                              : Text(
-                                                  'attribute'.tr,
-                                                  style: robotoBold,
-                                                ),
+                                       (Get.find<SplashController>().getStoreModuleConfig().newVariation! || (storeController.attributeList != null && storeController.attributeList!.isNotEmpty) || (_update && widget.item!.attributes != null && widget.item!.attributes!.isNotEmpty)) ? Column(
+                                         crossAxisAlignment: CrossAxisAlignment.start,
+                                         children: [
+                                           Row(
+                                             mainAxisAlignment:
+                                                 MainAxisAlignment.spaceBetween,
+                                             children: [
+                                               Get.find<SplashController>()
+                                                       .getStoreModuleConfig()
+                                                       .newVariation!
+                                                   ? Row(
+                                                       children: [
+                                                         Text(
+                                                           'food_variation'.tr,
+                                                           style: robotoBold,
+                                                         ),
+                                                         Text(
+                                                           ' (${'optional'.tr})',
+                                                           style: robotoRegular
+                                                               .copyWith(
+                                                                 color: Theme.of(
+                                                                   context,
+                                                                 ).disabledColor,
+                                                                 fontSize: Dimensions
+                                                                     .fontSizeSmall,
+                                                               ),
+                                                         ),
+                                                       ],
+                                                     )
+                                                   : Text(
+                                                       'attribute'.tr,
+                                                       style: robotoBold,
+                                                     ),
 
-                                          Get.find<SplashController>()
-                                                  .configModel!
-                                                  .openAiStatus!
-                                              ? InkWell(
-                                                  onTap: () {
-                                                    if (_nameControllerList[0]
-                                                        .text
-                                                        .isEmpty) {
-                                                      showCustomSnackBar(
-                                                        'food_name_required_for_en'
-                                                            .tr,
-                                                      );
-                                                    } else if (_descriptionControllerList[0]
-                                                        .text
-                                                        .isEmpty) {
-                                                      showCustomSnackBar(
-                                                        'description_required'
-                                                            .tr,
-                                                      );
-                                                    } else {
-                                                      if (Get.find<
-                                                            SplashController
-                                                          >()
-                                                          .getStoreModuleConfig()
-                                                          .newVariation!) {
-                                                        storeController
-                                                            .generateAndSetVariationData(
-                                                              title:
-                                                                  _nameControllerList[0]
-                                                                      .text
-                                                                      .trim(),
-                                                              description:
-                                                                  _descriptionControllerList[0]
-                                                                      .text
-                                                                      .trim(),
-                                                            );
-                                                      } else {
-                                                        storeController
-                                                            .generateAndSetAttributeData(
-                                                              title:
-                                                                  _nameControllerList[0]
-                                                                      .text
-                                                                      .trim(),
-                                                              description:
-                                                                  _descriptionControllerList[0]
-                                                                      .text
-                                                                      .trim(),
-                                                            );
-                                                      }
-                                                    }
-                                                  },
-                                                  child:
-                                                      !aiController
-                                                          .variationDataLoading
-                                                      ? Icon(
-                                                          Icons.auto_awesome,
-                                                          color: Colors.blue,
-                                                        )
-                                                      : Shimmer(
-                                                          duration:
-                                                              const Duration(
-                                                                seconds: 2,
-                                                              ),
-                                                          color: Colors.blue,
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .auto_awesome,
-                                                                color:
-                                                                    Colors.blue,
-                                                              ),
-                                                              const SizedBox(
-                                                                width: Dimensions
-                                                                    .paddingSizeExtraSmall,
-                                                              ),
+                                               Get.find<SplashController>()
+                                                       .configModel!
+                                                       .openAiStatus!
+                                                   ? InkWell(
+                                                       onTap: () {
+                                                         if (_nameControllerList[0]
+                                                             .text
+                                                             .isEmpty) {
+                                                           showCustomSnackBar(
+                                                             'food_name_required_for_en'
+                                                                 .tr,
+                                                           );
+                                                         } else if (_descriptionControllerList[0]
+                                                             .text
+                                                             .isEmpty) {
+                                                           showCustomSnackBar(
+                                                             'description_required'
+                                                                 .tr,
+                                                           );
+                                                         } else {
+                                                           if (Get.find<
+                                                                 SplashController
+                                                               >()
+                                                               .getStoreModuleConfig()
+                                                               .newVariation!) {
+                                                             storeController
+                                                                 .generateAndSetVariationData(
+                                                                   title:
+                                                                       _nameControllerList[0]
+                                                                           .text
+                                                                           .trim(),
+                                                                   description:
+                                                                       _descriptionControllerList[0]
+                                                                           .text
+                                                                           .trim(),
+                                                                 );
+                                                           } else {
+                                                             storeController
+                                                                 .generateAndSetAttributeData(
+                                                                   title:
+                                                                       _nameControllerList[0]
+                                                                           .text
+                                                                           .trim(),
+                                                                   description:
+                                                                       _descriptionControllerList[0]
+                                                                           .text
+                                                                           .trim(),
+                                                                 );
+                                                           }
+                                                         }
+                                                       },
+                                                       child:
+                                                           !aiController
+                                                               .variationDataLoading
+                                                           ? Icon(
+                                                               Icons.auto_awesome,
+                                                               color: Colors.blue,
+                                                             )
+                                                           : Shimmer(
+                                                               duration:
+                                                                   const Duration(
+                                                                     seconds: 2,
+                                                                   ),
+                                                               color: Colors.blue,
+                                                               child: Row(
+                                                                 children: [
+                                                                   Icon(
+                                                                     Icons
+                                                                         .auto_awesome,
+                                                                     color:
+                                                                         Colors.blue,
+                                                                   ),
+                                                                   const SizedBox(
+                                                                     width: Dimensions
+                                                                         .paddingSizeExtraSmall,
+                                                                   ),
 
-                                                              Text(
-                                                                'generating'.tr,
-                                                                style: robotoBold
-                                                                    .copyWith(
-                                                                      color: Colors
-                                                                          .blue,
-                                                                    ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                )
-                                              : const SizedBox(),
-                                        ],
-                                      ),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeSmall,
-                                      ),
+                                                                   Text(
+                                                                     'generating'.tr,
+                                                                     style: robotoBold
+                                                                         .copyWith(
+                                                                           color: Colors
+                                                                               .blue,
+                                                                         ),
+                                                                   ),
+                                                                 ],
+                                                               ),
+                                                             ),
+                                                     )
+                                                   : const SizedBox(),
+                                             ],
+                                           ),
+                                           const SizedBox(
+                                             height: Dimensions.paddingSizeSmall,
+                                           ),
 
-                                      Get.find<SplashController>()
-                                              .getStoreModuleConfig()
-                                              .newVariation!
-                                          ? FoodVariationViewWidget(
-                                              storeController: storeController,
-                                              item: widget.item,
-                                            )
-                                          : AttributeViewWidget(
-                                              storeController: storeController,
-                                              product: widget.item,
-                                            ),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeDefault,
-                                      ),
+                                           Get.find<SplashController>()
+                                                   .getStoreModuleConfig()
+                                                   .newVariation!
+                                               ? FoodVariationViewWidget(
+                                                   storeController: storeController,
+                                                   item: widget.item,
+                                                 )
+                                               : AttributeViewWidget(
+                                                   storeController: storeController,
+                                                   product: widget.item,
+                                                 ),
+                                           const SizedBox(
+                                             height: Dimensions.paddingSizeDefault,
+                                           ),
+                                         ],
+                                       ) : const SizedBox(),
 
                                       _module.addOn!
                                           ? Text('addons'.tr, style: robotoBold)
@@ -4000,892 +3763,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                       const SizedBox(
                                         height: Dimensions.paddingSizeSmall,
                                       ),
-                                      // Meta Section
-                                      isEcommerce
-                                          ? Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeDefault,
-                                                ),
-                                                Text(
-                                                  'meta_data'.tr,
-                                                  style: robotoBold,
-                                                ),
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                Text(
-                                                  'meta_data_des'.tr,
-                                                  style: robotoRegular.copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeSmall,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).disabledColor,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                CustomCard(
-                                                  width: context.width,
-                                                  padding: const EdgeInsets.all(
-                                                    Dimensions
-                                                        .paddingSizeDefault,
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      CustomTextFieldWidget(
-                                                        hintText: 'title'.tr,
-                                                        labelText: 'title'.tr,
-                                                        controller:
-                                                            _metaTitleController,
-                                                        capitalization:
-                                                            TextCapitalization
-                                                                .words,
-                                                        focusNode:
-                                                            _metaTitleNode,
-                                                        nextFocus:
-                                                            _metaDescriptionNode,
-                                                        showTitle: false,
-                                                        required: true,
-                                                      ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeExtraLarge,
-                                                      ),
-
-                                                      CustomTextFieldWidget(
-                                                        hintText:
-                                                            'meta_description'
-                                                                .tr,
-                                                        labelText:
-                                                            'description'.tr,
-                                                        controller:
-                                                            _metaDescriptionController,
-                                                        focusNode:
-                                                            _metaDescriptionNode,
-                                                        capitalization:
-                                                            TextCapitalization
-                                                                .sentences,
-                                                        maxLines: 5,
-                                                        inputAction:
-                                                            TextInputAction
-                                                                .done,
-                                                        nextFocus: null,
-                                                        showTitle: false,
-                                                        required: true,
-                                                      ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeDefault,
-                                                      ),
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            'meta_image'.tr,
-                                                            style: robotoMedium
-                                                                .copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                ),
-                                                          ),
-                                                          Text(
-                                                            'image_format_and_ratio_for_business_logo'
-                                                                .tr,
-                                                            style: robotoRegular
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).hintColor,
-                                                                ),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: Dimensions
-                                                                .paddingSizeSmall,
-                                                          ),
-                                                          Stack(
-                                                            clipBehavior:
-                                                                Clip.none,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.all(
-                                                                      2,
-                                                                    ),
-                                                                child: ClipRRect(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        Dimensions
-                                                                            .radiusDefault,
-                                                                      ),
-                                                                  child:
-                                                                      storeController
-                                                                              .pickedMetaImage !=
-                                                                          null
-                                                                      ? GetPlatform.isWeb
-                                                                            ? Image.network(
-                                                                                storeController.pickedMetaImage!.path,
-                                                                                width: double.infinity,
-                                                                                height: 150,
-                                                                                fit: BoxFit.cover,
-                                                                              )
-                                                                            : Image.file(
-                                                                                File(
-                                                                                  storeController.pickedMetaImage!.path,
-                                                                                ),
-                                                                                width: double.infinity,
-                                                                                height: 150,
-                                                                                fit: BoxFit.cover,
-                                                                              )
-                                                                      : _item.metaImageFullUrl !=
-                                                                            null
-                                                                      ? CustomImageWidget(
-                                                                          image:
-                                                                              _item.metaImageFullUrl ??
-                                                                              '',
-                                                                          height:
-                                                                              150,
-                                                                          width:
-                                                                              double.infinity,
-                                                                          fit: BoxFit
-                                                                              .cover,
-                                                                        )
-                                                                      : SizedBox(
-                                                                          height:
-                                                                              150,
-                                                                          width:
-                                                                              double.infinity,
-                                                                          child: Column(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
-                                                                            children: [
-                                                                              Icon(
-                                                                                CupertinoIcons.photo_camera_solid,
-                                                                                color:
-                                                                                    Theme.of(
-                                                                                      context,
-                                                                                    ).disabledColor.withValues(
-                                                                                      alpha: 0.5,
-                                                                                    ),
-                                                                                size: 30,
-                                                                              ),
-                                                                              const SizedBox(
-                                                                                height: Dimensions.paddingSizeDefault,
-                                                                              ),
-                                                                              Text(
-                                                                                'click_to_upload'.tr,
-                                                                                style: robotoBold.copyWith(
-                                                                                  fontSize: Dimensions.fontSizeSmall,
-                                                                                  color: Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor,
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                ),
-                                                              ),
-
-                                                              Positioned(
-                                                                bottom: 0,
-                                                                right: 0,
-                                                                top: 0,
-                                                                left: 0,
-                                                                child: InkWell(
-                                                                  onTap: () =>
-                                                                      storeController
-                                                                          .pickMetaImage(),
-                                                                  child: DottedBorder(
-                                                                    options: RoundedRectDottedBorderOptions(
-                                                                      radius: const Radius.circular(
-                                                                        Dimensions
-                                                                            .radiusDefault,
-                                                                      ),
-                                                                      dashPattern:
-                                                                          const [
-                                                                            8,
-                                                                            4,
-                                                                          ],
-                                                                      strokeWidth:
-                                                                          1,
-                                                                      color: Theme.of(
-                                                                        context,
-                                                                      ).hintColor,
-                                                                    ),
-                                                                    child: const SizedBox(
-                                                                      width:
-                                                                          120,
-                                                                      height:
-                                                                          120,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-
-                                                              Positioned(
-                                                                top: -10,
-                                                                right: -10,
-                                                                child: InkWell(
-                                                                  onTap: () =>
-                                                                      storeController
-                                                                          .pickMetaImage(),
-                                                                  child: Container(
-                                                                    padding: const EdgeInsets.all(
-                                                                      Dimensions
-                                                                          .paddingSizeExtraSmall,
-                                                                    ),
-                                                                    decoration: BoxDecoration(
-                                                                      color: Theme.of(
-                                                                        context,
-                                                                      ).cardColor,
-                                                                      boxShadow: const [
-                                                                        BoxShadow(
-                                                                          color:
-                                                                              Colors.black12,
-                                                                          spreadRadius:
-                                                                              0,
-                                                                          blurRadius:
-                                                                              5,
-                                                                        ),
-                                                                      ],
-                                                                      shape: BoxShape
-                                                                          .circle,
-                                                                      border: Border.all(
-                                                                        color: Colors
-                                                                            .blue,
-                                                                        width:
-                                                                            0.5,
-                                                                      ),
-                                                                    ),
-                                                                    child: const Icon(
-                                                                      Icons
-                                                                          .edit,
-                                                                      color: Colors
-                                                                          .blue,
-                                                                      size: 16,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeDefault,
-                                                      ),
-
-                                                      Container(
-                                                        width: double.infinity,
-                                                        padding: EdgeInsets.all(
-                                                          Dimensions
-                                                              .paddingSizeSmall,
-                                                        ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .disabledColor
-                                                                  .withValues(
-                                                                    alpha: 0.07,
-                                                                  ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                Dimensions
-                                                                    .radiusDefault,
-                                                              ),
-                                                        ),
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).cardColor,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusDefault,
-                                                                ),
-                                                          ),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              const SizedBox(
-                                                                height: Dimensions
-                                                                    .paddingSizeDefault,
-                                                              ),
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  storeController
-                                                                      .setMetaIndex(
-                                                                        'index',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoFollow(
-                                                                        '0',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoImageIndex(
-                                                                        '0',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoArchive(
-                                                                        '0',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoSnippet(
-                                                                        '0',
-                                                                      );
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    const SizedBox(
-                                                                      width:
-                                                                          Dimensions
-                                                                              .paddingSizeExtraSmall +
-                                                                          2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          20,
-                                                                      width: 20,
-                                                                      child: RadioGroup<String>(
-                                                                        groupValue:
-                                                                            storeController.metaIndex,
-                                                                        onChanged: (value) {
-                                                                          storeController.setMetaIndex(
-                                                                            value!,
-                                                                          );
-                                                                          storeController.setNoFollow(
-                                                                            '0',
-                                                                          );
-                                                                          storeController.setNoImageIndex(
-                                                                            '0',
-                                                                          );
-                                                                          storeController.setNoArchive(
-                                                                            '0',
-                                                                          );
-                                                                          storeController.setNoSnippet(
-                                                                            '0',
-                                                                          );
-                                                                        },
-                                                                        child:
-                                                                            Radio<
-                                                                              String
-                                                                            >(
-                                                                              value: 'index',
-                                                                            ),
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    Text(
-                                                                      'index'
-                                                                          .tr,
-                                                                      style: robotoRegular.copyWith(
-                                                                        fontSize:
-                                                                            Dimensions.fontSizeDefault,
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).textTheme.bodyLarge?.color,
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    CustomToolTip(
-                                                                      message:
-                                                                          'allow_search_engines_to_index_this_page'
-                                                                              .tr,
-                                                                      size: 16,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                height: Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
-
-                                                              MetaSeoItem(
-                                                                title:
-                                                                    'no_follow'
-                                                                        .tr,
-                                                                value:
-                                                                    storeController
-                                                                            .noFollow ==
-                                                                        'nofollow'
-                                                                    ? true
-                                                                    : false,
-                                                                callback: (bool? value) {
-                                                                  storeController
-                                                                      .setNoFollow(
-                                                                        value!
-                                                                            ? 'nofollow'
-                                                                            : '0',
-                                                                      );
-                                                                },
-                                                                message:
-                                                                    'instruct_search_engines_not_to_follow_links_from_this_page'
-                                                                        .tr,
-                                                              ),
-
-                                                              MetaSeoItem(
-                                                                title:
-                                                                    'no_image_index'
-                                                                        .tr,
-                                                                value:
-                                                                    storeController
-                                                                            .noImageIndex ==
-                                                                        'noimageindex'
-                                                                    ? true
-                                                                    : false,
-                                                                callback: (bool? value) {
-                                                                  storeController
-                                                                      .setNoImageIndex(
-                                                                        value!
-                                                                            ? 'noimageindex'
-                                                                            : '0',
-                                                                      );
-                                                                },
-                                                                message:
-                                                                    'prevent_images_from_being_indexed'
-                                                                        .tr,
-                                                              ),
-                                                              const SizedBox(
-                                                                height: Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
-
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  storeController
-                                                                      .setMetaIndex(
-                                                                        'noindex',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoFollow(
-                                                                        'nofollow',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoImageIndex(
-                                                                        'noimageindex',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoArchive(
-                                                                        'noarchive',
-                                                                      );
-                                                                  storeController
-                                                                      .setNoSnippet(
-                                                                        'nosnippet',
-                                                                      );
-                                                                },
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    const SizedBox(
-                                                                      width:
-                                                                          Dimensions
-                                                                              .paddingSizeExtraSmall +
-                                                                          2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height:
-                                                                          20,
-                                                                      width: 20,
-                                                                      child: RadioGroup<String>(
-                                                                        groupValue:
-                                                                            storeController.metaIndex,
-                                                                        onChanged: (value) {
-                                                                          storeController.setMetaIndex(
-                                                                            value!,
-                                                                          );
-                                                                          storeController.setNoFollow(
-                                                                            'nofollow',
-                                                                          );
-                                                                          storeController.setNoImageIndex(
-                                                                            'noimageindex',
-                                                                          );
-                                                                          storeController.setNoArchive(
-                                                                            'noarchive',
-                                                                          );
-                                                                          storeController.setNoSnippet(
-                                                                            'nosnippet',
-                                                                          );
-                                                                        },
-                                                                        child:
-                                                                            Radio<
-                                                                              String
-                                                                            >(
-                                                                              value: 'noindex',
-                                                                            ),
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    Text(
-                                                                      'no_index'
-                                                                          .tr,
-                                                                      style: robotoRegular.copyWith(
-                                                                        fontSize:
-                                                                            Dimensions.fontSizeDefault,
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).textTheme.bodyLarge?.color,
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(
-                                                                      width: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    CustomToolTip(
-                                                                      message:
-                                                                          'disallow_search_engines_from_indexing_this_page'
-                                                                              .tr,
-                                                                      size: 16,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                height: Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
-
-                                                              MetaSeoItem(
-                                                                title:
-                                                                    'no_archive'
-                                                                        .tr,
-                                                                value:
-                                                                    storeController
-                                                                            .noArchive ==
-                                                                        'noarchive'
-                                                                    ? true
-                                                                    : false,
-                                                                callback: (bool? value) {
-                                                                  storeController
-                                                                      .setNoArchive(
-                                                                        value!
-                                                                            ? 'noarchive'
-                                                                            : '0',
-                                                                      );
-                                                                },
-                                                                message:
-                                                                    'prevent_search_engines_from_caching_this_page'
-                                                                        .tr,
-                                                              ),
-
-                                                              MetaSeoItem(
-                                                                title:
-                                                                    'no_snippet'
-                                                                        .tr,
-                                                                value:
-                                                                    storeController
-                                                                            .noSnippet ==
-                                                                        'nosnippet'
-                                                                    ? true
-                                                                    : false,
-                                                                callback: (bool? value) {
-                                                                  storeController
-                                                                      .setNoSnippet(
-                                                                        value!
-                                                                            ? 'nosnippet'
-                                                                            : '0',
-                                                                      );
-                                                                },
-                                                                message:
-                                                                    'prevent_search_engines_from_showing_snippet'
-                                                                        .tr,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeLarge,
-                                                      ),
-
-                                                      Container(
-                                                        width: double.infinity,
-                                                        padding: EdgeInsets.all(
-                                                          Dimensions
-                                                              .paddingSizeSmall,
-                                                        ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .disabledColor
-                                                                  .withValues(
-                                                                    alpha: 0.07,
-                                                                  ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                Dimensions
-                                                                    .radiusDefault,
-                                                              ),
-                                                        ),
-                                                        child: Container(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).cardColor,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusDefault,
-                                                                ),
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Expanded(
-                                                                flex: 3,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    MetaSeoItem(
-                                                                      title:
-                                                                          'max_snippet'
-                                                                              .tr,
-                                                                      value:
-                                                                          storeController.maxSnippet ==
-                                                                              '1'
-                                                                          ? true
-                                                                          : false,
-                                                                      callback:
-                                                                          (
-                                                                            bool?
-                                                                            value,
-                                                                          ) {
-                                                                            storeController.setMaxSnippet(
-                                                                              value!
-                                                                                  ? '1'
-                                                                                  : '0',
-                                                                            );
-                                                                          },
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-                                                                    MetaSeoItem(
-                                                                      title:
-                                                                          'max_video_preview'
-                                                                              .tr,
-                                                                      value:
-                                                                          storeController.maxVideoPreview ==
-                                                                              '1'
-                                                                          ? true
-                                                                          : false,
-                                                                      callback:
-                                                                          (
-                                                                            bool?
-                                                                            value,
-                                                                          ) {
-                                                                            storeController.setMaxVideoPreview(
-                                                                              value!
-                                                                                  ? '1'
-                                                                                  : '0',
-                                                                            );
-                                                                          },
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-                                                                    MetaSeoItem(
-                                                                      title:
-                                                                          'max_image_preview'
-                                                                              .tr,
-                                                                      value:
-                                                                          storeController.maxImagePreview ==
-                                                                              '1'
-                                                                          ? true
-                                                                          : false,
-                                                                      callback:
-                                                                          (
-                                                                            bool?
-                                                                            value,
-                                                                          ) {
-                                                                            storeController.setMaxImagePreview(
-                                                                              value!
-                                                                                  ? '1'
-                                                                                  : '0',
-                                                                            );
-                                                                          },
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: Dimensions
-                                                                    .paddingSizeDefault,
-                                                              ),
-
-                                                              Expanded(
-                                                                flex: 2,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height:
-                                                                          48,
-                                                                      child: CustomTextFieldWidget(
-                                                                        hintText:
-                                                                            'ex_1'.tr,
-                                                                        showLabelText:
-                                                                            false,
-                                                                        inputType:
-                                                                            TextInputType.number,
-                                                                        controller:
-                                                                            _maxSnippetController,
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    SizedBox(
-                                                                      height:
-                                                                          48,
-                                                                      child: CustomTextFieldWidget(
-                                                                        hintText:
-                                                                            'ex_1'.tr,
-                                                                        showLabelText:
-                                                                            false,
-                                                                        inputType:
-                                                                            TextInputType.number,
-                                                                        controller:
-                                                                            _maxVideoPreviewController,
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-
-                                                                    Container(
-                                                                      height:
-                                                                          48,
-                                                                      padding: const EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            Dimensions.paddingSizeSmall,
-                                                                      ),
-                                                                      decoration: BoxDecoration(
-                                                                        border: Border.all(
-                                                                          color: Theme.of(
-                                                                            context,
-                                                                          ).disabledColor,
-                                                                        ),
-                                                                        borderRadius: BorderRadius.circular(
-                                                                          Dimensions
-                                                                              .radiusDefault,
-                                                                        ),
-                                                                      ),
-                                                                      child: DropdownButton<String>(
-                                                                        value:
-                                                                            storeController.imagePreviewType.contains(
-                                                                              storeController.imagePreviewSelectedType,
-                                                                            )
-                                                                            ? storeController.imagePreviewSelectedType
-                                                                            : storeController.imagePreviewType.first,
-                                                                        items: storeController.imagePreviewType.map((
-                                                                          String
-                                                                          value,
-                                                                        ) {
-                                                                          return DropdownMenuItem<
-                                                                            String
-                                                                          >(
-                                                                            value:
-                                                                                value,
-                                                                            child: Text(
-                                                                              value.tr,
-                                                                              style: robotoRegular.copyWith(
-                                                                                fontSize: Dimensions.fontSizeDefault,
-                                                                                color: Theme.of(
-                                                                                  context,
-                                                                                ).textTheme.bodyLarge?.color,
-                                                                              ),
-                                                                            ),
-                                                                          );
-                                                                        }).toList(),
-                                                                        onChanged: (value) {
-                                                                          storeController.setImagePreviewType(
-                                                                            value!,
-                                                                          );
-                                                                        },
-                                                                        isExpanded:
-                                                                            true,
-                                                                        underline:
-                                                                            const SizedBox(),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : SizedBox.shrink(),
                                       const SizedBox(
                                         height: Dimensions.paddingSizeDefault,
                                       ),
@@ -4938,10 +3815,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                     bool variationMinLessThenZero = false;
                                     bool variationMaxSmallThenMin = false;
                                     bool variationMaxBigThenOptions = false;
-                                    String metaTitle = _metaTitleController.text
-                                        .trim();
-                                    String metaDescription =
-                                        _metaDescriptionController.text.trim();
 
                                     for (AttributeModel attr
                                         in storeController.attributeList!) {
@@ -5160,14 +4033,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             .isEmpty &&
                                         _stockController.text.trim().isEmpty) {
                                       showCustomSnackBar('enter_stock'.tr);
-                                    } else if (isEcommerce &&
-                                        metaTitle.isEmpty) {
-                                      showCustomSnackBar('enter_meta_title'.tr);
-                                    } else if (isEcommerce &&
-                                        metaDescription.isEmpty) {
-                                      showCustomSnackBar(
-                                        'enter_meta_description'.tr,
-                                      );
                                     } else if (_module.unit! &&
                                         (storeController.unitIndex == null)) {
                                       showCustomSnackBar('add_an_unit'.tr);
@@ -5207,33 +4072,27 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             .tr,
                                       );
                                     } else {
+                                      String randomMetaTitle =
+                                          'Meta Title ${Random().nextInt(100)}';
+                                      String randomMetaDescription =
+                                          'Meta Description ${Random().nextInt(100)}';
                                       MetaSeoData metaSeoData = MetaSeoData(
-                                        metaIndex: storeController.metaIndex,
-                                        metaNoFollow: storeController.noFollow,
-                                        metaNoImageIndex:
-                                            storeController.noImageIndex,
-                                        metaNoArchive:
-                                            storeController.noArchive,
-                                        metaNoSnippet:
-                                            storeController.noSnippet,
-                                        metaMaxSnippet:
-                                            storeController.maxSnippet,
-                                        metaMaxVideoPreview:
-                                            storeController.maxVideoPreview,
-                                        metaMaxImagePreview:
-                                            storeController.maxImagePreview,
-                                        metaMaxSnippetValue:
-                                            _maxSnippetController.text.trim(),
-                                        metaMaxVideoPreviewValue:
-                                            _maxVideoPreviewController.text
-                                                .trim(),
-                                        metaMaxImagePreviewValue:
-                                            storeController
-                                                .imagePreviewSelectedType,
+                                        metaIndex: 'index',
+                                        metaNoFollow: '0',
+                                        metaNoImageIndex: '0',
+                                        metaNoArchive: '0',
+                                        metaNoSnippet: '0',
+                                        metaMaxSnippet: '0',
+                                        metaMaxVideoPreview: '0',
+                                        metaMaxImagePreview: '0',
+                                        metaMaxSnippetValue: '0',
+                                        metaMaxVideoPreviewValue: '0',
+                                        metaMaxImagePreviewValue: 'large',
                                       );
                                       _item.metaData = metaSeoData;
-                                      _item.metaTitle = metaTitle;
-                                      _item.metaDescription = metaDescription;
+                                      _item.metaTitle = randomMetaTitle;
+                                      _item.metaDescription =
+                                          randomMetaDescription;
                                       _item.veg = storeController.isVeg ? 1 : 0;
                                       _item.isPrescriptionRequired =
                                           storeController.isPrescriptionRequired

@@ -1539,5 +1539,6 @@
   "enter_discount_type": "Select discount type",
   "do_you_want_to_edit" : "Do You Want to Edit?",
   "your_ad_is_running" : "Your ad is running. If you edit this ad, it will be listed for pending and needs to be approved by the Admin. After the approval, it will be running again.",
-  "yes_edit" : "Yes, Edit"
+  "yes_edit" : "Yes, Edit",
+  "all_products": "All Products"
 }
