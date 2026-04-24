@@ -38,7 +38,7 @@
         </queries>
 
         <application
-            android:label="6amMart Vendor"
+            android:label="Shoplancer Vendor"
             android:name="${applicationName}"
             android:extractNativeLibs="true"
             android:requestLegacyExternalStorage="true"
@@ -75,7 +75,7 @@
 
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="6ammart" />
+                android:value="shoplancer_vendor" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

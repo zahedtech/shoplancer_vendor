@@ -36,9 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _checkSystemNotification();
 
-    _listener = AppLifecycleListener(
-      onStateChange: _onStateChanged,
-    );
+    _listener = AppLifecycleListener(onStateChange: _onStateChanged);
 
     _loadData();
 
@@ -54,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _checkSystemNotification() async {
-    if(await Permission.notification.status.isDenied || await Permission.notification.status.isPermanentlyDenied) {
+    if (await Permission.notification.status.isDenied ||
+        await Permission.notification.status.isPermanentlyDenied) {
       await Get.find<AuthController>().setNotificationActive(false);
     }
   }
@@ -81,15 +80,16 @@ class _HomeScreenState extends State<HomeScreen> {
     var notificationStatus = await Permission.notification.status;
     var batteryStatus = await Permission.ignoreBatteryOptimizations.status;
 
-    if(notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
+    if (notificationStatus.isDenied || notificationStatus.isPermanentlyDenied) {
       setState(() {
         _isNotificationPermissionGranted = false;
         _isBatteryOptimizationGranted = true;
       });
 
-      await Get.find<AuthController>().setNotificationActive(!notificationStatus.isDenied);
-
-    } else if(batteryStatus.isDenied) {
+      await Get.find<AuthController>().setNotificationActive(
+        !notificationStatus.isDenied,
+      );
+    } else if (batteryStatus.isDenied) {
       setState(() {
         _isBatteryOptimizationGranted = false;
         _isNotificationPermissionGranted = true;
@@ -102,13 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
       Get.find<ProfileController>().setBackgroundNotificationActive(true);
     }
 
-    if(batteryStatus.isDenied) {
+    if (batteryStatus.isDenied) {
       Get.find<ProfileController>().setBackgroundNotificationActive(false);
     }
   }
 
   Future<void> requestNotificationPermission() async {
-
     if (await Permission.notification.request().isGranted) {
       return;
     } else {
@@ -123,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (status.isGranted) {
       return;
-    } else if(status.isDenied) {
+    } else if (status.isDenied) {
       await Permission.ignoreBatteryOptimizations.request();
     } else {
       openAppSettings();
@@ -140,9 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       appBar: AppBar(
         backgroundColor: Theme.of(context).cardColor,
         titleSpacing: 0,
@@ -151,192 +148,385 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 2,
         title: Padding(
           padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault),
-          child: Image.asset(Images.logo, height: 30,),
+          child: Image.asset(Images.logo, height: 30),
         ),
-        actions: [IconButton(
-          icon: GetBuilder<NotificationController>(builder: (notificationController) {
-            return Stack(children: [
-              Icon(Icons.notifications, size: 25, color: Theme.of(context).textTheme.bodyLarge!.color),
-              notificationController.hasNotification ? Positioned(top: 0, right: 0, child: Container(
-                height: 10, width: 10, decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor, shape: BoxShape.circle,
-                border: Border.all(width: 1, color: Theme.of(context).cardColor),
-              ),
-              )) : const SizedBox(),
-            ]);
-          }),
-          onPressed: () => Get.toNamed(RouteHelper.getNotificationRoute()),
-        )],
+        actions: [
+          IconButton(
+            icon: GetBuilder<NotificationController>(
+              builder: (notificationController) {
+                return Stack(
+                  children: [
+                    Icon(
+                      Icons.notifications,
+                      size: 25,
+                      color: Theme.of(context).textTheme.bodyLarge!.color,
+                    ),
+                    notificationController.hasNotification
+                        ? Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              height: 10,
+                              width: 10,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  width: 1,
+                                  color: Theme.of(context).cardColor,
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                );
+              },
+            ),
+            onPressed: () => Get.toNamed(RouteHelper.getNotificationRoute()),
+          ),
+        ],
       ),
 
       body: RefreshIndicator(
         onRefresh: () async {
           await _loadData();
         },
-        child: GetBuilder<ProfileController>(builder: (profileController) {
-          return GetBuilder<OrderController>(builder: (orderController) {
-            bool isEnableTemporarilyClosed = false;
+        child: GetBuilder<ProfileController>(
+          builder: (profileController) {
+            return GetBuilder<OrderController>(
+              builder: (orderController) {
+                bool isEnableTemporarilyClosed = false;
 
-            if(orderController.runningOrders != null) {
-              for(int i = 0; i < orderController.runningOrders!.length; i++) {
-                if(orderController.runningOrders?[i].status == 'confirmed' || orderController.runningOrders?[i].status == 'cooking'
-                    || orderController.runningOrders?[i].status == 'ready_for_handover' || orderController.runningOrders?[i].status == 'food_on_the_way') {
-                  if(orderController.runningOrders![i].orderList.isNotEmpty) {
-                    isEnableTemporarilyClosed = true;
-                    break;
-                  }else {
-                    isEnableTemporarilyClosed = false;
+                if (orderController.runningOrders != null) {
+                  for (
+                    int i = 0;
+                    i < orderController.runningOrders!.length;
+                    i++
+                  ) {
+                    if (orderController.runningOrders?[i].status == 'pending' ||
+                        orderController.runningOrders?[i].status == 'confirmed' ||
+                        orderController.runningOrders?[i].status == 'cooking' ||
+                        orderController.runningOrders?[i].status == 'processing' ||
+                        orderController.runningOrders?[i].status == 'ready_for_handover' ||
+                        orderController.runningOrders?[i].status == 'food_on_the_way') {
+                      if (orderController
+                          .runningOrders![i]
+                          .orderList
+                          .isNotEmpty) {
+                        isEnableTemporarilyClosed = true;
+                        break;
+                      } else {
+                        isEnableTemporarilyClosed = false;
+                      }
+                    }
                   }
                 }
-              }
-            }
 
-            List<OrderModel> orderList = [];
-            if(orderController.runningOrders != null) {
-              orderList = orderController.runningOrders![orderController.orderIndex].orderList;
-            }
+                List<OrderModel> orderList = [];
+                if (orderController.runningOrders != null) {
+                  orderList = orderController
+                      .runningOrders![orderController.orderIndex]
+                      .orderList;
+                }
 
-            return CustomScrollView(
-              slivers: [
-                GetPlatform.isAndroid ? SliverToBoxAdapter(
-                  child: Column(children: [
-                    if(!_isNotificationPermissionGranted)
-                      permissionWarning(isBatteryPermission: false, onTap: requestNotificationPermission, closeOnTap: () {
-                        setState(() {
-                          _isNotificationPermissionGranted = true;
-                        });
-                      }),
-
-                    if(!_isBatteryOptimizationGranted)
-                      permissionWarning(isBatteryPermission: true, onTap: requestBatteryOptimization, closeOnTap: () {
-                        setState(() {
-                          _isBatteryOptimizationGranted = true;
-                        });
-                      }),
-
-                  ]),
-                ) : const SliverToBoxAdapter(),
-
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault, top: GetPlatform.isAndroid ? 0 : Dimensions.paddingSizeDefault),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                      profileController.modulePermission != null && profileController.modulePermission!.wallet!
-                          ? BusinessAnalyticsWidget(profileController: profileController)
-                          : const SizedBox(),
-                      SizedBox(height: profileController.modulePermission != null && profileController.modulePermission!.wallet! ? Dimensions.paddingSizeExtraLarge : 0),
-
-                      profileController.modulePermission != null && profileController.modulePermission!.advertisement! ? const AdsSectionWidget() : const SizedBox(),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    ]),
-                  ),
-                ),
-
-
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                    child: Column(children: [
-                      profileController.modulePermission != null ? Get.find<ProfileController>().modulePermission!.order! ? Column(children: [
-
-                        Row(children: [
-                          Text('ongoing_orders'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
-                          const Spacer(),
-
-                          orderController.runningOrders != null ? Padding(
-                            padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault, bottom: Dimensions.paddingSizeSmall),
-                            child: InkWell(
-                              onTap: () => orderController.toggleCampaignOnly(),
-                              child: Row(children: [
-                                SizedBox(
-                                  height: 24, width: 24,
-                                  child: Checkbox(
-                                    side: BorderSide(color: Theme.of(context).disabledColor, width: 1),
-                                    activeColor: Theme.of(context).primaryColor,
-                                    value: orderController.campaignOnly,
-                                    onChanged: (isActive) => orderController.toggleCampaignOnly(),
+                return CustomScrollView(
+                  slivers: [
+                    GetPlatform.isAndroid
+                        ? SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                if (!_isNotificationPermissionGranted)
+                                  permissionWarning(
+                                    isBatteryPermission: false,
+                                    onTap: requestNotificationPermission,
+                                    closeOnTap: () {
+                                      setState(() {
+                                        _isNotificationPermissionGranted = true;
+                                      });
+                                    },
                                   ),
-                                ),
-                                const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                Text(
-                                  'campaign_orders_only'.tr,
-                                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
-                                ),
-                              ]),
+                                if (!_isBatteryOptimizationGranted)
+                                  permissionWarning(
+                                    isBatteryPermission: true,
+                                    onTap: requestBatteryOptimization,
+                                    closeOnTap: () {
+                                      setState(() {
+                                        _isBatteryOptimizationGranted = true;
+                                      });
+                                    },
+                                  ),
+                              ],
                             ),
-                          ) : const SizedBox(),
+                          )
+                        : const SliverToBoxAdapter(),
 
-                        ]),
-                        const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                        orderController.runningOrders != null ? SizedBox(
-                          height: 40,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: orderController.runningOrders!.length,
-                            itemBuilder: (context, index) {
-                              return OrderButtonWidget(
-                                title: orderController.runningOrders![index].status.tr, index: index,
-                                orderController: orderController, fromHistory: false,
-                              );
-                            },
-                          ),
-                        ) : const SizedBox(),
-
-                        const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                        orderController.runningOrders != null ? orderList.isNotEmpty ? ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: orderList.length,
-                          itemBuilder: (context, index) {
-                            return OrderWidget(orderModel: orderList[index], hasDivider: index != orderList.length-1, isRunning: true);
-                          },
-                        ) : Padding(
-                          padding: const EdgeInsets.only(top: 50, bottom: 100),
-                          child: Center(child: Text('no_order_found'.tr)),
-                        ) : ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: 10,
-                          itemBuilder: (context, index) {
-                            return OrderShimmerWidget(isEnabled: orderController.runningOrders == null);
-                          },
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: Dimensions.paddingSizeDefault,
+                          right: Dimensions.paddingSizeDefault,
+                          top: GetPlatform.isAndroid
+                              ? 0
+                              : Dimensions.paddingSizeDefault,
                         ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                      ]) : Center(child: Padding(
-                        padding: const EdgeInsets.only(top: 100),
-                        child: Text('you_have_no_permission_to_access_this_feature'.tr, style: robotoMedium),
-                      )) : ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: 10,
-                        itemBuilder: (context, index) {
-                          return OrderShimmerWidget(isEnabled: orderController.runningOrders == null);
-                        },
+                            profileController.modulePermission != null &&
+                                    profileController.modulePermission!.wallet!
+                                ? BusinessAnalyticsWidget(
+                                    profileController: profileController,
+                                  )
+                                : const SizedBox(),
+                            SizedBox(
+                              height:
+                                  profileController.modulePermission != null &&
+                                      profileController
+                                          .modulePermission!
+                                          .wallet!
+                                  ? Dimensions.paddingSizeExtraLarge
+                                  : 0,
+                            ),
+
+                            profileController.modulePermission != null &&
+                                    profileController
+                                        .modulePermission!
+                                        .advertisement!
+                                ? const SizedBox()  //const AdsSectionWidget()
+                                : const SizedBox(),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                          ],
+                        ),
                       ),
-                    ]),
-                  ),
-                ),
+                    ),
 
-              ],
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault,
+                        ),
+                        child: Column(
+                          children: [
+                            profileController.modulePermission != null
+                                ? Get.find<ProfileController>()
+                                          .modulePermission!
+                                          .order!
+                                      ? Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'ongoing_orders'.tr,
+                                                  style: robotoBold.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeLarge,
+                                                  ),
+                                                ),
+                                                const Spacer(),
+
+                                                orderController.runningOrders !=
+                                                        null
+                                                    ? Padding(
+                                                        padding: const EdgeInsets.only(
+                                                          top: Dimensions
+                                                              .paddingSizeDefault,
+                                                          bottom: Dimensions
+                                                              .paddingSizeSmall,
+                                                        ),
+                                                        child: InkWell(
+                                                          onTap: () =>
+                                                              orderController
+                                                                  .toggleCampaignOnly(),
+                                                          child: Row(
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 24,
+                                                                width: 24,
+                                                                child: Checkbox(
+                                                                  side: BorderSide(
+                                                                    color: Theme.of(
+                                                                      context,
+                                                                    ).disabledColor,
+                                                                    width: 1,
+                                                                  ),
+                                                                  activeColor:
+                                                                      Theme.of(
+                                                                        context,
+                                                                      ).primaryColor,
+                                                                  value: orderController
+                                                                      .campaignOnly,
+                                                                  onChanged:
+                                                                      (
+                                                                        isActive,
+                                                                      ) => orderController
+                                                                          .toggleCampaignOnly(),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: Dimensions
+                                                                    .paddingSizeSmall,
+                                                              ),
+
+                                                              Text(
+                                                                'campaign_orders_only'
+                                                                    .tr,
+                                                                style: robotoRegular.copyWith(
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeSmall,
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).disabledColor,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : const SizedBox(),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeExtraSmall,
+                                            ),
+
+                                            orderController.runningOrders !=
+                                                    null
+                                                ? SizedBox(
+                                                    height: 40,
+                                                    child: ListView.builder(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      itemCount: orderController
+                                                          .runningOrders!
+                                                          .length,
+                                                      itemBuilder: (context, index) {
+                                                        return OrderButtonWidget(
+                                                          title: orderController
+                                                              .runningOrders![index]
+                                                              .status
+                                                              .tr,
+                                                          index: index,
+                                                          orderController:
+                                                              orderController,
+                                                          fromHistory: false,
+                                                        );
+                                                      },
+                                                    ),
+                                                  )
+                                                : const SizedBox(),
+
+                                            const SizedBox(
+                                              height:
+                                                  Dimensions.paddingSizeDefault,
+                                            ),
+
+                                            orderController.runningOrders !=
+                                                    null
+                                                ? orderList.isNotEmpty
+                                                      ? ListView.builder(
+                                                          physics:
+                                                              const NeverScrollableScrollPhysics(),
+                                                          shrinkWrap: true,
+                                                          itemCount:
+                                                              orderList.length,
+                                                          itemBuilder: (context, index) {
+                                                            return OrderWidget(
+                                                              orderModel:
+                                                                  orderList[index],
+                                                              hasDivider:
+                                                                  index !=
+                                                                  orderList
+                                                                          .length -
+                                                                      1,
+                                                              isRunning: true,
+                                                            );
+                                                          },
+                                                        )
+                                                      : Padding(
+                                                          padding:
+                                                              const EdgeInsets.only(
+                                                                top: 50,
+                                                                bottom: 100,
+                                                              ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              'no_order_found'
+                                                                  .tr,
+                                                            ),
+                                                          ),
+                                                        )
+                                                : ListView.builder(
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    itemCount: 10,
+                                                    itemBuilder: (context, index) {
+                                                      return OrderShimmerWidget(
+                                                        isEnabled:
+                                                            orderController
+                                                                .runningOrders ==
+                                                            null,
+                                                      );
+                                                    },
+                                                  ),
+                                          ],
+                                        )
+                                      : Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 100,
+                                            ),
+                                            child: Text(
+                                              'you_have_no_permission_to_access_this_feature'
+                                                  .tr,
+                                              style: robotoMedium,
+                                            ),
+                                          ),
+                                        )
+                                : ListView.builder(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: 10,
+                                    itemBuilder: (context, index) {
+                                      return OrderShimmerWidget(
+                                        isEnabled:
+                                            orderController.runningOrders ==
+                                            null,
+                                      );
+                                    },
+                                  ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
-          });
-        }),
+          },
+        ),
       ),
-
     );
   }
 
-  Widget permissionWarning({required bool isBatteryPermission, required Function() onTap, required Function() closeOnTap}) {
+  Widget permissionWarning({
+    required bool isBatteryPermission,
+    required Function() onTap,
+    required Function() closeOnTap,
+  }) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.7),
+        color: Theme.of(
+          context,
+        ).textTheme.bodyLarge!.color!.withValues(alpha: 0.7),
       ),
       child: InkWell(
         onTap: onTap,
@@ -344,34 +534,49 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              child: Row(children: [
+              child: Row(
+                children: [
+                  if (isBatteryPermission)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.warning_rounded, color: Colors.yellow),
+                    ),
 
-                if(isBatteryPermission)
-                  const Padding(
-                    padding: EdgeInsets.only(right: 8.0),
-                    child: Icon(Icons.warning_rounded, color: Colors.yellow,),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            isBatteryPermission
+                                ? 'for_better_performance_allow_notification_to_run_in_background'
+                                      .tr
+                                : 'notification_is_disabled_please_allow_notification'
+                                      .tr,
+                            maxLines: 2,
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        const Icon(
+                          Icons.arrow_circle_right_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ],
+                    ),
                   ),
 
-                Expanded(
-                  child: Row(children: [
-                    Flexible(
-                      child: Text(
-                        isBatteryPermission ? 'for_better_performance_allow_notification_to_run_in_background'.tr
-                            : 'notification_is_disabled_please_allow_notification'.tr,
-                        maxLines: 2, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                    const Icon(Icons.arrow_circle_right_rounded, color: Colors.white, size: 24,),
-                  ]),
-                ),
-
-                const SizedBox(width: 20),
-              ]),
+                  const SizedBox(width: 20),
+                ],
+              ),
             ),
 
             Positioned(
-              top: 5, right: 5,
+              top: 5,
+              right: 5,
               child: InkWell(
                 onTap: closeOnTap,
                 child: const Icon(Icons.clear, color: Colors.white, size: 18),
@@ -382,5 +587,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
