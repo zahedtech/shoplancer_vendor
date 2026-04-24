@@ -2116,6 +2116,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                             String fName = _fNameController.text.trim();
                             String lName = _lNameController.text.trim();
                             String phone = _phoneController.text.trim();
+                            if (phone.startsWith('0')) {
+                              phone = phone.substring(1);
+                            }
                             String email = _emailController.text.trim();
                             String password = _passwordController.text.trim();
                             String confirmPassword = _confirmPasswordController

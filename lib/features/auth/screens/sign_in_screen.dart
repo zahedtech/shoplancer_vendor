@@ -223,6 +223,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _login(AuthController authController) async {
     String phone = _phoneController.text.trim();
+    if (phone.startsWith('0')) {
+      phone = phone.substring(1);
+    }
     String password = _passwordController.text.trim();
     String type = authController.vendorTypeIndex == 0 ? 'owner' : 'employee';
 

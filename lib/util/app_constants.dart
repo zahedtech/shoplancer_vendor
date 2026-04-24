@@ -2,7 +2,7 @@ import 'package:sixam_mart_store/features/language/domain/models/language_model.
 import 'package:sixam_mart_store/util/images.dart';
 
 class AppConstants {
-  static const String appName = '6amMart Vendor';
+  static const String appName = 'Shoplancer Vendor';
   static const double appVersion = 3.8; ///Flutter SDK: 3.41.6
 
   static const String fontFamily = 'Roboto';
@@ -213,26 +213,26 @@ class AppConstants {
   static const String taxiTaxReportUri = '/api/v1/rental/vendor/get-tax-report';
 
   /// Shared Key
-  static const String theme = '6am_mart_store_theme';
-  static const String intro = '6am_mart_store_intro';
-  static const String token = '6am_mart_store_token';
-  static const String type = '6am_mart_store_type';
-  static const String countryCode = '6am_mart_store_country_code';
-  static const String languageCode = '6am_mart_store_language_code';
+  static const String theme = 'shoplancer_store_theme';
+  static const String intro = 'shoplancer_store_intro';
+  static const String token = 'shoplancer_store_token';
+  static const String type = 'shoplancer_store_type';
+  static const String countryCode = 'shoplancer_store_country_code';
+  static const String languageCode = 'shoplancer_store_language_code';
   static const String cacheCountryCode = 'cache_country_code';
   static const String cacheLanguageCode = 'cache_language_code';
-  static const String cartList = '6am_mart_store_cart_list';
-  static const String userPassword = '6am_mart_store_user_password';
-  static const String userAddress = '6am_mart_store_user_address';
-  static const String userNumber = '6am_mart_store_user_number';
-  static const String userType = '6am_mart_store_user_type';
-  static const String notification = '6am_mart_store_notification';
-  static const String notificationCount = '6am_mart_store_notification_count';
-  static const String searchHistory = '6am_mart_store_search_history';
-  static const String isStoreRegister = '6am_mart_store_registration';
+  static const String cartList = 'shoplancer_store_cart_list';
+  static const String userPassword = 'shoplancer_store_user_password';
+  static const String userAddress = 'shoplancer_store_user_address';
+  static const String userNumber = 'shoplancer_store_user_number';
+  static const String userType = 'shoplancer_store_user_type';
+  static const String notification = 'shoplancer_store_notification';
+  static const String notificationCount = 'shoplancer_store_notification_count';
+  static const String searchHistory = 'shoplancer_store_search_history';
+  static const String isStoreRegister = 'shoplancer_store_registration';
   static const String bluetoothMacAddress = 'bluetooth_mac_address';
-  static const String lowStockStatus = '6am_mart_store_low_stock';
-  static const String moduleType = '6am_mart_store_module_type';
+  static const String lowStockStatus = 'shoplancer_store_low_stock';
+  static const String moduleType = 'shoplancer_store_module_type';
 
   static const String topic = 'all_zone_store';
   static const String zoneTopic = 'zone_topic';

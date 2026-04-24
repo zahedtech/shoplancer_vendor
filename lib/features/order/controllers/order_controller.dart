@@ -85,27 +85,35 @@ class OrderController extends GetxController implements GetxService {
   Future<bool> sendDeliveredNotification(int? orderID) async {
     _hideNotificationButton = true;
     update();
-    bool isSuccess = await orderServiceInterface.sendDeliveredNotification(orderID);
+    bool isSuccess = await orderServiceInterface.sendDeliveredNotification(
+      orderID,
+    );
     _hideNotificationButton = false;
     update();
     return isSuccess;
   }
 
-  void changeDeliveryImageStatus({bool isUpdate = true}){
+  void changeDeliveryImageStatus({bool isUpdate = true}) {
     _showDeliveryImageField = !_showDeliveryImageField;
-    if(isUpdate) {
+    if (isUpdate) {
       update();
     }
   }
 
-  void pickPrescriptionImage({required bool isRemove, required bool isCamera}) async {
-    if(isRemove) {
+  void pickPrescriptionImage({
+    required bool isRemove,
+    required bool isCamera,
+  }) async {
+    if (isRemove) {
       _pickedPrescriptions = [];
-    }else {
-      XFile? xFile = await ImagePicker().pickImage(source: isCamera ? ImageSource.camera : ImageSource.gallery, imageQuality: 50);
-      if(xFile != null) {
+    } else {
+      XFile? xFile = await ImagePicker().pickImage(
+        source: isCamera ? ImageSource.camera : ImageSource.gallery,
+        imageQuality: 50,
+      );
+      if (xFile != null) {
         _pickedPrescriptions.add(xFile);
-        if(Get.isDialogOpen!){
+        if (Get.isDialogOpen!) {
           Get.back();
         }
       }
@@ -118,13 +126,14 @@ class OrderController extends GetxController implements GetxService {
     update();
   }
 
-  void setOrderCancelReason(String? reason){
+  void setOrderCancelReason(String? reason) {
     _cancelReason = reason;
     update();
   }
 
   Future<void> getOrderCancelReasons() async {
-    OrderCancellationBodyModel? orderCancellationBody = await orderServiceInterface.getCancelReasons();
+    OrderCancellationBodyModel? orderCancellationBody =
+        await orderServiceInterface.getCancelReasons();
     if (orderCancellationBody != null) {
       _orderCancelReasons = [];
       for (var element in orderCancellationBody.data!) {
@@ -134,49 +143,73 @@ class OrderController extends GetxController implements GetxService {
     update();
   }
 
-  void clearPreviousData(){
+  void clearPreviousData() {
     _orderDetailsModel = null;
     _orderModel = null;
   }
 
   Future<void> getOrderDetails(int orderId) async {
-    OrderModel? orderModel = await orderServiceInterface.getOrderWithId(orderId);
-    if(orderModel != null) {
+    OrderModel? orderModel = await orderServiceInterface.getOrderWithId(
+      orderId,
+    );
+    if (orderModel != null) {
       _orderModel = orderModel;
     }
     update();
   }
 
   Future<void> getCurrentOrders() async {
-    List<OrderModel>? runningOrderList = await orderServiceInterface.getCurrentOrders();
-    if(runningOrderList != null) {
+    List<OrderModel>? runningOrderList = await orderServiceInterface
+        .getCurrentOrders();
+    if (runningOrderList != null) {
       _runningOrderList = [];
-      _runningOrders = [
-        RunningOrderModel(status: 'pending', orderList: []),
-        RunningOrderModel(status: 'confirmed', orderList: []),
-        RunningOrderModel(status: Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText! ? 'cooking' : 'processing', orderList: []),
-        RunningOrderModel(status: 'ready_for_handover', orderList: []),
-        RunningOrderModel(status: 'food_on_the_way', orderList: []),
-      ];
+      bool isGrocery = Get.find<SplashController>().moduleType == 'grocery';
+      if (isGrocery) {
+        _runningOrders = [
+          RunningOrderModel(status: 'pending', orderList: []),
+          RunningOrderModel(status: 'ready_for_handover', orderList: []),
+          RunningOrderModel(status: 'food_on_the_way', orderList: []),
+        ];
+      } else {
+        _runningOrders = [
+          RunningOrderModel(status: 'pending', orderList: []),
+          RunningOrderModel(status: 'confirmed', orderList: []),
+          RunningOrderModel(
+            status:
+                Get.find<SplashController>()
+                    .configModel!
+                    .moduleConfig!
+                    .module!
+                    .showRestaurantText!
+                ? 'cooking'
+                : 'processing',
+            orderList: [],
+          ),
+          RunningOrderModel(status: 'ready_for_handover', orderList: []),
+          RunningOrderModel(status: 'food_on_the_way', orderList: []),
+        ];
+      }
       _runningOrderList!.addAll(runningOrderList);
       _campaignOnly = true;
+      _orderIndex = 0;
       toggleCampaignOnly();
     }
     update();
   }
 
   Future<void> getPaginatedOrders(int offset, bool reload) async {
-    if(offset == 1 || reload) {
+    if (offset == 1 || reload) {
       _offsetList = [];
       _offset = 1;
-      if(reload) {
+      if (reload) {
         _historyOrderList = null;
       }
       update();
     }
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
-      PaginatedOrderModel? historyOrderModel = await orderServiceInterface.getPaginatedOrderList(offset, _statusList[_historyIndex]);
+      PaginatedOrderModel? historyOrderModel = await orderServiceInterface
+          .getPaginatedOrderList(offset, _statusList[_historyIndex]);
       if (historyOrderModel != null) {
         if (offset == 1) {
           _historyOrderList = [];
@@ -187,7 +220,7 @@ class OrderController extends GetxController implements GetxService {
         update();
       }
     } else {
-      if(_paginate) {
+      if (_paginate) {
         _paginate = false;
         update();
       }
@@ -208,28 +241,43 @@ class OrderController extends GetxController implements GetxService {
     getPaginatedOrders(1, true);
   }
 
-  Future<bool> updateOrderStatus(int? orderID, String status, {bool back = false, String? reason, String? processingTime, bool fromNotification = false}) async {
+  Future<bool> updateOrderStatus(
+    int? orderID,
+    String status, {
+    bool back = false,
+    String? reason,
+    String? processingTime,
+    bool fromNotification = false,
+  }) async {
     _isLoading = true;
     update();
-    List<MultipartBody> pickedPrescriptions = orderServiceInterface.processMultipartData(_pickedPrescriptions);
+    List<MultipartBody> pickedPrescriptions = orderServiceInterface
+        .processMultipartData(_pickedPrescriptions);
     UpdateStatusBodyModel updateStatusBody = UpdateStatusBodyModel(
-      orderId: orderID, status: status, otp: status == 'delivered' ? _otp : null, processingTime: processingTime, reason: reason,
+      orderId: orderID,
+      status: status,
+      otp: status == 'delivered' ? _otp : null,
+      processingTime: processingTime,
+      reason: reason,
     );
-    ResponseModel responseModel = await orderServiceInterface.updateOrderStatus(updateStatusBody, pickedPrescriptions);
+    ResponseModel responseModel = await orderServiceInterface.updateOrderStatus(
+      updateStatusBody,
+      pickedPrescriptions,
+    );
     // Only close dialog if one is open (like confirmation dialogs)
-    if(Get.isDialogOpen == true) {
+    if (Get.isDialogOpen == true) {
       Get.back(result: responseModel.isSuccess);
     }
-    if(responseModel.isSuccess) {
-      if(back && fromNotification) {
+    if (responseModel.isSuccess) {
+      if (back && fromNotification) {
         Get.offAllNamed(RouteHelper.getInitialRoute());
-      }else if(back && !fromNotification){
+      } else if (back && !fromNotification) {
         Get.back();
       }
       getCurrentOrders();
       Get.find<ProfileController>().getProfile();
       showCustomSnackBar(responseModel.message, isError: false);
-    }else {
+    } else {
       showCustomSnackBar(responseModel.message, isError: true);
     }
     _isLoading = false;
@@ -237,25 +285,31 @@ class OrderController extends GetxController implements GetxService {
     return responseModel.isSuccess;
   }
 
-  Future<bool> updateOrderAmount(int orderID, String amount, bool isItemPrice) async {
+  Future<bool> updateOrderAmount(
+    int orderID,
+    String amount,
+    bool isItemPrice,
+  ) async {
     _isLoading = true;
     update();
-    Map<String, String> body = <String,String>{};
-    if(isItemPrice){
+    Map<String, String> body = <String, String>{};
+    if (isItemPrice) {
       body['_method'] = 'PUT';
       body['order_id'] = orderID.toString();
       body['order_amount'] = amount;
-    }else{
+    } else {
       body['_method'] = 'PUT';
       body['order_id'] = orderID.toString();
       body['discount_amount'] = amount;
     }
-    ResponseModel responseModel = await orderServiceInterface.updateOrderAmount(body);
-    if(responseModel.isSuccess) {
+    ResponseModel responseModel = await orderServiceInterface.updateOrderAmount(
+      body,
+    );
+    if (responseModel.isSuccess) {
       await getOrderDetails(orderID);
       Get.back();
       showCustomSnackBar(responseModel.message, isError: false);
-    }else {
+    } else {
       showCustomSnackBar(responseModel.message, isError: true);
     }
     _isLoading = false;
@@ -265,14 +319,15 @@ class OrderController extends GetxController implements GetxService {
 
   Future<void> getOrderItemsDetails(int orderID) async {
     _orderDetailsModel = null;
-    if(_orderModel != null && !_orderModel!.prescriptionOrder!){
-      List<OrderDetailsModel>? orderDetailsModel = await orderServiceInterface.getOrderDetails(orderID);
-      if(orderDetailsModel != null) {
+    if (_orderModel != null && !_orderModel!.prescriptionOrder!) {
+      List<OrderDetailsModel>? orderDetailsModel = await orderServiceInterface
+          .getOrderDetails(orderID);
+      if (orderDetailsModel != null) {
         _orderDetailsModel = [];
         _orderDetailsModel!.addAll(orderDetailsModel);
       }
       update();
-    }else{
+    } else {
       _orderDetailsModel = [];
     }
   }
@@ -284,25 +339,61 @@ class OrderController extends GetxController implements GetxService {
 
   void toggleCampaignOnly() {
     _campaignOnly = !_campaignOnly;
-    _runningOrders![0].orderList = [];
-    _runningOrders![1].orderList = [];
-    _runningOrders![2].orderList = [];
-    _runningOrders![3].orderList = [];
-    _runningOrders![4].orderList = [];
+    bool isGrocery = Get.find<SplashController>().moduleType == 'grocery';
+
+    for (int i = 0; i < _runningOrders!.length; i++) {
+      _runningOrders![i].orderList = [];
+    }
+
     for (var order in _runningOrderList!) {
-      if(order.orderStatus == 'pending' && (Get.find<SplashController>().configModel!.orderConfirmationModel != 'deliveryman'
-          || order.orderType == 'take_away' || Get.find<ProfileController>().profileModel!.stores![0].selfDeliverySystem == 1)
-          && (_campaignOnly ? order.itemCampaign == 1 : true)) {
-        _runningOrders![0].orderList.add(order);
-      }else if((order.orderStatus == 'confirmed' || (order.orderStatus == 'accepted' && order.confirmed != null))
-          && (_campaignOnly ? order.itemCampaign == 1 : true)) {
-        _runningOrders![1].orderList.add(order);
-      }else if(order.orderStatus == 'processing' && (_campaignOnly ? order.itemCampaign == 1 : true)) {
-        _runningOrders![2].orderList.add(order);
-      }else if(order.orderStatus == 'handover' && (_campaignOnly ? order.itemCampaign == 1 : true)) {
-        _runningOrders![3].orderList.add(order);
-      }else if(order.orderStatus == 'picked_up' && (_campaignOnly ? order.itemCampaign == 1 : true)) {
-        _runningOrders![4].orderList.add(order);
+      if (isGrocery) {
+        if ((order.orderStatus == 'pending' ||
+                order.orderStatus == 'confirmed' ||
+                order.orderStatus == 'processing' ||
+                (order.orderStatus == 'accepted' && order.confirmed != null)) &&
+            (Get.find<SplashController>().configModel!.orderConfirmationModel !=
+                    'deliveryman' ||
+                order.orderType == 'take_away' ||
+                Get.find<ProfileController>()
+                        .profileModel!
+                        .stores![0]
+                        .selfDeliverySystem ==
+                    1) &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![0].orderList.add(order);
+        } else if (order.orderStatus == 'handover' &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![1].orderList.add(order);
+        } else if (order.orderStatus == 'picked_up' &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![2].orderList.add(order);
+        }
+      } else {
+        if (order.orderStatus == 'pending' &&
+            (Get.find<SplashController>().configModel!.orderConfirmationModel !=
+                    'deliveryman' ||
+                order.orderType == 'take_away' ||
+                Get.find<ProfileController>()
+                        .profileModel!
+                        .stores![0]
+                        .selfDeliverySystem ==
+                    1) &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![0].orderList.add(order);
+        } else if ((order.orderStatus == 'confirmed' ||
+                (order.orderStatus == 'accepted' && order.confirmed != null)) &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![1].orderList.add(order);
+        } else if (order.orderStatus == 'processing' &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![2].orderList.add(order);
+        } else if (order.orderStatus == 'handover' &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![3].orderList.add(order);
+        } else if (order.orderStatus == 'picked_up' &&
+            (_campaignOnly ? order.itemCampaign == 1 : true)) {
+          _runningOrders![4].orderList.add(order);
+        }
       }
     }
     update();
@@ -310,7 +401,7 @@ class OrderController extends GetxController implements GetxService {
 
   void setOtp(String otp) {
     _otp = otp;
-    if(otp != '') {
+    if (otp != '') {
       update();
     }
   }
@@ -321,8 +412,9 @@ class OrderController extends GetxController implements GetxService {
     update();
   }
 
-  String? getBluetoothMacAddress() => orderServiceInterface.getBluetoothAddress();
+  String? getBluetoothMacAddress() =>
+      orderServiceInterface.getBluetoothAddress();
 
-  void setBluetoothMacAddress(String? address) => orderServiceInterface.setBluetoothAddress(address);
-
+  void setBluetoothMacAddress(String? address) =>
+      orderServiceInterface.setBluetoothAddress(address);
 }
