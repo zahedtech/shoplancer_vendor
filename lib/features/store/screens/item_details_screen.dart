@@ -263,7 +263,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 Get.find<SplashController>().getStoreModuleConfig().newVariation! ? FoodVariationView(item: item)
                     : VariationView(item: item, stock: module.stock),
 
-                (isFood || isGrocery) && item.nutrition!.isNotEmpty ? Container(
+/*                (isFood || isGrocery) && item.nutrition!.isNotEmpty ? Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(cardRadius),
                     color: Theme.of(context).cardColor,
@@ -283,9 +283,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                     ),
 
                   ]),
-                ) : const SizedBox(),
+                ) : const SizedBox(),*/
 
-                (isFood || isGrocery) && item.allergies!.isNotEmpty ? Container(
+/*                (isFood || isGrocery) && item.allergies!.isNotEmpty ? Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(cardRadius),
                     color: Theme.of(context).cardColor,
@@ -305,9 +305,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                     ),
 
                   ]),
-                ) : const SizedBox(),
+                ) : const SizedBox(),*/
 
-                isPharmacy && item.genericName!.isNotEmpty ? Container(
+/*                isPharmacy && item.genericName!.isNotEmpty ? Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(cardRadius),
                     color: Theme.of(context).cardColor,
@@ -325,7 +325,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                       style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
                     ),
                   ]),
-                ) : const SizedBox(),
+                ) : const SizedBox(),*/
 
                 (item.addOns!.isNotEmpty && module.addOn!) ? Container(
                   decoration: BoxDecoration(

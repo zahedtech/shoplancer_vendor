@@ -162,55 +162,69 @@ class StoreRepository implements StoreRepositoryInterface {
   Future<Response> addItem(Item item, XFile? metaImage, XFile? image, List<XFile> images, List<String> savedImages, Map<String, String> attributes, bool isAdd, String tags, String nutrition, String allergicIngredients, String genericName) async {
     Map<String, String> fields = {};
     fields.addAll(<String, String>{
-      'price': item.price.toString(), 'discount': item.discount.toString(), 'veg': item.veg.toString(),
-      'discount_type': item.discountType!, 'category_id': item.categoryIds![0].id!,
-      'translations': jsonEncode(item.translations), 'tags': tags, 'maximum_cart_quantity': item.maxOrderQuantity.toString(),
+      'name': item.name ?? '',
+      'description': item.description ?? '',
+      'price': item.price.toString(),
+      'discount': item.discount.toString(),
+      'veg': item.veg.toString(),
+      'discount_type': item.discountType ?? '',
+      'category_id': item.categoryIds![0].id!,
+      'translations': jsonEncode(item.translations),
+      'tags': tags,
+      'maximum_cart_quantity': item.maxOrderQuantity.toString(),
     });
+
     if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'grocery' || Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'food') {
       fields.addAll(<String, String> {'nutritions': nutrition, 'allergies': allergicIngredients});
     }
     if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'pharmacy') {
       fields.addAll(<String, String> {'generic_name': genericName});
-      fields.addAll((<String, String> {'condition_id': item.conditionId!.toString()}));
+      fields.addAll((<String, String> {'condition_id': item.conditionId?.toString() ?? '0'}));
     }
     if(Get.find<SplashController>().configModel!.moduleConfig!.module!.stock!) {
       fields.addAll((<String, String> {'current_stock': item.stock.toString()}));
     }
     if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'pharmacy') {
-      fields.addAll((<String, String> {'is_prescription_required': item.isPrescriptionRequired!.toString()}));
-      fields.addAll((<String, String> {'basic': item.isBasicMedicine!.toString()}));
+      fields.addAll((<String, String> {'is_prescription_required': item.isPrescriptionRequired?.toString() ?? '0'}));
+      fields.addAll((<String, String> {'basic': item.isBasicMedicine?.toString() ?? '0'}));
     }
+
     if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'ecommerce') {
-      fields.addAll((<String, String> {
+      fields.addAll(<String, String>{
         'brand_id': item.brandId.toString(),
-        'meta_title' : item.metaTitle ?? '',
+        'tax': item.tax.toString(),
+        'item_type': item.veg == 1 ? 'veg' : 'non_veg',
+        'store_id': Get.find<ProfileController>().profileModel!.stores![0].id.toString(),
+      });
+    }
+
+    if(item.metaData != null) {
+      fields.addAll((<String, String> {
+        'meta_title': item.metaTitle ?? '',
         'meta_description' : item.metaDescription ?? '',
-        'meta_index' : item.metaData?.metaIndex.toString() ?? '',
+        'meta_no_index' : item.metaData?.metaIndex ?? '',
         'meta_no_follow' : item.metaData?.metaNoFollow ?? '',
         'meta_no_image_index' : item.metaData?.metaNoImageIndex ?? '',
         'meta_no_archive' : item.metaData?.metaNoArchive ?? '',
         'meta_no_snippet' : item.metaData?.metaNoSnippet ?? '',
-        'meta_max_snippet' : item.metaData?.metaMaxSnippet.toString() ?? '',
-        'meta_max_snippet_value' : item.metaData?.metaMaxSnippetValue.toString() ?? '',
-        'meta_max_video_preview' : item.metaData?.metaMaxVideoPreview.toString() ?? '',
-        'meta_max_video_preview_value' : item.metaData?.metaMaxVideoPreviewValue.toString() ?? '',
-        'meta_max_image_preview' : item.metaData?.metaMaxImagePreview.toString() ?? '',
-        'meta_max_image_preview_value' : item.metaData?.metaMaxImagePreviewValue ?? '',
+        'meta_max_snippet' : item.metaData?.metaMaxSnippet ?? '',
       }));
-      // if (item.metaImageFullUrl != null && item.metaImageFullUrl!.isNotEmpty){
-      //   fields.addAll((<String, String> {'meta_image': item.metaImageFullUrl!}));
-      // }
-      log('fields of add item product meta data: ${fields.toString()}');
     }
 
     if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'grocery' || Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'food') {
       fields.addAll((<String, String> {'is_halal': item.isHalal.toString()}));
     }
-    if(Get.find<SplashController>().configModel!.moduleConfig!.module!.unit! && item.unitType != null) {
-      fields.addAll((<String, String> {'unit': item.unitType!}));
+    if(item.unitType != null) {
+      fields.addAll((<String, String> {
+        'unit': item.unitId?.toString() ?? item.unitType ?? '', 
+        'unit_type': item.unitType ?? ''
+      }));
+    }
+    if(item.unitId != null) {
+      fields.addAll((<String, String> {'unit_id': item.unitId.toString()}));
     }
     if(Get.find<SplashController>().configModel!.moduleConfig!.module!.itemAvailableTime!) {
-      fields.addAll((<String, String> {'available_time_starts': item.availableTimeStarts!, 'available_time_ends': item.availableTimeEnds!}));
+      fields.addAll((<String, String> {'available_time_starts': item.availableTimeStarts ?? '', 'available_time_ends': item.availableTimeEnds ?? ''}));
     }
     String addon = '';
     for(int index=0; index<item.addOns!.length; index++) {

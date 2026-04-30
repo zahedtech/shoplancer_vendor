@@ -122,16 +122,16 @@ class _StoreUpperState extends State<StoreUpper> {
                           widget.store?.name ?? '',
                           style: robotoBold.copyWith(
                             fontSize: 22,
-                            color: const Color(0xFF1A1A1A),
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.location_on_outlined,
                               size: 14,
-                              color: Color(0xFF7D7D7D),
+                              color: Theme.of(context).disabledColor,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
@@ -139,7 +139,7 @@ class _StoreUpperState extends State<StoreUpper> {
                                 widget.store?.address ?? '',
                                 style: robotoRegular.copyWith(
                                   fontSize: 12,
-                                  color: const Color(0xFF7D7D7D),
+                                  color: Theme.of(context).disabledColor,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -159,9 +159,9 @@ class _StoreUpperState extends State<StoreUpper> {
                             RouteHelper.getStoreEditRoute(widget.store!),
                           );
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.settings_outlined,
-                          color: Color(0xFF2C7A46),
+                          color: Theme.of(context).primaryColor,
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
@@ -169,9 +169,9 @@ class _StoreUpperState extends State<StoreUpper> {
                         onPressed: () {
                           Get.toNamed(RouteHelper.getAddItemRoute(null));
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.add_circle_outline_rounded,
-                          color: Color(0xFF2C7A46),
+                          color: Theme.of(context).primaryColor,
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
@@ -243,20 +243,18 @@ class _StoreUpperState extends State<StoreUpper> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF2C7A46)
-                                    : Colors.white,
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF2C7A46)
-                                      : const Color(0xFFE0E0E0),
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(context).disabledColor.withOpacity(0.2),
                                 ),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: const Color(
-                                            0xFF2C7A46,
-                                          ).withOpacity(0.2),
+                                          color: Theme.of(context).primaryColor.withOpacity(0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 4),
                                         ),
@@ -269,7 +267,7 @@ class _StoreUpperState extends State<StoreUpper> {
                                   fontSize: 14,
                                   color: isSelected
                                       ? Colors.white
-                                      : const Color(0xFF7D7D7D),
+                                      : Theme.of(context).disabledColor,
                                 ),
                               ),
                             ),
@@ -296,13 +294,13 @@ class _StoreUpperState extends State<StoreUpper> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: const Color(0xFF2C7A46)),
+            Icon(icon, size: 16, color: Theme.of(context).primaryColor),
             const SizedBox(width: 4),
             Text(
               val,
               style: robotoBold.copyWith(
                 fontSize: 14,
-                color: const Color(0xFF1A1A1A),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ],
@@ -312,7 +310,7 @@ class _StoreUpperState extends State<StoreUpper> {
           label,
           style: robotoRegular.copyWith(
             fontSize: 12,
-            color: const Color(0xFF7D7D7D),
+            color: Theme.of(context).disabledColor,
           ),
         ),
       ],

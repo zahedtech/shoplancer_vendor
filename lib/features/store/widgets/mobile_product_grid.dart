@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
 import 'package:sixam_mart_store/features/store/widgets/minimal_product_card.dart';
+import 'package:sixam_mart_store/util/dimensions.dart';
 import 'package:sixam_mart_store/util/styles.dart';
 
 class MobileProductGrid extends StatelessWidget {
@@ -14,7 +16,11 @@ class MobileProductGrid extends StatelessWidget {
       builder: (storeController) {
         final List<Item>? items = storeController.itemList;
 
-        if (items == null || items.isEmpty) {
+        if (items == null) {
+          return const _ProductShimmer();
+        }
+
+        if (items.isEmpty) {
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 30),
             alignment: Alignment.center,
@@ -23,14 +29,14 @@ class MobileProductGrid extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(24),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF1F5F1),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.search_off_rounded,
                     size: 64,
-                    color: const Color(0xFF2C7A46).withOpacity(0.5),
+                    color: Theme.of(context).primaryColor.withOpacity(0.5),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -39,7 +45,7 @@ class MobileProductGrid extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: robotoBold.copyWith(
                     fontSize: 18,
-                    color: const Color(0xFF1A1A1A),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -48,7 +54,7 @@ class MobileProductGrid extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: robotoRegular.copyWith(
                     fontSize: 14,
-                    color: const Color(0xFF7D7D7D),
+                    color: Theme.of(context).disabledColor,
                   ),
                 ),
               ],
@@ -86,6 +92,82 @@ class MobileProductGrid extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ProductShimmer extends StatelessWidget {
+  const _ProductShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                Expanded(child: _buildShimmerItem(context)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildShimmerItem(context)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildShimmerItem(BuildContext context) {
+    return Shimmer(
+      child: Container(
+        height: 220,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+          border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.1)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 100,
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).disabledColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(height: 14, width: 100, color: Theme.of(context).disabledColor.withOpacity(0.1)),
+                  const SizedBox(height: 8),
+                  Container(height: 12, width: 60, color: Theme.of(context).disabledColor.withOpacity(0.1)),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(height: 20, width: 50, color: Theme.of(context).disabledColor.withOpacity(0.1)),
+                      Container(height: 36, width: 36, decoration: BoxDecoration(
+                        color: Theme.of(context).disabledColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      )),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -97,6 +97,7 @@ class Item {
   List<String?>? genericName;
   int? isBasicMedicine;
   int? conditionId;
+  int? unitId;
   List<NutritionsData>? nutritionsData;
   List<AllergiesData>? allergiesData;
   List<GenericData>? genericNameData;
@@ -234,6 +235,17 @@ class Item {
     ratingCount = json['rating_count'];
     veg = json['veg'];
     unitType = json['unit_type'];
+    if(unitType == null && json['unit'] != null) {
+      if(json['unit'] is String) {
+        unitType = json['unit'];
+      } else if (json['unit'] is Map && json['unit']['unit'] != null) {
+        unitType = json['unit']['unit'].toString();
+      }
+    }
+    unitId = json['unit_id'] != null ? int.parse(json['unit_id'].toString()) : null;
+    if(unitId == null && json['unit'] != null && json['unit'] is Map && json['unit']['id'] != null) {
+      unitId = int.parse(json['unit']['id'].toString());
+    }
     stock = json['stock'];
     if (json['translations'] != null && json['translations'].isNotEmpty) {
       translations = [];
@@ -356,6 +368,7 @@ class Item {
     data['rating_count'] = ratingCount;
     data['veg'] = veg;
     data['unit_type'] = unitType;
+    data['unit_id'] = unitId;
     data['stock'] = stock;
     if (translations != null) {
       data['translations'] = translations!.map((v) => v.toJson()).toList();
