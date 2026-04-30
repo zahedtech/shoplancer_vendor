@@ -42,12 +42,12 @@ class MinimalProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: Colors.black.withOpacity(0.03), width: 1),
+          border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.1), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +172,7 @@ class MinimalProductCard extends StatelessWidget {
                               ),
                               style: robotoBold.copyWith(
                                 fontSize: 17,
-                                color: const Color(0xFF2C7A46),
+                                color: Theme.of(context).primaryColor,
                               ),
                             ),
                           ],
@@ -182,12 +182,12 @@ class MinimalProductCard extends StatelessWidget {
                         height: 36,
                         width: 36,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE4ECE4),
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.edit_rounded,
-                          color: Color(0xFF2C7A46),
+                          color: Theme.of(context).primaryColor,
                           size: 20,
                         ),
                       ),

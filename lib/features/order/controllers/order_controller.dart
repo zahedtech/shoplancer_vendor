@@ -82,6 +82,38 @@ class OrderController extends GetxController implements GetxService {
   bool _hideNotificationButton = false;
   bool get hideNotificationButton => _hideNotificationButton;
 
+  final Map<int, List<int>> _checklistMap = {};
+  Map<int, List<int>> get checklistMap => _checklistMap;
+
+  void toggleItemCheck(int orderId, int orderDetailsId) {
+    if (_checklistMap.containsKey(orderId)) {
+      if (_checklistMap[orderId]!.contains(orderDetailsId)) {
+        _checklistMap[orderId]!.remove(orderDetailsId);
+      } else {
+        _checklistMap[orderId]!.add(orderDetailsId);
+      }
+    } else {
+      _checklistMap[orderId] = [orderDetailsId];
+    }
+    update();
+  }
+
+  bool isItemChecked(int orderId, int orderDetailsId) {
+    return _checklistMap.containsKey(orderId) && _checklistMap[orderId]!.contains(orderDetailsId);
+  }
+
+  bool isOrderChecklistComplete(int orderId) {
+    if (_orderDetailsModel == null || _orderDetailsModel!.isEmpty) return false;
+    if (!_checklistMap.containsKey(orderId)) return false;
+
+    for (var item in _orderDetailsModel!) {
+      if (!_checklistMap[orderId]!.contains(item.id)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   Future<bool> sendDeliveredNotification(int? orderID) async {
     _hideNotificationButton = true;
     update();

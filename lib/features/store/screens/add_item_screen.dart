@@ -874,15 +874,22 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                       );
                                                 },
                                                 selectedValue:
-                                                   categoryController
-                                                       .selectedCategoryID,
-                                             ),
-                                           ),
-                                           SizedBox(
-                                             height: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
-                                                 ? Dimensions.paddingSizeExtraLarge
-                                                 : 0,
-                                           ),
+                                                    categoryController
+                                                        .selectedCategoryID,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height:
+                                                  (categoryController
+                                                              .subCategoryList !=
+                                                          null &&
+                                                      categoryController
+                                                          .subCategoryList!
+                                                          .isNotEmpty)
+                                                  ? Dimensions
+                                                        .paddingSizeExtraLarge
+                                                  : 0,
+                                            ),
 
                                             categoryController
                                                             .selectedSubCategoryID !=
@@ -891,8 +898,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             .subCategoryList !=
                                                         null &&
                                                     categoryController
-                                                            .subCategoryList!
-                                                            .isNotEmpty &&
+                                                        .subCategoryList!
+                                                        .isNotEmpty &&
                                                     (!_update ||
                                                         (widget.item?.categoryIds !=
                                                                 null &&
@@ -957,7 +964,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             widget
                                                                     .item!
                                                                     .conditionId !=
-                                                                0)) && suitableTagList.isNotEmpty
+                                                                0)) &&
+                                                    suitableTagList.isNotEmpty
                                                 ? LabelWidget(
                                                     labelText:
                                                         'suitable_for'.tr,
@@ -993,14 +1001,18 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   )
                                                 : const SizedBox(),
                                             SizedBox(
-                                              height: isPharmacy &&
-                                                  (!_update ||
-                                                      (widget.item?.conditionId !=
-                                                              null &&
-                                                          widget
-                                                                  .item!
-                                                                  .conditionId !=
-                                                              0)) && suitableTagList.isNotEmpty || brandList.isNotEmpty
+                                              height:
+                                                  isPharmacy &&
+                                                          (!_update ||
+                                                              (widget.item?.conditionId !=
+                                                                      null &&
+                                                                  widget
+                                                                          .item!
+                                                                          .conditionId !=
+                                                                      0)) &&
+                                                          suitableTagList
+                                                              .isNotEmpty ||
+                                                      brandList.isNotEmpty
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
@@ -1013,7 +1025,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             widget
                                                                     .item!
                                                                     .brandId !=
-                                                                0)) && brandList.isNotEmpty
+                                                                0)) &&
+                                                    brandList.isNotEmpty
                                                 ? LabelWidget(
                                                     labelText: 'brand'.tr,
                                                     child: CustomDropdownButton(
@@ -1053,29 +1066,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                               widget
                                                                       .item!
                                                                       .brandId !=
-                                                                  0)) && brandList.isNotEmpty
+                                                                  0)) &&
+                                                      brandList.isNotEmpty
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
                                             ),
 
-                                            isPharmacy &&
-                                                    (!_update ||
-                                                        (widget.item?.genericName !=
-                                                                null &&
-                                                            widget
-                                                                .item!
-                                                                .genericName!
-                                                                .isNotEmpty))
-                                                ? CustomTextFieldWidget(
-                                                    hintText: 'generic_name'.tr,
-                                                    labelText:
-                                                        'generic_name'.tr,
-                                                    controller:
-                                                        _genericNameSuggestionController,
-                                                    focusNode: _genericNameNode,
-                                                  )
-                                                : const SizedBox(),
+                                            const SizedBox(),
                                             SizedBox(
                                               height: isPharmacy
                                                   ? Dimensions
@@ -1083,375 +1081,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            (isFood || isGrocery) &&
-                                                    (!_update ||
-                                                        (widget.item?.nutrition !=
-                                                                null &&
-                                                            widget
-                                                                .item!
-                                                                .nutrition!
-                                                                .isNotEmpty))
-                                                ? Column(
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 8,
-                                                            child: Autocomplete<int>(
-                                                              optionsBuilder:
-                                                                  (
-                                                                    TextEditingValue
-                                                                    value,
-                                                                  ) {
-                                                                    if (value
-                                                                        .text
-                                                                        .isEmpty) {
-                                                                      return const Iterable<
-                                                                        int
-                                                                      >.empty();
-                                                                    } else {
-                                                                      return nutritionSuggestion.where(
-                                                                        (
-                                                                          nutrition,
-                                                                        ) => storeController
-                                                                            .nutritionSuggestionList![nutrition]!
-                                                                            .toLowerCase()
-                                                                            .contains(
-                                                                              value.text.toLowerCase(),
-                                                                            ),
-                                                                      );
-                                                                    }
-                                                                  },
-                                                              optionsViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    onAutoCompleteSelect,
-                                                                    options,
-                                                                  ) {
-                                                                    List<int>
-                                                                    result = TypeConverter.convertIntoListOfInteger(
-                                                                      options
-                                                                          .toString(),
-                                                                    );
-
-                                                                    return Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .topLeft,
-                                                                      child: Material(
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).primaryColorLight,
-                                                                        elevation:
-                                                                            4.0,
-                                                                        child: Container(
-                                                                          color: Theme.of(
-                                                                            context,
-                                                                          ).cardColor,
-                                                                          width:
-                                                                              MediaQuery.of(
-                                                                                context,
-                                                                              ).size.width -
-                                                                              110,
-                                                                          child: ListView.separated(
-                                                                            shrinkWrap:
-                                                                                true,
-                                                                            padding: const EdgeInsets.all(
-                                                                              8.0,
-                                                                            ),
-                                                                            itemCount:
-                                                                                result.length,
-                                                                            separatorBuilder:
-                                                                                (
-                                                                                  context,
-                                                                                  i,
-                                                                                ) {
-                                                                                  return const Divider(
-                                                                                    height: 0,
-                                                                                  );
-                                                                                },
-                                                                            itemBuilder:
-                                                                                (
-                                                                                  BuildContext context,
-                                                                                  int index,
-                                                                                ) {
-                                                                                  return CustomInkWellWidget(
-                                                                                    onTap: () {
-                                                                                      if (storeController.selectedNutritionList!.length >=
-                                                                                          5) {
-                                                                                        showCustomSnackBar(
-                                                                                          'you_can_select_or_add_maximum_5_nutrition'.tr,
-                                                                                          isError: true,
-                                                                                        );
-                                                                                      } else {
-                                                                                        _nutritionSuggestionController.text = '';
-                                                                                        storeController.setSelectedNutritionIndex(
-                                                                                          result[index],
-                                                                                          true,
-                                                                                        );
-                                                                                      }
-                                                                                    },
-                                                                                    child: Padding(
-                                                                                      padding: const EdgeInsets.symmetric(
-                                                                                        vertical: Dimensions.paddingSizeSmall,
-                                                                                      ),
-                                                                                      child: Text(
-                                                                                        storeController.nutritionSuggestionList![result[index]]!,
-                                                                                      ),
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              fieldViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    controller,
-                                                                    node,
-                                                                    onComplete,
-                                                                  ) {
-                                                                    _nutritionSuggestionController =
-                                                                        controller;
-                                                                    return Container(
-                                                                      height:
-                                                                          50,
-                                                                      decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(
-                                                                          Dimensions
-                                                                              .radiusSmall,
-                                                                        ),
-                                                                      ),
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            controller,
-                                                                        focusNode:
-                                                                            node,
-                                                                        onEditingComplete: () {
-                                                                          onComplete();
-                                                                          controller.text =
-                                                                              '';
-                                                                        },
-                                                                        decoration: InputDecoration(
-                                                                          hintText:
-                                                                              'type_and_click_add_button'.tr,
-                                                                          labelText:
-                                                                              'nutrition'.tr,
-                                                                          hintStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          labelStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          enabledBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          focusedBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          suffixIcon: CustomToolTip(
-                                                                            message:
-                                                                                'specify_the_necessary_keywords_relating_to_energy_values_for_the_item'.tr,
-                                                                            preferredDirection:
-                                                                                AxisDirection.up,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              displayStringForOption:
-                                                                  (
-                                                                    value,
-                                                                  ) => storeController
-                                                                      .nutritionSuggestionList![value]!,
-                                                              onSelected: (int value) {
-                                                                if (storeController
-                                                                        .selectedNutritionList!
-                                                                        .length >=
-                                                                    5) {
-                                                                  showCustomSnackBar(
-                                                                    'you_can_select_or_add_maximum_5_nutrition'
-                                                                        .tr,
-                                                                    isError:
-                                                                        true,
-                                                                  );
-                                                                } else {
-                                                                  _nutritionSuggestionController
-                                                                          .text =
-                                                                      '';
-                                                                  storeController
-                                                                      .setSelectedNutritionIndex(
-                                                                        value,
-                                                                        true,
-                                                                      );
-                                                                }
-                                                              },
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: Dimensions
-                                                                .paddingSizeSmall,
-                                                          ),
-
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: CustomButtonWidget(
-                                                              buttonText:
-                                                                  'add'.tr,
-                                                              onPressed: () {
-                                                                if (storeController
-                                                                        .selectedNutritionList!
-                                                                        .length >=
-                                                                    5) {
-                                                                  showCustomSnackBar(
-                                                                    'you_can_select_or_add_maximum_5_nutrition'
-                                                                        .tr,
-                                                                    isError:
-                                                                        true,
-                                                                  );
-                                                                } else {
-                                                                  if (_nutritionSuggestionController
-                                                                      .text
-                                                                      .isNotEmpty) {
-                                                                    storeController.setNutrition(
-                                                                      _nutritionSuggestionController
-                                                                          .text
-                                                                          .trim(),
-                                                                    );
-                                                                    _nutritionSuggestionController
-                                                                            .text =
-                                                                        '';
-                                                                  }
-                                                                }
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            storeController
-                                                                    .selectedNutritionList !=
-                                                                null
-                                                            ? Dimensions
-                                                                  .paddingSizeSmall
-                                                            : 0,
-                                                      ),
-
-                                                      storeController
-                                                                  .selectedNutritionList !=
-                                                              null
-                                                          ? SizedBox(
-                                                              height:
-                                                                  storeController
-                                                                      .selectedNutritionList!
-                                                                      .isNotEmpty
-                                                                  ? 40
-                                                                  : 0,
-                                                              child: ListView.builder(
-                                                                itemCount:
-                                                                    storeController
-                                                                        .selectedNutritionList!
-                                                                        .length,
-                                                                scrollDirection:
-                                                                    Axis.horizontal,
-                                                                itemBuilder: (context, index) {
-                                                                  return Container(
-                                                                    padding: const EdgeInsets.only(
-                                                                      left: Dimensions
-                                                                          .paddingSizeExtraSmall,
-                                                                    ),
-                                                                    margin: const EdgeInsets.only(
-                                                                      right: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-                                                                    decoration: BoxDecoration(
-                                                                      color: Theme.of(context)
-                                                                          .disabledColor
-                                                                          .withValues(
-                                                                            alpha:
-                                                                                0.2,
-                                                                          ),
-                                                                      borderRadius: BorderRadius.circular(
-                                                                        Dimensions
-                                                                            .radiusSmall,
-                                                                      ),
-                                                                    ),
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Text(
-                                                                          storeController
-                                                                              .selectedNutritionList![index]!,
-                                                                          style: robotoRegular.copyWith(
-                                                                            color:
-                                                                                Theme.of(
-                                                                                  context,
-                                                                                ).disabledColor.withValues(
-                                                                                  alpha: 0.7,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-
-                                                                        InkWell(
-                                                                          onTap: () => storeController.removeNutrition(
-                                                                            index,
-                                                                          ),
-                                                                          child: Padding(
-                                                                            padding: const EdgeInsets.all(
-                                                                              Dimensions.paddingSizeExtraSmall,
-                                                                            ),
-                                                                            child: Icon(
-                                                                              Icons.close,
-                                                                              size: 15,
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.7,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            )
-                                                          : const SizedBox(),
-                                                    ],
-                                                  )
-                                                : const SizedBox(),
+                                            const SizedBox(),
                                             SizedBox(
                                               height: isFood || isGrocery
                                                   ? Dimensions
@@ -1459,375 +1089,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            (isFood || isGrocery) &&
-                                                    (!_update ||
-                                                        (widget.item?.allergies !=
-                                                                null &&
-                                                            widget
-                                                                .item!
-                                                                .allergies!
-                                                                .isNotEmpty))
-                                                ? Column(
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 8,
-                                                            child: Autocomplete<int>(
-                                                              optionsBuilder:
-                                                                  (
-                                                                    TextEditingValue
-                                                                    value,
-                                                                  ) {
-                                                                    if (value
-                                                                        .text
-                                                                        .isEmpty) {
-                                                                      return const Iterable<
-                                                                        int
-                                                                      >.empty();
-                                                                    } else {
-                                                                      return allergicIngredientsSuggestion.where(
-                                                                        (
-                                                                          allergicIngredients,
-                                                                        ) => storeController
-                                                                            .allergicIngredientsSuggestionList![allergicIngredients]!
-                                                                            .toLowerCase()
-                                                                            .contains(
-                                                                              value.text.toLowerCase(),
-                                                                            ),
-                                                                      );
-                                                                    }
-                                                                  },
-                                                              optionsViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    onAutoCompleteSelect,
-                                                                    options,
-                                                                  ) {
-                                                                    List<int>
-                                                                    result = TypeConverter.convertIntoListOfInteger(
-                                                                      options
-                                                                          .toString(),
-                                                                    );
-
-                                                                    return Align(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .topLeft,
-                                                                      child: Material(
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).primaryColorLight,
-                                                                        elevation:
-                                                                            4.0,
-                                                                        child: Container(
-                                                                          color: Theme.of(
-                                                                            context,
-                                                                          ).cardColor,
-                                                                          width:
-                                                                              MediaQuery.of(
-                                                                                context,
-                                                                              ).size.width -
-                                                                              110,
-                                                                          child: ListView.separated(
-                                                                            shrinkWrap:
-                                                                                true,
-                                                                            padding: const EdgeInsets.all(
-                                                                              8.0,
-                                                                            ),
-                                                                            itemCount:
-                                                                                result.length,
-                                                                            separatorBuilder:
-                                                                                (
-                                                                                  context,
-                                                                                  i,
-                                                                                ) {
-                                                                                  return const Divider(
-                                                                                    height: 0,
-                                                                                  );
-                                                                                },
-                                                                            itemBuilder:
-                                                                                (
-                                                                                  BuildContext context,
-                                                                                  int index,
-                                                                                ) {
-                                                                                  return CustomInkWellWidget(
-                                                                                    onTap: () {
-                                                                                      if (storeController.selectedAllergicIngredientsList!.length >=
-                                                                                          5) {
-                                                                                        showCustomSnackBar(
-                                                                                          'you_can_select_or_add_maximum_5_allergic_ingredients'.tr,
-                                                                                          isError: true,
-                                                                                        );
-                                                                                      } else {
-                                                                                        _allergicIngredientsSuggestionController.text = '';
-                                                                                        storeController.setSelectedAllergicIngredientsIndex(
-                                                                                          result[index],
-                                                                                          true,
-                                                                                        );
-                                                                                      }
-                                                                                    },
-                                                                                    child: Padding(
-                                                                                      padding: const EdgeInsets.symmetric(
-                                                                                        vertical: Dimensions.paddingSizeSmall,
-                                                                                      ),
-                                                                                      child: Text(
-                                                                                        storeController.allergicIngredientsSuggestionList![result[index]]!,
-                                                                                      ),
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              fieldViewBuilder:
-                                                                  (
-                                                                    context,
-                                                                    controller,
-                                                                    node,
-                                                                    onComplete,
-                                                                  ) {
-                                                                    _allergicIngredientsSuggestionController =
-                                                                        controller;
-                                                                    return Container(
-                                                                      height:
-                                                                          50,
-                                                                      decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(
-                                                                          Dimensions
-                                                                              .radiusSmall,
-                                                                        ),
-                                                                      ),
-                                                                      child: TextField(
-                                                                        controller:
-                                                                            controller,
-                                                                        focusNode:
-                                                                            node,
-                                                                        onEditingComplete: () {
-                                                                          onComplete();
-                                                                          controller.text =
-                                                                              '';
-                                                                        },
-                                                                        decoration: InputDecoration(
-                                                                          hintText:
-                                                                              'type_and_click_add_button'.tr,
-                                                                          labelText:
-                                                                              'allergic_ingredients'.tr,
-                                                                          hintStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          labelStyle: robotoRegular.copyWith(
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeLarge,
-                                                                            color: Theme.of(
-                                                                              context,
-                                                                            ).disabledColor,
-                                                                          ),
-                                                                          enabledBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          focusedBorder: OutlineInputBorder(
-                                                                            borderRadius: BorderRadius.circular(
-                                                                              Dimensions.radiusDefault,
-                                                                            ),
-                                                                            borderSide: BorderSide(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.5,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                          suffixIcon: CustomToolTip(
-                                                                            message:
-                                                                                'specify_the_ingredients_of_the_item_which_can_make_a_reaction_as_an_allergen'.tr,
-                                                                            preferredDirection:
-                                                                                AxisDirection.up,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                              displayStringForOption:
-                                                                  (
-                                                                    value,
-                                                                  ) => storeController
-                                                                      .allergicIngredientsSuggestionList![value]!,
-                                                              onSelected: (int value) {
-                                                                if (storeController
-                                                                        .selectedAllergicIngredientsList!
-                                                                        .length >=
-                                                                    5) {
-                                                                  showCustomSnackBar(
-                                                                    'you_can_select_or_add_maximum_5_allergic_ingredients'
-                                                                        .tr,
-                                                                    isError:
-                                                                        true,
-                                                                  );
-                                                                } else {
-                                                                  _allergicIngredientsSuggestionController
-                                                                          .text =
-                                                                      '';
-                                                                  storeController
-                                                                      .setSelectedAllergicIngredientsIndex(
-                                                                        value,
-                                                                        true,
-                                                                      );
-                                                                }
-                                                              },
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: Dimensions
-                                                                .paddingSizeSmall,
-                                                          ),
-
-                                                          Expanded(
-                                                            flex: 2,
-                                                            child: CustomButtonWidget(
-                                                              buttonText:
-                                                                  'add'.tr,
-                                                              onPressed: () {
-                                                                if (storeController
-                                                                        .selectedAllergicIngredientsList!
-                                                                        .length >=
-                                                                    5) {
-                                                                  showCustomSnackBar(
-                                                                    'you_can_select_or_add_maximum_5_allergic_ingredients'
-                                                                        .tr,
-                                                                    isError:
-                                                                        true,
-                                                                  );
-                                                                } else {
-                                                                  if (_allergicIngredientsSuggestionController
-                                                                      .text
-                                                                      .isNotEmpty) {
-                                                                    storeController.setAllergicIngredients(
-                                                                      _allergicIngredientsSuggestionController
-                                                                          .text
-                                                                          .trim(),
-                                                                    );
-                                                                    _allergicIngredientsSuggestionController
-                                                                            .text =
-                                                                        '';
-                                                                  }
-                                                                }
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            storeController
-                                                                    .selectedAllergicIngredientsList !=
-                                                                null
-                                                            ? Dimensions
-                                                                  .paddingSizeSmall
-                                                            : 0,
-                                                      ),
-
-                                                      storeController
-                                                                  .selectedAllergicIngredientsList !=
-                                                              null
-                                                          ? SizedBox(
-                                                              height:
-                                                                  storeController
-                                                                      .selectedAllergicIngredientsList!
-                                                                      .isNotEmpty
-                                                                  ? 40
-                                                                  : 0,
-                                                              child: ListView.builder(
-                                                                itemCount:
-                                                                    storeController
-                                                                        .selectedAllergicIngredientsList!
-                                                                        .length,
-                                                                scrollDirection:
-                                                                    Axis.horizontal,
-                                                                itemBuilder: (context, index) {
-                                                                  return Container(
-                                                                    padding: const EdgeInsets.only(
-                                                                      left: Dimensions
-                                                                          .paddingSizeExtraSmall,
-                                                                    ),
-                                                                    margin: const EdgeInsets.only(
-                                                                      right: Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-                                                                    decoration: BoxDecoration(
-                                                                      color: Theme.of(context)
-                                                                          .disabledColor
-                                                                          .withValues(
-                                                                            alpha:
-                                                                                0.2,
-                                                                          ),
-                                                                      borderRadius: BorderRadius.circular(
-                                                                        Dimensions
-                                                                            .radiusSmall,
-                                                                      ),
-                                                                    ),
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Text(
-                                                                          storeController
-                                                                              .selectedAllergicIngredientsList![index]!,
-                                                                          style: robotoRegular.copyWith(
-                                                                            color:
-                                                                                Theme.of(
-                                                                                  context,
-                                                                                ).disabledColor.withValues(
-                                                                                  alpha: 0.7,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-
-                                                                        InkWell(
-                                                                          onTap: () => storeController.removeAllergicIngredients(
-                                                                            index,
-                                                                          ),
-                                                                          child: Padding(
-                                                                            padding: const EdgeInsets.all(
-                                                                              Dimensions.paddingSizeExtraSmall,
-                                                                            ),
-                                                                            child: Icon(
-                                                                              Icons.close,
-                                                                              size: 15,
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.7,
-                                                                                  ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            )
-                                                          : const SizedBox(),
-                                                    ],
-                                                  )
-                                                : const SizedBox(),
+                                            const SizedBox(),
                                             SizedBox(
                                               height: isFood || isGrocery
                                                   ? Dimensions
@@ -1983,134 +1245,11 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            ((isFood || isGrocery) &&
-                                                        storeHalalActive) &&
-                                                    (!_update ||
-                                                        (widget.item?.isHalal !=
-                                                                null &&
-                                                            widget
-                                                                    .item!
-                                                                    .isHalal ==
-                                                                1))
-                                                ? LabelWidget(
-                                                    labelText: 'halal_tag'.tr,
-                                                    padding: const EdgeInsets.only(
-                                                      left: Dimensions
-                                                          .paddingSizeDefault,
-                                                      top: Dimensions
-                                                          .paddingSizeExtraSmall,
-                                                      bottom: Dimensions
-                                                          .paddingSizeExtraSmall,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Text(
-                                                            'status'.tr,
-                                                            style: robotoMedium,
-                                                          ),
-                                                        ),
-                                                        Transform.scale(
-                                                          scale: 0.7,
-                                                          child: CupertinoSwitch(
-                                                            value:
-                                                                storeController
-                                                                    .isHalal,
-                                                            onChanged:
-                                                                (
-                                                                  bool
-                                                                  isChecked,
-                                                                ) => storeController
-                                                                    .toggleHalal(),
-                                                            activeTrackColor:
-                                                                Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                            SizedBox(
-                                              height:
-                                                  ((isFood || isGrocery) &&
-                                                          storeHalalActive) &&
-                                                      (!_update ||
-                                                          (widget.item?.isHalal !=
-                                                                  null &&
-                                                              widget
-                                                                      .item!
-                                                                      .isHalal ==
-                                                                  1))
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
-                                            ),
+                                            const SizedBox(),
 
-                                            isPharmacy &&
-                                                    (!_update ||
-                                                        (widget.item?.isBasicMedicine !=
-                                                                null &&
-                                                            widget
-                                                                    .item!
-                                                                    .isBasicMedicine ==
-                                                                1))
-                                                ? LabelWidget(
-                                                    labelText:
-                                                        'basic_medicine'.tr,
-                                                    padding: const EdgeInsets.only(
-                                                      left: Dimensions
-                                                          .paddingSizeDefault,
-                                                      top: Dimensions
-                                                          .paddingSizeExtraSmall,
-                                                      bottom: Dimensions
-                                                          .paddingSizeExtraSmall,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Text(
-                                                            'status'.tr,
-                                                            style: robotoMedium,
-                                                          ),
-                                                        ),
 
-                                                        Transform.scale(
-                                                          scale: 0.7,
-                                                          child: CupertinoSwitch(
-                                                            value: storeController
-                                                                .isBasicMedicine,
-                                                            onChanged:
-                                                                (
-                                                                  bool?
-                                                                  isChecked,
-                                                                ) => storeController
-                                                                    .toggleBasicMedicine(),
-                                                            activeTrackColor:
-                                                                Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                            SizedBox(
-                                              height:
-                                                  isPharmacy &&
-                                                      (!_update ||
-                                                          (widget.item?.isBasicMedicine !=
-                                                                  null &&
-                                                              widget
-                                                                      .item!
-                                                                      .isBasicMedicine ==
-                                                                  1))
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
-                                            ),
+                                            const SizedBox(),
+
 
                                             Get.find<SplashController>()
                                                         .configModel!
@@ -2300,75 +1439,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                         height: Dimensions.paddingSizeDefault,
                                       ),
 
-                                      isPharmacy &&
-                                              (!_update ||
-                                                  (widget.item?.isPrescriptionRequired !=
-                                                          null &&
-                                                      widget
-                                                              .item!
-                                                              .isPrescriptionRequired ==
-                                                          1))
-                                          ? Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'prescription_required'.tr,
-                                                  style: robotoBold,
-                                                ),
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
+                                       const SizedBox(),
 
-                                                AnimatedBorderContainer(
-                                                  padding: const EdgeInsets.all(
-                                                    0,
-                                                  ),
-                                                  isLoading: aiController
-                                                      .otherDataLoading,
-                                                  child: ListTile(
-                                                    onTap: () => storeController
-                                                        .togglePrescriptionRequired(),
-                                                    leading: Checkbox(
-                                                      activeColor: Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                      value: storeController
-                                                          .isPrescriptionRequired,
-                                                      onChanged:
-                                                          (
-                                                            bool? isChecked,
-                                                          ) => storeController
-                                                              .togglePrescriptionRequired(),
-                                                    ),
-                                                    title: Text(
-                                                      'this_item_need_prescription_to_place_order'
-                                                          .tr,
-                                                      style: robotoMedium,
-                                                    ),
-                                                    contentPadding:
-                                                        EdgeInsets.zero,
-                                                    dense: true,
-                                                    horizontalTitleGap: 0,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : const SizedBox(),
-                                      SizedBox(
-                                        height:
-                                            isPharmacy &&
-                                                (!_update ||
-                                                    (widget.item?.isPrescriptionRequired !=
-                                                            null &&
-                                                        widget
-                                                                .item!
-                                                                .isPrescriptionRequired ==
-                                                            1))
-                                            ? Dimensions.paddingSizeDefault
-                                            : 0,
-                                      ),
 
                                       Text('price_info'.tr, style: robotoBold),
                                       const SizedBox(
@@ -2532,7 +1604,10 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            ((_module.stock! && (_update || true)) || (_module.unit! && unitList.isNotEmpty))
+                                            ((_module.stock! &&
+                                                        (_update || true)) ||
+                                                    (_module.unit! &&
+                                                        unitList.isNotEmpty))
                                                 ? Row(
                                                     children: [
                                                       _module.stock!
@@ -2561,7 +1636,9 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             : 0,
                                                       ),
 
-                                                      _module.unit! && unitList.isNotEmpty
+                                                      _module.unit! &&
+                                                              unitList
+                                                                  .isNotEmpty
                                                           ? Expanded(
                                                               child: Container(
                                                                 decoration: BoxDecoration(
@@ -2667,152 +1744,176 @@ class _AddItemScreenState extends State<AddItemScreen>
                                         height: Dimensions.paddingSizeDefault,
                                       ),
 
-                                       (Get.find<SplashController>().getStoreModuleConfig().newVariation! || (storeController.attributeList != null && storeController.attributeList!.isNotEmpty) || (_update && widget.item!.attributes != null && widget.item!.attributes!.isNotEmpty)) ? Column(
-                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                         children: [
-                                           Row(
-                                             mainAxisAlignment:
-                                                 MainAxisAlignment.spaceBetween,
-                                             children: [
-                                               Get.find<SplashController>()
-                                                       .getStoreModuleConfig()
-                                                       .newVariation!
-                                                   ? Row(
-                                                       children: [
-                                                         Text(
-                                                           'food_variation'.tr,
-                                                           style: robotoBold,
-                                                         ),
-                                                         Text(
-                                                           ' (${'optional'.tr})',
-                                                           style: robotoRegular
-                                                               .copyWith(
-                                                                 color: Theme.of(
-                                                                   context,
-                                                                 ).disabledColor,
-                                                                 fontSize: Dimensions
-                                                                     .fontSizeSmall,
-                                                               ),
-                                                         ),
-                                                       ],
-                                                     )
-                                                   : Text(
-                                                       'attribute'.tr,
-                                                       style: robotoBold,
-                                                     ),
+                                      (Get.find<SplashController>()
+                                                  .getStoreModuleConfig()
+                                                  .newVariation! ||
+                                              (storeController.attributeList !=
+                                                      null &&
+                                                  storeController
+                                                      .attributeList!
+                                                      .isNotEmpty) ||
+                                              (_update &&
+                                                  widget.item!.attributes !=
+                                                      null &&
+                                                  widget
+                                                      .item!
+                                                      .attributes!
+                                                      .isNotEmpty))
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Get.find<SplashController>()
+                                                            .getStoreModuleConfig()
+                                                            .newVariation!
+                                                        ? Row(
+                                                            children: [
+                                                              Text(
+                                                                'food_variation'
+                                                                    .tr,
+                                                                style:
+                                                                    robotoBold,
+                                                              ),
+                                                              Text(
+                                                                ' (${'optional'.tr})',
+                                                                style: robotoRegular.copyWith(
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).disabledColor,
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeSmall,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        : Text(
+                                                            'attribute'.tr,
+                                                            style: robotoBold,
+                                                          ),
 
-                                               Get.find<SplashController>()
-                                                       .configModel!
-                                                       .openAiStatus!
-                                                   ? InkWell(
-                                                       onTap: () {
-                                                         if (_nameControllerList[0]
-                                                             .text
-                                                             .isEmpty) {
-                                                           showCustomSnackBar(
-                                                             'food_name_required_for_en'
-                                                                 .tr,
-                                                           );
-                                                         } else if (_descriptionControllerList[0]
-                                                             .text
-                                                             .isEmpty) {
-                                                           showCustomSnackBar(
-                                                             'description_required'
-                                                                 .tr,
-                                                           );
-                                                         } else {
-                                                           if (Get.find<
-                                                                 SplashController
-                                                               >()
-                                                               .getStoreModuleConfig()
-                                                               .newVariation!) {
-                                                             storeController
-                                                                 .generateAndSetVariationData(
-                                                                   title:
-                                                                       _nameControllerList[0]
-                                                                           .text
-                                                                           .trim(),
-                                                                   description:
-                                                                       _descriptionControllerList[0]
-                                                                           .text
-                                                                           .trim(),
-                                                                 );
-                                                           } else {
-                                                             storeController
-                                                                 .generateAndSetAttributeData(
-                                                                   title:
-                                                                       _nameControllerList[0]
-                                                                           .text
-                                                                           .trim(),
-                                                                   description:
-                                                                       _descriptionControllerList[0]
-                                                                           .text
-                                                                           .trim(),
-                                                                 );
-                                                           }
-                                                         }
-                                                       },
-                                                       child:
-                                                           !aiController
-                                                               .variationDataLoading
-                                                           ? Icon(
-                                                               Icons.auto_awesome,
-                                                               color: Colors.blue,
-                                                             )
-                                                           : Shimmer(
-                                                               duration:
-                                                                   const Duration(
-                                                                     seconds: 2,
-                                                                   ),
-                                                               color: Colors.blue,
-                                                               child: Row(
-                                                                 children: [
-                                                                   Icon(
-                                                                     Icons
-                                                                         .auto_awesome,
-                                                                     color:
-                                                                         Colors.blue,
-                                                                   ),
-                                                                   const SizedBox(
-                                                                     width: Dimensions
-                                                                         .paddingSizeExtraSmall,
-                                                                   ),
+                                                    Get.find<SplashController>()
+                                                            .configModel!
+                                                            .openAiStatus!
+                                                        ? InkWell(
+                                                            onTap: () {
+                                                              if (_nameControllerList[0]
+                                                                  .text
+                                                                  .isEmpty) {
+                                                                showCustomSnackBar(
+                                                                  'food_name_required_for_en'
+                                                                      .tr,
+                                                                );
+                                                              } else if (_descriptionControllerList[0]
+                                                                  .text
+                                                                  .isEmpty) {
+                                                                showCustomSnackBar(
+                                                                  'description_required'
+                                                                      .tr,
+                                                                );
+                                                              } else {
+                                                                if (Get.find<
+                                                                      SplashController
+                                                                    >()
+                                                                    .getStoreModuleConfig()
+                                                                    .newVariation!) {
+                                                                  storeController.generateAndSetVariationData(
+                                                                    title: _nameControllerList[0]
+                                                                        .text
+                                                                        .trim(),
+                                                                    description:
+                                                                        _descriptionControllerList[0]
+                                                                            .text
+                                                                            .trim(),
+                                                                  );
+                                                                } else {
+                                                                  storeController.generateAndSetAttributeData(
+                                                                    title: _nameControllerList[0]
+                                                                        .text
+                                                                        .trim(),
+                                                                    description:
+                                                                        _descriptionControllerList[0]
+                                                                            .text
+                                                                            .trim(),
+                                                                  );
+                                                                }
+                                                              }
+                                                            },
+                                                            child:
+                                                                !aiController
+                                                                    .variationDataLoading
+                                                                ? Icon(
+                                                                    Icons
+                                                                        .auto_awesome,
+                                                                    color: Colors
+                                                                        .blue,
+                                                                  )
+                                                                : Shimmer(
+                                                                    duration:
+                                                                        const Duration(
+                                                                          seconds:
+                                                                              2,
+                                                                        ),
+                                                                    color: Colors
+                                                                        .blue,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Icon(
+                                                                          Icons
+                                                                              .auto_awesome,
+                                                                          color:
+                                                                              Colors.blue,
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              Dimensions.paddingSizeExtraSmall,
+                                                                        ),
 
-                                                                   Text(
-                                                                     'generating'.tr,
-                                                                     style: robotoBold
-                                                                         .copyWith(
-                                                                           color: Colors
-                                                                               .blue,
-                                                                         ),
-                                                                   ),
-                                                                 ],
-                                                               ),
-                                                             ),
-                                                     )
-                                                   : const SizedBox(),
-                                             ],
-                                           ),
-                                           const SizedBox(
-                                             height: Dimensions.paddingSizeSmall,
-                                           ),
+                                                                        Text(
+                                                                          'generating'
+                                                                              .tr,
+                                                                          style: robotoBold.copyWith(
+                                                                            color:
+                                                                                Colors.blue,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                          )
+                                                        : const SizedBox(),
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  height: Dimensions
+                                                      .paddingSizeSmall,
+                                                ),
 
-                                           Get.find<SplashController>()
-                                                   .getStoreModuleConfig()
-                                                   .newVariation!
-                                               ? FoodVariationViewWidget(
-                                                   storeController: storeController,
-                                                   item: widget.item,
-                                                 )
-                                               : AttributeViewWidget(
-                                                   storeController: storeController,
-                                                   product: widget.item,
-                                                 ),
-                                           const SizedBox(
-                                             height: Dimensions.paddingSizeDefault,
-                                           ),
-                                         ],
-                                       ) : const SizedBox(),
+                                                Get.find<SplashController>()
+                                                        .getStoreModuleConfig()
+                                                        .newVariation!
+                                                    ? FoodVariationViewWidget(
+                                                        storeController:
+                                                            storeController,
+                                                        item: widget.item,
+                                                      )
+                                                    : AttributeViewWidget(
+                                                        storeController:
+                                                            storeController,
+                                                        product: widget.item,
+                                                      ),
+                                                const SizedBox(
+                                                  height: Dimensions
+                                                      .paddingSizeDefault,
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox(),
 
                                       _module.addOn!
                                           ? Text('addons'.tr, style: robotoBold)
@@ -4150,11 +3251,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           storeController
                                               .unitList!
                                               .isNotEmpty) {
+                                        _item.unitId = storeController
+                                            .unitList![storeController
+                                                .unitIndex!]
+                                            .id;
                                         _item.unitType = storeController
                                             .unitList![storeController
                                                 .unitIndex!]
-                                            .id
-                                            .toString();
+                                            .unit;
                                       }
                                       if (_module.stock!) {
                                         _item.stock = int.parse(

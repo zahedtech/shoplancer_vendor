@@ -440,6 +440,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                               ),
                                             ],
                                           ),
+
+                                          if (orderController.isOrderChecklistComplete(order!.id!)) ...[
+                                            Container(
+                                              width: double.infinity,
+                                              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                                              margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                border: Border.all(color: Colors.green.withOpacity(0.5)),
+                                              ),
+                                              child: Row(children: [
+                                                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                                                const SizedBox(width: Dimensions.paddingSizeSmall),
+                                                Text(
+                                                  'all_items_prepared_and_ready_for_delivery'.tr,
+                                                  style: robotoMedium.copyWith(color: Colors.green),
+                                                ),
+                                              ]),
+                                            ),
+                                          ],
+
                                           if (_isExpanded)
                                             Column(
                                               children: [
@@ -459,11 +481,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                   itemBuilder: (context, index) {
                                                     return Column(
                                                       children: [
-                                                        OrderItemWidget(
-                                                          order: order,
-                                                          orderDetails:
-                                                              orderController
-                                                                  .orderDetailsModel![index],
+                                                        Row(
+                                                          children: [
+                                                            Checkbox(
+                                                              value: orderController.isItemChecked(order!.id!, orderController.orderDetailsModel![index].id!),
+                                                              activeColor: Theme.of(context).primaryColor,
+                                                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                                              onChanged: (bool? value) {
+                                                                orderController.toggleItemCheck(order!.id!, orderController.orderDetailsModel![index].id!);
+                                                              },
+                                                            ),
+                                                            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                                                            Expanded(
+                                                              child: OrderItemWidget(
+                                                                order: order,
+                                                                orderDetails: orderController.orderDetailsModel![index],
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                         if (orderController
                                                                     .orderDetailsModel!

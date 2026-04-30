@@ -63,6 +63,8 @@ import 'package:sixam_mart_store/features/store/screens/pending_item_screen.dart
 import 'package:sixam_mart_store/features/store/screens/store_edit_screen.dart';
 import 'package:sixam_mart_store/features/store/screens/store_screen.dart';
 import 'package:sixam_mart_store/features/store/screens/store_settings_screen.dart';
+import 'package:sixam_mart_store/features/store/screens/product_price_management_screen.dart';
+
 import 'package:sixam_mart_store/features/splash/screens/splash_screen.dart';
 import 'package:sixam_mart_store/features/subscription/screens/my_subscription_screen.dart';
 import 'package:sixam_mart_store/features/update/screens/update_screen.dart';
@@ -138,6 +140,8 @@ class RouteHelper {
   static const String allItems = '/all-items';
   static const String storeEdit = '/store-edit';
   static const String setting = '/setting';
+  static const String productPriceUpdate = '/product-price-update';
+
 
   static String getInitialRoute() => initial;
   static String getSplashRoute(NotificationBodyModel? body) {
@@ -279,6 +283,8 @@ class RouteHelper {
     return '$storeEdit?data=$data';
   }
   static String getSettingRoute() => setting;
+  static String getProductPriceUpdateRoute() => productPriceUpdate;
+
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => const DashboardScreen(pageIndex: 0)),
@@ -443,5 +449,7 @@ class RouteHelper {
       return StoreEditScreen(store: data);
     }),
     GetPage(name: setting, page: () => const SettingScreen()),
+    GetPage(name: productPriceUpdate, page: () => const ProductPriceManagementScreen()),
+
   ];
 }
