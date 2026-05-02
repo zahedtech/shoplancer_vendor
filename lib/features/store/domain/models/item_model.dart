@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
 
@@ -13,7 +14,7 @@ class ItemModel {
     int? totalSize,
     String? limit,
     String? offset,
-    List<Item>? items
+    List<Item>? items,
   }) {
     _totalSize = totalSize;
     _limit = limit;
@@ -27,14 +28,27 @@ class ItemModel {
   List<Item>? get items => _items;
 
   ItemModel.fromJson(Map<String, dynamic> json) {
-    _totalSize = json['total_size'];
-    _limit = json['limit'].toString();
-    _offset = json['offset'];
-    if (json['items'] != null) {
-      _items = [];
-      json['items'].forEach((v) {
-        _items!.add(Item.fromJson(v));
-      });
+    if (json['data'] != null && json['data'] is Map<String, dynamic>) {
+      _totalSize = json['data']['total_size'] ?? json['data']['total'];
+      _limit = (json['data']['limit'] ?? json['data']['per_page']).toString();
+      _offset = (json['data']['offset'] ?? json['data']['current_page'])
+          .toString();
+      if (json['data']['items'] != null) {
+        _items = [];
+        json['data']['items'].forEach((v) {
+          _items!.add(Item.fromJson(v));
+        });
+      }
+    } else {
+      _totalSize = json['total_size'];
+      _limit = json['limit'].toString();
+      _offset = json['offset'];
+      if (json['items'] != null) {
+        _items = [];
+        json['items'].forEach((v) {
+          _items!.add(Item.fromJson(v));
+        });
+      }
     }
   }
 
@@ -175,10 +189,10 @@ class Item {
     name = json['name'];
     description = json['description'];
     imageFullUrl = json['image_full_url'];
-    if(json['images_full_url'] != null){
+    if (json['images_full_url'] != null) {
       imagesFullUrl = [];
       json['images_full_url'].forEach((v) {
-        if(v != null) {
+        if (v != null) {
           imagesFullUrl!.add(v.toString());
         }
       });
@@ -186,34 +200,64 @@ class Item {
     categoryId = json['category_id'];
     if (json['category_ids'] != null) {
       categoryIds = [];
-      json['category_ids'].forEach((v) {
+      dynamic categories = json['category_ids'];
+      if (categories is String) {
+        categories = jsonDecode(categories);
+      }
+      categories.forEach((v) {
         categoryIds!.add(CategoryIds.fromJson(v));
       });
     }
-    if(Get.find<SplashController>().getStoreModuleConfig().newVariation! && json['food_variations'] != null && json['food_variations'] is !String) {
+    if (Get.find<SplashController>().getStoreModuleConfig().newVariation! &&
+        json['food_variations'] != null &&
+        json['food_variations'] is! String) {
       foodVariations = [];
-      json['food_variations'].forEach((v) {
+      dynamic variationsData = json['food_variations'];
+      if (variationsData is String) {
+        variationsData = jsonDecode(variationsData);
+      }
+      variationsData.forEach((v) {
         foodVariations!.add(FoodVariation.fromJson(v));
       });
-    }else if(json['variations'] != null) {
+    } else if (json['variations'] != null) {
       variations = [];
-      json['variations'].forEach((v) {
+      dynamic variationsData = json['variations'];
+      if (variationsData is String) {
+        variationsData = jsonDecode(variationsData);
+      }
+      variationsData.forEach((v) {
         variations!.add(Variation.fromJson(v));
       });
     }
     if (json['add_ons'] != null) {
       addOns = [];
-      json['add_ons'].forEach((v) {
-        addOns!.add(AddOns.fromJson(v));
+      dynamic addOnsData = json['add_ons'];
+      if (addOnsData is String) {
+        addOnsData = jsonDecode(addOnsData);
+      }
+      addOnsData.forEach((v) {
+        if (v != null && v != "") {
+          addOns!.add(AddOns.fromJson(v));
+        }
       });
     }
-    if(json['attributes'] != null) {
+    if (json['attributes'] != null) {
       attributes = [];
-      json['attributes'].forEach((attr) => attributes!.add(int.parse(attr.toString())));
+      dynamic attributesData = json['attributes'];
+      if (attributesData is String) {
+        attributesData = jsonDecode(attributesData);
+      }
+      attributesData.forEach(
+        (attr) => attributes!.add(int.parse(attr.toString())),
+      );
     }
     if (json['choice_options'] != null) {
       choiceOptions = [];
-      json['choice_options'].forEach((v) {
+      dynamic choiceOptionsData = json['choice_options'];
+      if (choiceOptionsData is String) {
+        choiceOptionsData = jsonDecode(choiceOptionsData);
+      }
+      choiceOptionsData.forEach((v) {
         choiceOptions!.add(ChoiceOptions.fromJson(v));
       });
     }
@@ -235,15 +279,20 @@ class Item {
     ratingCount = json['rating_count'];
     veg = json['veg'];
     unitType = json['unit_type'];
-    if(unitType == null && json['unit'] != null) {
-      if(json['unit'] is String) {
+    if (unitType == null && json['unit'] != null) {
+      if (json['unit'] is String) {
         unitType = json['unit'];
       } else if (json['unit'] is Map && json['unit']['unit'] != null) {
         unitType = json['unit']['unit'].toString();
       }
     }
-    unitId = json['unit_id'] != null ? int.parse(json['unit_id'].toString()) : null;
-    if(unitId == null && json['unit'] != null && json['unit'] is Map && json['unit']['id'] != null) {
+    unitId = json['unit_id'] != null
+        ? int.parse(json['unit_id'].toString())
+        : null;
+    if (unitId == null &&
+        json['unit'] != null &&
+        json['unit'] is Map &&
+        json['unit']['id'] != null) {
       unitId = int.parse(json['unit']['id'].toString());
     }
     stock = json['stock'];
@@ -252,10 +301,19 @@ class Item {
       json['translations'].forEach((v) {
         translations!.add(Translation.fromJson(v));
       });
-    }else {
+    } else {
       translations = [];
-      translations!.add(Translation(id: 0, locale: 'en', key: 'name', value: json['name']));
-      translations!.add(Translation(id: 0, locale: 'en', key: 'description', value: json['description']));
+      translations!.add(
+        Translation(id: 0, locale: 'en', key: 'name', value: json['name']),
+      );
+      translations!.add(
+        Translation(
+          id: 0,
+          locale: 'en',
+          key: 'description',
+          value: json['description'],
+        ),
+      );
     }
     if (json['tags'] != null) {
       tags = [];
@@ -263,29 +321,37 @@ class Item {
         tags!.add(Tag.fromJson(v));
       });
     }
-    recommendedStatus = json['recommended'] != null ? int.parse(json['recommended'].toString()) : 0;
+    recommendedStatus = json['recommended'] != null
+        ? int.parse(json['recommended'].toString())
+        : 0;
     organicStatus = json['organic'];
-    maxOrderQuantity = json['maximum_cart_quantity'] != null ? int.parse(json['maximum_cart_quantity'].toString()) : 0;
-    itemId = json['item_id'] != null ? int.parse(json['item_id'].toString()) : null;
-    isPrescriptionRequired = json['is_prescription_required'] != null ? int.parse(json['is_prescription_required'].toString()) : 0;
+    maxOrderQuantity = json['maximum_cart_quantity'] != null
+        ? int.parse(json['maximum_cart_quantity'].toString())
+        : 0;
+    itemId = json['item_id'] != null
+        ? int.parse(json['item_id'].toString())
+        : null;
+    isPrescriptionRequired = json['is_prescription_required'] != null
+        ? int.parse(json['is_prescription_required'].toString())
+        : 0;
     brandId = json['brand_id'];
     isHalal = json['is_halal'];
     halalTagStatus = json['halal_tag_status'];
-    if(json['nutritions_name'] != null) {
+    if (json['nutritions_name'] != null) {
       nutrition = [];
-      for(String v in json['nutritions_name']) {
+      for (String v in json['nutritions_name']) {
         nutrition!.add(v);
       }
     }
-    if(json['allergies_name'] != null) {
+    if (json['allergies_name'] != null) {
       allergies = [];
-      for(String v in json['allergies_name']) {
+      for (String v in json['allergies_name']) {
         allergies!.add(v);
       }
     }
-    if(json['generic_name'] != null) {
+    if (json['generic_name'] != null) {
       genericName = [];
-      for(String v in json['generic_name']) {
+      for (String v in json['generic_name']) {
         genericName!.add(v);
       }
     }
@@ -319,12 +385,16 @@ class Item {
     note = json['note'];
     if (json['tax_data'] != null) {
       taxData = <TaxData>[];
-      json['tax_data'].forEach((v) { taxData!.add(TaxData.fromJson(v)); });
+      json['tax_data'].forEach((v) {
+        taxData!.add(TaxData.fromJson(v));
+      });
     }
     metaTitle = json['meta_title'];
     metaDescription = json['meta_description'];
     metaImageFullUrl = json['meta_image'];
-    metaData = json['meta_data'] != null ? MetaSeoData.fromJson(json['meta_data']) : null;
+    metaData = json['meta_data'] != null
+        ? MetaSeoData.fromJson(json['meta_data'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -338,9 +408,10 @@ class Item {
     if (categoryIds != null) {
       data['category_ids'] = categoryIds!.map((v) => v.toJson()).toList();
     }
-    if(Get.find<SplashController>().getStoreModuleConfig().newVariation! && foodVariations != null) {
+    if (Get.find<SplashController>().getStoreModuleConfig().newVariation! &&
+        foodVariations != null) {
       data['food_variations'] = foodVariations!.map((v) => v.toJson()).toList();
-    }else if(variations != null) {
+    } else if (variations != null) {
       data['variations'] = variations!.map((v) => v.toJson()).toList();
     }
     if (addOns != null) {
@@ -402,7 +473,9 @@ class Item {
       data['allergies_data'] = allergiesData!.map((v) => v.toJson()).toList();
     }
     if (genericNameData != null) {
-      data['generic_name_data'] = genericNameData!.map((v) => v.toJson()).toList();
+      data['generic_name_data'] = genericNameData!
+          .map((v) => v.toJson())
+          .toList();
     }
     if (taxVatIds != null) {
       data['tax_ids'] = taxVatIds!.map((v) => v.toString()).toList();
@@ -475,7 +548,15 @@ class AddOns {
   List<int>? taxVatIds;
   int? addonCategoryId;
 
-  AddOns({this.id, this.name, this.price, this.status, this.translations, this.taxVatIds, this.addonCategoryId});
+  AddOns({
+    this.id,
+    this.name,
+    this.price,
+    this.status,
+    this.translations,
+    this.taxVatIds,
+    this.addonCategoryId,
+  });
 
   AddOns.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -569,7 +650,14 @@ class FoodVariation {
   String? required;
   List<VariationValue>? variationValues;
 
-  FoodVariation({this.name, this.type, this.min, this.max, this.required, this.variationValues});
+  FoodVariation({
+    this.name,
+    this.type,
+    this.min,
+    this.max,
+    this.required,
+    this.variationValues,
+  });
 
   FoodVariation.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -715,4 +803,3 @@ class TaxData {
     return data;
   }
 }
-

@@ -13,17 +13,44 @@ import 'package:sixam_mart_store/features/store/domain/models/variant_type_model
 import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
 
 abstract class StoreServiceInterface {
-  Future<ItemModel?> getItemList({required String offset, required String type, required String search, int? categoryId});
+  Future<ItemModel?> getItemList({
+    required String offset,
+    required String type,
+    required String search,
+    int? categoryId,
+    int? moduleId,
+  });
   Future<ItemModel?> getStockItemList(String offset);
   Future<PendingItemModel?> getPendingItemList(String offset, String type);
   Future<Item?> getPendingItemDetails(int itemId);
   Future<Item?> getItemDetails(int itemId);
   Future<List<AttributeModel>?> getAttributeList(Item? item);
-  Future<bool> updateStoreBasicInfo(Store store, XFile? logo, XFile? cover, List<Translation> translation, XFile? metaImage);
+  Future<bool> updateStoreBasicInfo(
+    Store store,
+    XFile? logo,
+    XFile? cover,
+    List<Translation> translation,
+    XFile? metaImage,
+  );
   Future<bool> updateStore(Store store, String min, String max, String type);
-  Future<Response> addItem(Item item, XFile? metaImage, XFile? image, List<XFile> images, List<String> savedImages, Map<String, String> attributes, bool isAdd, String tags, String nutrition, String allergicIngredients, String genericName);
+  Future<Response> addItem(
+    Item item,
+    XFile? metaImage,
+    XFile? image,
+    List<XFile> images,
+    List<String> savedImages,
+    Map<String, String> attributes,
+    bool isAdd,
+    String tags,
+    String nutrition,
+    String allergicIngredients,
+    String genericName,
+  );
   Future<bool> deleteItem(int? itemID, bool pendingItem);
-  Future<List<ReviewModel>?> getStoreReviewList(int? storeID, String? searchText);
+  Future<List<ReviewModel>?> getStoreReviewList(
+    int? storeID,
+    String? searchText,
+  );
   Future<List<ReviewModel>?> getItemReviewList(int? itemID);
   Future<bool> updateItemStatus(int? itemID, int status);
   Future<int?> addSchedule(Schedules schedule);
@@ -34,10 +61,15 @@ abstract class StoreServiceInterface {
   Future<bool> updateAnnouncement(int status, String announcement);
   Future<XFile?> pickImageFromGallery();
   bool hasAttributeData(List<AttributeModel>? attributeList);
-  int setUnitIndex (List<UnitModel>? unitList, Item? item, int unitIndex);
-  List<VariantTypeModel>? variationTypeList(List<AttributeModel>? attributeList, Item? item);
+  int setUnitIndex(List<UnitModel>? unitList, Item? item, int unitIndex);
+  List<VariantTypeModel>? variationTypeList(
+    List<AttributeModel>? attributeList,
+    Item? item,
+  );
   int totalStock(List<AttributeModel>? attributeList, Item? item);
-  List<VariationModelBodyModel>? setExistingVariation(List<FoodVariation>? variationList);
+  List<VariationModelBodyModel>? setExistingVariation(
+    List<FoodVariation>? variationList,
+  );
   Future<List<BrandModel>?> getBrandList();
   int? setBrandIndex(List<BrandModel>? brands, Item? item);
   Future<bool> updateReply(int reviewID, String reply);

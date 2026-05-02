@@ -146,7 +146,7 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.reviews!) {
+    /*if (modulePermission.reviews!) {
       menuList.add(
         MenuModel(
           icon: Images.review,
@@ -161,7 +161,7 @@ class MenuScreen extends StatelessWidget {
                   0,
         ),
       );
-    }
+    }*/
 
     if (modulePermission.businessPlan!) {
       menuList.add(
@@ -196,6 +196,23 @@ class MenuScreen extends StatelessWidget {
         ),
       );
     }
+
+    menuList.add(
+      MenuModel(
+        icon: Images.support,
+        title: 'WhatsApp',
+        route: 'https://wa.me/972598765425',
+        isWhatsApp: true,
+      ),
+    );
+
+    menuList.add(
+      MenuModel(
+        icon: Images.adsMenu,
+        title: 'social_media'.tr,
+        route: RouteHelper.getSocialMediaRoute(),
+      ),
+    );
 
     menuList.add(
       MenuModel(

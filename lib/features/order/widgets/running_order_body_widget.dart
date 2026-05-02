@@ -40,7 +40,7 @@ class RunningOrderBodyWidget extends StatelessWidget {
             }
 
             List<OrderModel> orderList = [];
-            if (orderController.runningOrders != null) {
+            if (orderController.runningOrders != null && orderController.runningOrders!.isNotEmpty && orderController.orderIndex < orderController.runningOrders!.length) {
               orderList = orderController
                   .runningOrders![orderController.orderIndex]
                   .orderList;
@@ -112,7 +112,7 @@ class RunningOrderBodyWidget extends StatelessWidget {
                       delegate: SliverDelegate(
                         height: 50,
                         child: Container(
-                          height: 40,
+                          height: 50,
                           color: Theme.of(context).cardColor,
                           child: ListView.builder(
                             padding: EdgeInsets.only(

@@ -48,32 +48,28 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
+    _tabController = TabController(length: 1, vsync: this);
+    _tabs.add(const Tab(text: 'افتراضي'));
 
     if(_update) {
       List<Translation> translation = _storeBannerListModel!.translations!;
-      for(int index = 0; index<_languageList.length; index++) {
-        _titleController.add(TextEditingController(
-          text: translation.isNotEmpty ? translation[index].value : '',
-        ));
+      for(int index = 0; index<_languageList!.length; index++) {
+        _titleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
-        for (var translation in widget.storeBannerListModel!.translations!) {
-          if(_languageList[index].key == translation.locale && translation.key == 'name') {
-            _titleController[index] = TextEditingController(text: translation.value);
+        for (var t in translation) {
+          if(_languageList[index].key == t.locale && t.key == 'title') {
+            _titleController[index].text = t.value ?? '';
           }
         }
       }
-      _urlController.text = widget.storeBannerListModel!.defaultLink ?? '';
-    }else{
-      for(int index = 0; index<_languageList.length; index++) {
+    } else {
+      for (int index = 0; index < _languageList!.length; index++) {
         _titleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
       }
       _storeBannerListModel = StoreBannerListModel();
     }
+    _urlController.text = widget.storeBannerListModel?.defaultLink ?? '';
   }
 
   @override

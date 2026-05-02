@@ -109,9 +109,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     Get.find<AuthController>().resetBusiness();
     Get.find<AddressController>().clearPickupZone();
 
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
+    _tabs.add(const Tab(text: 'افتراضي'));
     _formKeyLogin = GlobalKey<FormState>();
     _formKeySecond = GlobalKey<FormState>();
   }
@@ -964,184 +962,308 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     ),
                                     // ignore: dead_code
                                     if (false) ...[
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeLarge,
-                                    ),
-
-                                    Text(
-                                      'business_tin'.tr,
-                                      style: robotoBold.copyWith(
-                                        fontSize: Dimensions.fontSizeLarge,
+                                      const SizedBox(
+                                        height: Dimensions.paddingSizeLarge,
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeDefault,
-                                    ),
 
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).cardColor,
-                                        borderRadius: BorderRadius.circular(
-                                          Dimensions.radiusDefault,
+                                      Text(
+                                        'business_tin'.tr,
+                                        style: robotoBold.copyWith(
+                                          fontSize: Dimensions.fontSizeLarge,
                                         ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withValues(
-                                              alpha: 0.1,
+                                      ),
+                                      const SizedBox(
+                                        height: Dimensions.paddingSizeDefault,
+                                      ),
+
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(
+                                            Dimensions.radiusDefault,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                              spreadRadius: 1,
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 1),
                                             ),
-                                            spreadRadius: 1,
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: Dimensions.paddingSizeSmall,
-                                        vertical: Dimensions.paddingSizeDefault,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          CustomTextFieldWidget(
-                                            hintText:
-                                                'taxpayer_identification_number_tin'
-                                                    .tr,
-                                            labelText: 'tin'.tr,
-                                            controller: _tinNumberController,
-                                            inputAction: TextInputAction.done,
-                                            inputType: TextInputType.text,
-                                            // required: true,
-                                            // validator: (value) => ValidateCheck.validateEmptyText(value, "vendor_tin_field_is_required".tr),
-                                          ),
-                                          const SizedBox(
-                                            height: Dimensions
-                                                .paddingSizeExtremeLarge,
-                                          ),
+                                          ],
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                              Dimensions.paddingSizeSmall,
+                                          vertical:
+                                              Dimensions.paddingSizeDefault,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomTextFieldWidget(
+                                              hintText:
+                                                  'taxpayer_identification_number_tin'
+                                                      .tr,
+                                              labelText: 'tin'.tr,
+                                              controller: _tinNumberController,
+                                              inputAction: TextInputAction.done,
+                                              inputType: TextInputType.text,
+                                              // required: true,
+                                              // validator: (value) => ValidateCheck.validateEmptyText(value, "vendor_tin_field_is_required".tr),
+                                            ),
+                                            const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeExtremeLarge,
+                                            ),
 
-                                          InkWell(
-                                            onTap: () async {
-                                              final DateTime? pickedDate =
-                                                  await showDatePicker(
-                                                    context: context,
-                                                    firstDate: DateTime.now(),
-                                                    initialDate: DateTime.now(),
-                                                    lastDate: DateTime(2100),
-                                                  );
+                                            InkWell(
+                                              onTap: () async {
+                                                final DateTime? pickedDate =
+                                                    await showDatePicker(
+                                                      context: context,
+                                                      firstDate: DateTime.now(),
+                                                      initialDate:
+                                                          DateTime.now(),
+                                                      lastDate: DateTime(2100),
+                                                    );
 
-                                              if (pickedDate != null) {
-                                                authController.setTinExpireDate(
-                                                  pickedDate,
-                                                );
-                                              }
-                                            },
-                                            child: Stack(
-                                              clipBehavior: Clip.none,
-                                              children: [
-                                                Container(
-                                                  height: 50,
-                                                  decoration: BoxDecoration(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).cardColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          Dimensions
-                                                              .radiusDefault,
-                                                        ),
-                                                    border: Border.all(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      width: 0.5,
-                                                    ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: Dimensions
-                                                            .paddingSizeLarge,
-                                                      ),
-                                                  child: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          authController
-                                                                  .tinExpireDate ??
-                                                              'select_date'.tr,
-                                                          style: robotoMedium,
-                                                        ),
-                                                      ),
-                                                      Icon(
-                                                        Icons.calendar_month,
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-
-                                                Positioned(
-                                                  left: 10,
-                                                  top: -15,
-                                                  child: Container(
+                                                if (pickedDate != null) {
+                                                  authController
+                                                      .setTinExpireDate(
+                                                        pickedDate,
+                                                      );
+                                                }
+                                              },
+                                              child: Stack(
+                                                clipBehavior: Clip.none,
+                                                children: [
+                                                  Container(
+                                                    height: 50,
                                                     decoration: BoxDecoration(
                                                       color: Theme.of(
                                                         context,
                                                       ).cardColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            Dimensions
+                                                                .radiusDefault,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).disabledColor,
+                                                        width: 0.5,
+                                                      ),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets.all(5),
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: Dimensions
+                                                              .paddingSizeLarge,
+                                                        ),
                                                     child: Row(
                                                       children: [
-                                                        Text(
-                                                          'expire_date'.tr,
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).disabledColor,
-                                                              ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            authController
+                                                                    .tinExpireDate ??
+                                                                'select_date'
+                                                                    .tr,
+                                                            style: robotoMedium,
+                                                          ),
                                                         ),
-                                                        // Text(' *', style: robotoRegular.copyWith(color: Colors.red)),
+                                                        Icon(
+                                                          Icons.calendar_month,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).primaryColor,
+                                                        ),
                                                       ],
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: Dimensions.paddingSizeLarge,
-                                          ),
 
-                                          Text(
-                                            'tin_certificate'.tr,
-                                            style: robotoRegular.copyWith(
-                                              fontSize:
-                                                  Dimensions.fontSizeLarge,
+                                                  Positioned(
+                                                    left: 10,
+                                                    top: -15,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).cardColor,
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            5,
+                                                          ),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            'expire_date'.tr,
+                                                            style: robotoRegular
+                                                                .copyWith(
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).disabledColor,
+                                                                ),
+                                                          ),
+                                                          // Text(' *', style: robotoRegular.copyWith(color: Colors.red)),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-
-                                          Text(
-                                            'vehicle_doc_format'.tr,
-                                            style: robotoRegular.copyWith(
-                                              fontSize:
-                                                  Dimensions.fontSizeSmall,
-                                              color: Theme.of(
-                                                context,
-                                              ).disabledColor,
+                                            const SizedBox(
+                                              height:
+                                                  Dimensions.paddingSizeLarge,
                                             ),
-                                          ),
-                                          const SizedBox(
-                                            height: Dimensions.paddingSizeLarge,
-                                          ),
 
-                                          authController.tinFiles!.isEmpty
-                                              ? InkWell(
-                                                  onTap: () => authController
-                                                      .pickFiles(),
-                                                  child: Padding(
+                                            Text(
+                                              'tin_certificate'.tr,
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeLarge,
+                                              ),
+                                            ),
+
+                                            Text(
+                                              'vehicle_doc_format'.tr,
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeSmall,
+                                                color: Theme.of(
+                                                  context,
+                                                ).disabledColor,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height:
+                                                  Dimensions.paddingSizeLarge,
+                                            ),
+
+                                            authController.tinFiles!.isEmpty
+                                                ? InkWell(
+                                                    onTap: () => authController
+                                                        .pickFiles(),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: Dimensions
+                                                            .paddingSizeExtraLarge,
+                                                      ),
+                                                      child: DottedBorder(
+                                                        options: RoundedRectDottedBorderOptions(
+                                                          radius:
+                                                              const Radius.circular(
+                                                                Dimensions
+                                                                    .radiusDefault,
+                                                              ),
+                                                          dashPattern: const [
+                                                            8,
+                                                            4,
+                                                          ],
+                                                          strokeWidth: 1,
+                                                          color: Get.isDarkMode
+                                                              ? Colors.white
+                                                                    .withValues(
+                                                                      alpha:
+                                                                          0.2,
+                                                                    )
+                                                              : const Color(
+                                                                  0xFFE5E5E5,
+                                                                ),
+                                                        ),
+                                                        child: Container(
+                                                          height: 120,
+                                                          width:
+                                                              double.infinity,
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                Get.isDarkMode
+                                                                ? Colors.white
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.05,
+                                                                      )
+                                                                : const Color(
+                                                                    0xFFFAFAFA,
+                                                                  ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  Dimensions
+                                                                      .radiusDefault,
+                                                                ),
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              const SizedBox(
+                                                                width: Dimensions
+                                                                    .paddingSizeSmall,
+                                                              ),
+                                                              CustomAssetImageWidget(
+                                                                Images
+                                                                    .uploadIcon,
+                                                                height: 40,
+                                                                width: 40,
+                                                                color:
+                                                                    Get.isDarkMode
+                                                                    ? Colors
+                                                                          .grey
+                                                                    : null,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: Dimensions
+                                                                    .paddingSizeSmall,
+                                                              ),
+                                                              RichText(
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                text: TextSpan(
+                                                                  children: [
+                                                                    TextSpan(
+                                                                      text: 'click_to_upload'
+                                                                          .tr,
+                                                                      style: robotoBold.copyWith(
+                                                                        fontSize:
+                                                                            Dimensions.fontSizeSmall,
+                                                                        color: Colors
+                                                                            .blue,
+                                                                      ),
+                                                                    ),
+                                                                    const TextSpan(
+                                                                      text:
+                                                                          '\n',
+                                                                    ),
+                                                                    TextSpan(
+                                                                      text: 'or_drag_and_drop'
+                                                                          .tr,
+                                                                      style: robotoBold.copyWith(
+                                                                        fontSize:
+                                                                            Dimensions.fontSizeSmall,
+                                                                        color:
+                                                                            Theme.of(
+                                                                              context,
+                                                                            ).textTheme.bodyLarge?.color?.withValues(
+                                                                              alpha: 0.7,
+                                                                            ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Padding(
                                                     padding:
                                                         const EdgeInsets.symmetric(
                                                           horizontal: Dimensions
@@ -1159,96 +1281,163 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                           4,
                                                         ],
                                                         strokeWidth: 1,
-                                                        color: Get.isDarkMode
-                                                            ? Colors.white
-                                                                  .withValues(
-                                                                    alpha: 0.2,
-                                                                  )
-                                                            : const Color(
-                                                                0xFFE5E5E5,
-                                                              ),
-                                                      ),
-                                                      child: Container(
-                                                        height: 120,
-                                                        width: double.infinity,
-                                                        decoration: BoxDecoration(
-                                                          color: Get.isDarkMode
-                                                              ? Colors.white
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.05,
-                                                                    )
-                                                              : const Color(
-                                                                  0xFFFAFAFA,
-                                                                ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                Dimensions
-                                                                    .radiusDefault,
-                                                              ),
+                                                        color: const Color(
+                                                          0xFFE5E5E5,
                                                         ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
+                                                      ),
+                                                      child: SizedBox(
+                                                        width: double.infinity,
+                                                        child: Stack(
                                                           children: [
-                                                            const SizedBox(
-                                                              width: Dimensions
-                                                                  .paddingSizeSmall,
-                                                            ),
-                                                            CustomAssetImageWidget(
-                                                              Images.uploadIcon,
-                                                              height: 40,
-                                                              width: 40,
-                                                              color:
-                                                                  Get.isDarkMode
-                                                                  ? Colors.grey
-                                                                  : null,
-                                                            ),
-                                                            const SizedBox(
-                                                              width: Dimensions
-                                                                  .paddingSizeSmall,
-                                                            ),
-                                                            RichText(
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              text: TextSpan(
-                                                                children: [
-                                                                  TextSpan(
-                                                                    text:
-                                                                        'click_to_upload'
-                                                                            .tr,
-                                                                    style: robotoBold.copyWith(
-                                                                      fontSize:
-                                                                          Dimensions
-                                                                              .fontSizeSmall,
-                                                                      color: Colors
-                                                                          .blue,
+                                                            Container(
+                                                              padding: const EdgeInsets.only(
+                                                                left: Dimensions
+                                                                    .paddingSizeDefault,
+                                                              ),
+                                                              height: 120,
+                                                              width: double
+                                                                  .infinity,
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFFFAFAFA,
                                                                     ),
-                                                                  ),
-                                                                  const TextSpan(
-                                                                    text: '\n',
-                                                                  ),
-                                                                  TextSpan(
-                                                                    text:
-                                                                        'or_drag_and_drop'
-                                                                            .tr,
-                                                                    style: robotoBold.copyWith(
-                                                                      fontSize:
-                                                                          Dimensions
-                                                                              .fontSizeSmall,
-                                                                      color: Theme.of(context)
-                                                                          .textTheme
-                                                                          .bodyLarge
-                                                                          ?.color
-                                                                          ?.withValues(
-                                                                            alpha:
-                                                                                0.7,
-                                                                          ),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      Dimensions
+                                                                          .radiusDefault,
+                                                                    ),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Flexible(
+                                                                    child: Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .center,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Builder(
+                                                                          builder:
+                                                                              (
+                                                                                context,
+                                                                              ) {
+                                                                                final filePath = authController.tinFiles![0].paths[0];
+                                                                                final fileName = filePath!
+                                                                                    .split(
+                                                                                      '/',
+                                                                                    )
+                                                                                    .last
+                                                                                    .toLowerCase();
+
+                                                                                if (fileName.endsWith(
+                                                                                  '.pdf',
+                                                                                )) {
+                                                                                  // Show PDF preview
+                                                                                  return Row(
+                                                                                    children: [
+                                                                                      const Icon(
+                                                                                        Icons.picture_as_pdf,
+                                                                                        size: 40,
+                                                                                        color: Colors.red,
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 10,
+                                                                                      ),
+                                                                                      Expanded(
+                                                                                        child: Text(
+                                                                                          fileName,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 35,
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
+                                                                                } else if (fileName.endsWith(
+                                                                                      '.doc',
+                                                                                    ) ||
+                                                                                    fileName.endsWith(
+                                                                                      '.docx',
+                                                                                    )) {
+                                                                                  // Show Word document preview
+                                                                                  return Row(
+                                                                                    children: [
+                                                                                      const Icon(
+                                                                                        Icons.description,
+                                                                                        size: 40,
+                                                                                        color: Colors.blue,
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 10,
+                                                                                      ),
+                                                                                      Expanded(
+                                                                                        child: Text(
+                                                                                          fileName,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 35,
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
+                                                                                } else {
+                                                                                  // Show generic file preview
+                                                                                  return Row(
+                                                                                    children: [
+                                                                                      const Icon(
+                                                                                        Icons.insert_drive_file,
+                                                                                        size: 40,
+                                                                                        color: Colors.grey,
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 10,
+                                                                                      ),
+                                                                                      Expanded(
+                                                                                        child: Text(
+                                                                                          fileName,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                      ),
+                                                                                      const SizedBox(
+                                                                                        width: 35,
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
+                                                                                }
+                                                                              },
+                                                                        ),
+                                                                      ],
                                                                     ),
                                                                   ),
                                                                 ],
+                                                              ),
+                                                            ),
+                                                            Positioned(
+                                                              right: 0,
+                                                              top: 0,
+                                                              child: InkWell(
+                                                                onTap: () =>
+                                                                    authController
+                                                                        .removeFile(
+                                                                          0,
+                                                                        ),
+                                                                child: const Padding(
+                                                                  padding: EdgeInsets.all(
+                                                                    Dimensions
+                                                                        .paddingSizeSmall,
+                                                                  ),
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .delete_forever,
+                                                                    color: Colors
+                                                                        .red,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                           ],
@@ -1256,189 +1445,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                       ),
                                                     ),
                                                   ),
-                                                )
-                                              : Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: Dimensions
-                                                            .paddingSizeExtraLarge,
-                                                      ),
-                                                  child: DottedBorder(
-                                                    options: RoundedRectDottedBorderOptions(
-                                                      radius:
-                                                          const Radius.circular(
-                                                            Dimensions
-                                                                .radiusDefault,
-                                                          ),
-                                                      dashPattern: const [8, 4],
-                                                      strokeWidth: 1,
-                                                      color: const Color(
-                                                        0xFFE5E5E5,
-                                                      ),
-                                                    ),
-                                                    child: SizedBox(
-                                                      width: double.infinity,
-                                                      child: Stack(
-                                                        children: [
-                                                          Container(
-                                                            padding: const EdgeInsets.only(
-                                                              left: Dimensions
-                                                                  .paddingSizeDefault,
-                                                            ),
-                                                            height: 120,
-                                                            width:
-                                                                double.infinity,
-                                                            decoration: BoxDecoration(
-                                                              color:
-                                                                  const Color(
-                                                                    0xFFFAFAFA,
-                                                                  ),
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    Dimensions
-                                                                        .radiusDefault,
-                                                                  ),
-                                                            ),
-                                                            child: Row(
-                                                              children: [
-                                                                Flexible(
-                                                                  child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Builder(
-                                                                        builder:
-                                                                            (
-                                                                              context,
-                                                                            ) {
-                                                                              final filePath = authController.tinFiles![0].paths[0];
-                                                                              final fileName = filePath!
-                                                                                  .split(
-                                                                                    '/',
-                                                                                  )
-                                                                                  .last
-                                                                                  .toLowerCase();
 
-                                                                              if (fileName.endsWith(
-                                                                                '.pdf',
-                                                                              )) {
-                                                                                // Show PDF preview
-                                                                                return Row(
-                                                                                  children: [
-                                                                                    const Icon(
-                                                                                      Icons.picture_as_pdf,
-                                                                                      size: 40,
-                                                                                      color: Colors.red,
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 10,
-                                                                                    ),
-                                                                                    Expanded(
-                                                                                      child: Text(
-                                                                                        fileName,
-                                                                                        overflow: TextOverflow.ellipsis,
-                                                                                      ),
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 35,
-                                                                                    ),
-                                                                                  ],
-                                                                                );
-                                                                              } else if (fileName.endsWith(
-                                                                                    '.doc',
-                                                                                  ) ||
-                                                                                  fileName.endsWith(
-                                                                                    '.docx',
-                                                                                  )) {
-                                                                                // Show Word document preview
-                                                                                return Row(
-                                                                                  children: [
-                                                                                    const Icon(
-                                                                                      Icons.description,
-                                                                                      size: 40,
-                                                                                      color: Colors.blue,
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 10,
-                                                                                    ),
-                                                                                    Expanded(
-                                                                                      child: Text(
-                                                                                        fileName,
-                                                                                        overflow: TextOverflow.ellipsis,
-                                                                                      ),
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 35,
-                                                                                    ),
-                                                                                  ],
-                                                                                );
-                                                                              } else {
-                                                                                // Show generic file preview
-                                                                                return Row(
-                                                                                  children: [
-                                                                                    const Icon(
-                                                                                      Icons.insert_drive_file,
-                                                                                      size: 40,
-                                                                                      color: Colors.grey,
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 10,
-                                                                                    ),
-                                                                                    Expanded(
-                                                                                      child: Text(
-                                                                                        fileName,
-                                                                                        overflow: TextOverflow.ellipsis,
-                                                                                      ),
-                                                                                    ),
-                                                                                    const SizedBox(
-                                                                                      width: 35,
-                                                                                    ),
-                                                                                  ],
-                                                                                );
-                                                                              }
-                                                                            },
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Positioned(
-                                                            right: 0,
-                                                            top: 0,
-                                                            child: InkWell(
-                                                              onTap: () =>
-                                                                  authController
-                                                                      .removeFile(
-                                                                        0,
-                                                                      ),
-                                                              child: const Padding(
-                                                                padding:
-                                                                    EdgeInsets.all(
-                                                                      Dimensions
-                                                                          .paddingSizeSmall,
-                                                                    ),
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .delete_forever,
-                                                                  color: Colors
-                                                                      .red,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-
-                                          /*SizedBox(
+                                            /*SizedBox(
                                 height: 150, width: double.infinity,
                                 child: GridView.builder(
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1600,9 +1608,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                   },
                                 ),
                               ),*/
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
                                     ],
                                   ],
                                 ),
@@ -1768,12 +1776,15 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                 TextInputType.emailAddress,
                                             prefixIcon: Icons.email,
                                             iconSize: 25,
-                                            required: true,
+                                            required: false,
                                             labelText: 'email'.tr,
                                             validator: (value) =>
-                                                ValidateCheck.validateEmail(
-                                                  value,
-                                                ),
+                                                (value != null &&
+                                                    value.isNotEmpty)
+                                                ? ValidateCheck.validateEmail(
+                                                    value,
+                                                  )
+                                                : null,
                                           ),
                                           const SizedBox(
                                             height: Dimensions
@@ -1783,8 +1794,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                           Column(
                                             children: [
                                               CustomTextFieldWidget(
-                                                hintText:
-                                                    'minimum_8_characters'.tr,
+                                                hintText: 'password'.tr,
                                                 controller: _passwordController,
                                                 focusNode: _passwordFocus,
                                                 nextFocus:
@@ -1794,36 +1804,15 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                 prefixIcon: Icons.lock,
                                                 iconSize: 25,
                                                 isPassword: true,
-                                                onChanged: (value) {
-                                                  if (value != null &&
-                                                      value.isNotEmpty) {
-                                                    if (!authController
-                                                        .showPassView) {
-                                                      authController
-                                                          .showHidePass();
-                                                    }
-                                                    authController
-                                                        .validPassCheck(value);
-                                                  } else {
-                                                    if (authController
-                                                        .showPassView) {
-                                                      authController
-                                                          .showHidePass();
-                                                    }
-                                                  }
-                                                },
                                                 required: true,
                                                 labelText: 'password'.tr,
                                                 validator: (value) =>
-                                                    ValidateCheck.validatePassword(
+                                                    ValidateCheck.validateEmptyText(
                                                       value,
                                                       "password_field_is_required"
                                                           .tr,
                                                     ),
                                               ),
-                                              authController.showPassView
-                                                  ? const PassViewWidget()
-                                                  : const SizedBox(),
                                             ],
                                           ),
                                           const SizedBox(
@@ -1832,7 +1821,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                           ),
 
                                           CustomTextFieldWidget(
-                                            hintText: 'minimum_8_characters'.tr,
+                                            hintText: 'confirm_password'.tr,
                                             controller:
                                                 _confirmPasswordController,
                                             focusNode: _confirmPasswordFocus,
@@ -1881,184 +1870,124 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: Dimensions.paddingSizeLarge,
                                     ),
-                                    child: Row(
+                                    child: Column(
                                       children: [
-                                        Get.find<SplashController>()
-                                                    .configModel!
-                                                    .commissionBusinessModel !=
-                                                0
-                                            ? Expanded(
-                                                child: BaseCardWidget(
-                                                  authController:
-                                                      authController,
-                                                  title: 'commission_base'.tr,
-                                                  index: 0,
-                                                  onTap: () => authController
-                                                      .setBusiness(0),
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                        const SizedBox(
-                                          width: Dimensions.paddingSizeDefault,
-                                        ),
+                                        if (Get.find<SplashController>()
+                                                .configModel!
+                                                .commissionBusinessModel !=
+                                            0)
+                                          InkWell(
+                                            onTap: () =>
+                                                authController.setBusiness(0),
+                                            child: PackageCardWidget(
+                                              currentIndex:
+                                                  authController
+                                                          .businessIndex ==
+                                                      0
+                                                  ? 0
+                                                  : null,
+                                              package: Packages(
+                                                id: -1,
+                                                packageName:
+                                                    'commission_base'.tr,
+                                                price:
+                                                    Get.find<SplashController>()
+                                                        .configModel!
+                                                        .adminCommission
+                                                        ?.toDouble() ??
+                                                    0,
+                                                description:
+                                                    "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName} ${'from_each_order_You_will_get_access_of_all'.tr}",
+                                              ),
+                                            ),
+                                          ),
 
-                                        Get.find<SplashController>()
+                                        if (Get.find<SplashController>()
                                                     .configModel!
                                                     .subscriptionBusinessModel !=
-                                                0
-                                            ? Expanded(
-                                                child: BaseCardWidget(
-                                                  authController:
-                                                      authController,
-                                                  title: 'subscription_base'.tr,
-                                                  index: 1,
-                                                  onTap: () => authController
-                                                      .setBusiness(1),
+                                                0 &&
+                                            authController.packageModel != null)
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: authController
+                                                .packageModel!
+                                                .packages!
+                                                .length,
+                                            itemBuilder: (context, index) {
+                                              Packages package = authController
+                                                  .packageModel!
+                                                  .packages![index];
+                                              bool isRentalModule =
+                                                  addressController
+                                                          .moduleList !=
+                                                      null &&
+                                                  addressController
+                                                          .selectedModuleIndex !=
+                                                      -1 &&
+                                                  addressController
+                                                          .moduleList![addressController
+                                                              .selectedModuleIndex!]
+                                                          .moduleType ==
+                                                      'rental';
+
+                                              return InkWell(
+                                                onTap: () {
+                                                  authController.setBusiness(1);
+                                                  authController
+                                                      .selectSubscriptionCard(
+                                                        index,
+                                                      );
+                                                },
+                                                child: PackageCardWidget(
+                                                  currentIndex:
+                                                      (authController
+                                                                  .businessIndex ==
+                                                              1 &&
+                                                          authController
+                                                                  .activeSubscriptionIndex ==
+                                                              index)
+                                                      ? index
+                                                      : null,
+                                                  package: package,
+                                                  isRental: isRentalModule,
                                                 ),
-                                              )
-                                            : const SizedBox(),
+                                              );
+                                            },
+                                          ),
+
+                                        if (Get.find<SplashController>()
+                                                    .configModel!
+                                                    .subscriptionBusinessModel !=
+                                                0 &&
+                                            authController.packageModel == null)
+                                          const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+
+                                        if (Get.find<SplashController>()
+                                                    .configModel!
+                                                    .subscriptionBusinessModel !=
+                                                0 &&
+                                            authController.packageModel !=
+                                                null &&
+                                            authController
+                                                .packageModel!
+                                                .packages!
+                                                .isEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: Dimensions.paddingSizeLarge,
+                                            ),
+                                            child: Text(
+                                              'no_package_available'.tr,
+                                              style: robotoMedium,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeExtraLarge,
-                                  ),
-
-                                  authController.businessIndex == 0
-                                      ? Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal:
-                                                Dimensions.paddingSizeLarge,
-                                          ),
-                                          child: Text(
-                                            "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName} ${'from_each_order_You_will_get_access_of_all'.tr}",
-                                            style: robotoRegular.copyWith(
-                                              fontSize:
-                                                  Dimensions.fontSizeSmall,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.color
-                                                  ?.withValues(alpha: 0.7),
-                                            ),
-                                            textAlign: TextAlign.justify,
-                                            textScaler: const TextScaler.linear(
-                                              1.1,
-                                            ),
-                                          ),
-                                        )
-                                      : Column(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: Dimensions
-                                                        .paddingSizeLarge,
-                                                  ),
-                                              child: Text(
-                                                'run_vendor_by_purchasing_subscription_packages'
-                                                    .tr,
-                                                style: robotoRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeSmall,
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge
-                                                      ?.color
-                                                      ?.withValues(alpha: 0.7),
-                                                ),
-                                                textAlign: TextAlign.justify,
-                                                textScaler:
-                                                    const TextScaler.linear(
-                                                      1.1,
-                                                    ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeLarge,
-                                            ),
-
-                                            SizedBox(
-                                              height: 440,
-                                              child:
-                                                  authController.packageModel !=
-                                                      null
-                                                  ? authController
-                                                            .packageModel!
-                                                            .packages!
-                                                            .isNotEmpty
-                                                        ? Swiper(
-                                                            itemCount:
-                                                                authController
-                                                                    .packageModel!
-                                                                    .packages!
-                                                                    .length,
-                                                            viewportFraction:
-                                                                0.65,
-                                                            itemBuilder: (context, index) {
-                                                              Packages
-                                                              package = authController
-                                                                  .packageModel!
-                                                                  .packages![index];
-
-                                                              bool
-                                                              isRentalModule =
-                                                                  addressController
-                                                                          .moduleList !=
-                                                                      null &&
-                                                                  addressController
-                                                                          .selectedModuleIndex !=
-                                                                      -1 &&
-                                                                  addressController
-                                                                          .moduleList![addressController
-                                                                              .selectedModuleIndex!]
-                                                                          .moduleType ==
-                                                                      'rental';
-
-                                                              return PackageCardWidget(
-                                                                currentIndex:
-                                                                    authController
-                                                                            .activeSubscriptionIndex ==
-                                                                        index
-                                                                    ? index
-                                                                    : null,
-                                                                package:
-                                                                    package,
-                                                                isRental:
-                                                                    isRentalModule,
-                                                              );
-                                                            },
-                                                            onIndexChanged:
-                                                                (index) {
-                                                                  authController
-                                                                      .selectSubscriptionCard(
-                                                                        index,
-                                                                      );
-                                                                },
-                                                          )
-                                                        : Center(
-                                                            child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  'no_package_available'
-                                                                      .tr,
-                                                                  style:
-                                                                      robotoMedium,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )
-                                                  : const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    ),
-                                            ),
-                                          ],
-                                        ),
                                 ],
                               ),
                             ),
@@ -2091,24 +2020,12 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                           onPressed: () {
                             bool defaultNameNull = false;
                             bool defaultAddressNull = false;
-                            for (
-                              int index = 0;
-                              index < _languageList.length;
-                              index++
-                            ) {
-                              if (_languageList[index].key == 'en') {
-                                if (_nameController[index].text
-                                    .trim()
-                                    .isEmpty) {
-                                  defaultNameNull = true;
-                                }
-                                if (_addressController[index].text
-                                    .trim()
-                                    .isEmpty) {
-                                  defaultAddressNull = true;
-                                }
-                                break;
-                              }
+
+                            if (_nameController[0].text.trim().isEmpty) {
+                              defaultNameNull = true;
+                            }
+                            if (_addressController[0].text.trim().isEmpty) {
+                              defaultAddressNull = true;
                             }
                             String tin = "123456789";
                             String minTime = authController.storeMinTime;
@@ -2234,29 +2151,24 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                 index < _languageList.length;
                                 index++
                               ) {
-                                if (_nameController[index].text
-                                    .trim()
-                                    .isNotEmpty) {
-                                  translation.add(
-                                    Translation(
-                                      locale: _languageList[index].key,
-                                      key: 'name',
-                                      value: _nameController[index].text.trim(),
-                                    ),
-                                  );
-                                }
-                                if (_addressController[index].text
-                                    .trim()
-                                    .isNotEmpty) {
-                                  translation.add(
-                                    Translation(
-                                      locale: _languageList[index].key,
-                                      key: 'address',
-                                      value: _addressController[index].text
-                                          .trim(),
-                                    ),
-                                  );
-                                }
+                                translation.add(
+                                  Translation(
+                                    locale: _languageList[index].key,
+                                    key: 'name',
+                                    value: _nameController[index].text.trim().isNotEmpty
+                                        ? _nameController[index].text.trim()
+                                        : _nameController[0].text.trim(),
+                                  ),
+                                );
+                                translation.add(
+                                  Translation(
+                                    locale: _languageList[index].key,
+                                    key: 'address',
+                                    value: _addressController[index].text.trim().isNotEmpty
+                                        ? _addressController[index].text.trim()
+                                        : _addressController[0].text.trim(),
+                                  ),
+                                );
                               }
 
                               Map<String, String> data = {};
@@ -2316,7 +2228,10 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       .map((e) => e.toString())
                                       .toList(),
                                   tin: tin,
-                                  tinExpireDate: DateTime.now().add(const Duration(days: 365)).toString().substring(0, 10),
+                                  tinExpireDate: DateTime.now()
+                                      .add(const Duration(days: 365))
+                                      .toString()
+                                      .substring(0, 10),
                                 ).toJson(),
                               );
 

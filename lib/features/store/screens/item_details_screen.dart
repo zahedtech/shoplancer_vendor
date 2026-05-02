@@ -175,33 +175,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                 ),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(cardRadius),
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [boxShadow],
-                  ),
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  child: Row(children: [
-
-                    Expanded(
-                      child: Text(
-                        'available'.tr,
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
-                      ),
-                    ),
-
-                    FlutterSwitch(
-                      width: 60, height: 30, valueFontSize: Dimensions.fontSizeExtraSmall, showOnOff: true,
-                      activeColor: Theme.of(context).primaryColor,
-                      value: storeController.isAvailable,
-                      onToggle: (bool isActive) {
-                        storeController.toggleAvailable(item.id);
-                       },
-                    ),
-
-                  ]),
-                ),
+                const SizedBox(),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
                 Container(
@@ -480,15 +454,20 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                       transparent: true,
                       onPressed: () {
                         Get.bottomSheet(
-                          UpdateStockBottomSheet(item: item, onSuccess: (bool isSuccess){
+                          UpdateStockBottomSheet(item: item, onSuccess: (bool isSuccess) async {
                             if(isSuccess) {
-                              Get.back();
+                              Item? updatedItem = await storeController.getItemDetails(item.id!);
+                              if(updatedItem != null) {
+                                setState(() {
+                                  item = updatedItem;
+                                });
+                              }
                             }
                           }),
                           backgroundColor: Colors.transparent, isScrollControlled: true,
                         );
                       },
-                      buttonText: 'update_stock'.tr,
+                      buttonText: 'Update Stock and Price',
                     ),
                   ),
                 ) : const SizedBox(),

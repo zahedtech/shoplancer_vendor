@@ -333,15 +333,25 @@ class StoreController extends GetxController implements GetxService {
       if (item != null) {
         item.translations ??= [];
         bool hasName = item.translations!.any((t) => t.key == 'name');
-        bool hasDescription = item.translations!.any((t) => t.key == 'description');
+        bool hasDescription = item.translations!.any(
+          (t) => t.key == 'description',
+        );
 
         if (!hasName) {
-          item.translations!.add(Translation(locale: 'en', key: 'name', value: item.name ?? ''));
+          item.translations!.add(
+            Translation(locale: 'en', key: 'name', value: item.name ?? ''),
+          );
         }
         if (!hasDescription) {
-          item.translations!.add(Translation(locale: 'en', key: 'description', value: item.description ?? ''));
+          item.translations!.add(
+            Translation(
+              locale: 'en',
+              key: 'description',
+              value: item.description ?? '',
+            ),
+          );
         }
-        
+
         if (item.nutrition == null && item.nutritionsData != null) {
           item.nutritionsData?.forEach((nutrition) {
             _selectedNutritionList!.add(nutrition.nutrition);
@@ -508,7 +518,15 @@ class StoreController extends GetxController implements GetxService {
     _itemSize = null; // Reset item size to show shimmer while reloading
     update();
     // Reload item list with default filters
-    getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    int? moduleId =
+        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
+    getItemList(
+      offset: '1',
+      type: 'all',
+      search: '',
+      categoryId: 0,
+      moduleId: moduleId,
+    );
   }
 
   Future<void> getItemList({
@@ -517,6 +535,7 @@ class StoreController extends GetxController implements GetxService {
     required String search,
     int? categoryId,
     bool willUpdate = true,
+    int? moduleId,
   }) async {
     if (search.isEmpty) {
       _isSearching = false;
@@ -540,12 +559,27 @@ class StoreController extends GetxController implements GetxService {
         type: type,
         search: search,
         categoryId: categoryId,
+        moduleId: moduleId,
       );
       if (itemModel != null) {
         if (offset == '1') {
           _itemList = [];
         }
-        _itemList!.addAll(itemModel.items!);
+        if (_itemList == null) {
+          _itemList = [];
+        }
+        if (itemModel.items != null) {
+          final Set<int> existingIds = _itemList!
+              .where((item) => item.id != null)
+              .map((item) => item.id!)
+              .toSet();
+          final List<Item> newItems = itemModel.items!
+              .where(
+                (item) => item.id == null || !existingIds.contains(item.id),
+              )
+              .toList();
+          _itemList!.addAll(newItems);
+        }
         _itemSize = itemModel.totalSize;
         _isLoading = false;
         update();
@@ -817,6 +851,11 @@ class StoreController extends GetxController implements GetxService {
     }
   }
 
+  void setRawLogo(XFile? logo) {
+    _rawLogo = logo;
+    update();
+  }
+
   void setSelectedAddonIndex(int index, bool notify) {
     if (!_selectedAddons!.contains(index)) {
       _selectedAddons!.add(index);
@@ -831,7 +870,12 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<bool> addItem(Item item, bool isAdd, {String? genericNameData, bool willRedirect = true}) async {
+  Future<bool> addItem(
+    Item item,
+    bool isAdd, {
+    String? genericNameData,
+    bool willRedirect = true,
+  }) async {
     _isLoading = true;
     update();
 
@@ -842,10 +886,18 @@ class StoreController extends GetxController implements GetxService {
     bool hasDescription = item.translations!.any((t) => t.key == 'description');
 
     if (!hasName) {
-      item.translations!.add(Translation(locale: 'en', key: 'name', value: item.name ?? ''));
+      item.translations!.add(
+        Translation(locale: 'en', key: 'name', value: item.name ?? ''),
+      );
     }
     if (!hasDescription) {
-      item.translations!.add(Translation(locale: 'en', key: 'description', value: item.description ?? ''));
+      item.translations!.add(
+        Translation(
+          locale: 'en',
+          key: 'description',
+          value: item.description ?? '',
+        ),
+      );
     }
     item.isHalal ??= 0;
     item.veg ??= 0;
@@ -854,7 +906,7 @@ class StoreController extends GetxController implements GetxService {
     if (item.categoryIds == null || item.categoryIds!.isEmpty) {
       item.categoryIds = [CategoryIds(id: '0')];
     }
-    
+
     if (item.unitType == null && _unitList != null && _unitList!.isNotEmpty) {
       int index = _unitIndex ?? 0;
       item.unitType = _unitList![index].unit;
@@ -862,7 +914,8 @@ class StoreController extends GetxController implements GetxService {
     }
     Map<String, String> fields = {};
     if (!Get.find<SplashController>().getStoreModuleConfig().newVariation! &&
-        _variantTypeList != null && _variantTypeList!.isNotEmpty) {
+        _variantTypeList != null &&
+        _variantTypeList!.isNotEmpty) {
       List<int?> idList = [];
       List<String?> nameList = [];
       for (var attributeModel in (_attributeList ?? [])) {
@@ -924,7 +977,8 @@ class StoreController extends GetxController implements GetxService {
                 .module!
                 .moduleType ==
             'food') {
-      if (_selectedNutritionList != null && _selectedNutritionList!.isNotEmpty) {
+      if (_selectedNutritionList != null &&
+          _selectedNutritionList!.isNotEmpty) {
         for (var index in _selectedNutritionList!) {
           nutrition =
               nutrition +
@@ -1731,11 +1785,14 @@ class StoreController extends GetxController implements GetxService {
     _categoryIndex = index;
     _itemList == null;
     _categoryId = _categoryIdList![index];
+    int? moduleId =
+        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
     getItemList(
       offset: '1',
       type: _type,
       search: '',
       categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0,
+      moduleId: moduleId,
     );
     update();
   }

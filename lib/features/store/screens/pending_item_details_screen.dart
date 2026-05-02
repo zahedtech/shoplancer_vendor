@@ -137,7 +137,7 @@ class EnglishLanguageItemTab extends StatelessWidget {
       SizedBox(
         height: 40,
         child: ListView.builder(
-          itemCount: languageList!.length,
+          itemCount: 1,
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.only(left: Dimensions.paddingSizeSmall),
           itemBuilder: (context, index) {
@@ -148,7 +148,7 @@ class EnglishLanguageItemTab extends StatelessWidget {
                 onTap: () => storeController.setLanguageSelect(index),
                 child: Column(children: [
                   Text(
-                    languageList[index].value!,
+                    'افتراضي',
                     style: selected ? robotoBold.copyWith(color: Theme.of(context).primaryColor) : robotoMedium,
                   ),
                   Container(

@@ -13,6 +13,7 @@ import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MenuButtonWidget extends StatelessWidget {
   final MenuModel menu;
@@ -33,6 +34,11 @@ class MenuButtonWidget extends StatelessWidget {
         }else if(menu.isLanguage){
           Get.back();
           _manageLanguageFunctionality();
+        } else if(menu.isWhatsApp) {
+          Get.back();
+          if(await canLaunchUrl(Uri.parse(menu.route))) {
+            await launchUrl(Uri.parse(menu.route), mode: LaunchMode.externalApplication);
+          }
         } else {
           if (isLogout) {
             Get.back();

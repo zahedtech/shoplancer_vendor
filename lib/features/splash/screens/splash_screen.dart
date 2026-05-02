@@ -25,7 +25,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
-
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
   StreamSubscription<List<ConnectivityResult>>? _onConnectivityChanged;
 
@@ -34,17 +33,28 @@ class SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     bool firstTime = true;
-    _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
-      bool isConnected = result.contains(ConnectivityResult.wifi) || result.contains(ConnectivityResult.mobile);
+    _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> result,
+    ) {
+      bool isConnected =
+          result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.mobile);
 
-      if(!firstTime) {
-        isConnected ? ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar() : const SizedBox();
-        ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-          backgroundColor: isConnected ? Colors.green : Colors.red,
-          duration: Duration(seconds: isConnected ? 3 : 6000),
-          content: Text(isConnected ? 'connected'.tr : 'no_connection'.tr, textAlign: TextAlign.center),
-        ));
-        if(isConnected) {
+      if (!firstTime) {
+        isConnected
+            ? ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar()
+            : const SizedBox();
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(
+            backgroundColor: isConnected ? Colors.green : Colors.red,
+            duration: Duration(seconds: isConnected ? 3 : 6000),
+            content: Text(
+              isConnected ? 'connected'.tr : 'no_connection'.tr,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+        if (isConnected) {
           _route();
         }
       }
@@ -54,7 +64,6 @@ class SplashScreenState extends State<SplashScreen> {
 
     Get.find<SplashController>().initSharedData();
     _route();
-
   }
 
   @override
@@ -69,15 +78,16 @@ class SplashScreenState extends State<SplashScreen> {
       if (isSuccess) {
         Timer(const Duration(seconds: 1), () async {
           double? minimumVersion = _getMinimumVersion();
-          bool isMaintenanceMode = Get.find<SplashController>().configModel!.maintenanceMode!;
+          bool isMaintenanceMode =
+              Get.find<SplashController>().configModel!.maintenanceMode!;
           bool needsUpdate = AppConstants.appVersion < minimumVersion!;
 
           if (needsUpdate || isMaintenanceMode) {
             Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
-          }else{
-            if(widget.body != null) {
+          } else {
+            if (widget.body != null) {
               await _handleNotificationRouting(widget.body);
-            }else{
+            } else {
               await _handleDefaultRouting();
             }
           }
@@ -95,33 +105,75 @@ class SplashScreenState extends State<SplashScreen> {
     return 0;
   }
 
-  Future<void> _handleNotificationRouting(NotificationBodyModel? notificationBody) async {
+  Future<void> _handleNotificationRouting(
+    NotificationBodyModel? notificationBody,
+  ) async {
     final notificationType = notificationBody?.notificationType;
-    
+
     final Map<NotificationType, Function> notificationActions = {
       NotificationType.order: () {
-        if(Get.find<AuthController>().getModuleType() == 'rental'){
-          Get.to(()=> TripDetailsScreen(tripId: notificationBody!.orderId!, fromNotification: true));
-        }else{
-          Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationBody?.orderId, fromNotification: true));
+        if (Get.find<AuthController>().getModuleType() == 'rental') {
+          Get.to(
+            () => TripDetailsScreen(
+              tripId: notificationBody!.orderId!,
+              fromNotification: true,
+            ),
+          );
+        } else {
+          Get.toNamed(
+            RouteHelper.getOrderDetailsRoute(
+              notificationBody?.orderId,
+              fromNotification: true,
+            ),
+          );
         }
       },
-      NotificationType.advertisement: () => Get.toNamed(RouteHelper.getAdvertisementDetailsScreen(advertisementId: notificationBody?.advertisementId, fromNotification: true)),
-      NotificationType.block: () => Get.offAllNamed(RouteHelper.getSignInRoute()),
-      NotificationType.unblock: () => Get.offAllNamed(RouteHelper.getSignInRoute()),
-      NotificationType.withdraw: () => Get.to(const DashboardScreen(pageIndex: 3)),
-      NotificationType.campaign: () => Get.toNamed(RouteHelper.getCampaignDetailsRoute(id: notificationBody?.campaignId, fromNotification: true)),
+      NotificationType.advertisement: () => Get.toNamed(
+        RouteHelper.getAdvertisementDetailsScreen(
+          advertisementId: notificationBody?.advertisementId,
+          fromNotification: true,
+        ),
+      ),
+      NotificationType.block: () =>
+          Get.offAllNamed(RouteHelper.getSignInRoute()),
+      NotificationType.unblock: () =>
+          Get.offAllNamed(RouteHelper.getSignInRoute()),
+      NotificationType.withdraw: () =>
+          Get.to(const DashboardScreen(pageIndex: 3)),
+      NotificationType.campaign: () => Get.toNamed(
+        RouteHelper.getCampaignDetailsRoute(
+          id: notificationBody?.campaignId,
+          fromNotification: true,
+        ),
+      ),
       NotificationType.message: () {
-        if(Get.find<AuthController>().getModuleType() == 'rental'){
-          Get.to(()=> TaxiChatScreen(notificationBody: notificationBody, conversationId: notificationBody?.conversationId, fromNotification: true));
-        }else{
-          Get.toNamed(RouteHelper.getChatRoute(notificationBody: notificationBody, conversationId: notificationBody?.conversationId, fromNotification: true));
+        if (Get.find<AuthController>().getModuleType() == 'rental') {
+          Get.to(
+            () => TaxiChatScreen(
+              notificationBody: notificationBody,
+              conversationId: notificationBody?.conversationId,
+              fromNotification: true,
+            ),
+          );
+        } else {
+          Get.toNamed(
+            RouteHelper.getChatRoute(
+              notificationBody: notificationBody,
+              conversationId: notificationBody?.conversationId,
+              fromNotification: true,
+            ),
+          );
         }
       },
-      NotificationType.subscription: () => Get.toNamed(RouteHelper.getMySubscriptionRoute(fromNotification: true)),
-      NotificationType.product_approve: () => Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true)),
-      NotificationType.product_rejected: () => Get.toNamed(RouteHelper.getPendingItemRoute(fromNotification: true)),
-      NotificationType.general: () => Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true)),
+      NotificationType.subscription: () => Get.toNamed(
+        RouteHelper.getMySubscriptionRoute(fromNotification: true),
+      ),
+      NotificationType.product_approve: () =>
+          Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true)),
+      NotificationType.product_rejected: () =>
+          Get.toNamed(RouteHelper.getPendingItemRoute(fromNotification: true)),
+      NotificationType.general: () =>
+          Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true)),
     };
 
     notificationActions[notificationType]?.call();
@@ -130,13 +182,15 @@ class SplashScreenState extends State<SplashScreen> {
   Future<void> _handleDefaultRouting() async {
     if (Get.find<AuthController>().isLoggedIn()) {
       await Get.find<AuthController>().updateToken();
-      Get.find<AuthController>().getModuleType() == 'rental' ? await Get.find<TaxiProfileController>().getProfile() : await Get.find<ProfileController>().getProfile();
+      Get.find<AuthController>().getModuleType() == 'rental'
+          ? await Get.find<TaxiProfileController>().getProfile()
+          : await Get.find<ProfileController>().getProfile();
       Get.offNamed(RouteHelper.getInitialRoute());
     } else {
       final bool showIntro = Get.find<SplashController>().showIntro();
-      if(AppConstants.languages.length > 1 && showIntro) {
+      if (AppConstants.languages.length > 1 && showIntro) {
         Get.offNamed(RouteHelper.getLanguageRoute('splash'));
-      }else {
+      } else {
         Get.offNamed(RouteHelper.getSignInRoute());
       }
     }
@@ -146,15 +200,77 @@ class SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _globalKey,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Image.asset(Images.logo, width: 200),
-            const SizedBox(height: Dimensions.paddingSizeSmall),
-            Text('suffix_name'.tr, style: robotoMedium, textAlign: TextAlign.center),
-          ]),
-        ),
+      body: Stack(
+        children: [
+          // Background shape or gradient
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
+            ),
+          ),
+
+          // Top decoration shape
+          Positioned(
+            top: -50,
+            right: -50,
+            child: Image.asset(
+              Images.shapeImage,
+              width: 250,
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            ),
+          ),
+
+          // Bottom decoration shape
+          Positioned(
+            bottom: -50,
+            left: -50,
+            child: Transform.rotate(
+              angle: 3.14, // Rotate 180 degrees
+              child: Image.asset(
+                Images.shapeImage,
+                width: 250,
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+              ),
+            ),
+          ),
+
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TweenAnimationBuilder(
+                    duration: const Duration(milliseconds: 1000),
+                    tween: Tween<double>(begin: 0.5, end: 1.0),
+                    curve: Curves.elasticOut,
+                    builder: (context, double value, child) {
+                      return Transform.scale(scale: value, child: child);
+                    },
+                    child: Image.asset(Images.logo, width: 200),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                  TweenAnimationBuilder(
+                    duration: const Duration(milliseconds: 800),
+                    tween: Tween<double>(begin: 0, end: 1),
+                    builder: (context, double value, child) {
+                      return Opacity(opacity: value, child: child);
+                    },
+                    child: Text(
+                      'suffix_name'.tr,
+                      style: robotoMedium.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                        color: Theme.of(context).primaryColor,
+                        letterSpacing: 1.2,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

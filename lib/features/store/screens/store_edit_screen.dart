@@ -93,13 +93,10 @@ class _StoreEditScreenState extends State<StoreEditScreen>
           widget.store.metaData!.metaMaxVideoPreviewValue?.toString() ?? '';
     }
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
+    _tabs.add(const Tab(text: 'افتراضي'));
 
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
-
-    for (int index = 0; index < _languageList.length; index++) {
+    for (int index = 0; index < _languageList!.length; index++) {
       _nameController.add(TextEditingController());
       _addressController.add(TextEditingController());
       _nameNode.add(FocusNode());
@@ -107,10 +104,10 @@ class _StoreEditScreenState extends State<StoreEditScreen>
 
       for (var trans in translation!) {
         if (_languageList[index].key == trans.locale && trans.key == 'name') {
-          _nameController[index] = TextEditingController(text: trans.value);
-        } else if (_languageList[index].key == trans.locale &&
-            trans.key == 'address') {
-          _addressController[index] = TextEditingController(text: trans.value);
+          _nameController[index].text = trans.value ?? '';
+        }
+        if (_languageList[index].key == trans.locale && trans.key == 'address') {
+          _addressController[index].text = trans.value ?? '';
         }
       }
     }
@@ -1316,16 +1313,11 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                     bool defaultNameNull = false;
                     bool defaultAddressNull = false;
 
-                    for (int index = 0; index < _languageList.length; index++) {
-                      if (_languageList[index].key == 'en') {
-                        if (_nameController[index].text.trim().isEmpty) {
-                          defaultNameNull = true;
-                        }
-                        if (_addressController[index].text.trim().isEmpty) {
-                          defaultAddressNull = true;
-                        }
-                        break;
-                      }
+                    if (_nameController[0].text.trim().isEmpty) {
+                      defaultNameNull = true;
+                    }
+                    if (_addressController[0].text.trim().isEmpty) {
+                      defaultAddressNull = true;
                     }
 
                     String contact = _contactController.text.trim();

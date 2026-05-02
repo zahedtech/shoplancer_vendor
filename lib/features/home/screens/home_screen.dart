@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 2,
         title: Padding(
           padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault),
-          child: Image.asset(Images.logo, height: 30),
+          child: Image.asset(Images.logo, height: 50),
         ),
         actions: [
           IconButton(
@@ -205,11 +205,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     i++
                   ) {
                     if (orderController.runningOrders?[i].status == 'pending' ||
-                        orderController.runningOrders?[i].status == 'confirmed' ||
+                        orderController.runningOrders?[i].status ==
+                            'confirmed' ||
                         orderController.runningOrders?[i].status == 'cooking' ||
-                        orderController.runningOrders?[i].status == 'processing' ||
-                        orderController.runningOrders?[i].status == 'ready_for_handover' ||
-                        orderController.runningOrders?[i].status == 'food_on_the_way') {
+                        orderController.runningOrders?[i].status ==
+                            'processing' ||
+                        orderController.runningOrders?[i].status ==
+                            'ready_for_handover' ||
+                        orderController.runningOrders?[i].status ==
+                            'food_on_the_way') {
                       if (orderController
                           .runningOrders![i]
                           .orderList
@@ -296,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     profileController
                                         .modulePermission!
                                         .advertisement!
-                                ? const SizedBox()  //const AdsSectionWidget()
+                                ? const SizedBox() //const AdsSectionWidget()
                                 : const SizedBox(),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
                           ],

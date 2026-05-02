@@ -4,6 +4,7 @@ import 'package:sixam_mart_store/features/store/controllers/store_controller.dar
 import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
 import 'package:sixam_mart_store/features/store/widgets/mobile_product_grid.dart';
 import 'package:sixam_mart_store/features/store/widgets/store_upper.dart';
+import 'package:sixam_mart_store/helper/route_helper.dart';
 import 'package:sixam_mart_store/util/dimensions.dart';
 import 'package:sixam_mart_store/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +26,15 @@ class _StoreScreenState extends State<StoreScreen> {
     _initData();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent
-          && Get.find<StoreController>().itemList != null
-          && !Get.find<StoreController>().isLoading) {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          Get.find<StoreController>().itemList != null &&
+          !Get.find<StoreController>().isLoading) {
         int pageSize = (Get.find<StoreController>().itemSize! / 10).ceil();
         if (Get.find<StoreController>().offset < pageSize) {
-          Get.find<StoreController>().setOffset(Get.find<StoreController>().offset + 1);
+          Get.find<StoreController>().setOffset(
+            Get.find<StoreController>().offset + 1,
+          );
           debugPrint('end of the page');
           Get.find<StoreController>().showBottomLoader();
           Get.find<StoreController>().getItemList(
@@ -89,71 +93,81 @@ class _StoreScreenState extends State<StoreScreen> {
                       await _initData();
                     },
                     color: Theme.of(context).primaryColor,
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        // Modern Header with Banners and Store Info
-                        SliverToBoxAdapter(
-                          child: StoreUpper(
-                            banners: bannerController.storeBannerList,
-                            store: store,
-                          ),
-                        ),
-
-                        // Section Title
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  storeController.isSearching
-                                      ? 'search_results'.tr
-                                      : (storeController.categoryIndex != 0
-                                            ? storeController
-                                                  .categoryNameList![storeController
-                                                      .categoryIndex!]
-                                                  .tr
-                                            : 'all_products'.tr),
-                                  style: robotoBold.copyWith(
-                                    fontSize: 18,
-                                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                                  ),
-                                ),
-                                if (storeController.itemList != null)
-                                  Text(
-                                    '${storeController.itemList!.length} items',
-                                    style: robotoRegular.copyWith(
-                                      fontSize: 14,
-                                      color: Theme.of(context).disabledColor,
-                                    ),
-                                  ),
-                              ],
+                    child: SafeArea(
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const BouncingScrollPhysics(),
+                        slivers: [
+                          // Modern Header with Banners and Store Info
+                          SliverToBoxAdapter(
+                            child: StoreUpper(
+                              banners: bannerController.storeBannerList,
+                              store: store,
                             ),
                           ),
-                        ),
 
-                        // Product Grid
-                        const SliverToBoxAdapter(child: MobileProductGrid()),
-
-                        // Bottom Loader
-                        if (storeController.isLoading && storeController.itemList != null)
+                          // Section Title
                           SliverToBoxAdapter(
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-                                ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    storeController.isSearching
+                                        ? 'search_results'.tr
+                                        : (storeController.categoryIndex != 0
+                                              ? storeController
+                                                    .categoryNameList![storeController
+                                                        .categoryIndex!]
+                                                    .tr
+                                              : 'all_products'.tr),
+                                    style: robotoBold.copyWith(
+                                      fontSize: 18,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.color,
+                                    ),
+                                  ),
+                                  if (storeController.itemList != null)
+                                    Text(
+                                      '${storeController.itemList!.length} items',
+                                      style: robotoRegular.copyWith(
+                                        fontSize: 14,
+                                        color: Theme.of(context).disabledColor,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
 
-                        // Bottom Spacing
-                        const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                      ],
+                          // Product Grid
+                          const SliverToBoxAdapter(child: MobileProductGrid()),
+
+                          // Bottom Loader
+                          if (storeController.isLoading &&
+                              storeController.itemList != null)
+                            SliverToBoxAdapter(
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeSmall,
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          // Bottom Spacing
+                          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                        ],
+                      ),
                     ),
                   );
                 },

@@ -210,7 +210,17 @@ class _StoreUpperState extends State<StoreUpper> {
             ],
           ),
         ),
-
+        SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+            child: OutlinedButton.icon(
+              onPressed: () => Get.toNamed(RouteHelper.getStoreLinkRoute()),
+              icon: const Icon(Icons.qr_code),
+              label: Text('store_link'.tr),
+            ),
+          ),
+        ),
         // Category Selection
         GetBuilder<StoreController>(
           builder: (storeController) {
@@ -249,12 +259,16 @@ class _StoreUpperState extends State<StoreUpper> {
                                 border: Border.all(
                                   color: isSelected
                                       ? Theme.of(context).primaryColor
-                                      : Theme.of(context).disabledColor.withOpacity(0.2),
+                                      : Theme.of(
+                                          context,
+                                        ).disabledColor.withOpacity(0.2),
                                 ),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: Theme.of(context).primaryColor.withOpacity(0.2),
+                                          color: Theme.of(
+                                            context,
+                                          ).primaryColor.withOpacity(0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 4),
                                         ),
