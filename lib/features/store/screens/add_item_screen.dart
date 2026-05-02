@@ -134,10 +134,10 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
     storeController.clearVatTax();
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
-    _tabs.addAll(_languageList.map((lang) => Tab(text: lang.value)));
+    _tabController = TabController(length: 1, vsync: this);
+    _tabs.add(const Tab(text: 'افتراضي'));
 
-    for (int index = 0; index < _languageList.length; index++) {
+    for (int index = 0; index < _languageList!.length; index++) {
       _nameControllerList.add(TextEditingController());
       _descriptionControllerList.add(TextEditingController());
       _nameFocusList.add(FocusNode());
@@ -265,37 +265,7 @@ class _AddItemScreenState extends State<AddItemScreen>
         title: _update ? 'update_item'.tr : 'add_item'.tr,
       ),
 
-      floatingActionButton:
-          Get.find<SplashController>().configModel!.openAiStatus!
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 70),
-              child: FloatingActionButton(
-                child: CustomAssetImageWidget(Images.useAi),
-                onPressed: () {
-                  Get.bottomSheet(
-                    isScrollControlled: true,
-                    useRootNavigator: true,
-                    backgroundColor: Theme.of(context).cardColor,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(Dimensions.radiusExtraLarge),
-                        topRight: Radius.circular(Dimensions.radiusExtraLarge),
-                      ),
-                    ),
-                    AiGeneratorBottomSheet(
-                      languageList: _languageList,
-                      tabController: _tabController,
-                      nameControllerList: _nameControllerList,
-                      descriptionControllerList: _descriptionControllerList,
-                      priceController: _priceController,
-                      discountController: _discountController,
-                      maxOrderQuantityController: _maxOrderQuantityController,
-                    ),
-                  );
-                },
-              ),
-            )
-          : null,
+      floatingActionButton: null,
 
       body: SafeArea(
         child: GetBuilder<CategoryController>(
@@ -514,92 +484,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             'item_info'.tr,
                                             style: robotoBold,
                                           ),
-
-                                          Get.find<SplashController>()
-                                                  .configModel!
-                                                  .openAiStatus!
-                                              ? InkWell(
-                                                  onTap: () {
-                                                    if (_nameControllerList[_tabController!
-                                                            .index]
-                                                        .text
-                                                        .isEmpty) {
-                                                      showCustomSnackBar(
-                                                        'item_name_required'.tr,
-                                                      );
-                                                    } else {
-                                                      aiController
-                                                          .generateTitleAndDes(
-                                                            title:
-                                                                _nameControllerList[_tabController!
-                                                                        .index]
-                                                                    .text
-                                                                    .trim(),
-                                                            langCode:
-                                                                _languageList![_tabController!
-                                                                        .index]
-                                                                    .key!,
-                                                          )
-                                                          .then((value) {
-                                                            if (aiController
-                                                                    .titleDesModel !=
-                                                                null) {
-                                                              _nameControllerList[_tabController!
-                                                                          .index]
-                                                                      .text =
-                                                                  aiController
-                                                                      .titleDesModel!
-                                                                      .title ??
-                                                                  '';
-                                                              _descriptionControllerList[_tabController!
-                                                                          .index]
-                                                                      .text =
-                                                                  aiController
-                                                                      .titleDesModel!
-                                                                      .description ??
-                                                                  '';
-                                                            }
-                                                          });
-                                                    }
-                                                  },
-                                                  child:
-                                                      !aiController.titleLoading
-                                                      ? Icon(
-                                                          Icons.auto_awesome,
-                                                          color: Colors.blue,
-                                                        )
-                                                      : Shimmer(
-                                                          duration:
-                                                              const Duration(
-                                                                seconds: 2,
-                                                              ),
-                                                          color: Colors.blue,
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .auto_awesome,
-                                                                color:
-                                                                    Colors.blue,
-                                                              ),
-                                                              const SizedBox(
-                                                                width: Dimensions
-                                                                    .paddingSizeExtraSmall,
-                                                              ),
-
-                                                              Text(
-                                                                'generating'.tr,
-                                                                style: robotoBold
-                                                                    .copyWith(
-                                                                      color: Colors
-                                                                          .blue,
-                                                                    ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                )
-                                              : const SizedBox(),
+                                          const SizedBox(),
                                         ],
                                       ),
                                       const SizedBox(
@@ -752,83 +637,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             style: robotoMedium,
                                           ),
 
-                                          Get.find<SplashController>()
-                                                  .configModel!
-                                                  .openAiStatus!
-                                              ? InkWell(
-                                                  onTap: () {
-                                                    if (_nameControllerList[0]
-                                                        .text
-                                                        .isEmpty) {
-                                                      showCustomSnackBar(
-                                                        'food_name_required_for_en'
-                                                            .tr,
-                                                      );
-                                                    } else if (_descriptionControllerList[0]
-                                                        .text
-                                                        .isEmpty) {
-                                                      showCustomSnackBar(
-                                                        'description_required'
-                                                            .tr,
-                                                      );
-                                                    } else {
-                                                      storeController.generateAndSetOtherData(
-                                                        title:
-                                                            _nameControllerList[0]
-                                                                .text
-                                                                .trim(),
-                                                        description:
-                                                            _descriptionControllerList[0]
-                                                                .text
-                                                                .trim(),
-                                                        priceController:
-                                                            _priceController,
-                                                        discountController:
-                                                            _discountController,
-                                                        maxOrderQuantityController:
-                                                            _maxOrderQuantityController,
-                                                      );
-                                                    }
-                                                  },
-                                                  child:
-                                                      !aiController
-                                                          .otherDataLoading
-                                                      ? Icon(
-                                                          Icons.auto_awesome,
-                                                          color: Colors.blue,
-                                                        )
-                                                      : Shimmer(
-                                                          duration:
-                                                              const Duration(
-                                                                seconds: 2,
-                                                              ),
-                                                          color: Colors.blue,
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .auto_awesome,
-                                                                color:
-                                                                    Colors.blue,
-                                                              ),
-                                                              const SizedBox(
-                                                                width: Dimensions
-                                                                    .paddingSizeExtraSmall,
-                                                              ),
-
-                                                              Text(
-                                                                'generating'.tr,
-                                                                style: robotoBold
-                                                                    .copyWith(
-                                                                      color: Colors
-                                                                          .blue,
-                                                                    ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                )
-                                              : const SizedBox(),
+                                          const SizedBox(),
                                         ],
                                       ),
                                       const SizedBox(
@@ -892,22 +701,11 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             ),
 
                                             categoryController
-                                                            .selectedSubCategoryID !=
-                                                        null &&
-                                                    categoryController
                                                             .subCategoryList !=
                                                         null &&
                                                     categoryController
                                                         .subCategoryList!
-                                                        .isNotEmpty &&
-                                                    (!_update ||
-                                                        (widget.item?.categoryIds !=
-                                                                null &&
-                                                            widget
-                                                                    .item!
-                                                                    .categoryIds!
-                                                                    .length >
-                                                                1))
+                                                        .isNotEmpty
                                                 ? CustomDropdownButton(
                                                     hintText: 'sub_category'.tr,
                                                     dropdownMenuItems: categoryController
@@ -940,7 +738,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                         categoryController
                                                             .selectedSubCategoryID,
                                                   )
-                                                : SizedBox.shrink(),
+                                                : const SizedBox.shrink(),
                                             SizedBox(
                                               height:
                                                   categoryController
@@ -1247,9 +1045,7 @@ class _AddItemScreenState extends State<AddItemScreen>
 
                                             const SizedBox(),
 
-
                                             const SizedBox(),
-
 
                                             Get.find<SplashController>()
                                                         .configModel!
@@ -1439,8 +1235,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                         height: Dimensions.paddingSizeDefault,
                                       ),
 
-                                       const SizedBox(),
-
+                                      const SizedBox(),
 
                                       Text('price_info'.tr, style: robotoBold),
                                       const SizedBox(
@@ -1596,39 +1391,15 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               isNumber: true,
                                             ),
                                             SizedBox(
-                                              height:
-                                                  (_module.stock! ||
-                                                      _module.unit!)
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
+                                              height: (_module.unit! && unitList.isNotEmpty)
+                                                  ? Dimensions.paddingSizeExtraLarge
                                                   : 0,
                                             ),
 
-                                            ((_module.stock! &&
-                                                        (_update || true)) ||
-                                                    (_module.unit! &&
-                                                        unitList.isNotEmpty))
+                                            (_module.unit! && unitList.isNotEmpty)
                                                 ? Row(
                                                     children: [
-                                                      _module.stock!
-                                                          ? Expanded(
-                                                              child: CustomTextFieldWidget(
-                                                                hintText:
-                                                                    'total_stock'
-                                                                        .tr,
-                                                                labelText:
-                                                                    'total_stock'
-                                                                        .tr,
-                                                                controller:
-                                                                    _stockController,
-                                                                isNumber: true,
-                                                                isEnabled:
-                                                                    storeController
-                                                                        .variantTypeList!
-                                                                        .isEmpty,
-                                                              ),
-                                                            )
-                                                          : const SizedBox(),
+                                                      const SizedBox(),
                                                       SizedBox(
                                                         width: _module.stock!
                                                             ? Dimensions
@@ -1740,25 +1511,29 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeDefault,
-                                      ),
+                                       SizedBox(
+                                         height: (!isGrocery && (Get.find<SplashController>().getStoreModuleConfig().newVariation! || (storeController.attributeList != null && storeController.attributeList!.isNotEmpty) || (_update && widget.item!.attributes != null && widget.item!.attributes!.isNotEmpty)))
+                                             ? Dimensions.paddingSizeDefault
+                                             : 0,
+                                       ),
 
-                                      (Get.find<SplashController>()
-                                                  .getStoreModuleConfig()
-                                                  .newVariation! ||
-                                              (storeController.attributeList !=
-                                                      null &&
-                                                  storeController
-                                                      .attributeList!
-                                                      .isNotEmpty) ||
-                                              (_update &&
-                                                  widget.item!.attributes !=
-                                                      null &&
-                                                  widget
-                                                      .item!
-                                                      .attributes!
-                                                      .isNotEmpty))
+                                      (!isGrocery &&
+                                              (Get.find<SplashController>()
+                                                      .getStoreModuleConfig()
+                                                      .newVariation! ||
+                                                  (storeController
+                                                              .attributeList !=
+                                                          null &&
+                                                      storeController
+                                                          .attributeList!
+                                                          .isNotEmpty) ||
+                                                  (_update &&
+                                                      widget.item!.attributes !=
+                                                          null &&
+                                                      widget
+                                                          .item!
+                                                          .attributes!
+                                                          .isNotEmpty)))
                                           ? Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -1797,96 +1572,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                             style: robotoBold,
                                                           ),
 
-                                                    Get.find<SplashController>()
-                                                            .configModel!
-                                                            .openAiStatus!
-                                                        ? InkWell(
-                                                            onTap: () {
-                                                              if (_nameControllerList[0]
-                                                                  .text
-                                                                  .isEmpty) {
-                                                                showCustomSnackBar(
-                                                                  'food_name_required_for_en'
-                                                                      .tr,
-                                                                );
-                                                              } else if (_descriptionControllerList[0]
-                                                                  .text
-                                                                  .isEmpty) {
-                                                                showCustomSnackBar(
-                                                                  'description_required'
-                                                                      .tr,
-                                                                );
-                                                              } else {
-                                                                if (Get.find<
-                                                                      SplashController
-                                                                    >()
-                                                                    .getStoreModuleConfig()
-                                                                    .newVariation!) {
-                                                                  storeController.generateAndSetVariationData(
-                                                                    title: _nameControllerList[0]
-                                                                        .text
-                                                                        .trim(),
-                                                                    description:
-                                                                        _descriptionControllerList[0]
-                                                                            .text
-                                                                            .trim(),
-                                                                  );
-                                                                } else {
-                                                                  storeController.generateAndSetAttributeData(
-                                                                    title: _nameControllerList[0]
-                                                                        .text
-                                                                        .trim(),
-                                                                    description:
-                                                                        _descriptionControllerList[0]
-                                                                            .text
-                                                                            .trim(),
-                                                                  );
-                                                                }
-                                                              }
-                                                            },
-                                                            child:
-                                                                !aiController
-                                                                    .variationDataLoading
-                                                                ? Icon(
-                                                                    Icons
-                                                                        .auto_awesome,
-                                                                    color: Colors
-                                                                        .blue,
-                                                                  )
-                                                                : Shimmer(
-                                                                    duration:
-                                                                        const Duration(
-                                                                          seconds:
-                                                                              2,
-                                                                        ),
-                                                                    color: Colors
-                                                                        .blue,
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Icon(
-                                                                          Icons
-                                                                              .auto_awesome,
-                                                                          color:
-                                                                              Colors.blue,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
-                                                                              Dimensions.paddingSizeExtraSmall,
-                                                                        ),
-
-                                                                        Text(
-                                                                          'generating'
-                                                                              .tr,
-                                                                          style: robotoBold.copyWith(
-                                                                            color:
-                                                                                Colors.blue,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                          )
-                                                        : const SizedBox(),
+                                                    const SizedBox(),
                                                   ],
                                                 ),
                                                 const SizedBox(
@@ -2381,201 +2067,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             : 0,
                                       ),
 
-                                      Text(
-                                        'thumbnail_image'.tr,
-                                        style: robotoBold,
-                                      ),
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraSmall,
-                                      ),
-
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeSmall,
-                                          vertical: Dimensions.paddingSizeLarge,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).cardColor,
-                                          borderRadius: BorderRadius.circular(
-                                            Dimensions.radiusDefault,
-                                          ),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.black12,
-                                              spreadRadius: 0,
-                                              blurRadius: 5,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Stack(
-                                                children: [
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          Dimensions
-                                                              .radiusDefault,
-                                                        ),
-                                                    child:
-                                                        storeController
-                                                                .rawLogo !=
-                                                            null
-                                                        ? GetPlatform.isWeb
-                                                              ? Image.network(
-                                                                  storeController
-                                                                      .rawLogo!
-                                                                      .path,
-                                                                  width: 150,
-                                                                  height: 150,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                )
-                                                              : Image.file(
-                                                                  File(
-                                                                    storeController
-                                                                        .rawLogo!
-                                                                        .path,
-                                                                  ),
-                                                                  width: 150,
-                                                                  height: 150,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                )
-                                                        : _item.imageFullUrl !=
-                                                              null
-                                                        ? CustomImageWidget(
-                                                            image:
-                                                                _item
-                                                                    .imageFullUrl ??
-                                                                '',
-                                                            height: 150,
-                                                            width: 150,
-                                                            fit: BoxFit.cover,
-                                                          )
-                                                        : Container(
-                                                            height: 150,
-                                                            width: 150,
-                                                            decoration: BoxDecoration(
-                                                              color:
-                                                                  Get.isDarkMode
-                                                                  ? Colors.white
-                                                                        .withValues(
-                                                                          alpha:
-                                                                              0.05,
-                                                                        )
-                                                                  : const Color(
-                                                                      0xFFFAFAFA,
-                                                                    ),
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    Dimensions
-                                                                        .radiusDefault,
-                                                                  ),
-                                                            ),
-                                                            child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Icon(
-                                                                  CupertinoIcons
-                                                                      .photo_camera_solid,
-                                                                  color:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).disabledColor.withValues(
-                                                                        alpha:
-                                                                            0.5,
-                                                                      ),
-                                                                  size: 30,
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: Dimensions
-                                                                      .paddingSizeDefault,
-                                                                ),
-                                                                Text(
-                                                                  'click_to_upload'
-                                                                      .tr,
-                                                                  style: robotoBold.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).disabledColor,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                  ),
-
-                                                  Positioned(
-                                                    bottom: 0,
-                                                    right: 0,
-                                                    top: 0,
-                                                    left: 0,
-                                                    child: InkWell(
-                                                      onTap: () =>
-                                                          storeController
-                                                              .pickImage(
-                                                                true,
-                                                                false,
-                                                              ),
-                                                      child: DottedBorder(
-                                                        options: RoundedRectDottedBorderOptions(
-                                                          radius:
-                                                              const Radius.circular(
-                                                                Dimensions
-                                                                    .radiusDefault,
-                                                              ),
-                                                          dashPattern: const [
-                                                            8,
-                                                            4,
-                                                          ],
-                                                          strokeWidth: 1,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .primaryColor
-                                                                  .withValues(
-                                                                    alpha: 0.5,
-                                                                  ),
-                                                        ),
-                                                        child: const SizedBox(
-                                                          height: 150,
-                                                          width: 150,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeDefault,
-                                            ),
-
-                                            Text(
-                                              'thumbnail_image_format'.tr,
-                                              style: robotoRegular.copyWith(
-                                                color: Theme.of(
-                                                  context,
-                                                ).disabledColor,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeDefault,
-                                      ),
+                                       const SizedBox(),
 
                                       // Item Image Section
                                       Row(
@@ -3011,23 +2503,13 @@ class _AddItemScreenState extends State<AddItemScreen>
                                     }
 
                                     bool defaultDataNull = false;
-                                    for (
-                                      int index = 0;
-                                      index < _languageList.length;
-                                      index++
-                                    ) {
-                                      if (_languageList[index].key == 'en') {
-                                        if (_nameControllerList[index].text
-                                                .trim()
-                                                .isEmpty ||
-                                            _descriptionControllerList[index]
-                                                .text
-                                                .trim()
-                                                .isEmpty) {
-                                          defaultDataNull = true;
-                                        }
-                                        break;
-                                      }
+                                    if (_nameControllerList[0].text
+                                            .trim()
+                                            .isEmpty ||
+                                        _descriptionControllerList[0].text
+                                            .trim()
+                                            .isEmpty) {
+                                      defaultDataNull = true;
                                     }
 
                                     bool checkDiscountWithVariationPrice =
@@ -3055,7 +2537,7 @@ class _AddItemScreenState extends State<AddItemScreen>
 
                                     if (defaultDataNull) {
                                       showCustomSnackBar(
-                                        'enter_data_for_english'.tr,
+                                        'enter_data_for_default_language'.tr,
                                       );
                                     } else if (categoryController
                                             .selectedCategoryID ==
@@ -3151,10 +2633,10 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             null) {
                                       showCustomSnackBar('pick_end_time'.tr);
                                     } else if (!_update &&
-                                        storeController.rawLogo == null &&
+                                        storeController.rawImages.isEmpty &&
                                         _item.imageFullUrl == null) {
                                       showCustomSnackBar(
-                                        'upload_item_thumbnail_image'.tr,
+                                        'upload_item_image'.tr,
                                       );
                                     } else if (!_update &&
                                         (Get.find<SplashController>()
@@ -3261,9 +2743,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             .unit;
                                       }
                                       if (_module.stock!) {
-                                        _item.stock = int.parse(
-                                          _stockController.text.trim(),
-                                        );
+                                        _item.stock = 100;
                                       }
                                       if (Get.find<SplashController>()
                                               .configModel!
@@ -3409,6 +2889,14 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           'set_value_for_all_variation'.tr,
                                         );
                                       } else {
+                                        if (storeController.rawLogo == null &&
+                                            storeController
+                                                .rawImages
+                                                .isNotEmpty) {
+                                          storeController.setRawLogo(
+                                            storeController.rawImages[0],
+                                          );
+                                        }
                                         storeController.addItem(
                                           _item,
                                           widget.item == null,

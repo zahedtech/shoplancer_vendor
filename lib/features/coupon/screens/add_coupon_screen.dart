@@ -52,19 +52,18 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
-    _tabs.addAll(_languageList.map((lang) => Tab(text: lang.value)));
+    _tabController = TabController(length: 1, vsync: this);
+    _tabs.add(const Tab(text: 'افتراضي'));
 
     if(widget.coupon != null){
       List<Translation> translation = widget.coupon!.translations!;
-      for(int index = 0; index<_languageList.length; index++) {
+      for(int index = 0; index<_languageList!.length; index++) {
+        _titleController.add(TextEditingController());
+        _titleNode.add(FocusNode());
         Translation? languageTranslation = translation.firstWhereOrNull(
           (trans) => trans.locale == _languageList[index].key,
         );
-        _titleController.add(TextEditingController(
-          text: languageTranslation?.value ?? '',
-        ));
-        _titleNode.add(FocusNode());
+        _titleController[index].text = languageTranslation?.value ?? '';
       }
       _codeController.text = widget.coupon!.code!;
       _limitController.text = widget.coupon!.limit != null ? widget.coupon!.limit.toString() : '';
@@ -76,7 +75,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
       Get.find<CouponController>().setCouponTypeIndex(widget.coupon!.couponType == 'default' ? 0 : 1 , false);
       Get.find<CouponController>().setDiscountTypeIndex(widget.coupon!.discountType == 'percent' ? 0 : 1, false);
     }else{
-      for (var language in _languageList) {
+      for (var language in _languageList!) {
         if (kDebugMode) {
           print(language);
         }

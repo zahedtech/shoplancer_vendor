@@ -104,7 +104,7 @@ class ProfileModel {
     todaysOrderCount = json['todays_order_count'];
     thisWeekOrderCount = json['this_week_order_count'];
     thisMonthOrderCount = json['this_month_order_count'];
-    memberSinceDays = int.tryParse(json['member_since_days'].toString())??0;
+    memberSinceDays = int.tryParse(json['member_since_days'].toString()) ?? 0;
     cashInHands = json['cash_in_hands']?.toDouble();
     balance = json['balance']?.toDouble();
     totalEarning = json['total_earning']?.toDouble();
@@ -143,7 +143,9 @@ class ProfileModel {
     if (json['subscription'] != null) {
       subscription = Subscription.fromJson(json['subscription']);
     }
-    subscriptionOtherData = json['subscription_other_data'] != null ? SubscriptionOtherData.fromJson(json['subscription_other_data']) : null;
+    subscriptionOtherData = json['subscription_other_data'] != null
+        ? SubscriptionOtherData.fromJson(json['subscription_other_data'])
+        : null;
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
   }
@@ -198,6 +200,7 @@ class ProfileModel {
 
 class Store {
   int? id;
+  String? slug;
   String? name;
   String? phone;
   String? email;
@@ -254,6 +257,7 @@ class Store {
 
   Store({
     this.id,
+    this.slug,
     this.name,
     this.phone,
     this.email,
@@ -310,6 +314,7 @@ class Store {
 
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    slug = json['slug'] ?? json['slug_name'];
     name = json['name'];
     phone = json['phone'];
     email = json['email'];
@@ -339,15 +344,21 @@ class Store {
     gstCode = json['gst_code'];
     selfDeliverySystem = json['self_delivery_system'];
     posSystem = json['pos_system'];
-    minimumShippingCharge = json['minimum_shipping_charge'] != null ? json['minimum_shipping_charge']?.toDouble() : 0.0;
+    minimumShippingCharge = json['minimum_shipping_charge'] != null
+        ? json['minimum_shipping_charge']?.toDouble()
+        : 0.0;
     maximumShippingCharge = json['maximum_shipping_charge']?.toDouble();
-    perKmShippingCharge = json['per_km_shipping_charge'] != null ? json['per_km_shipping_charge']?.toDouble() : 0.0;
+    perKmShippingCharge = json['per_km_shipping_charge'] != null
+        ? json['per_km_shipping_charge']?.toDouble()
+        : 0.0;
     deliveryTime = json['delivery_time'];
     veg = json['veg'];
     nonVeg = json['non_veg'];
     orderPlaceToScheduleInterval = json['order_place_to_schedule_interval'];
     module = json['module'] != null ? Module.fromJson(json['module']) : null;
-    discount = json['discount'] != null ? Discount.fromJson(json['discount']) : null;
+    discount = json['discount'] != null
+        ? Discount.fromJson(json['discount'])
+        : null;
     if (json['schedules'] != null) {
       schedules = <Schedules>[];
       json['schedules'].forEach((v) {
@@ -367,12 +378,15 @@ class Store {
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     isHalalActive = json['halal_tag_status'] ?? false;
     minimumStockForWarning = json['minimum_stock_for_warning']?.toDouble();
-    metaData = json['meta_data'] != null ? MetaSeoData.fromJson(json['meta_data']) : null;
+    metaData = json['meta_data'] != null
+        ? MetaSeoData.fromJson(json['meta_data'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['slug'] = slug;
     data['name'] = name;
     data['phone'] = phone;
     data['email'] = email;
@@ -462,7 +476,7 @@ class MetaSeoData {
     this.metaMaxSnippetValue,
     this.metaMaxVideoPreview,
     this.metaMaxImagePreviewValue,
-    this.metaMaxVideoPreviewValue
+    this.metaMaxVideoPreviewValue,
   });
 
   MetaSeoData.fromJson(Map<String, dynamic> json) {
@@ -495,7 +509,6 @@ class MetaSeoData {
     return data;
   }
 }
-
 
 class EmployeeInfo {
   int? id;
@@ -753,7 +766,9 @@ class Subscription {
     isCanceled = json['is_canceled'];
     canceledBy = json['canceled_by'];
     validity = json['validity'];
-    package = json['package'] != null ? Package.fromJson(json['package']) : null;
+    package = json['package'] != null
+        ? Package.fromJson(json['package'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {

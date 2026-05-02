@@ -54,6 +54,7 @@ dependencies:
   fluttertoast: ^9.0.0
   flutter_foreground_task: ^9.1.0
   flutter_image_compress: ^2.4.0
+  qr_flutter: ^4.1.0
 
   #Rental Module
   dropdown_button2: ^2.3.9
@@ -78,6 +79,20 @@ flutter:
     - assets/json/
 
   fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 400
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 500
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 600
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 700
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 800
+        - asset: assets/font/Nunito-VariableFont_wght.ttf
+          weight: 900
     - family: Roboto
       fonts:
         - asset: assets/font/Roboto-Regular.ttf
@@ -88,3 +103,17 @@ flutter:
           weight: 700
         - asset: assets/font/Roboto-Black.ttf
           weight: 900
+    - family: DroidArabicKufi
+      fonts:
+        - asset: assets/font/DroidKufi-Regular.ttf
+          weight: 400
+        - asset: assets/font/DroidKufi-Bold.ttf
+          weight: 700
+    - family: NotoSans
+      fonts:
+        - asset: assets/font/NotoSans-Regular.ttf
+          weight: 400
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/font/NotoSansArabic-Regular.ttf
+          weight: 400

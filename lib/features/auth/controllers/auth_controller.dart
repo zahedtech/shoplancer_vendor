@@ -71,7 +71,7 @@ class AuthController extends GetxController implements GetxService {
   bool _showPassView = false;
   bool get showPassView => _showPassView;
 
-  bool _isActiveRememberMe = false;
+  bool _isActiveRememberMe = true;
   bool get isActiveRememberMe => _isActiveRememberMe;
 
   ProfileModel? _profileModel;

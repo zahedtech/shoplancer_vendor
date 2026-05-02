@@ -21,6 +21,7 @@ class UpdateStockBottomSheet extends StatefulWidget {
 class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
 
   TextEditingController mainStockController = TextEditingController();
+  TextEditingController mainPriceController = TextEditingController();
   late List<TextEditingController> variationStockControllers;
   late List<TextEditingController> priceControllers;
 
@@ -32,6 +33,7 @@ class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
     totalStock = widget.item.stock ?? 0;
 
     mainStockController.text = totalStock.toString();
+    mainPriceController.text = widget.item.price.toString();
     variationStockControllers = widget.item.variations!.map((variation) => TextEditingController(
       text: variation.stock.toString(),
     )).toList();
@@ -80,16 +82,31 @@ class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
             Text(widget.item.name ?? '', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
-            Text('total_quantity'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
-            const SizedBox(height: Dimensions.paddingSizeDefault),
+            Row(children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('total_quantity'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+                CustomTextFieldWidget(
+                  hintText: 'enter_stock'.tr,
+                  controller: mainStockController,
+                  inputType: TextInputType.number,
+                  isNumber: true,
+                  isEnabled: variationStockControllers.isEmpty,
+                ),
+              ])),
+              SizedBox(width: variationStockControllers.isEmpty ? Dimensions.paddingSizeDefault : 0),
 
-            CustomTextFieldWidget(
-              hintText: 'enter_stock'.tr,
-              controller: mainStockController,
-              inputType: TextInputType.number,
-              isNumber: true,
-              isEnabled: variationStockControllers.isEmpty,
-            ),
+              variationStockControllers.isEmpty ? Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('price'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+                CustomTextFieldWidget(
+                  hintText: 'enter_price'.tr,
+                  controller: mainPriceController,
+                  inputType: TextInputType.number,
+                  isAmount: true,
+                ),
+              ])) : const SizedBox(),
+            ]),
           ]),
         ),
         SizedBox(height: variationStockControllers.isNotEmpty ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeExtraLarge),
@@ -210,8 +227,15 @@ class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
   void _updateStock(StoreController storeController) {
     Map<String, String> data = {};
     data.addAll({"_method": 'put'});
+    data.addAll({"id": widget.item.id.toString()});
     data.addAll({"product_id": widget.item.id.toString()});
     data.addAll({"current_stock": mainStockController.text.trim()});
+    if(widget.item.variations == null || widget.item.variations!.isEmpty) {
+      data.addAll({"price": mainPriceController.text.trim()});
+      data.addAll({"unit_price": mainPriceController.text.trim()});
+      data.addAll({"discount": widget.item.discount?.toString() ?? '0'});
+      data.addAll({"discount_type": widget.item.discountType ?? 'amount'});
+    }
     for (var variation in widget.item.variations!) {
       data.addAll({"price_${widget.item.variations!.indexOf(variation)}_${variation.type}": priceControllers[widget.item.variations!.indexOf(variation)].text.trim()});
     }

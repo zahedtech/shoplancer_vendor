@@ -37,11 +37,10 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _languageList!.length, initialIndex: 0, vsync: this);
-    for (var language in _languageList) {
-      if (kDebugMode) {
-        print(language);
-      }
+    _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
+    _tabs.add(const Tab(text: 'افتراضي'));
+
+    for (var language in _languageList!) {
       _nameControllers.add(TextEditingController());
       _nameNodes.add(FocusNode());
     }
@@ -85,9 +84,7 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
       }
     }
 
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
+
 
   }
 

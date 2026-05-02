@@ -21,8 +21,20 @@ class StoreService implements StoreServiceInterface {
   StoreService({required this.storeRepositoryInterface});
 
   @override
-  Future<ItemModel?> getItemList({required String offset, required String type, required String search, int? categoryId}) async {
-    return await storeRepositoryInterface.getItemList(offset: offset, type: type, search: search, categoryId: categoryId);
+  Future<ItemModel?> getItemList({
+    required String offset,
+    required String type,
+    required String search,
+    int? categoryId,
+    int? moduleId,
+  }) async {
+    return await storeRepositoryInterface.getItemList(
+      offset: offset,
+      type: type,
+      search: search,
+      categoryId: categoryId,
+      moduleId: moduleId,
+    );
   }
 
   @override
@@ -31,7 +43,10 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<PendingItemModel?> getPendingItemList(String offset, String type) async {
+  Future<PendingItemModel?> getPendingItemList(
+    String offset,
+    String type,
+  ) async {
     return await storeRepositoryInterface.getPendingItemList(offset, type);
   }
 
@@ -51,13 +66,42 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<bool> updateStore(Store store, String min, String max, String type) async {
+  Future<bool> updateStore(
+    Store store,
+    String min,
+    String max,
+    String type,
+  ) async {
     return await storeRepositoryInterface.updateStore(store, min, max, type);
   }
 
   @override
-  Future<Response> addItem(Item item, XFile? metaImage, XFile? image, List<XFile> images, List<String> savedImages, Map<String, String> attributes, bool isAdd, String tags, String nutrition, String allergicIngredients, String genericName) async {
-    return await storeRepositoryInterface.addItem(item, metaImage, image, images, savedImages, attributes, isAdd, tags, nutrition, allergicIngredients, genericName);
+  Future<Response> addItem(
+    Item item,
+    XFile? metaImage,
+    XFile? image,
+    List<XFile> images,
+    List<String> savedImages,
+    Map<String, String> attributes,
+    bool isAdd,
+    String tags,
+    String nutrition,
+    String allergicIngredients,
+    String genericName,
+  ) async {
+    return await storeRepositoryInterface.addItem(
+      item,
+      metaImage,
+      image,
+      images,
+      savedImages,
+      attributes,
+      isAdd,
+      tags,
+      nutrition,
+      allergicIngredients,
+      genericName,
+    );
   }
 
   @override
@@ -66,8 +110,14 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<List<ReviewModel>?> getStoreReviewList(int? storeID, String? searchText) async {
-    return await storeRepositoryInterface.getStoreReviewList(storeID, searchText);
+  Future<List<ReviewModel>?> getStoreReviewList(
+    int? storeID,
+    String? searchText,
+  ) async {
+    return await storeRepositoryInterface.getStoreReviewList(
+      storeID,
+      searchText,
+    );
   }
 
   @override
@@ -96,18 +146,30 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<bool> updateRecommendedProductStatus(int? productID, int status) async {
-    return await storeRepositoryInterface.updateRecommendedProductStatus(productID, status);
+  Future<bool> updateRecommendedProductStatus(
+    int? productID,
+    int status,
+  ) async {
+    return await storeRepositoryInterface.updateRecommendedProductStatus(
+      productID,
+      status,
+    );
   }
 
   @override
   Future<bool> updateOrganicProductStatus(int? productID, int status) async {
-    return await storeRepositoryInterface.updateOrganicProductStatus(productID, status);
+    return await storeRepositoryInterface.updateOrganicProductStatus(
+      productID,
+      status,
+    );
   }
 
   @override
   Future<bool> updateAnnouncement(int status, String announcement) async {
-    return await storeRepositoryInterface.updateAnnouncement(status, announcement);
+    return await storeRepositoryInterface.updateAnnouncement(
+      status,
+      announcement,
+    );
   }
 
   @override
@@ -127,8 +189,10 @@ class StoreService implements StoreServiceInterface {
 
   @override
   Future<XFile?> pickImageFromGallery() async {
-    XFile? pickImage = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if(pickImage != null) {
+    XFile? pickImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickImage != null) {
       pickImage.length().then((value) {
         if (value > 2000000) {
           showCustomSnackBar('please_upload_lower_size_file'.tr);
@@ -141,10 +205,10 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  bool hasAttributeData(List<AttributeModel>? attributeList){
+  bool hasAttributeData(List<AttributeModel>? attributeList) {
     bool hasData = false;
-    for(AttributeModel attribute in attributeList!) {
-      if(attribute.active) {
+    for (AttributeModel attribute in attributeList!) {
+      if (attribute.active) {
         hasData = true;
         break;
       }
@@ -153,10 +217,10 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  int setUnitIndex (List<UnitModel>? unitList, Item? item, int unitIndex) {
+  int setUnitIndex(List<UnitModel>? unitList, Item? item, int unitIndex) {
     int setUnitIndex = unitIndex;
-    for(int index = 0; index < unitList!.length; index++) {
-      if(item != null) {
+    for (int index = 0; index < unitList!.length; index++) {
+      if (item != null) {
         if (unitList[index].unit == item.unitType) {
           setUnitIndex = index;
         }
@@ -166,55 +230,77 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  List<VariantTypeModel>? variationTypeList(List<AttributeModel>? attributeList, Item? item) {
+  List<VariantTypeModel>? variationTypeList(
+    List<AttributeModel>? attributeList,
+    Item? item,
+  ) {
     List<List<String>> mainList = [];
     int length = 1;
     bool hasData = false;
     List<int> indexList = [];
     List<VariantTypeModel>? variantTypeList = [];
     for (var attribute in attributeList!) {
-      if(attribute.active) {
+      if (attribute.active) {
         hasData = true;
         mainList.add(attribute.variants);
         length = length * attribute.variants.length;
         indexList.add(0);
       }
     }
-    if(!hasData) {
+    if (!hasData) {
       length = 0;
     }
-    for(int i=0; i<length; i++) {
+    for (int i = 0; i < length; i++) {
       String value = '';
-      for(int j=0; j<mainList.length; j++) {
-        value = value + (value.isEmpty ? '' : '-') + mainList[j][indexList[j]].trim();
+      for (int j = 0; j < mainList.length; j++) {
+        value =
+            value +
+            (value.isEmpty ? '' : '-') +
+            mainList[j][indexList[j]].trim();
       }
-      if(item != null && item.variations != null) {
+      if (item != null && item.variations != null) {
         double? price = 0;
         int? stock = 0;
-        for(Variation variation in item.variations!) {
-          if(variation.type == value) {
+        for (Variation variation in item.variations!) {
+          if (variation.type == value) {
             price = variation.price;
             stock = variation.stock;
             break;
           }
         }
-        variantTypeList.add(VariantTypeModel(
-          variantType: value, priceController: TextEditingController(text: price! > 0 ? price.toString() : ''), priceNode: FocusNode(),
-          stockController: TextEditingController(text: stock! > 0 ? stock.toString() : ''), stockNode: FocusNode(),
-        ));
-      }else {
-        variantTypeList.add(VariantTypeModel(
-          variantType: value, priceController: TextEditingController(), priceNode: FocusNode(),
-          stockController: TextEditingController(), stockNode: FocusNode(),
-        ));
+        variantTypeList.add(
+          VariantTypeModel(
+            variantType: value,
+            priceController: TextEditingController(
+              text: price! > 0 ? price.toString() : '',
+            ),
+            priceNode: FocusNode(),
+            stockController: TextEditingController(
+              text: stock! > 0 ? stock.toString() : '',
+            ),
+            stockNode: FocusNode(),
+          ),
+        );
+      } else {
+        variantTypeList.add(
+          VariantTypeModel(
+            variantType: value,
+            priceController: TextEditingController(),
+            priceNode: FocusNode(),
+            stockController: TextEditingController(),
+            stockNode: FocusNode(),
+          ),
+        );
       }
 
-      for(int j=0; j<mainList.length; j++) {
-        if(indexList[indexList.length-(1+j)] < mainList[mainList.length-(1+j)].length-1) {
-          indexList[indexList.length-(1+j)] = indexList[indexList.length-(1+j)] + 1;
+      for (int j = 0; j < mainList.length; j++) {
+        if (indexList[indexList.length - (1 + j)] <
+            mainList[mainList.length - (1 + j)].length - 1) {
+          indexList[indexList.length - (1 + j)] =
+              indexList[indexList.length - (1 + j)] + 1;
           break;
-        }else {
-          indexList[indexList.length-(1+j)] = 0;
+        } else {
+          indexList[indexList.length - (1 + j)] = 0;
         }
       }
     }
@@ -229,37 +315,42 @@ class StoreService implements StoreServiceInterface {
     List<int> indexList = [];
     int totalStock = 0;
     for (var attribute in attributeList!) {
-      if(attribute.active) {
+      if (attribute.active) {
         hasData = true;
         mainList.add(attribute.variants);
         length = length * attribute.variants.length;
         indexList.add(0);
       }
     }
-    if(!hasData) {
+    if (!hasData) {
       length = 0;
     }
-    for(int i=0; i<length; i++) {
+    for (int i = 0; i < length; i++) {
       String value = '';
-      for(int j=0; j<mainList.length; j++) {
-        value = value + (value.isEmpty ? '' : '-') + mainList[j][indexList[j]].trim();
+      for (int j = 0; j < mainList.length; j++) {
+        value =
+            value +
+            (value.isEmpty ? '' : '-') +
+            mainList[j][indexList[j]].trim();
       }
-      if(item != null && item.variations != null) {
+      if (item != null && item.variations != null) {
         int? stock = 0;
-        for(Variation variation in item.variations!) {
-          if(variation.type == value) {
+        for (Variation variation in item.variations!) {
+          if (variation.type == value) {
             stock = variation.stock;
             break;
           }
         }
         totalStock = totalStock + stock!;
       }
-      for(int j=0; j<mainList.length; j++) {
-        if(indexList[indexList.length-(1+j)] < mainList[mainList.length-(1+j)].length-1) {
-          indexList[indexList.length-(1+j)] = indexList[indexList.length-(1+j)] + 1;
+      for (int j = 0; j < mainList.length; j++) {
+        if (indexList[indexList.length - (1 + j)] <
+            mainList[mainList.length - (1 + j)].length - 1) {
+          indexList[indexList.length - (1 + j)] =
+              indexList[indexList.length - (1 + j)] + 1;
           break;
-        }else {
-          indexList[indexList.length-(1+j)] = 0;
+        } else {
+          indexList[indexList.length - (1 + j)] = 0;
         }
       }
     }
@@ -267,27 +358,35 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  List<VariationModelBodyModel>? setExistingVariation(List<FoodVariation>? variationList){
+  List<VariationModelBodyModel>? setExistingVariation(
+    List<FoodVariation>? variationList,
+  ) {
     List<VariationModelBodyModel>? variationModelBodyList = [];
-    if(variationList != null && variationList.isNotEmpty) {
+    if (variationList != null && variationList.isNotEmpty) {
       for (var variation in variationList) {
         List<Option> options = [];
 
         for (var option in variation.variationValues!) {
-          options.add(Option(
-            optionNameController: TextEditingController(text: option.level),
-            optionPriceController: TextEditingController(text: option.optionPrice),
-          ));
+          options.add(
+            Option(
+              optionNameController: TextEditingController(text: option.level),
+              optionPriceController: TextEditingController(
+                text: option.optionPrice,
+              ),
+            ),
+          );
         }
 
-        variationModelBodyList.add(VariationModelBodyModel(
-          nameController: TextEditingController(text: variation.name),
-          isSingle: variation.type == 'single' ? true : false,
-          minController: TextEditingController(text: variation.min),
-          maxController: TextEditingController(text: variation.max),
-          required: variation.required == 'on' ? true : false,
-          options: options,
-        ));
+        variationModelBodyList.add(
+          VariationModelBodyModel(
+            nameController: TextEditingController(text: variation.name),
+            isSingle: variation.type == 'single' ? true : false,
+            minController: TextEditingController(text: variation.min),
+            maxController: TextEditingController(text: variation.max),
+            required: variation.required == 'on' ? true : false,
+            options: options,
+          ),
+        );
       }
     }
     return variationModelBodyList;
@@ -296,9 +395,9 @@ class StoreService implements StoreServiceInterface {
   @override
   int? setBrandIndex(List<BrandModel>? brands, Item? item) {
     int? brandIndex;
-    for(int index = 0; index < brands!.length; index++) {
-      if(item != null) {
-        if(brands[index].id.toString() == item.brandId.toString()) {
+    for (int index = 0; index < brands!.length; index++) {
+      if (item != null) {
+        if (brands[index].id.toString() == item.brandId.toString()) {
           brandIndex = index;
         }
       }
@@ -307,11 +406,15 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  int? setSuitableTagIndex(List<SuitableTagModel>? suitableTagList, Item? item) {
+  int? setSuitableTagIndex(
+    List<SuitableTagModel>? suitableTagList,
+    Item? item,
+  ) {
     int? suitableTagIndex;
-    for(int index = 0; index < suitableTagList!.length; index++) {
-      if(item != null) {
-        if(suitableTagList[index].id.toString() == item.conditionId.toString()) {
+    for (int index = 0; index < suitableTagList!.length; index++) {
+      if (item != null) {
+        if (suitableTagList[index].id.toString() ==
+            item.conditionId.toString()) {
           suitableTagIndex = index;
         }
       }
@@ -326,7 +429,8 @@ class StoreService implements StoreServiceInterface {
 
   @override
   Future<List<String?>?> getAllergicIngredientsSuggestionList() async {
-    return await storeRepositoryInterface.getAllergicIngredientsSuggestionList();
+    return await storeRepositoryInterface
+        .getAllergicIngredientsSuggestionList();
   }
 
   @override
@@ -345,8 +449,19 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<bool> updateStoreBasicInfo(Store store, XFile? logo, XFile? cover, List<Translation> translation, XFile? metaImage) async {
-    return await storeRepositoryInterface.updateStoreBasicInfo(store, logo, cover, translation, metaImage);
+  Future<bool> updateStoreBasicInfo(
+    Store store,
+    XFile? logo,
+    XFile? cover,
+    List<Translation> translation,
+    XFile? metaImage,
+  ) async {
+    return await storeRepositoryInterface.updateStoreBasicInfo(
+      store,
+      logo,
+      cover,
+      translation,
+      metaImage,
+    );
   }
-
 }
