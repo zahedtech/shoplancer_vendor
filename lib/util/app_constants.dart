@@ -335,17 +335,8 @@ class AppConstants {
   static const String food = 'food';
 
   static List<LanguageModel> languages = [
-    LanguageModel(
-      imageUrl: Images.english,
-      languageName: 'English',
-      countryCode: 'US',
-      languageCode: 'en',
-    ),
-    LanguageModel(
-      imageUrl: Images.arabic,
-      languageName: 'Arabic',
-      countryCode: 'SA',
-      languageCode: 'ar',
-    ),
+    LanguageModel(imageUrl: Images.english, languageName: 'English', countryCode: 'US', languageCode: 'en'),
+    LanguageModel(imageUrl: Images.arabic, languageName: 'Arabic', countryCode: 'SA', languageCode: 'ar'),
+
   ];
 }
