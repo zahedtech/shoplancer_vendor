@@ -8,12 +8,14 @@ import 'package:sixam_mart_store/features/profile/domain/models/profile_model.da
 import 'package:sixam_mart_store/helper/date_converter_helper.dart';
 import 'package:sixam_mart_store/helper/route_helper.dart';
 import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:sixam_mart_store/util/images.dart';
 import 'package:sixam_mart_store/util/styles.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/features/store/widgets/item_view_widget.dart';
 import 'package:sixam_mart_store/features/chat/widgets/search_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/filter_popup_widget.dart';
 
@@ -28,10 +30,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-
-  final GlobalKey _categoryKey = GlobalKey();
-  bool _isCategorySticky = false;
-  double _categoryTopOffset = 0;
 
   @override
   void initState() {
@@ -49,19 +47,9 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
       willUpdate: false,
       moduleId: moduleId,
     );
-    storeController.getStoreCategories(isUpdate: false);
+    storeController.getStoreCategories();
 
     _scrollController.addListener(() {
-      if (_categoryTopOffset == 0) return;
-
-      if (_scrollController.offset >= _categoryTopOffset &&
-          !_isCategorySticky) {
-        setState(() => _isCategorySticky = true);
-      } else if (_scrollController.offset < _categoryTopOffset &&
-          _isCategorySticky) {
-        setState(() => _isCategorySticky = false);
-      }
-
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent &&
           storeController.itemList != null &&
@@ -80,13 +68,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
             moduleId: moduleId,
           );
         }
-      }
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final box = _categoryKey.currentContext?.findRenderObject() as RenderBox?;
-      if (box != null) {
-        _categoryTopOffset = box.localToGlobal(Offset.zero).dy;
       }
     });
   }
@@ -124,100 +105,142 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                 }
               },
               child: Scaffold(
-                appBar: CustomAppBarWidget(title: 'all_items'.tr),
-
-                floatingActionButton: GetBuilder<StoreController>(
-                  builder: (storeController) {
-                    return storeController.isFabVisible &&
-                            Get.find<ProfileController>()
-                                .modulePermission!
-                                .item!
-                        ? Padding(
-                            padding: EdgeInsets.only(
-                              bottom: isShowingTrialContent ? 100 : 0,
+                appBar: CustomAppBarWidget(
+                  title: 'all_items'.tr,
+                  menuWidget: IconButton(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: Theme.of(context).primaryColor,
+                      size: 27,
+                    ),
+                    onPressed: () {
+                      Get.dialog(
+                        AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radiusExtraLarge,
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    spreadRadius: 2,
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                          ),
+                          contentPadding: const EdgeInsets.all(
+                            Dimensions.paddingSizeDefault,
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                Images.whatsapp,
+                                height: 80,
+                                width: 80,
                               ),
-                              child: FloatingActionButton(
-                                heroTag: 'nothing',
-                                onPressed: () {
-                                  if (Get.find<ProfileController>()
-                                      .profileModel!
-                                      .stores![0]
-                                      .itemSection!) {
-                                    if (store != null) {
-                                      Get.toNamed(
-                                        RouteHelper.getAddItemRoute(null),
-                                      );
-                                    }
-                                  } else {
-                                    showCustomSnackBar(
-                                      'this_feature_is_blocked_by_admin'.tr,
-                                    );
-                                  }
-                                },
-                                backgroundColor: Theme.of(context).primaryColor,
-                                child: Icon(
-                                  Icons.add,
-                                  color: Theme.of(context).cardColor,
-                                  size: 30,
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+                              Text(
+                                'contact_to_add_item'.tr,
+                                textAlign: TextAlign.center,
+                                style: robotoMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeLarge,
                                 ),
                               ),
-                            ),
-                          )
-                        : const SizedBox();
-                  },
-                ),
-
-                body: store != null
-                    ? Stack(
-                        children: [
-                          SingleChildScrollView(
-                            padding: const EdgeInsets.all(
-                              Dimensions.paddingSizeDefault,
-                            ),
-                            controller: _scrollController,
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Directionality(
-                                    textDirection: TextDirection.rtl,
-                                    child: Text(
-                                      'add_missing_store_item_title'.tr,
-                                      textAlign: TextAlign.right,
-                                      style: robotoMedium,
+                              const SizedBox(
+                                height: Dimensions.paddingSizeLarge,
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  var url = "https://wa.me/972598765425";
+                                  if (await canLaunchUrl(Uri.parse(url))) {
+                                    await launchUrl(
+                                      Uri.parse(url),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    showCustomSnackBar('can_not_launch_url'.tr);
+                                  }
+                                  Get.back();
+                                },
+                                icon: Image.asset(
+                                  Images.whatsapp,
+                                  width: 20,
+                                  height: 20,
+                                  color: Colors.white,
+                                ),
+                                label: Text('whatsapp'.tr),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusLarge,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: Dimensions.paddingSizeSmall,
-                                ),
-                                SizedBox(
-                                  key: _categoryKey,
-                                  height: 40,
-                                  child: _buildCategory(storeController),
-                                ),
-                                const SizedBox(
-                                  height: Dimensions.paddingSizeDefault,
-                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
-                                Row(
-                                  children: [
-                                    const Spacer(),
-                                    SizedBox(
-                                      width:
-                                          (Get.find<SplashController>()
+                body: store != null
+                    ? CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          // Top Header Text
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                Dimensions.paddingSizeDefault,
+                                Dimensions.paddingSizeDefault,
+                                Dimensions.paddingSizeDefault,
+                                0,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: Text(
+                                    'add_missing_store_item_title'.tr,
+                                    textAlign: TextAlign.right,
+                                    style: robotoMedium,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Sticky Category Header
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: SliverDelegate(
+                              height: 60,
+                              child: Container(
+                                color: Theme.of(context).cardColor,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: Dimensions.paddingSizeDefault,
+                                  vertical: Dimensions.paddingSizeSmall,
+                                ),
+                                child: _buildCategory(storeController),
+                              ),
+                            ),
+                          ),
+
+                          // Filters, Search and Items
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: Dimensions.paddingSizeDefault,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Spacer(),
+                                      (store.module?.moduleType == 'food' &&
+                                              Get.find<SplashController>()
                                                   .configModel!
                                                   .toggleVegNonVeg! &&
                                               Get.find<SplashController>()
@@ -225,90 +248,145 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                                   .moduleConfig!
                                                   .module!
                                                   .vegNonVeg!)
-                                          ? Dimensions.paddingSizeSmall
-                                          : 0,
-                                    ),
-
-                                    (store.module?.moduleType == 'food' &&
-                                            Get.find<SplashController>()
-                                                .configModel!
-                                                .toggleVegNonVeg! &&
-                                            Get.find<SplashController>()
-                                                .configModel!
-                                                .moduleConfig!
-                                                .module!
-                                                .vegNonVeg!)
-                                        ? GestureDetector(
-                                            onTapDown: (details) {
-                                              // showCustomBottomSheet(child: const FilterDataBottomSheet());
-                                              showFilterPopup(
-                                                context: context,
-                                                offset: details.globalPosition,
-                                                selectedType:
-                                                    storeController.type,
-                                                onSelected: (val) {
-                                                  storeController.setType(val);
-                                                  int? moduleId =
-                                                      Get.find<
-                                                            ProfileController
-                                                          >()
-                                                          .profileModel
-                                                          ?.stores?[0]
-                                                          .module
-                                                          ?.id;
-                                                  storeController.getItemList(
-                                                    offset: '1',
-                                                    type: val,
-                                                    search: '',
-                                                    categoryId: storeController
-                                                        .categoryId,
-                                                    moduleId: moduleId,
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.all(
-                                                Dimensions
-                                                    .paddingSizeExtraSmall,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      Dimensions.radiusSmall,
-                                                    ),
-                                                border: Border.all(
+                                          ? GestureDetector(
+                                              onTapDown: (details) {
+                                                showFilterPopup(
+                                                  context: context,
+                                                  offset:
+                                                      details.globalPosition,
+                                                  selectedType:
+                                                      storeController.type,
+                                                  onSelected: (val) {
+                                                    storeController.setType(
+                                                      val,
+                                                    );
+                                                    int? moduleId =
+                                                        Get.find<
+                                                              ProfileController
+                                                            >()
+                                                            .profileModel
+                                                            ?.stores?[0]
+                                                            .module
+                                                            ?.id;
+                                                    storeController.getItemList(
+                                                      offset: '1',
+                                                      type: val,
+                                                      search: '',
+                                                      categoryId:
+                                                          storeController
+                                                              .categoryId,
+                                                      moduleId: moduleId,
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  Dimensions
+                                                      .paddingSizeExtraSmall,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        Dimensions.radiusSmall,
+                                                      ),
+                                                  border: Border.all(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                  ),
+                                                ),
+                                                child: Icon(
+                                                  Icons.filter_list,
                                                   color: Theme.of(
                                                     context,
                                                   ).primaryColor,
+                                                  size: 18,
                                                 ),
                                               ),
-                                              child: Icon(
-                                                Icons.filter_list,
-                                                color: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                size: 18,
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ],
-                                ),
+                                            )
+                                          : const SizedBox(),
+                                    ],
+                                  ),
 
-                                SizedBox(
-                                  height: 50,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: SearchFieldWidget(
-                                      fromReview: true,
-                                      controller: _searchController,
-                                      hint: '${'search_by_item_name'.tr}...',
-                                      suffixIcon: storeController.isSearching
-                                          ? CupertinoIcons.clear_thick
-                                          : CupertinoIcons.search,
-                                      iconPressed: () {
-                                        if (!storeController.isSearching) {
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeSmall,
+                                  ),
+
+                                  SizedBox(
+                                    height: 50,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: SearchFieldWidget(
+                                        fromReview: true,
+                                        controller: _searchController,
+                                        hint: '${'search_by_item_name'.tr}...',
+                                        suffixIcon: storeController.isSearching
+                                            ? CupertinoIcons.clear_thick
+                                            : CupertinoIcons.search,
+                                        iconPressed: () {
+                                          if (!storeController.isSearching) {
+                                            if (_searchController.text
+                                                .trim()
+                                                .isNotEmpty) {
+                                              storeController
+                                                  .setCategoryForSearch(
+                                                    index: 0,
+                                                  );
+                                              _categoryScrollController
+                                                  .animateTo(
+                                                    0,
+                                                    duration: const Duration(
+                                                      milliseconds: 500,
+                                                    ),
+                                                    curve: Curves.easeIn,
+                                                  );
+                                              int? moduleId =
+                                                  Get.find<ProfileController>()
+                                                      .profileModel
+                                                      ?.stores?[0]
+                                                      .module
+                                                      ?.id;
+                                              storeController.getItemList(
+                                                offset: '1',
+                                                type: 'all',
+                                                search: _searchController.text
+                                                    .trim(),
+                                                categoryId: 0,
+                                                moduleId: moduleId,
+                                              );
+                                            } else {
+                                              showCustomSnackBar(
+                                                'write_item_name_for_search'.tr,
+                                              );
+                                            }
+                                          } else {
+                                            _searchController.clear();
+                                            storeController
+                                                .setCategoryForSearch(index: 0);
+                                            _categoryScrollController.animateTo(
+                                              0,
+                                              duration: const Duration(
+                                                milliseconds: 500,
+                                              ),
+                                              curve: Curves.easeIn,
+                                            );
+                                            int? moduleId =
+                                                Get.find<ProfileController>()
+                                                    .profileModel
+                                                    ?.stores?[0]
+                                                    .module
+                                                    ?.id;
+                                            storeController.getItemList(
+                                              offset: '1',
+                                              type: 'all',
+                                              search: '',
+                                              categoryId: 0,
+                                              moduleId: moduleId,
+                                            );
+                                          }
+                                        },
+                                        onSubmit: (String text) {
                                           if (_searchController.text
                                               .trim()
                                               .isNotEmpty) {
@@ -340,77 +418,16 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                               'write_item_name_for_search'.tr,
                                             );
                                           }
-                                        } else {
-                                          _searchController.clear();
-                                          storeController.setCategoryForSearch(
-                                            index: 0,
-                                          );
-                                          _categoryScrollController.animateTo(
-                                            0,
-                                            duration: const Duration(
-                                              milliseconds: 500,
-                                            ),
-                                            curve: Curves.easeIn,
-                                          );
-                                          int? moduleId =
-                                              Get.find<ProfileController>()
-                                                  .profileModel
-                                                  ?.stores?[0]
-                                                  .module
-                                                  ?.id;
-                                          storeController.getItemList(
-                                            offset: '1',
-                                            type: 'all',
-                                            search: '',
-                                            categoryId: 0,
-                                            moduleId: moduleId,
-                                          );
-                                        }
-                                      },
-                                      onSubmit: (String text) {
-                                        if (_searchController.text
-                                            .trim()
-                                            .isNotEmpty) {
-                                          storeController.setCategoryForSearch(
-                                            index: 0,
-                                          );
-                                          _categoryScrollController.animateTo(
-                                            0,
-                                            duration: const Duration(
-                                              milliseconds: 500,
-                                            ),
-                                            curve: Curves.easeIn,
-                                          );
-                                          int? moduleId =
-                                              Get.find<ProfileController>()
-                                                  .profileModel
-                                                  ?.stores?[0]
-                                                  .module
-                                                  ?.id;
-                                          storeController.getItemList(
-                                            offset: '1',
-                                            type: 'all',
-                                            search: _searchController.text
-                                                .trim(),
-                                            categoryId: 0,
-                                            moduleId: moduleId,
-                                          );
-                                        } else {
-                                          showCustomSnackBar(
-                                            'write_item_name_for_search'.tr,
-                                          );
-                                        }
-                                      },
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: Dimensions.paddingSizeDefault,
-                                ),
 
-                                Container(
-                                  child:
-                                      Get.find<ProfileController>()
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeDefault,
+                                  ),
+
+                                  Get.find<ProfileController>()
                                           .modulePermission!
                                           .item!
                                       ? storeController.isLoading ||
@@ -438,27 +455,12 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                             ),
                                           ),
                                         ),
-                                ),
-                              ],
-                            ),
-                          ),
 
-                          // Header Category
-                          if (_isCategorySticky)
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                height: 60,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: Dimensions.paddingSizeDefault,
-                                  vertical: Dimensions.paddingSizeSmall,
-                                ),
-                                color: Theme.of(context).cardColor,
-                                child: _buildCategory(storeController),
+                                  const SizedBox(height: 100),
+                                ],
                               ),
                             ),
+                          ),
                         ],
                       )
                     : const Center(child: CircularProgressIndicator()),
@@ -471,6 +473,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
   }
 
   Widget _buildCategory(StoreController storeController) {
+    int? moduleId = Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
     if (storeController.categoryNameList != null) {
       return ListView.builder(
         controller: _categoryScrollController,
@@ -479,7 +482,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         itemBuilder: (context, index) {
           return InkWell(
             onTap: () =>
-                storeController.setCategory(index: index, foodType: 'all'),
+                storeController.setCategory(index: index, foodType: 'all', moduleId: moduleId),
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Row(
@@ -539,5 +542,31 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         ),
       ),
     );
+  }
+}
+
+class SliverDelegate extends SliverPersistentHeaderDelegate {
+  Widget child;
+  double height;
+  SliverDelegate({required this.child, this.height = 50});
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(SliverDelegate oldDelegate) {
+    return oldDelegate.child != child;
   }
 }

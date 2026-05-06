@@ -1,12 +1,17 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
+import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
 import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/helper/route_helper.dart';
+import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:sixam_mart_store/util/images.dart';
 import 'package:sixam_mart_store/util/styles.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreUpper extends StatefulWidget {
   final List<StoreBannerListModel>? banners;
@@ -167,7 +172,73 @@ class _StoreUpperState extends State<StoreUpper> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Get.toNamed(RouteHelper.getAddItemRoute(null));
+                          Get.dialog(
+                            AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusExtraLarge,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.all(
+                                Dimensions.paddingSizeDefault,
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    Images.whatsapp,
+                                    height: 80,
+                                    width: 80,
+                                  ),
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeDefault,
+                                  ),
+                                  Text(
+                                    'contact_to_add_item'.tr,
+                                    textAlign: TextAlign.center,
+                                    style: robotoMedium.copyWith(
+                                      fontSize: Dimensions.fontSizeLarge,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeLarge,
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      var url = "https://wa.me/972598765425";
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(
+                                          Uri.parse(url),
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      } else {
+                                        showCustomSnackBar(
+                                          'can_not_launch_url'.tr,
+                                        );
+                                      }
+                                      Get.back();
+                                    },
+                                    icon: Image.asset(
+                                      Images.whatsapp,
+                                      width: 20,
+                                      height: 20,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text('whatsapp'.tr),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          Dimensions.radiusLarge,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
                         icon: Icon(
                           Icons.add_circle_outline_rounded,
@@ -187,11 +258,23 @@ class _StoreUpperState extends State<StoreUpper> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem(
-                    context,
-                    Icons.star_rounded,
-                    widget.store?.avgRating?.toStringAsFixed(1) ?? "0.0",
-                    'Rating',
+                  InkWell(
+                    onTap: () {
+                      if (widget.store?.slug != null) {
+                        final String slug = Uri.encodeComponent(
+                          widget.store!.slug!.trim(),
+                        );
+                        String storeUrl =
+                            'https://market.shoplanser.com/store/$slug';
+                        Share.share(storeUrl);
+                      }
+                    },
+                    child: _buildStatItem(
+                      context,
+                      Icons.share_outlined,
+                      'share'.tr,
+                      'store_link'.tr,
+                    ),
                   ),
                   _buildStatItem(
                     context,
@@ -210,17 +293,7 @@ class _StoreUpperState extends State<StoreUpper> {
             ],
           ),
         ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: OutlinedButton.icon(
-              onPressed: () => Get.toNamed(RouteHelper.getStoreLinkRoute()),
-              icon: const Icon(Icons.qr_code),
-              label: Text('store_link'.tr),
-            ),
-          ),
-        ),
+
         // Category Selection
         GetBuilder<StoreController>(
           builder: (storeController) {

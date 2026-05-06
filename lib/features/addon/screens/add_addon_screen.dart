@@ -30,15 +30,11 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
   final List<FocusNode> _nameNodes = [];
   final FocusNode _priceNode = FocusNode();
   final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
   late bool _update;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
-    _tabs.add(const Tab(text: 'افتراضي'));
 
     for (var language in _languageList!) {
       _nameControllers.add(TextEditingController());
@@ -58,34 +54,17 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
       if (Get.find<StoreController>().vatTaxList != null && Get.find<StoreController>().selectedVatTaxIdList.isEmpty && widget.addon!.taxVatIds != null && widget.addon!.taxVatIds!.isNotEmpty) {
         Get.find<StoreController>().preloadVatTax(vatTaxList: widget.addon!.taxVatIds!);
       }
-    }
 
-    if(widget.addon != null) {
       for(int index = 0; index < _languageList.length; index++) {
-        if(widget.addon!.translations!.isNotEmpty){
-          _nameControllers.add(TextEditingController(text: widget.addon?.translations?[widget.addon!.translations!.length-1].value ?? ''));
-        }
-        _nameNodes.add(FocusNode());
         for(Translation translation in widget.addon!.translations!) {
           if(_languageList[index].key == translation.locale && translation.key == 'name') {
-            _nameControllers[index] = TextEditingController(text: translation.value);
+            _nameControllers[index].text = translation.value ?? '';
             break;
           }
         }
       }
       _priceController.text = widget.addon!.price.toString();
-    }else {
-      for (var language in _languageList) {
-        _nameControllers.add(TextEditingController());
-        _nameNodes.add(FocusNode());
-        if (kDebugMode) {
-          print(language);
-        }
-      }
     }
-
-
-
   }
 
   @override
@@ -120,39 +99,12 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
                           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                           child: Column(children: [
 
-                            SizedBox(
-                              height: 40,
-                              child: TabBar(
-                                tabAlignment: TabAlignment.start,
-                                controller: _tabController,
-                                indicatorColor: Theme.of(context).textTheme.bodyLarge?.color,
-                                indicatorWeight: 3,
-                                labelColor: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.6),
-                                unselectedLabelColor: Theme.of(context).disabledColor,
-                                unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor),
-                                labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                labelPadding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                                indicatorPadding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                                isScrollable: true,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                dividerColor: Colors.transparent,
-                                tabs: _tabs,
-                                onTap: (int ? value) {
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                              child: Divider(height: 0),
-                            ),
-
                             CustomTextFieldWidget(
-                              hintText: '${'name'.tr} (${_languageList?[_tabController!.index].value}) *',
+                              hintText: 'name'.tr,
                               labelText: 'name'.tr,
-                              controller: _nameControllers[_tabController!.index],
-                              focusNode: _nameNodes[_tabController!.index],
-                              nextFocus: _tabController!.index != _languageList!.length-1 ? _priceNode : _priceNode,
+                              controller: _nameControllers[0],
+                              focusNode: _nameNodes[0],
+                              nextFocus: _priceNode,
                               inputType: TextInputType.name,
                               capitalization: TextCapitalization.words,
                               showTitle: false,
@@ -299,10 +251,10 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
                     showCustomSnackBar('select_vat_tax'.tr);
                   }else {
                     List<Translation> nameList = [];
-                    for(int index = 0; index < _languageList.length; index++) {
+                    for(int index = 0; index < _languageList!.length; index++) {
                       nameList.add(Translation(
                         locale: _languageList[index].key, key: 'name',
-                        value: _nameControllers[index].text.trim().isNotEmpty ? _nameControllers[index].text.trim() : _nameControllers[0].text.trim(),
+                        value: _nameControllers[0].text.trim(),
                       ));
                     }
 

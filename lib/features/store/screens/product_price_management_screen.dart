@@ -30,7 +30,7 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
   void initState() {
     super.initState();
     Get.find<StoreController>().getItemList(offset: '1', type: 'all', search: '', categoryId: 0, willUpdate: false);
-    Get.find<StoreController>().getStoreCategories(isUpdate: false);
+    Get.find<StoreController>().getStoreCategories();
     
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent

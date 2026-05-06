@@ -8,6 +8,63 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:780732592304:android:75d2b7e9d307a1bdb28b75",
+        "android_client_info": {
+          "package_name": "com.shoplancer.shoplancer_delivery_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDzIaa1eG0tTXUq9FOSRxnm8IlAh-qLIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780732592304:android:c79efac89d78810bb28b75",
+        "android_client_info": {
+          "package_name": "com.shoplancer.vendor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDzIaa1eG0tTXUq9FOSRxnm8IlAh-qLIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780732592304:android:7958271db3aade0cb28b75",
+        "android_client_info": {
+          "package_name": "com.sixamtech.sixam_mart_delivery_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDzIaa1eG0tTXUq9FOSRxnm8IlAh-qLIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:780732592304:android:194e30220a7d5237b28b75",
         "android_client_info": {
           "package_name": "com.sixamtech.sixam_mart_store_app"

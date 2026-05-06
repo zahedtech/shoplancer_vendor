@@ -339,13 +339,13 @@ class StoreController extends GetxController implements GetxService {
 
         if (!hasName) {
           item.translations!.add(
-            Translation(locale: 'en', key: 'name', value: item.name ?? ''),
+            Translation(locale: 'ar', key: 'name', value: item.name ?? ''),
           );
         }
         if (!hasDescription) {
           item.translations!.add(
             Translation(
-              locale: 'en',
+              locale: 'ar',
               key: 'description',
               value: item.description ?? '',
             ),
@@ -518,15 +518,7 @@ class StoreController extends GetxController implements GetxService {
     _itemSize = null; // Reset item size to show shimmer while reloading
     update();
     // Reload item list with default filters
-    int? moduleId =
-        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
-    getItemList(
-      offset: '1',
-      type: 'all',
-      search: '',
-      categoryId: 0,
-      moduleId: moduleId,
-    );
+    getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
   }
 
   Future<void> getItemList({
@@ -1762,6 +1754,11 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<void> getStoreCategories({bool isUpdate = true}) async {
+    _categoryNameList = null;
+    if (isUpdate) {
+      Future.microtask(() => update());
+    }
+
     await Get.find<CategoryController>().getCategoryList();
 
     _categoryNameList = [];
@@ -1777,19 +1774,21 @@ class StoreController extends GetxController implements GetxService {
     }
 
     if (isUpdate) {
-      update();
+      Future.microtask(() => update());
     }
   }
 
-  void setCategory({required int index, required String foodType}) {
+  void setCategory({
+    required int index,
+    required String foodType,
+    int? moduleId,
+  }) {
     _categoryIndex = index;
-    _itemList == null;
+    _itemList = null;
     _categoryId = _categoryIdList![index];
-    int? moduleId =
-        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
     getItemList(
       offset: '1',
-      type: _type,
+      type: foodType,
       search: '',
       categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0,
       moduleId: moduleId,

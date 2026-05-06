@@ -15,6 +15,7 @@ import 'package:sixam_mart_store/features/profile/widgets/notification_status_ch
 import 'package:sixam_mart_store/util/app_constants.dart';
 import 'package:sixam_mart_store/util/dimensions.dart';
 import 'package:sixam_mart_store/util/styles.dart';
+
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
 
@@ -23,7 +24,6 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -39,146 +39,229 @@ class _SettingScreenState extends State<SettingScreen> {
         builder: (profileController) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-            child: Column(children: [
+            child: Column(
+              children: [
+                SwitchButtonWidget(
+                  icon: Icons.language,
+                  title: 'language'.tr,
+                  languageName: AppConstants
+                      .languages[Get.find<LocalizationController>()
+                          .selectedLanguageIndex]
+                      .languageName,
+                  onTap: () {
+                    _manageLanguageFunctionality();
+                  },
+                ),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
 
-              SwitchButtonWidget(icon: Icons.language, title: 'language'.tr, languageName: AppConstants.languages[Get.find<LocalizationController>().selectedLanguageIndex].languageName, onTap: () {
-                _manageLanguageFunctionality();
-              }),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
+                // SwitchButtonWidget(icon: Icons.dark_mode, title: 'dark_mode'.tr, isButtonActive: Get.isDarkMode, onTap: () {
+                //   Get.find<ThemeController>().toggleTheme();
+                // }),
+                // const SizedBox(height: Dimensions.paddingSizeSmall),
+                GetBuilder<AuthController>(
+                  builder: (authController) {
+                    return SwitchButtonWidget(
+                      icon: Icons.notifications,
+                      title: 'system_notification'.tr,
+                      isButtonActive: authController.notification,
+                      onTap: () {
+                        showCustomBottomSheet(
+                          child: const NotificationStatusChangeBottomSheet(),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
 
-              SwitchButtonWidget(icon: Icons.dark_mode, title: 'dark_mode'.tr, isButtonActive: Get.isDarkMode, onTap: () {
-                Get.find<ThemeController>().toggleTheme();
-              }),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-
-              GetBuilder<AuthController>(builder: (authController) {
-                return SwitchButtonWidget(
-                  icon: Icons.notifications, title: 'system_notification'.tr,
-                  isButtonActive: authController.notification, onTap: () {
-                  showCustomBottomSheet(
-                    child: const NotificationStatusChangeBottomSheet(),
-                  );
-                },
-                );
-              }),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-
-              GetPlatform.isAndroid ? InkWell(
-                onTap: () {
-                  showBgNotificationBottomSheet(profileController.backgroundNotification);
-                },
-                child: DetailsCustomCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: Dimensions.paddingSizeSmall),
-                  child: Row(children: [
-
-                    const SizedBox(width: Dimensions.paddingSizeDefault),
-
-                    const Icon(Icons.notifications_active_rounded, size: 25),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                    Expanded(child: Text('background_notification'.tr, style: robotoRegular)),
-
-                    Transform.scale(
-                      scale: 0.7,
-                      child: CupertinoSwitch(
-                        activeTrackColor: Theme.of(context).primaryColor,
-                        inactiveTrackColor: Theme.of(context).primaryColor.withValues(alpha: 0.5),
-                        value: profileController.backgroundNotification,
-                        onChanged: (bool isActive) {
-                          showBgNotificationBottomSheet(profileController.backgroundNotification);
+                GetPlatform.isAndroid
+                    ? InkWell(
+                        onTap: () {
+                          showBgNotificationBottomSheet(
+                            profileController.backgroundNotification,
+                          );
                         },
+                        child: DetailsCustomCard(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 0,
+                            vertical: Dimensions.paddingSizeSmall,
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: Dimensions.paddingSizeDefault,
+                              ),
+
+                              const Icon(
+                                Icons.notifications_active_rounded,
+                                size: 25,
+                              ),
+                              const SizedBox(
+                                width: Dimensions.paddingSizeSmall,
+                              ),
+
+                              Expanded(
+                                child: Text(
+                                  'background_notification'.tr,
+                                  style: robotoRegular,
+                                ),
+                              ),
+
+                              Transform.scale(
+                                scale: 0.7,
+                                child: CupertinoSwitch(
+                                  activeTrackColor: Theme.of(
+                                    context,
+                                  ).primaryColor,
+                                  inactiveTrackColor: Theme.of(
+                                    context,
+                                  ).primaryColor.withValues(alpha: 0.5),
+                                  value:
+                                      profileController.backgroundNotification,
+                                  onChanged: (bool isActive) {
+                                    showBgNotificationBottomSheet(
+                                      profileController.backgroundNotification,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+
+                SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${'version'.tr}:',
+                      style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeExtraSmall,
                       ),
                     ),
-                  ]),
+                    const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                    Text(
+                      AppConstants.appVersion.toString(),
+                      style: robotoMedium.copyWith(
+                        fontSize: Dimensions.fontSizeExtraSmall,
+                      ),
+                    ),
+                  ],
                 ),
-              ) : const SizedBox(),
-
-              SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
-
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Text('${'version'.tr}:', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
-                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                Text(AppConstants.appVersion.toString(), style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
-              ]),
-            ]),
+              ],
+            ),
           );
-        }
+        },
       ),
     );
   }
 
-
   void showBgNotificationBottomSheet(bool allow) {
-    Get.bottomSheet(Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(Dimensions.radiusExtraLarge), topRight: Radius.circular(Dimensions.radiusExtraLarge)),
-      ),
-      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-      child: SafeArea(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-
-          Container(
-            height: 5, width: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-              color: Theme.of(context).disabledColor,
-            ),
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(Dimensions.radiusExtraLarge),
+            topRight: Radius.circular(Dimensions.radiusExtraLarge),
           ),
-          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-          Text(
-            '${!allow ? 'allow'.tr : 'disable'.tr} ${AppConstants.appName} ${'to_run_notification_in_background'.tr}',
-            textAlign: TextAlign.center,
-            style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
-          ),
-
-          Text(
-            allow ? '(${AppConstants.appName} -> Battery -> Select Optimized)' : 'Or (${AppConstants.appName} ->  Battery -> No restriction)',
-            textAlign: TextAlign.center,
-            style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
-          ),
-          const SizedBox(height: Dimensions.paddingSizeLarge),
-
-          _buildInfoText("you_will_be_able_to_get_order_notification_even_if_you_are_not_in_the_app".tr),
-          _buildInfoText("${AppConstants.appName} ${!allow ? 'will_run_notification_service_in_the_background_always'.tr : 'will_not_run_notification_service_in_the_background_always'.tr}"),
-          _buildInfoText(!allow ? "notification_will_always_send_alert_from_the_background".tr : 'notification_will_not_always_send_alert_from_the_background'.tr),
-          const SizedBox(height: 20.0),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+        ),
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("cancel".tr, style: robotoMedium),
+              Container(
+                height: 5,
+                width: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+                  color: Theme.of(context).disabledColor,
+                ),
               ),
-              const SizedBox(width: Dimensions.paddingSizeSmall),
+              const SizedBox(height: Dimensions.paddingSizeLarge),
 
-              ElevatedButton(
-                onPressed: () async {
-                  if(await Permission.ignoreBatteryOptimizations.status.isGranted) {
-                    openAppSettings();
-                  } else {
-                    await Permission.ignoreBatteryOptimizations.request();
-                  }
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+              Text(
+                '${!allow ? 'allow'.tr : 'disable'.tr} ${AppConstants.appName} ${'to_run_notification_in_background'.tr}',
+                textAlign: TextAlign.center,
+                style: robotoMedium.copyWith(
+                  fontSize: Dimensions.fontSizeLarge,
+                ),
+              ),
+
+              Text(
+                allow
+                    ? '(${AppConstants.appName} -> Battery -> Select Optimized)'
+                    : 'Or (${AppConstants.appName} ->  Battery -> No restriction)',
+                textAlign: TextAlign.center,
+                style: robotoMedium.copyWith(
+                  fontSize: Dimensions.fontSizeSmall,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              const SizedBox(height: Dimensions.paddingSizeLarge),
+
+              _buildInfoText(
+                "you_will_be_able_to_get_order_notification_even_if_you_are_not_in_the_app"
+                    .tr,
+              ),
+              _buildInfoText(
+                "${AppConstants.appName} ${!allow ? 'will_run_notification_service_in_the_background_always'.tr : 'will_not_run_notification_service_in_the_background_always'.tr}",
+              ),
+              _buildInfoText(
+                !allow
+                    ? "notification_will_always_send_alert_from_the_background"
+                          .tr
+                    : 'notification_will_not_always_send_alert_from_the_background'
+                          .tr,
+              ),
+              const SizedBox(height: 20.0),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("cancel".tr, style: robotoMedium),
                   ),
-                ),
-                child: Text(
-                  "okay".tr,
-                  style: robotoMedium.copyWith(color: Theme.of(context).cardColor),
-                ),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (await Permission
+                          .ignoreBatteryOptimizations
+                          .status
+                          .isGranted) {
+                        openAppSettings();
+                      } else {
+                        await Permission.ignoreBatteryOptimizations.request();
+                      }
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: Text(
+                      "okay".tr,
+                      style: robotoMedium.copyWith(
+                        color: Theme.of(context).cardColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ]),
+        ),
       ),
-    ), isScrollControlled: true).then((value) {
+      isScrollControlled: true,
+    ).then((value) {
       checkBatteryPermission();
     });
   }
@@ -191,16 +274,13 @@ class _SettingScreenState extends State<SettingScreen> {
         color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Text(
-        text,
-        style: robotoRegular,
-      ),
+      child: Text(text, style: robotoRegular),
     );
   }
 
   void checkBatteryPermission() async {
     Future.delayed(const Duration(milliseconds: 400), () async {
-      if(await Permission.ignoreBatteryOptimizations.status.isDenied) {
+      if (await Permission.ignoreBatteryOptimizations.status.isDenied) {
         Get.find<ProfileController>().setBackgroundNotificationActive(false);
       } else {
         Get.find<ProfileController>().setBackgroundNotificationActive(true);
@@ -213,17 +293,28 @@ class _SettingScreenState extends State<SettingScreen> {
     Get.find<LocalizationController>().searchSelectedLanguage();
 
     showModalBottomSheet(
-      isScrollControlled: true, useRootNavigator: true, context: Get.context!,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      context: Get.context!,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(Dimensions.radiusExtraLarge), topRight: Radius.circular(Dimensions.radiusExtraLarge)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(Dimensions.radiusExtraLarge),
+          topRight: Radius.circular(Dimensions.radiusExtraLarge),
+        ),
       ),
       builder: (context) {
         return ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
           child: const LanguageBottomSheetWidget(),
         );
       },
-    ).then((value) => Get.find<LocalizationController>().setLanguage(Get.find<LocalizationController>().getCacheLocaleFromSharedPref()));
+    ).then(
+      (value) => Get.find<LocalizationController>().setLanguage(
+        Get.find<LocalizationController>().getCacheLocaleFromSharedPref(),
+      ),
+    );
   }
 }

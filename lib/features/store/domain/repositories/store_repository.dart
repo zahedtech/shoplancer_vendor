@@ -35,8 +35,9 @@ class StoreRepository implements StoreRepositoryInterface {
     ItemModel? itemModel;
     String url = '';
     if (moduleId != null) {
+      int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       url =
-          '/api/v1/products/list/$moduleId?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     } else {
       url =
           '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';

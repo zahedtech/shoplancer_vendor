@@ -199,7 +199,7 @@ class MenuScreen extends StatelessWidget {
 
     menuList.add(
       MenuModel(
-        icon: Images.support,
+        icon: Images.whatsapp,
         title: 'WhatsApp',
         route: 'https://wa.me/972598765425',
         isWhatsApp: true,

@@ -68,7 +68,7 @@ class _StoreScreenState extends State<StoreScreen> {
         willUpdate: true,
       );
       Get.find<StoreController>().getStoreCategories();
-      Get.find<BannerController>().getBannerList();
+      Get.find<BannerController>().getBannerList(willUpdate: false);
     }
   }
 
@@ -117,11 +117,11 @@ class _StoreScreenState extends State<StoreScreen> {
                                   Text(
                                     storeController.isSearching
                                         ? 'search_results'.tr
-                                        : (storeController.categoryIndex != 0
-                                              ? storeController
-                                                    .categoryNameList![storeController
-                                                        .categoryIndex!]
-                                                    .tr
+                                        : (storeController.categoryIndex != 0 &&
+                                                  storeController.categoryNameList != null
+                                              ? storeController.categoryNameList![
+                                                      storeController.categoryIndex!]
+                                                  .tr
                                               : 'all_products'.tr),
                                     style: robotoBold.copyWith(
                                       fontSize: 18,
@@ -132,7 +132,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                   ),
                                   if (storeController.itemList != null)
                                     Text(
-                                      '${storeController.itemList!.length} items',
+                                      '${store.totalItems ?? 0} items',
                                       style: robotoRegular.copyWith(
                                         fontSize: 14,
                                         color: Theme.of(context).disabledColor,

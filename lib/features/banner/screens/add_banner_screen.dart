@@ -35,9 +35,6 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
 
   final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
 
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
-
   late bool _update;
   StoreBannerListModel? _storeBannerListModel;
 
@@ -48,18 +45,21 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
 
-    _tabController = TabController(length: 1, vsync: this);
-    _tabs.add(const Tab(text: 'افتراضي'));
-
     if(_update) {
-      List<Translation> translation = _storeBannerListModel!.translations!;
+      List<Translation> translation = _storeBannerListModel?.translations ?? [];
       for(int index = 0; index<_languageList!.length; index++) {
         _titleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
-        for (var t in translation) {
-          if(_languageList[index].key == t.locale && t.key == 'title') {
-            _titleController[index].text = t.value ?? '';
+        if(translation.isNotEmpty) {
+          for (var t in translation) {
+            if(_languageList[index].key == t.locale && t.key == 'title') {
+              _titleController[index].text = t.value ?? '';
+            }
           }
+        }
+
+        if(_titleController[index].text.isEmpty && index == 0) {
+          _titleController[index].text = _storeBannerListModel?.title ?? '';
         }
       }
     } else {
@@ -96,60 +96,27 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
                       const SizedBox(height: Dimensions.paddingSizeSmall),
 
                     Container(
-                      padding: const EdgeInsets.only(
-                        left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault,
-                        top: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeDefault,
-                      ),
+                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                         border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
                       ),
-                      child: Column(children: [
-
-                        SizedBox(
-                          height: 40,
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            controller: _tabController,
-                            indicatorColor: Theme.of(context).textTheme.bodyLarge?.color,
-                            indicatorWeight: 3,
-                            labelColor: Theme.of(context).textTheme.bodyLarge?.color,
-                            unselectedLabelColor: Theme.of(context).disabledColor,
-                            unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                            labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                            labelPadding: const EdgeInsets.only(right: Dimensions.radiusDefault),
-                            isScrollable: true,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            tabs: _tabs,
-                            onTap: (int ? value) {
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                          child: Divider(height: 0),
-                        ),
-
-                        CustomTextFieldWidget(
-                          hintText: 'enter_title'.tr,
-                          showLabelText: false,
-                          controller: _titleController[_tabController!.index],
-                          capitalization: TextCapitalization.words,
-                          focusNode: _titleFocusNode[_tabController!.index],
-                          nextFocus: _tabController!.index == _languageList!.length-1 ? _urlFocusNode : _titleFocusNode[_tabController!.index+1],
-                          showTitle: false,
-                          required: true,
-                          validator: (value) {
-                            if (_tabController!.index == 0 && (value == null || value.trim().isEmpty)) {
-                              return 'enter_title'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-
-                      ]),
+                      child: CustomTextFieldWidget(
+                        hintText: 'enter_title'.tr,
+                        showLabelText: false,
+                        controller: _titleController[0],
+                        capitalization: TextCapitalization.words,
+                        focusNode: _titleFocusNode[0],
+                        nextFocus: _urlFocusNode,
+                        showTitle: false,
+                        required: true,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'enter_title'.tr;
+                          }
+                          return null;
+                        },
+                      ),
                     ),
                     const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -287,10 +254,10 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
                         showCustomSnackBar('upload_a_banner'.tr);
                       } else {
                         List<Translation> translations = [];
-                        for(int index = 0; index < _languageList.length; index++) {
+                        for(int index = 0; index < _languageList!.length; index++) {
                           translations.add(Translation(
-                            locale: _languageList[index].key, key: 'name',
-                            value: _titleController[index].text.trim().isNotEmpty ? _titleController[index].text.trim() : _titleController[0].text.trim(),
+                            locale: _languageList[index].key, key: 'title',
+                            value: _titleController[0].text.trim(),
                           ));
                         }
                         _storeBannerListModel?.id = _storeBannerListModel?.id;

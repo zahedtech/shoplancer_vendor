@@ -45,21 +45,19 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
   final FocusNode _discountNode = FocusNode();
   final FocusNode _maxDiscountNode = FocusNode();
   final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
-  TabController? _tabController;
-  final List<Tab> _tabs =[];
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 1, vsync: this);
-    _tabs.add(const Tab(text: 'افتراضي'));
+    for (var language in _languageList!) {
+      _titleController.add(TextEditingController());
+      _titleNode.add(FocusNode());
+    }
 
     if(widget.coupon != null){
       List<Translation> translation = widget.coupon!.translations!;
-      for(int index = 0; index<_languageList!.length; index++) {
-        _titleController.add(TextEditingController());
-        _titleNode.add(FocusNode());
+      for(int index = 0; index<_languageList.length; index++) {
         Translation? languageTranslation = translation.firstWhereOrNull(
           (trans) => trans.locale == _languageList[index].key,
         );
@@ -74,14 +72,6 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
       _minPurchaseController.text = widget.coupon!.minPurchase.toString();
       Get.find<CouponController>().setCouponTypeIndex(widget.coupon!.couponType == 'default' ? 0 : 1 , false);
       Get.find<CouponController>().setDiscountTypeIndex(widget.coupon!.discountType == 'percent' ? 0 : 1, false);
-    }else{
-      for (var language in _languageList!) {
-        if (kDebugMode) {
-          print(language);
-        }
-        _titleController.add(TextEditingController());
-        _titleNode.add(FocusNode());
-      }
     }
   }
   @override
@@ -116,45 +106,14 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
                       color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall)
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            controller: _tabController,
-                            indicatorColor: Theme.of(context).primaryColor,
-                            indicatorWeight: 3,
-                            labelColor: Theme.of(context).primaryColor,
-                            unselectedLabelColor: Theme.of(context).disabledColor,
-                            unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                            labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor),
-                            labelPadding: const EdgeInsets.only(right: Dimensions.radiusDefault),
-                            isScrollable: true,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            tabs: _tabs,
-                            onTap: (int ? value) {
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                          child: Divider(height: 0),
-                        ),
-
-                        CustomTextFieldWidget(
-                          hintText: 'coupon_name'.tr,
-                          labelText: 'coupon'.tr,
-                          controller: _titleController[_tabController!.index],
-                          capitalization: TextCapitalization.words,
-                          focusNode: _titleNode[_tabController!.index],
-                          showTitle: false,
-                          required: true,
-                        ),
-
-                      ],
+                    child: CustomTextFieldWidget(
+                      hintText: 'coupon_name'.tr,
+                      labelText: 'coupon'.tr,
+                      controller: _titleController[0],
+                      capitalization: TextCapitalization.words,
+                      focusNode: _titleNode[0],
+                      showTitle: false,
+                      required: true,
                     ),
                   ),
 
@@ -446,8 +405,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
                       for(int index=0; index<_languageList!.length; index++) {
                         translation.add(Translation(
                           locale: _languageList[index].key, key: 'title',
-                          value: _titleController[index].text.trim().isNotEmpty ? _titleController[index].text.trim()
-                              : _titleController[0].text.trim(),
+                          value: _titleController[0].text.trim(),
                         ));
                       }
                       if(widget.coupon == null){

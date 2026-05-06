@@ -304,12 +304,12 @@ class Item {
     } else {
       translations = [];
       translations!.add(
-        Translation(id: 0, locale: 'en', key: 'name', value: json['name']),
+        Translation(id: 0, locale: 'ar', key: 'name', value: json['name']),
       );
       translations!.add(
         Translation(
           id: 0,
-          locale: 'en',
+          locale: 'ar',
           key: 'description',
           value: json['description'],
         ),

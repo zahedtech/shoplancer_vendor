@@ -48,18 +48,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBYh9qF5odJ5lKHGfsX8w0p38TUzIrJukk',
-    appId: '1:780732592304:web:2fab62675ba9f678b28b75',
+    appId: '1:780732592304:web:225f65bf42c0b3beb28b75',
     messagingSenderId: '780732592304',
     projectId: 'shoplancer-ecb7b',
     authDomain: 'shoplancer-ecb7b.firebaseapp.com',
     databaseURL: 'https://shoplancer-ecb7b-default-rtdb.firebaseio.com',
     storageBucket: 'shoplancer-ecb7b.firebasestorage.app',
-    measurementId: 'G-Q0TYE3MWTE',
+    measurementId: 'G-69RE0DMN81',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBDzIaa1eG0tTXUq9FOSRxnm8IlAh-qLIU',
-    appId: '1:780732592304:android:194e30220a7d5237b28b75',
+    appId: '1:780732592304:android:c79efac89d78810bb28b75',
     messagingSenderId: '780732592304',
     projectId: 'shoplancer-ecb7b',
     databaseURL: 'https://shoplancer-ecb7b-default-rtdb.firebaseio.com',
@@ -75,4 +75,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'shoplancer-ecb7b.firebasestorage.app',
     iosBundleId: 'com.sixamtech.6amMartStore',
   );
+
 }

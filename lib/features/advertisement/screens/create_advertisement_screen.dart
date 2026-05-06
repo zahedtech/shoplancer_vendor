@@ -48,22 +48,14 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
   final List<FocusNode> _descriptionFocus = [];
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  TabController? multiLanguageTabController;
-
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
-  List<Widget> tabList = [];
 
   @override
   void initState() {
     super.initState();
 
     _getPromotionList();
-    multiLanguageTabController = TabController(
-      length: 1,
-      initialIndex: 0,
-      vsync: this,
-    );
 
     for (var language in _languageList!) {
       titleController.add(TextEditingController());
@@ -71,14 +63,6 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
       _titleFocus.add(FocusNode());
       _descriptionFocus.add(FocusNode());
     }
-    tabList.add(
-      const Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeSmall,
-        ),
-        child: Tab(text: 'افتراضي'),
-      ),
-    );
 
     if (widget.adsDetailsModel != null) {
       _editSetup();
@@ -351,64 +335,14 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
 
                               Column(
                                 children: [
-                                  SizedBox(
-                                    height: 40,
-                                    child: TabBar(
-                                      tabAlignment: TabAlignment.start,
-                                      controller: multiLanguageTabController,
-                                      unselectedLabelColor: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.color
-                                          ?.withValues(alpha: 0.5),
-                                      indicatorColor: Theme.of(
-                                        context,
-                                      ).primaryColor,
-                                      labelColor: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium!.color,
-                                      labelStyle: robotoMedium.copyWith(
-                                        fontSize: Dimensions.fontSizeLarge,
-                                      ),
-                                      labelPadding: EdgeInsets.zero,
-                                      unselectedLabelStyle: robotoRegular,
-                                      isScrollable: true,
-                                      dividerHeight: 0.2,
-                                      dividerColor: Theme.of(
-                                        context,
-                                      ).disabledColor.withValues(alpha: 0.5),
-                                      tabs: tabList,
-                                      onTap: (int? value) {
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeDefault,
-                                  ),
-
                                   CustomTextFieldWidget(
-                                    hintText:
-                                        "${'title'.tr} (${_languageList![multiLanguageTabController!.index].value})"
-                                            .tr,
-                                    labelText:
-                                        "${'title'.tr} (${_languageList[multiLanguageTabController!.index].value})"
-                                            .tr,
+                                    hintText: 'title'.tr,
+                                    labelText: 'title'.tr,
                                     inputType: TextInputType.text,
-                                    controller:
-                                        titleController[multiLanguageTabController!
-                                            .index],
-                                    capitalization:
-                                        TextCapitalization.sentences,
-                                    focusNode:
-                                        _titleFocus[multiLanguageTabController!
-                                            .index],
-                                    nextFocus:
-                                        multiLanguageTabController!.index !=
-                                            _languageList.length - 1
-                                        ? _descriptionFocus[multiLanguageTabController!
-                                              .index]
-                                        : _descriptionFocus[0],
+                                    controller: titleController[0],
+                                    capitalization: TextCapitalization.sentences,
+                                    focusNode: _titleFocus[0],
+                                    nextFocus: _descriptionFocus[0],
                                     validator: (value) =>
                                         (value == null || value.isEmpty)
                                         ? "enter_title".tr
@@ -420,25 +354,13 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
                                   ),
 
                                   CustomTextFieldWidget(
-                                    hintText:
-                                        "${'description'.tr} ${_languageList[multiLanguageTabController!.index].value}"
-                                            .tr,
-                                    labelText:
-                                        '${'description'.tr.replaceAll(":", "")}(${_languageList[multiLanguageTabController!.index].value})',
+                                    hintText: 'description'.tr,
+                                    labelText: 'description'.tr,
                                     inputType: TextInputType.text,
-                                    controller:
-                                        descriptionController[multiLanguageTabController!
-                                            .index],
-                                    capitalization:
-                                        TextCapitalization.sentences,
-                                    focusNode:
-                                        _descriptionFocus[multiLanguageTabController!
-                                            .index],
-                                    inputAction:
-                                        multiLanguageTabController!.index !=
-                                            _languageList.length - 1
-                                        ? TextInputAction.next
-                                        : TextInputAction.done,
+                                    controller: descriptionController[0],
+                                    capitalization: TextCapitalization.sentences,
+                                    focusNode: _descriptionFocus[0],
+                                    inputAction: TextInputAction.done,
                                     maxLines: 2,
                                     maxLength: 100,
                                     validator: (value) =>

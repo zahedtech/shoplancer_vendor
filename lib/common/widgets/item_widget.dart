@@ -1,3 +1,4 @@
+import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
@@ -247,35 +248,25 @@ class ItemWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      PopupMenuButton<String>(
-                        padding: EdgeInsets.zero,
-                        onSelected: (_) => _showQuickUpdateDialog(context),
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                              PopupMenuItem<String>(
-                                value: 'add',
-                                child: ListTile(
-                                  title: Text('add'.tr, style: robotoMedium),
-                                  trailing: const Icon(
-                                    Icons.add_circle,
-                                    color: Colors.indigo,
-                                  ),
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ],
+                      IconButton(
+                        onPressed: () => _showQuickUpdateDialog(context),
                         icon: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).disabledColor.withValues(alpha: 0.1),
+                            ).primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               Dimensions.radiusSmall,
                             ),
                           ),
-                          padding: const EdgeInsets.all(3),
-                          child: Icon(Icons.more_vert_sharp, size: 20),
+                          padding: const EdgeInsets.all(5),
+                          child: Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
                         ),
+                        tooltip: 'add'.tr,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -296,7 +287,11 @@ class ItemWidget extends StatelessWidget {
                   )
                 : GestureDetector(
                     onTap: () => _showQuickUpdateDialog(context),
-                    child: const Icon(Icons.add_circle, color: Colors.indigo),
+                    child: Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: 25,
+                    ),
                   ),
           ],
         ),
@@ -364,7 +359,7 @@ class ItemWidget extends StatelessWidget {
                         }
 
                         final Map<String, String> data = {
-                          '_method': 'put',
+                          '_method': 'post',
                           'id': item.id.toString(),
                           'product_id': item.id.toString(),
                           'current_stock': stockText,
@@ -372,6 +367,14 @@ class ItemWidget extends StatelessWidget {
                           'unit_price': priceText,
                           'discount': item.discount?.toString() ?? '0',
                           'discount_type': item.discountType ?? 'amount',
+                          'store_id':
+                              Get.find<ProfileController>()
+                                  .profileModel
+                                  ?.stores?[0]
+                                  .id
+                                  .toString() ??
+                              '',
+                          'category_id': item.categoryId?.toString() ?? '',
                         };
 
                         storeController.stockUpdate(data, item.id!).then((
