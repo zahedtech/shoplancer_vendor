@@ -24,6 +24,7 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final Map<int, double> _updatedPrices = {};
+  final Map<int, Item> _editedItems = {};
   bool _isSaving = false;
 
   @override
@@ -50,6 +51,13 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -142,59 +150,60 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                    boxShadow: [BoxShadow(color: Colors.grey[Get.isDarkMode ? 800 : 200]!, spreadRadius: 1, blurRadius: 5)],
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), spreadRadius: 1, blurRadius: 10)],
                   ),
                   child: Row(children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                       child: CustomImageWidget(
                         image: '${item.imageFullUrl}',
-                        height: 60, width: 60, fit: BoxFit.cover,
+                        height: 70, width: 70, fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(width: Dimensions.paddingSizeSmall),
+
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(item.name ?? '', style: robotoMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(item.name ?? '', style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault), maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                        Text(
-                          PriceConverterHelper.convertPrice(item.price),
-                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor, decoration: TextDecoration.lineThrough),
-                        ),
-                        Text(
-                          PriceConverterHelper.convertPrice(currentPrice),
-                          style: robotoBold.copyWith(color: Theme.of(context).primaryColor),
-                        ),
+                        
+                        Row(children: [
+                          Text(
+                            PriceConverterHelper.convertPrice(currentPrice),
+                            style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor),
+                          ),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                          Text(
+                            PriceConverterHelper.convertPrice(item.price),
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeExtraSmall, 
+                              color: Theme.of(context).disabledColor, 
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                        ]),
                       ]),
                     ),
+
                     Row(children: [
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _updatedPrices[item.id!] = (currentPrice - 1) > 0 ? (currentPrice - 1) : 0;
-                          });
-                        },
-                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                      ),
+                      _counterButton(Icons.remove, Colors.red, () {
+                        _setUpdatedPrice(item, (currentPrice - 1) > 0 ? (currentPrice - 1) : 0);
+                      }),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall, vertical: 2),
+                        margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
+                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 2),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5)),
+                          color: Theme.of(context).primaryColor.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                         ),
                         child: Text(
                           currentPrice.toStringAsFixed(2),
-                          style: robotoMedium,
+                          style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _updatedPrices[item.id!] = currentPrice + 1;
-                          });
-                        },
-                        icon: const Icon(Icons.add_circle_outline, color: Colors.green),
-                      ),
+                      _counterButton(Icons.add, Colors.green, () {
+                        _setUpdatedPrice(item, currentPrice + 1);
+                      }),
                     ]),
                   ]),
                 );
@@ -216,6 +225,49 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
                       '${'total_items_selected'.tr}: ${_updatedPrices.length}',
                       style: robotoMedium,
                     ),
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    SizedBox(
+                      height: 50,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _editedItems.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: Dimensions.paddingSizeSmall),
+                        itemBuilder: (context, index) {
+                          Item item = _editedItems.values.elementAt(index);
+                          return Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+                              border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.1)),
+                            ),
+                            child: Row(children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                child: CustomImageWidget(
+                                  image: '${item.imageFullUrl}',
+                                  height: 40, width: 40, fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                              Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Text(item.name ?? '', style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall), maxLines: 1),
+                                Text(
+                                  '${PriceConverterHelper.convertPrice(item.price)} → ${PriceConverterHelper.convertPrice(_updatedPrices[item.id])}',
+                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor),
+                                ),
+                              ]),
+                              IconButton(
+                                constraints: const BoxConstraints(maxWidth: 30, maxHeight: 30),
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.close, size: 16, color: Colors.red),
+                                onPressed: () => _removeUpdatedPrice(item.id),
+                              ),
+                            ]),
+                          );
+                        },
+                      ),
+                    ),
                   ]),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeDefault),
@@ -232,33 +284,63 @@ class _ProductPriceManagementScreenState extends State<ProductPriceManagementScr
     });
   }
 
+  void _setUpdatedPrice(Item item, double price) {
+    if (item.id == null) return;
+    setState(() {
+      if (price == (item.price ?? 0)) {
+        _updatedPrices.remove(item.id);
+        _editedItems.remove(item.id);
+      } else {
+        _updatedPrices[item.id!] = price;
+        _editedItems[item.id!] = item;
+      }
+    });
+  }
+
+  void _removeUpdatedPrice(int? itemId) {
+    if (itemId == null) return;
+    setState(() {
+      _updatedPrices.remove(itemId);
+      _editedItems.remove(itemId);
+    });
+  }
+
+  Widget _counterButton(IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Icon(icon, size: 18, color: color),
+      ),
+    );
+  }
+
   Future<void> _saveAllChanges(StoreController storeController) async {
     setState(() {
       _isSaving = true;
     });
 
     try {
+      List<Map<String, String>> updates = [];
       for (var entry in _updatedPrices.entries) {
         int itemId = entry.key;
         double newPrice = entry.value;
 
-        // Fetch full item details to ensure we have all required data for update
-        Item listItem = storeController.itemList!.firstWhere((element) => element.id == itemId);
-        Item? fullItem = await storeController.getItemDetails(itemId);
-        if (fullItem != null) {
-          fullItem.price = newPrice;
-          
-          // Preserve unit info if it's missing in fullItem but present in listItem
-          fullItem.unitType ??= listItem.unitType;
-          fullItem.unitId ??= listItem.unitId;
-          
-          await storeController.addItem(fullItem, false, willRedirect: false);
+        Item? item = storeController.itemList?.firstWhereOrNull((element) => element.id == itemId);
+        if (item != null) {
+          updates.add(storeController.buildStockUpdateData(item, price: newPrice));
         }
       }
-      
-      showCustomSnackBar('product_updated_successfully'.tr, isError: false);
-      _updatedPrices.clear();
-      storeController.getItemList(offset: '1', type: 'all', search: _searchController.text.trim(), categoryId: storeController.categoryId);
+
+      if (updates.isNotEmpty) {
+        await storeController.bulkItemsUpdate(updates);
+        _updatedPrices.clear();
+        _editedItems.clear();
+      }
     } catch (e) {
       debugPrint('Error saving prices: $e');
       showCustomSnackBar('failed_to_update_price'.tr);

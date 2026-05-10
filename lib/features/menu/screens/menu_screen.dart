@@ -1,3 +1,4 @@
+import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
 import 'package:sixam_mart_store/features/auth/domain/models/module_permission_model.dart';
 import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
@@ -214,14 +215,14 @@ class MenuScreen extends StatelessWidget {
       ),
     );
 
-    menuList.add(
-      MenuModel(
-        icon: Images.language,
-        title: 'language'.tr,
-        route: '',
-        isLanguage: true,
-      ),
-    );
+    // menuList.add(
+    //   MenuModel(
+    //     icon: Images.language,
+    //     title: 'language'.tr,
+    //     route: '',
+    //     isLanguage: true,
+    //   ),
+    // );
 
     if (modulePermission.coupon!) {
       menuList.add(
@@ -280,45 +281,29 @@ class MenuScreen extends StatelessWidget {
     );
     menuList.add(MenuModel(icon: Images.logOut, title: 'logout'.tr, route: ''));
 
-    return Container(
-      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(Dimensions.radiusExtraLarge),
+    return Scaffold(
+      backgroundColor: Theme.of(context).cardColor,
+      appBar: CustomAppBarWidget(title: 'menu'.tr),
+      body: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            childAspectRatio: ResponsiveHelper.isTab(context)
+                ? 1 / 1.5
+                : (1 / 1.22),
+            crossAxisSpacing: Dimensions.paddingSizeExtraSmall,
+            mainAxisSpacing: Dimensions.paddingSizeExtraSmall,
+          ),
+          itemCount: menuList.length,
+          itemBuilder: (context, index) {
+            return MenuButtonWidget(
+              menu: menuList[index],
+              isProfile: index == 0,
+              isLogout: index == menuList.length - 1,
+            );
+          },
         ),
-        color: Theme.of(context).cardColor,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          InkWell(
-            onTap: () => Get.back(),
-            child: const Icon(Icons.keyboard_arrow_down_rounded, size: 30),
-          ),
-          const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-          GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: ResponsiveHelper.isTab(context)
-                  ? 1 / 1.5
-                  : (1 / 1.22),
-              crossAxisSpacing: Dimensions.paddingSizeExtraSmall,
-              mainAxisSpacing: Dimensions.paddingSizeExtraSmall,
-            ),
-            itemCount: menuList.length,
-            itemBuilder: (context, index) {
-              return MenuButtonWidget(
-                menu: menuList[index],
-                isProfile: index == 0,
-                isLogout: index == menuList.length - 1,
-              );
-            },
-          ),
-          const SizedBox(height: Dimensions.paddingSizeSmall),
-        ],
       ),
     );
   }

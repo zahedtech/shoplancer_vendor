@@ -236,36 +236,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 return CustomScrollView(
                   slivers: [
-                    GetPlatform.isAndroid
-                        ? SliverToBoxAdapter(
-                            child: Column(
-                              children: [
-                                if (!_isNotificationPermissionGranted)
-                                  permissionWarning(
-                                    isBatteryPermission: false,
-                                    onTap: requestNotificationPermission,
-                                    closeOnTap: () {
-                                      setState(() {
-                                        _isNotificationPermissionGranted = true;
-                                      });
-                                    },
-                                  ),
+                    // GetPlatform.isAndroid
+                    //     ? SliverToBoxAdapter(
+                    //         child: Column(
+                    //           children: [
+                    //             if (!_isNotificationPermissionGranted)
+                    //               permissionWarning(
+                    //                 isBatteryPermission: false,
+                    //                 onTap: requestNotificationPermission,
+                    //                 closeOnTap: () {
+                    //                   setState(() {
+                    //                     _isNotificationPermissionGranted = true;
+                    //                   });
+                    //                 },
+                    //               ),
 
-                                if (!_isBatteryOptimizationGranted)
-                                  permissionWarning(
-                                    isBatteryPermission: true,
-                                    onTap: requestBatteryOptimization,
-                                    closeOnTap: () {
-                                      setState(() {
-                                        _isBatteryOptimizationGranted = true;
-                                      });
-                                    },
-                                  ),
-                              ],
-                            ),
-                          )
-                        : const SliverToBoxAdapter(),
-
+                    //             if (!_isBatteryOptimizationGranted)
+                    //               permissionWarning(
+                    //                 isBatteryPermission: true,
+                    //                 onTap: requestBatteryOptimization,
+                    //                 closeOnTap: () {
+                    //                   setState(() {
+                    //                     _isBatteryOptimizationGranted = true;
+                    //                   });
+                    //                 },
+                    //               ),
+                    //           ],
+                    //         ),
+                    //       )
+                    //     : const SliverToBoxAdapter(),
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.only(
@@ -330,68 +329,68 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .fontSizeLarge,
                                                   ),
                                                 ),
-                                                const Spacer(),
+                                                // const Spacer(),
 
-                                                orderController.runningOrders !=
-                                                        null
-                                                    ? Padding(
-                                                        padding: const EdgeInsets.only(
-                                                          top: Dimensions
-                                                              .paddingSizeDefault,
-                                                          bottom: Dimensions
-                                                              .paddingSizeSmall,
-                                                        ),
-                                                        child: InkWell(
-                                                          onTap: () =>
-                                                              orderController
-                                                                  .toggleCampaignOnly(),
-                                                          child: Row(
-                                                            children: [
-                                                              SizedBox(
-                                                                height: 24,
-                                                                width: 24,
-                                                                child: Checkbox(
-                                                                  side: BorderSide(
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).disabledColor,
-                                                                    width: 1,
-                                                                  ),
-                                                                  activeColor:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).primaryColor,
-                                                                  value: orderController
-                                                                      .campaignOnly,
-                                                                  onChanged:
-                                                                      (
-                                                                        isActive,
-                                                                      ) => orderController
-                                                                          .toggleCampaignOnly(),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: Dimensions
-                                                                    .paddingSizeSmall,
-                                                              ),
+                                                // orderController.runningOrders !=
+                                                //         null
+                                                //     ? Padding(
+                                                //         padding: const EdgeInsets.only(
+                                                //           top: Dimensions
+                                                //               .paddingSizeDefault,
+                                                //           bottom: Dimensions
+                                                //               .paddingSizeSmall,
+                                                //         ),
+                                                //         child: InkWell(
+                                                //           onTap: () =>
+                                                //               orderController
+                                                //                   .toggleCampaignOnly(),
+                                                //           child: Row(
+                                                //             children: [
+                                                //               SizedBox(
+                                                //                 height: 24,
+                                                //                 width: 24,
+                                                //                 child: Checkbox(
+                                                //                   side: BorderSide(
+                                                //                     color: Theme.of(
+                                                //                       context,
+                                                //                     ).disabledColor,
+                                                //                     width: 1,
+                                                //                   ),
+                                                //                   activeColor:
+                                                //                       Theme.of(
+                                                //                         context,
+                                                //                       ).primaryColor,
+                                                //                   value: orderController
+                                                //                       .campaignOnly,
+                                                //                   onChanged:
+                                                //                       (
+                                                //                         isActive,
+                                                //                       ) => orderController
+                                                //                           .toggleCampaignOnly(),
+                                                //                 ),
+                                                //               ),
+                                                //               const SizedBox(
+                                                //                 width: Dimensions
+                                                //                     .paddingSizeSmall,
+                                                //               ),
 
-                                                              Text(
-                                                                'campaign_orders_only'
-                                                                    .tr,
-                                                                style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).disabledColor,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : const SizedBox(),
+                                                //               Text(
+                                                //                 'campaign_orders_only'
+                                                //                     .tr,
+                                                //                 style: robotoRegular.copyWith(
+                                                //                   fontSize:
+                                                //                       Dimensions
+                                                //                           .fontSizeSmall,
+                                                //                   color: Theme.of(
+                                                //                     context,
+                                                //                   ).disabledColor,
+                                                //                 ),
+                                                //               ),
+                                                //             ],
+                                                //           ),
+                                                //         ),
+                                                //       )
+                                                //     : const SizedBox(),
                                               ],
                                             ),
                                             const SizedBox(

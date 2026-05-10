@@ -26,14 +26,14 @@ class ReportsScreen extends StatelessWidget {
               image: Images.expense,
               onTap: () => Get.toNamed(RouteHelper.getExpenseRoute()),
             ) : const SizedBox(),
-            SizedBox(height: profileController.modulePermission!.expenseReport! ? Dimensions.paddingSizeDefault : 0),
+            // SizedBox(height: profileController.modulePermission!.expenseReport! ? Dimensions.paddingSizeDefault : 0),
 
-            profileController.modulePermission!.vatReport! ? ReportCardWidget(
-              title: 'tax_report'.tr,
-              subtitle: 'view_detailed_tax_calculations_and_payment_records'.tr,
-              image: Images.taxReportIcon,
-              onTap: () => Get.toNamed(RouteHelper.getTaxReportRoute()),
-            ) : const SizedBox(),
+            // profileController.modulePermission!.vatReport! ? ReportCardWidget(
+            //   title: 'tax_report'.tr,
+            //   subtitle: 'view_detailed_tax_calculations_and_payment_records'.tr,
+            //   image: Images.taxReportIcon,
+            //   onTap: () => Get.toNamed(RouteHelper.getTaxReportRoute()),
+            // ) : const SizedBox(),
 
           ]);
         }),

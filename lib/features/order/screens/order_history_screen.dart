@@ -19,27 +19,52 @@ class OrderHistoryScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: CustomAppBarWidget(title: 'my_orders'.tr, isBackButtonExist: false, bottom: _orderTabBar(context)),
-        body: TabBarView(children: [
-          RunningOrderBodyWidget() , OrderHistoryBodyWidget()
-        ]),
+        appBar: CustomAppBarWidget(
+          title: 'my_orders'.tr,
+          isBackButtonExist: false,
+        ),
+        body: Column(
+          children: [
+            _orderTabBar(context),
+            Expanded(
+              child: TabBarView(
+                children: [RunningOrderBodyWidget(), OrderHistoryBodyWidget()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-
 TabBar _orderTabBar(BuildContext context) {
+  final theme = Theme.of(context);
+
   return TabBar(
-    indicator: BoxDecoration(color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(30)),
+    indicator: BoxDecoration(
+      borderRadius: BorderRadius.circular(999),
+      color: Theme.of(context).primaryColor,
+    ),
     indicatorSize: TabBarIndicatorSize.tab,
-    labelColor: Theme.of(context).cardColor,
-    unselectedLabelColor: Theme.of(context).hintColor,
-    labelStyle: robotoMedium.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+    labelColor: theme.cardColor,
+    unselectedLabelColor: theme.textTheme.bodyLarge?.color?.withValues(
+      alpha: 0.7,
+    ),
+    labelStyle: robotoBold.copyWith(fontSize: 14),
     unselectedLabelStyle: robotoMedium.copyWith(fontSize: 14),
     dividerColor: Colors.transparent,
     overlayColor: WidgetStateProperty.all(Colors.transparent),
-    padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, top: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeDefault, right: 96),
-    tabs: [Tab(text: 'running_order'.tr), Tab(text: 'order_history'.tr)],
+    padding: const EdgeInsets.symmetric(
+      horizontal: Dimensions.paddingSizeDefault,
+      vertical: Dimensions.paddingSizeSmall,
+    ),
+    labelPadding: const EdgeInsets.symmetric(
+      horizontal: Dimensions.paddingSizeSmall,
+    ),
+    tabs: [
+      Tab(text: 'running_order'.tr),
+      Tab(text: 'order_history'.tr),
+    ],
   );
 }

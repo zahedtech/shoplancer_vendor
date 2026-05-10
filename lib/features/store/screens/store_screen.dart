@@ -132,7 +132,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                   ),
                                   if (storeController.itemList != null)
                                     Text(
-                                      '${store.totalItems ?? 0} items',
+                                      '${store.totalItems ?? 0} ${'items'.tr}',
                                       style: robotoRegular.copyWith(
                                         fontSize: 14,
                                         color: Theme.of(context).disabledColor,

@@ -100,6 +100,25 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780732592304:android:b5c95c7a731f570db28b75",
+        "android_client_info": {
+          "package_name": "com.zahed.shoplanser"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDzIaa1eG0tTXUq9FOSRxnm8IlAh-qLIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

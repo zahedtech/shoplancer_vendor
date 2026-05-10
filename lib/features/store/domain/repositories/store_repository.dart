@@ -301,7 +301,10 @@ class StoreRepository implements StoreRepositoryInterface {
         .moduleConfig!
         .module!
         .stock!) {
-      fields.addAll((<String, String>{'current_stock': item.stock.toString()}));
+      fields.addAll((<String, String>{
+        'current_stock': item.stock.toString(),
+        'manage_stock': '1',
+      }));
     }
     if (Get.find<ProfileController>()
             .profileModel!

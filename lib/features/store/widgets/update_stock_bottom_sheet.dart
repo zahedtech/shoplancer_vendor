@@ -5,6 +5,7 @@ import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
+import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
 import 'package:sixam_mart_store/util/dimensions.dart';
 import 'package:sixam_mart_store/util/styles.dart';
@@ -352,6 +353,14 @@ class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
     data.addAll({"id": widget.item.id.toString()});
     data.addAll({"product_id": widget.item.id.toString()});
     data.addAll({"current_stock": mainStockController.text.trim()});
+    data.addAll({"manage_stock": "1"});
+    data.addAll({
+      "store_id":
+          Get.find<ProfileController>().profileModel?.stores?[0].id
+              ?.toString() ??
+          '',
+    });
+    data.addAll({"category_id": widget.item.categoryId?.toString() ?? ''});
     if (widget.item.variations == null || widget.item.variations!.isEmpty) {
       data.addAll({"price": mainPriceController.text.trim()});
       data.addAll({"unit_price": mainPriceController.text.trim()});

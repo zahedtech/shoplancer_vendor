@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
+import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/item_shimmer_widget.dart';
 import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
+import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
 import 'package:sixam_mart_store/helper/date_converter_helper.dart';
 import 'package:sixam_mart_store/helper/route_helper.dart';
 import 'package:sixam_mart_store/util/dimensions.dart';
@@ -106,82 +108,343 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
               },
               child: Scaffold(
                 appBar: CustomAppBarWidget(
-                  title: 'all_items'.tr,
-                  menuWidget: IconButton(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    icon: Icon(
-                      Icons.add_circle_outline,
-                      color: Theme.of(context).primaryColor,
-                      size: 27,
-                    ),
-                    onPressed: () {
-                      Get.dialog(
-                        AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.radiusExtraLarge,
+                  title: storeController.isSelectionMode
+                      ? '${storeController.selectedItemList.length} ${'selected'.tr}'
+                      : 'all_items'.tr,
+                  leadingWidget: storeController.isSelectionMode
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => storeController.clearSelection(),
+                        )
+                      : null,
+                  menuWidget: storeController.isSelectionMode
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.select_all),
+                              onPressed: () => storeController.selectAllItems(),
+                              tooltip: 'select_all'.tr,
                             ),
-                          ),
-                          contentPadding: const EdgeInsets.all(
-                            Dimensions.paddingSizeDefault,
-                          ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.asset(
-                                Images.whatsapp,
-                                height: 80,
-                                width: 80,
+                            IconButton(
+                              icon: const Icon(Icons.edit_note, size: 30),
+                              onPressed: () {
+                                final List<Item> selectedItems = storeController
+                                    .itemList!
+                                    .where(
+                                      (item) => storeController.selectedItemList
+                                          .contains(item.id),
+                                    )
+                                    .toList();
+
+                                final Map<int, TextEditingController>
+                                priceControllers = {};
+                                final Map<int, TextEditingController>
+                                stockControllers = {};
+
+                                for (var item in selectedItems) {
+                                  priceControllers[item.id!] =
+                                      TextEditingController(
+                                        text: item.price.toString(),
+                                      );
+                                  stockControllers[item.id!] =
+                                      TextEditingController(
+                                        text: item.stock.toString(),
+                                      );
+                                }
+
+                                Get.dialog(
+                                  AlertDialog(
+                                    title: Text('bulk_update'.tr),
+                                    content: SizedBox(
+                                      width: double.maxFinite,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: selectedItems.length,
+                                        itemBuilder: (context, index) {
+                                          final item = selectedItems[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom:
+                                                  Dimensions.paddingSizeDefault,
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item.name ?? '',
+                                                  style: robotoMedium,
+                                                ),
+                                                const SizedBox(
+                                                  height: Dimensions
+                                                      .paddingSizeExtraSmall,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller:
+                                                            priceControllers[item
+                                                                .id!],
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        decoration: InputDecoration(
+                                                          labelText: 'price'.tr,
+                                                          isDense: true,
+                                                          border:
+                                                              const OutlineInputBorder(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      width: Dimensions
+                                                          .paddingSizeSmall,
+                                                    ),
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller:
+                                                            stockControllers[item
+                                                                .id!],
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        decoration: InputDecoration(
+                                                          labelText: 'stock'.tr,
+                                                          isDense: true,
+                                                          border:
+                                                              const OutlineInputBorder(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const Divider(),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Get.back(),
+                                        child: Text('cancel'.tr),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          List<Map<String, String>> updates =
+                                              [];
+                                          for (var item in selectedItems) {
+                                            double? newPrice = double.tryParse(
+                                              priceControllers[item.id!]!.text,
+                                            );
+                                            int? newStock = int.tryParse(
+                                              stockControllers[item.id!]!.text,
+                                            );
+
+                                            if (newPrice != null ||
+                                                newStock != null) {
+                                              updates.add(
+                                                storeController
+                                                    .buildStockUpdateData(
+                                                      item,
+                                                      price: newPrice,
+                                                      stock: newStock,
+                                                    ),
+                                              );
+                                            }
+                                          }
+                                          if (updates.isNotEmpty) {
+                                            Get.back();
+                                            storeController.bulkItemsUpdate(
+                                              updates,
+                                            );
+                                          }
+                                        },
+                                        child: Text('update'.tr),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              tooltip: 'bulk_update'.tr,
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              icon: Icon(
+                                Icons.price_change_outlined,
+                                color: Theme.of(context).primaryColor,
+                                size: 25,
                               ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeDefault,
+                              onPressed: () => Get.toNamed(
+                                RouteHelper.getProductPriceUpdateRoute(),
                               ),
-                              Text(
-                                'contact_to_add_item'.tr,
-                                textAlign: TextAlign.center,
-                                style: robotoMedium.copyWith(
-                                  fontSize: Dimensions.fontSizeLarge,
-                                ),
+                            ),
+                            IconButton(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              icon: Icon(
+                                Icons.add_circle_outline,
+                                color: Theme.of(context).primaryColor,
+                                size: 27,
                               ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeLarge,
-                              ),
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  var url = "https://wa.me/972598765425";
-                                  if (await canLaunchUrl(Uri.parse(url))) {
-                                    await launchUrl(
-                                      Uri.parse(url),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  } else {
-                                    showCustomSnackBar('can_not_launch_url'.tr);
-                                  }
-                                  Get.back();
-                                },
-                                icon: Image.asset(
-                                  Images.whatsapp,
-                                  width: 20,
-                                  height: 20,
-                                  color: Colors.white,
-                                ),
-                                label: Text('whatsapp'.tr),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      Dimensions.radiusLarge,
+                              onPressed: () {
+                                Get.dialog(
+                                  AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        Dimensions.radiusExtraLarge,
+                                      ),
+                                    ),
+                                    contentPadding: EdgeInsets.zero,
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: Dimensions
+                                                .paddingSizeExtraLarge,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor.withOpacity(0.05),
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                                  top: Radius.circular(
+                                                    Dimensions.radiusExtraLarge,
+                                                  ),
+                                                ),
+                                          ),
+                                          child: Center(
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Container(
+                                                  height: 100,
+                                                  width: 100,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green
+                                                        .withOpacity(0.1),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ),
+                                                Image.asset(
+                                                  Images.whatsapp,
+                                                  height: 60,
+                                                  width: 60,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(
+                                            Dimensions.paddingSizeLarge,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                'add_missing_store_item_title'
+                                                    .tr,
+                                                textAlign: TextAlign.center,
+                                                style: robotoBold.copyWith(
+                                                  fontSize: Dimensions
+                                                      .fontSizeExtraLarge,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
+                                              Text(
+                                                'contact_to_add_item'.tr,
+                                                textAlign: TextAlign.center,
+                                                style: robotoRegular.copyWith(
+                                                  fontSize:
+                                                      Dimensions.fontSizeLarge,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).hintColor,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeDefault,
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: CustomButtonWidget(
+                                                      buttonText: 'cancel'.tr,
+                                                      icon:
+                                                          Icons.cancel_outlined,
+                                                      iconColor: Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+                                                      color: Theme.of(context)
+                                                          .primaryColor
+                                                          .withValues(
+                                                            alpha: 0.2,
+                                                          ),
+                                                      textColor: Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+
+                                                      onPressed: () =>
+                                                          Get.back(),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
+                                                  Expanded(
+                                                    child: CustomButtonWidget(
+                                                      buttonText: 'whatsapp'.tr,
+                                                      icon: Icons
+                                                          .chat_bubble_outline,
+                                                      color: Colors.green,
+                                                      onPressed: () async {
+                                                        var url =
+                                                            "https://wa.me/972598765425";
+                                                        if (await canLaunchUrl(
+                                                          Uri.parse(url),
+                                                        )) {
+                                                          await launchUrl(
+                                                            Uri.parse(url),
+                                                            mode: LaunchMode
+                                                                .externalApplication,
+                                                          );
+                                                        } else {
+                                                          showCustomSnackBar(
+                                                            'can_not_launch_url'
+                                                                .tr,
+                                                          );
+                                                        }
+                                                        Get.back();
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
                 ),
 
                 body: store != null
@@ -473,7 +736,8 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
   }
 
   Widget _buildCategory(StoreController storeController) {
-    int? moduleId = Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
+    int? moduleId =
+        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
     if (storeController.categoryNameList != null) {
       return ListView.builder(
         controller: _categoryScrollController,
@@ -481,8 +745,11 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         itemCount: storeController.categoryNameList!.length,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () =>
-                storeController.setCategory(index: index, foodType: 'all', moduleId: moduleId),
+            onTap: () => storeController.setCategory(
+              index: index,
+              foodType: 'all',
+              moduleId: moduleId,
+            ),
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Row(

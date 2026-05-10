@@ -24,10 +24,7 @@ import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../common/widgets/custom_tool_tip_widget.dart';
 import '../../profile/domain/models/profile_model.dart' hide Module;
-import '../widgets/meta_seo_item_widget.dart';
 
 class StoreEditScreen extends StatefulWidget {
   final profile.Store store;
@@ -53,6 +50,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
   final List<FocusNode> _addressNode = [];
   final FocusNode _contactNode = FocusNode();
   final FocusNode _metaTitleNode = FocusNode();
+  // ignore: unused_field
   final FocusNode _metaDescriptionNode = FocusNode();
 
   late profile.Store _store;
@@ -376,7 +374,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                      CustomCard(
+                      /*CustomCard(
                         width: context.width,
                         padding: const EdgeInsets.all(
                           Dimensions.paddingSizeDefault,
@@ -529,7 +527,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                           ],
                         ),
                       ),
-                      const SizedBox(height: Dimensions.paddingSizeDefault),
+                      const SizedBox(height: Dimensions.paddingSizeDefault),*/
 
                       /*/// Meta Section
                       CustomCard(
@@ -1314,9 +1312,9 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                     } else if (widget.store.logoFullUrl == null &&
                         storeController.rawLogo == null) {
                       showCustomSnackBar('upload_business_logo'.tr);
-                    } else if (widget.store.coverPhotoFullUrl == null &&
+                    /*} else if (widget.store.coverPhotoFullUrl == null &&
                         storeController.rawCover == null) {
-                      showCustomSnackBar('upload_cover_image'.tr);
+                      showCustomSnackBar('upload_cover_image'.tr);*/
                     /*} else if (metaTitle.isEmpty) {
                       showCustomSnackBar('enter_meta_title'.tr);
                     } else if (metaDescription.isEmpty) {

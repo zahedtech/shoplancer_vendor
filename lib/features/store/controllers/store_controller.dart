@@ -93,6 +93,11 @@ class StoreController extends GetxController implements GetxService {
   List<Schedules>? _scheduleList;
   List<Schedules>? get scheduleList => _scheduleList;
 
+  bool _isOpen24Hours = false;
+  bool get isOpen24Hours => _isOpen24Hours;
+
+  List<Schedules>? _backupScheduleList;
+
   bool _scheduleLoading = false;
   bool get scheduleLoading => _scheduleLoading;
 
@@ -317,7 +322,95 @@ class StoreController extends GetxController implements GetxService {
   List<String> get imagePreviewType => _imagePreviewType;
 
   String _imagePreviewSelectedType = 'large';
-  String get imagePreviewSelectedType => _imagePreviewSelectedType;
+  get imagePreviewSelectedType => _imagePreviewSelectedType;
+
+  List<int> _selectedItemList = [];
+  List<int> get selectedItemList => _selectedItemList;
+
+  bool _isSelectionMode = false;
+  bool get isSelectionMode => _isSelectionMode;
+
+  void toggleSelection(int itemId) {
+    if (_selectedItemList.contains(itemId)) {
+      _selectedItemList.remove(itemId);
+    } else {
+      _selectedItemList.add(itemId);
+    }
+    if (_selectedItemList.isEmpty) {
+      _isSelectionMode = false;
+    }
+    update();
+  }
+
+  void selectAllItems() {
+    if (_itemList != null) {
+      _selectedItemList = [];
+      for (var item in _itemList!) {
+        if (item.id != null) {
+          _selectedItemList.add(item.id!);
+        }
+      }
+      update();
+    }
+  }
+
+  void clearSelection() {
+    _selectedItemList = [];
+    _isSelectionMode = false;
+    update();
+  }
+
+  void enableSelectionMode(int itemId) {
+    _isSelectionMode = true;
+    _selectedItemList = [itemId];
+    update();
+  }
+
+  Future<void> bulkItemsUpdate(List<Map<String, String>> updates) async {
+    _isLoading = true;
+    update();
+    for (var data in updates) {
+      await storeServiceInterface.stockUpdate(data);
+    }
+    _isLoading = false;
+    showCustomSnackBar('selected_items_updated_successfully'.tr, isError: false);
+    _selectedItemList = [];
+    _isSelectionMode = false;
+    getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    getLimitedStockItemList('1', willUpdate: false);
+    update();
+  }
+
+  Map<String, String> buildStockUpdateData(Item item, {double? price, int? stock}) {
+    final Map<String, String> data = {
+      '_method': 'post',
+      'id': item.id.toString(),
+      'product_id': item.id.toString(),
+      'current_stock': stock?.toString() ?? item.stock.toString(),
+      'manage_stock': '1',
+      'price': price?.toString() ?? item.price.toString(),
+      'unit_price': price?.toString() ?? item.price.toString(),
+      'discount': item.discount?.toString() ?? '0',
+      'discount_type': item.discountType ?? 'amount',
+      'store_id': Get.find<ProfileController>().profileModel?.stores?[0].id.toString() ?? '',
+      'category_id': item.categoryId?.toString() ?? '',
+    };
+
+    final List<Variation> variations = item.variations ?? [];
+    final List<String> types = [];
+    for (int index = 0; index < variations.length; index++) {
+      Variation variation = variations[index];
+      String type = variation.type ?? '';
+      types.add(type);
+      data['price_${index}_$type'] = (variation.price ?? 0).toString();
+      data['stock_${index}_$type'] = (variation.stock ?? 0).toString();
+    }
+    if (types.isNotEmpty) {
+      data['type'] = jsonEncode(types);
+    }
+
+    return data;
+  }
 
   void initItemData({
     Item? item,
@@ -1196,6 +1289,10 @@ class StoreController extends GetxController implements GetxService {
     _isGstEnabled = store.gstStatus;
     _scheduleList = [];
     _scheduleList!.addAll(store.schedules!);
+    _isOpen24Hours = _isFullDaySchedule(_scheduleList);
+    if (!_isOpen24Hours) {
+      _backupScheduleList = List<Schedules>.from(_scheduleList!);
+    }
     _isStoreVeg = store.veg == 1;
     _isStoreNonVeg = store.nonVeg == 1;
     _isExtraPackagingEnabled = store.extraPackagingStatus;
@@ -1226,8 +1323,13 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<void> addSchedule(Schedules schedule) async {
-    schedule.openingTime = '${schedule.openingTime!}:00';
-    schedule.closingTime = '${schedule.closingTime!}:00';
+    if (_isOpen24Hours) {
+      showCustomSnackBar('disable_open_24_hours_to_edit_schedule'.tr);
+      return;
+    }
+    schedule.openingTime = schedule.openingTime!.length == 5 ? '${schedule.openingTime!}:00' : schedule.openingTime;
+    schedule.closingTime = schedule.closingTime!.length == 5 ? '${schedule.closingTime!}:00' : schedule.closingTime;
+    schedule.storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
     _scheduleLoading = true;
     update();
     int? scheduleID = await storeServiceInterface.addSchedule(schedule);
@@ -1242,6 +1344,10 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<void> deleteSchedule(int? scheduleID) async {
+    if (_isOpen24Hours) {
+      showCustomSnackBar('disable_open_24_hours_to_edit_schedule'.tr);
+      return;
+    }
     _scheduleLoading = true;
     update();
     bool isSuccess = await storeServiceInterface.deleteSchedule(scheduleID);
@@ -1322,6 +1428,124 @@ class StoreController extends GetxController implements GetxService {
   void setScheduleOrderEnabled(bool value) {
     _isScheduleOrderEnabled = value;
     update();
+  }
+
+  Future<void> setOpen24Hours(bool value) async {
+    if (_isOpen24Hours == value) {
+      return;
+    }
+
+    _isOpen24Hours = value;
+    update();
+
+    if (value) {
+      _backupScheduleList = _scheduleList != null
+          ? List<Schedules>.from(_scheduleList!)
+          : [];
+      await _apply24HourSchedule();
+    } else {
+      await _restoreScheduleFromBackup();
+    }
+  }
+
+  bool _isFullDaySchedule(List<Schedules>? schedules) {
+    if (schedules == null || schedules.isEmpty) {
+      return false;
+    }
+
+    final Map<int, List<Schedules>> byDay = {};
+    for (final schedule in schedules) {
+      if (schedule.day == null) {
+        continue;
+      }
+      byDay.putIfAbsent(schedule.day!, () => []);
+      byDay[schedule.day!]!.add(schedule);
+    }
+
+    for (int day = 0; day < 7; day++) {
+      final List<Schedules>? daySchedules = byDay[day];
+      if (daySchedules == null || daySchedules.length != 1) {
+        return false;
+      }
+      final String? open = daySchedules.first.openingTime;
+      final String? close = daySchedules.first.closingTime;
+      final bool isFullDay =
+          open == '00:00' && (close == '23:59' || close == '24:00');
+      if (!isFullDay) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _apply24HourSchedule() async {
+    _scheduleLoading = true;
+    update();
+
+    await _deleteSchedulesSilently();
+    _scheduleList = [];
+
+    for (int day = 0; day < 7; day++) {
+      final schedule = Schedules(
+        day: day,
+        openingTime: '00:00:00',
+        closingTime: '23:59:00',
+        storeId: Get.find<ProfileController>().profileModel?.stores?[0].id,
+      );
+
+      final int? scheduleId = await storeServiceInterface.addSchedule(schedule);
+      if (scheduleId != null) {
+        schedule.id = scheduleId;
+        _scheduleList!.add(schedule);
+      }
+    }
+
+    _scheduleLoading = false;
+    update();
+    showCustomSnackBar('schedule_updated_successfully'.tr, isError: false);
+  }
+
+  Future<void> _restoreScheduleFromBackup() async {
+    _scheduleLoading = true;
+    update();
+
+    await _deleteSchedulesSilently();
+    _scheduleList = [];
+
+    if (_backupScheduleList != null && _backupScheduleList!.isNotEmpty) {
+      for (final schedule in _backupScheduleList!) {
+        final Schedules newSchedule = Schedules(
+          day: schedule.day,
+          openingTime: schedule.openingTime!.length == 5 ? '${schedule.openingTime!}:00' : schedule.openingTime,
+          closingTime: schedule.closingTime!.length == 5 ? '${schedule.closingTime!}:00' : schedule.closingTime,
+          storeId: Get.find<ProfileController>().profileModel?.stores?[0].id,
+        );
+        final int? scheduleId = await storeServiceInterface.addSchedule(
+          newSchedule,
+        );
+        if (scheduleId != null) {
+          newSchedule.id = scheduleId;
+          _scheduleList!.add(newSchedule);
+        }
+      }
+    }
+
+    _scheduleLoading = false;
+    update();
+  }
+
+  Future<void> _deleteSchedulesSilently() async {
+    if (_scheduleList == null || _scheduleList!.isEmpty) {
+      return;
+    }
+    final List<Schedules> existing = List<Schedules>.from(_scheduleList!);
+    for (final schedule in existing) {
+      if (schedule.id != null) {
+        await storeServiceInterface.deleteSchedule(schedule.id);
+      }
+    }
+    _scheduleList!.clear();
   }
 
   void setDeliveryEnabled(bool value) {
@@ -1680,7 +1904,11 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<bool> stockUpdate(Map<String, String> data, int itemId) async {
+  Future<bool> stockUpdate(
+    Map<String, String> data,
+    int itemId, {
+    bool shouldBack = true,
+  }) async {
     _isLoading = true;
     update();
     Response response = await storeServiceInterface.stockUpdate(data);
@@ -1691,7 +1919,9 @@ class StoreController extends GetxController implements GetxService {
         Get.find<StoreController>().offset.toString(),
         willUpdate: false,
       );
-      Get.back();
+      if (shouldBack) {
+        Get.back();
+      }
     }
     _isLoading = false;
     update();

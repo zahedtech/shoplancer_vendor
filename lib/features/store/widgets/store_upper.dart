@@ -1,7 +1,7 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
@@ -23,13 +23,14 @@ class StoreUpper extends StatefulWidget {
 }
 
 class _StoreUpperState extends State<StoreUpper> {
-  int _currentBannerIndex = 0;
+  // ignore: unused_field
+  final int _currentBannerIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Banner Section
+        /*// Banner Section
         if (widget.banners != null && widget.banners!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 0),
@@ -84,7 +85,7 @@ class _StoreUpperState extends State<StoreUpper> {
                 ),
               ],
             ),
-          ),
+          ),*/
 
         // Store Details Section
         Container(
@@ -179,60 +180,127 @@ class _StoreUpperState extends State<StoreUpper> {
                                   Dimensions.radiusExtraLarge,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.all(
-                                Dimensions.paddingSizeDefault,
-                              ),
+                              contentPadding: EdgeInsets.zero,
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Image.asset(
-                                    Images.whatsapp,
-                                    height: 80,
-                                    width: 80,
-                                  ),
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeDefault,
-                                  ),
-                                  Text(
-                                    'contact_to_add_item'.tr,
-                                    textAlign: TextAlign.center,
-                                    style: robotoMedium.copyWith(
-                                      fontSize: Dimensions.fontSizeLarge,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical:
+                                          Dimensions.paddingSizeExtraLarge,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeLarge,
-                                  ),
-                                  ElevatedButton.icon(
-                                    onPressed: () async {
-                                      var url = "https://wa.me/972598765425";
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(
-                                          Uri.parse(url),
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      } else {
-                                        showCustomSnackBar(
-                                          'can_not_launch_url'.tr,
-                                        );
-                                      }
-                                      Get.back();
-                                    },
-                                    icon: Image.asset(
-                                      Images.whatsapp,
-                                      width: 20,
-                                      height: 20,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text('whatsapp'.tr),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          Dimensions.radiusLarge,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.05),
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(
+                                          Dimensions.radiusExtraLarge,
                                         ),
                                       ),
+                                    ),
+                                    child: Center(
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            height: 100,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.withOpacity(
+                                                0.1,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          Image.asset(
+                                            Images.whatsapp,
+                                            height: 60,
+                                            width: 60,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(
+                                      Dimensions.paddingSizeLarge,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'add_missing_store_item_title'.tr,
+                                          textAlign: TextAlign.center,
+                                          style: robotoBold.copyWith(
+                                            fontSize:
+                                                Dimensions.fontSizeExtraLarge,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
+                                        ),
+                                        Text(
+                                          'contact_to_add_item'.tr,
+                                          textAlign: TextAlign.center,
+                                          style: robotoRegular.copyWith(
+                                            fontSize: Dimensions.fontSizeLarge,
+                                            color: Theme.of(context).hintColor,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeDefault,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                buttonText: 'cancel'.tr,
+                                                icon: Icons.cancel_outlined,
+                                                iconColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withValues(alpha: 0.2),
+                                                textColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+
+                                                onPressed: () => Get.back(),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width:
+                                                  Dimensions.paddingSizeSmall,
+                                            ),
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                buttonText: 'whatsapp'.tr,
+                                                icon: Icons.chat_bubble_outline,
+                                                color: Colors.green,
+                                                onPressed: () async {
+                                                  var url =
+                                                      "https://wa.me/972598765425";
+                                                  if (await canLaunchUrl(
+                                                    Uri.parse(url),
+                                                  )) {
+                                                    await launchUrl(
+                                                      Uri.parse(url),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
+                                                    );
+                                                  } else {
+                                                    showCustomSnackBar(
+                                                      'can_not_launch_url'.tr,
+                                                    );
+                                                  }
+                                                  Get.back();
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -280,13 +348,13 @@ class _StoreUpperState extends State<StoreUpper> {
                     context,
                     Icons.shopping_bag_outlined,
                     '${widget.store?.totalOrder ?? 0}',
-                    'Orders',
+                    'orders'.tr,
                   ),
                   _buildStatItem(
                     context,
                     Icons.inventory_2_outlined,
                     '${widget.store?.totalItems ?? 0}',
-                    'Items',
+                    'items'.tr,
                   ),
                 ],
               ),

@@ -1,4 +1,4 @@
-package com.shoplancer.vendor
+package com.zahed.shoplanser
 
 import io.flutter.embedding.android.FlutterActivity
 

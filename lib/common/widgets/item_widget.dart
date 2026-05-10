@@ -50,29 +50,58 @@ class ItemWidget extends StatelessWidget {
 
     double width = MediaQuery.of(context).size.width;
 
-    return InkWell(
-      onTap: () => Get.toNamed(
-        RouteHelper.getItemDetailsRoute(item),
-        arguments: ItemDetailsScreen(product: item),
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeSmall,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 3),
-              color: Colors.grey[Get.isDarkMode ? 700 : 200]!,
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
+    return GetBuilder<StoreController>(builder: (storeController) {
+      bool isSelected = storeController.selectedItemList.contains(item.id);
+
+      return InkWell(
+        onTap: () {
+          if (storeController.isSelectionMode) {
+            storeController.toggleSelection(item.id!);
+          } else {
+            Get.toNamed(
+              RouteHelper.getItemDetailsRoute(item),
+              arguments: ItemDetailsScreen(product: item),
+            );
+          }
+        },
+        onLongPress: () {
+          if (!storeController.isSelectionMode) {
+            storeController.enableSelectionMode(item.id!);
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingSizeSmall,
+          ),
+          margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            color: isSelected
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                : Theme.of(context).cardColor,
+            border: isSelected
+                ? Border.all(color: Theme.of(context).primaryColor, width: 1)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(0, 3),
+                color: Colors.grey[Get.isDarkMode ? 700 : 200]!,
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              if (storeController.isSelectionMode)
+                Padding(
+                  padding: const EdgeInsets.only(right: Dimensions.paddingSizeExtraSmall),
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (val) => storeController.toggleSelection(item.id!),
+                    activeColor: Theme.of(context).primaryColor,
+                  ),
+                ),
             /// Image section
             item.imageFullUrl != null
                 ? Stack(
@@ -297,7 +326,8 @@ class ItemWidget extends StatelessWidget {
         ),
       ),
     );
-  }
+  });
+}
 
   void _showQuickUpdateDialog(BuildContext context) {
     final TextEditingController priceController = TextEditingController(
@@ -377,13 +407,7 @@ class ItemWidget extends StatelessWidget {
                           'category_id': item.categoryId?.toString() ?? '',
                         };
 
-                        storeController.stockUpdate(data, item.id!).then((
-                          isSuccess,
-                        ) {
-                          if (isSuccess) {
-                            Get.back();
-                          }
-                        });
+                        storeController.stockUpdate(data, item.id!);
                       },
                       child: Text('update'.tr),
                     );
