@@ -16,7 +16,7 @@ import 'package:sixam_mart_store/helper/route_helper.dart';
 
 class AuthController extends GetxController implements GetxService {
   final AuthServiceInterface authServiceInterface;
-  AuthController({required this.authServiceInterface}){
+  AuthController({required this.authServiceInterface}) {
     _notification = authServiceInterface.isNotificationActive();
   }
 
@@ -92,25 +92,36 @@ class AuthController extends GetxController implements GetxService {
   String? _tinExpireDate;
   String? get tinExpireDate => _tinExpireDate;
 
-  Future<ResponseModel?> login(String? phone, String password, String type) async {
+  Future<ResponseModel?> login(
+    String? phone,
+    String password,
+    String type,
+  ) async {
     _isLoading = true;
     update();
     Response response = await authServiceInterface.login(phone, password, type);
-    ResponseModel? responseModel = await authServiceInterface.manageLogin(response, type);
+    ResponseModel? responseModel = await authServiceInterface.manageLogin(
+      response,
+      type,
+    );
     _isLoading = false;
     update();
     return responseModel;
   }
 
   void pickImageForReg(bool isLogo, bool isRemove) async {
-    if(isRemove) {
+    if (isRemove) {
       _pickedLogo = null;
       _pickedCover = null;
-    }else {
+    } else {
       if (isLogo) {
-        _pickedLogo = await ImagePicker().pickImage(source: ImageSource.gallery);
+        _pickedLogo = await ImagePicker().pickImage(
+          source: ImageSource.gallery,
+        );
       } else {
-        _pickedCover = await ImagePicker().pickImage(source: ImageSource.gallery);
+        _pickedCover = await ImagePicker().pickImage(
+          source: ImageSource.gallery,
+        );
       }
       update();
     }
@@ -119,7 +130,6 @@ class AuthController extends GetxController implements GetxService {
   Future<void> updateToken() async {
     await authServiceInterface.updateToken();
   }
-
 
   void toggleRememberMe() {
     _isActiveRememberMe = !_isActiveRememberMe;
@@ -130,31 +140,31 @@ class AuthController extends GetxController implements GetxService {
     return authServiceInterface.isLoggedIn();
   }
 
-  void storeStatusChange(double value, {bool isUpdate = true}){
+  void storeStatusChange(double value, {bool isUpdate = true}) {
     _storeStatus = value;
-    if(isUpdate) {
+    if (isUpdate) {
       update();
     }
   }
 
-  void minTimeChange(String time){
+  void minTimeChange(String time) {
     _storeMinTime = time;
     update();
   }
 
-  void maxTimeChange(String time){
+  void maxTimeChange(String time) {
     _storeMaxTime = time;
     update();
   }
 
-  void timeUnitChange(String unit){
+  void timeUnitChange(String unit) {
     _storeTimeUnit = unit;
     update();
   }
 
-  void changeVendorType(int index, {bool isUpdate = true}){
+  void changeVendorType(int index, {bool isUpdate = true}) {
     _vendorTypeIndex = index;
-    if(isUpdate) {
+    if (isUpdate) {
       update();
     }
   }
@@ -171,9 +181,11 @@ class AuthController extends GetxController implements GetxService {
   String getUserNumber() {
     return authServiceInterface.getUserNumber();
   }
+
   String getUserPassword() {
     return authServiceInterface.getUserPassword();
   }
+
   String getUserType() {
     return authServiceInterface.getUserType();
   }
@@ -196,13 +208,12 @@ class AuthController extends GetxController implements GetxService {
     return _notification;
   }
 
-
   Future<void> toggleStoreClosedStatus() async {
     bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
     if (isSuccess) {
-      if(getModuleType() == 'rental'){
+      if (getModuleType() == 'rental') {
         await Get.find<TaxiProfileController>().getProfile();
-      }else{
+      } else {
         Get.find<ProfileController>().getProfile();
       }
     }
@@ -224,16 +235,29 @@ class AuthController extends GetxController implements GetxService {
       document.add(MultipartDocument('tin_certificate_image', result));
     }
 
-    Response response = await authServiceInterface.registerRestaurant(data, _pickedLogo, _pickedCover, document);
+    Response response = await authServiceInterface.registerRestaurant(
+      data,
+      _pickedLogo,
+      _pickedCover,
+      document,
+    );
 
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       int? storeId = int.tryParse(response.body['store_id'].toString());
       int? packageId = int.tryParse(response.body['package_id'].toString());
 
-      if(packageId == null) {
-        Get.find<BusinessController>().submitBusinessPlan(storeId: storeId!, packageId: null);
-      }else{
-        Get.toNamed(RouteHelper.getSubscriptionPaymentRoute(storeId: storeId, packageId: packageId));
+      if (packageId == null) {
+        Get.find<BusinessController>().submitBusinessPlan(
+          storeId: storeId!,
+          packageId: null,
+        );
+      } else {
+        Get.toNamed(
+          RouteHelper.getSubscriptionPaymentRoute(
+            storeId: storeId,
+            packageId: packageId,
+          ),
+        );
       }
     }
 
@@ -243,41 +267,41 @@ class AuthController extends GetxController implements GetxService {
 
   void setDeliveryTimeTypeIndex(String? type, bool notify) {
     _deliveryTimeTypeIndex = _deliveryTimeTypeList.indexOf(type);
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
-  void showHidePass({bool isUpdate = true}){
-    _showPassView = ! _showPassView;
-    if(isUpdate) {
+  void showHidePass({bool isUpdate = true}) {
+    _showPassView = !_showPassView;
+    if (isUpdate) {
       update();
     }
   }
 
-  void validPassCheck(String pass, {bool isUpdate = true}){
+  void validPassCheck(String pass, {bool isUpdate = true}) {
     _lengthCheck = false;
     _numberCheck = false;
     _uppercaseCheck = false;
     _lowercaseCheck = false;
     _spatialCheck = false;
 
-    if(pass.length > 7){
+    if (pass.length > 7) {
       _lengthCheck = true;
     }
-    if(pass.contains(RegExp(r'[a-z]'))){
+    if (pass.contains(RegExp(r'[a-z]'))) {
       _lowercaseCheck = true;
     }
-    if(pass.contains(RegExp(r'[A-Z]'))){
+    if (pass.contains(RegExp(r'[A-Z]'))) {
       _uppercaseCheck = true;
     }
-    if(pass.contains(RegExp(r'[ .!@#$&*~^%]'))){
+    if (pass.contains(RegExp(r'[ .!@#$&*~^%]'))) {
       _spatialCheck = true;
     }
-    if(pass.contains(RegExp(r'[\d+]'))){
+    if (pass.contains(RegExp(r'[\d+]'))) {
       _numberCheck = true;
     }
-    if(isUpdate) {
+    if (isUpdate) {
       update();
     }
   }
@@ -299,6 +323,9 @@ class AuthController extends GetxController implements GetxService {
   int _businessIndex = 0;
   int get businessIndex => _businessIndex;
 
+  int _subscriptionTypeIndex = 0;
+  int get subscriptionTypeIndex => _subscriptionTypeIndex;
+
   int _activeSubscriptionIndex = 0;
   int get activeSubscriptionIndex => _activeSubscriptionIndex;
 
@@ -312,34 +339,50 @@ class AuthController extends GetxController implements GetxService {
     _isFirstTime = !_isFirstTime;
   }
 
-  void resetBusiness(){
-    _businessIndex = (Get.find<SplashController>().configModel!.commissionBusinessModel == 0) ? 1 : 0;
+  void resetBusiness() {
+    _businessIndex =
+        (Get.find<SplashController>().configModel!.commissionBusinessModel == 0)
+        ? 1
+        : 0;
     _activeSubscriptionIndex = 0;
     _businessPlanStatus = 'business';
     _isFirstTime = true;
-    _paymentIndex = Get.find<SplashController>().configModel!.subscriptionFreeTrialStatus! ? 0 : 1;
+    _paymentIndex =
+        Get.find<SplashController>().configModel!.subscriptionFreeTrialStatus!
+        ? 0
+        : 1;
   }
 
   Future<void> getPackageList({bool isUpdate = true, int? moduleId}) async {
-    _packageModel = await authServiceInterface.getPackageList(moduleId: moduleId);
-    if(isUpdate) {
+    _packageModel = await authServiceInterface.getPackageList(
+      moduleId: moduleId,
+    );
+    if (isUpdate) {
       update();
     }
   }
 
-  void setBusiness(int business){
+  void setBusiness(int business, {int? moduleId}) {
     _activeSubscriptionIndex = 0;
     _businessIndex = business;
+    if (moduleId != null && business == 1) {
+      getPackageList(moduleId: moduleId);
+    }
     update();
   }
 
-  void setBusinessStatus(String status){
+  void setBusinessStatus(String status) {
     _businessPlanStatus = status;
     update();
   }
 
-  void selectSubscriptionCard(int index){
+  void selectSubscriptionCard(int index) {
     _activeSubscriptionIndex = index;
+    update();
+  }
+
+  void setSubscriptionTypeIndex(int index) {
+    _subscriptionTypeIndex = index;
     update();
   }
 
@@ -347,7 +390,7 @@ class AuthController extends GetxController implements GetxService {
     return authServiceInterface.getModuleType();
   }
 
-  void setModuleType(String type){
+  void setModuleType(String type) {
     authServiceInterface.setModuleType(type);
   }
 
@@ -380,12 +423,11 @@ class AuthController extends GetxController implements GetxService {
     update();
   }
 
-  void resetData(){
+  void resetData() {
     _tinExpireDate = null;
     _tinFiles.clear();
-    _storeMinTime = '--';
-    _storeMaxTime = '--';
+    _storeMinTime = '20';
+    _storeMaxTime = '60';
     _storeTimeUnit = 'minute';
   }
-
 }

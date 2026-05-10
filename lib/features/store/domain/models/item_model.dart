@@ -96,6 +96,7 @@ class Item {
   int? veg;
   String? unitType;
   int? stock;
+  int? manageStock;
   List<Translation>? translations;
   List<Tag>? tags;
   int? recommendedStatus;
@@ -156,6 +157,7 @@ class Item {
     this.veg,
     this.unitType,
     this.stock,
+    this.manageStock,
     this.translations,
     this.tags,
     this.recommendedStatus,
@@ -296,6 +298,13 @@ class Item {
       unitId = int.parse(json['unit']['id'].toString());
     }
     stock = json['stock'];
+    if (json['manage_stock'] != null) {
+      if (json['manage_stock'] is bool) {
+        manageStock = json['manage_stock'] ? 1 : 0;
+      } else {
+        manageStock = int.parse(json['manage_stock'].toString());
+      }
+    }
     if (json['translations'] != null && json['translations'].isNotEmpty) {
       translations = [];
       json['translations'].forEach((v) {
@@ -304,12 +313,12 @@ class Item {
     } else {
       translations = [];
       translations!.add(
-        Translation(id: 0, locale: 'en', key: 'name', value: json['name']),
+        Translation(id: 0, locale: 'ar', key: 'name', value: json['name']),
       );
       translations!.add(
         Translation(
           id: 0,
-          locale: 'en',
+          locale: 'ar',
           key: 'description',
           value: json['description'],
         ),

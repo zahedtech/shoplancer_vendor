@@ -181,7 +181,11 @@ class DashboardScreenState extends State<DashboardScreen> {
                   unSelectedIcon: Images.menu,
                   isSelected: _pageIndex == 4,
                   onTap: () {
-                    Get.bottomSheet(Get.find<AuthController>().getModuleType() == 'rental' ? const TaxiMenuScreen() : const MenuScreen(), backgroundColor: Colors.transparent, isScrollControlled: true);
+                    Get.to(
+                      () => Get.find<AuthController>().getModuleType() == 'rental'
+                          ? const TaxiMenuScreen()
+                          : const MenuScreen(),
+                    );
                   }
                 ),
               ]),

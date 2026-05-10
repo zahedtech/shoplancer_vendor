@@ -83,6 +83,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   late bool _initialIsTakeAwayEnabled;
   late bool _initialIsPrescriptionStatusEnable;
   late bool _initialIsHalalEnabled;
+  late bool _initialIsOpen24Hours;
 
   @override
   void initState() {
@@ -153,6 +154,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _initialIsPrescriptionStatusEnable =
         storeController.isPrescriptionStatusEnable!;
     _initialIsHalalEnabled = storeController.isHalalEnabled!;
+    _initialIsOpen24Hours = storeController.isOpen24Hours;
   }
 
   void resetToInitialData() {
@@ -185,6 +187,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     );
     storeController.setHalalEnabled(_initialIsHalalEnabled);
     storeController.setSelectedDuration(_initialDurationType);
+    storeController.setOpen24Hours(_initialIsOpen24Hours);
 
     showCustomSnackBar('reset_successful'.tr, isError: false);
   }
@@ -643,27 +646,26 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                           : 0,
                                     ),
 
-                                    _module.orderPlaceToScheduleInterval!
-                                        ? CustomTextFieldWidget(
-                                            hintText:
-                                                'minimum_processing_time'.tr,
-                                            labelText:
-                                                'minimum_processing_time'.tr,
-                                            controller:
-                                                _processingTimeController,
-                                            focusNode:
-                                                _minimumProcessingTimeNode,
-                                            nextFocus: _minimumStockNode,
-                                            inputType: TextInputType.number,
-                                            isAmount: true,
-                                          )
-                                        : const SizedBox(),
-                                    SizedBox(
-                                      height: !_module.showRestaurantText!
-                                          ? Dimensions.paddingSizeExtraLarge
-                                          : 0,
-                                    ),
-
+                                    // _module.orderPlaceToScheduleInterval!
+                                    //     ? CustomTextFieldWidget(
+                                    //         hintText:
+                                    //             'minimum_processing_time'.tr,
+                                    //         labelText:
+                                    //             'minimum_processing_time'.tr,
+                                    //         controller:
+                                    //             _processingTimeController,
+                                    //         focusNode:
+                                    //             _minimumProcessingTimeNode,
+                                    //         nextFocus: _minimumStockNode,
+                                    //         inputType: TextInputType.number,
+                                    //         isAmount: true,
+                                    //       )
+                                    //     : const SizedBox(),
+                                    // SizedBox(
+                                    //   height: !_module.showRestaurantText!
+                                    //       ? Dimensions.paddingSizeExtraLarge
+                                    //       : 0,
+                                    // ),
                                     !_module.showRestaurantText!
                                         ? Column(
                                             children: [
@@ -835,22 +837,58 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       padding: const EdgeInsets.all(
                                         Dimensions.paddingSizeDefault,
                                       ),
-                                      child: ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: 7,
-                                        itemBuilder: (context, index) {
-                                          return Column(
-                                            children: [
-                                              DailyTimeWidget(weekDay: index),
+                                      child: Column(
+                                        children: [
+                                          SwitchButtonWidget(
+                                            title: 'open_24_hours'.tr,
+                                            description:
+                                                'open_24_hours_description'.tr,
+                                            isButtonActive:
+                                                storeController.isOpen24Hours,
+                                            onTap: () {
+                                              storeController.setOpen24Hours(
+                                                !storeController.isOpen24Hours,
+                                              );
+                                            },
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          storeController.isOpen24Hours
+                                              ? Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    'open_24_hours'.tr,
+                                                    style: robotoRegular
+                                                        .copyWith(
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).hintColor,
+                                                        ),
+                                                  ),
+                                                )
+                                              : ListView.builder(
+                                                  physics:
+                                                      const NeverScrollableScrollPhysics(),
+                                                  shrinkWrap: true,
+                                                  itemCount: 7,
+                                                  itemBuilder: (context, index) {
+                                                    return Column(
+                                                      children: [
+                                                        DailyTimeWidget(
+                                                          weekDay: index,
+                                                        ),
 
-                                              index != 6
-                                                  ? const Divider()
-                                                  : const SizedBox(),
-                                            ],
-                                          );
-                                        },
+                                                        index != 6
+                                                            ? const Divider()
+                                                            : const SizedBox(),
+                                                      ],
+                                                    );
+                                                  },
+                                                ),
+                                        ],
                                       ),
                                     ),
                             ],

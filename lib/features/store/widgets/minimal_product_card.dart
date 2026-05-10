@@ -42,12 +42,17 @@ class MinimalProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04),
+              color: Colors.black.withOpacity(
+                Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04,
+              ),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.1), width: 1),
+          border: Border.all(
+            color: Theme.of(context).disabledColor.withOpacity(0.1),
+            width: 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,9 +67,7 @@ class MinimalProductCard extends StatelessWidget {
                     height: 100,
                     margin: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).disabledColor.withValues(alpha: 0.05),
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(
                         Dimensions.radiusDefault,
                       ),
@@ -120,80 +123,92 @@ class MinimalProductCard extends StatelessWidget {
               ),
             ),
             // Info Section
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name ?? '',
-                    style: robotoMedium.copyWith(
-                      fontSize: 14,
-                      height: 1.2,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name ?? '',
+                          style: robotoMedium.copyWith(
+                            fontSize: 14,
+                            height: 1.2,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (item.unitType != null &&
+                            item.unitType!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            item.unitType!,
+                            style: robotoRegular.copyWith(
+                              fontSize: 12,
+                              color: Theme.of(context).disabledColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  if (item.unitType != null && item.unitType!.isNotEmpty)
-                    Text(
-                      item.unitType!,
-                      style: robotoRegular.copyWith(
-                        fontSize: 12,
-                        color: Theme.of(context).disabledColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (hasDiscount)
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (hasDiscount)
+                                Text(
+                                  PriceConverterHelper.convertPrice(
+                                    originalPrice,
+                                  ),
+                                  style: robotoRegular.copyWith(
+                                    fontSize: 11,
+                                    color: Theme.of(context).disabledColor,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
                               Text(
                                 PriceConverterHelper.convertPrice(
-                                  originalPrice,
+                                  hasDiscount ? discountedPrice : originalPrice,
                                 ),
-                                style: robotoRegular.copyWith(
-                                  fontSize: 11,
-                                  color: Theme.of(context).disabledColor,
-                                  decoration: TextDecoration.lineThrough,
+                                style: robotoBold.copyWith(
+                                  fontSize: 17,
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
-                            Text(
-                              PriceConverterHelper.convertPrice(
-                                hasDiscount ? discountedPrice : originalPrice,
-                              ),
-                              style: robotoBold.copyWith(
-                                fontSize: 17,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        height: 36,
-                        width: 36,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                        Container(
+                          height: 36,
+                          width: 36,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.edit_rounded,
+                            color: Theme.of(context).primaryColor,
+                            size: 20,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.edit_rounded,
-                          color: Theme.of(context).primaryColor,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

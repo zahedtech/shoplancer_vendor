@@ -14,6 +14,7 @@ import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -282,6 +283,46 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                           )
                         : const SizedBox(),
+
+                    const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+
+                    InkWell(
+                      onTap: () async {
+                        var url = "https://wa.me/972598765425";
+                        if (await canLaunchUrl(Uri.parse(url))) {
+                          await launchUrl(
+                            Uri.parse(url),
+                            mode: LaunchMode.externalApplication,
+                          );
+                        } else {
+                          showCustomSnackBar('can_not_launch_url'.tr);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: Dimensions.paddingSizeSmall,
+                          horizontal: Dimensions.paddingSizeDefault,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusDefault,
+                          ),
+                          color: Colors.green.withValues(alpha: 0.1),
+                          border: Border.all(color: Colors.green, width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(Images.whatsapp, width: 25, height: 25),
+                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                            Text(
+                              'contact_support'.tr,
+                              style: robotoMedium.copyWith(color: Colors.green),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 );
               },

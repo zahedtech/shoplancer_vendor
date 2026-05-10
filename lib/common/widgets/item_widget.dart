@@ -1,3 +1,4 @@
+import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
@@ -49,29 +50,58 @@ class ItemWidget extends StatelessWidget {
 
     double width = MediaQuery.of(context).size.width;
 
-    return InkWell(
-      onTap: () => Get.toNamed(
-        RouteHelper.getItemDetailsRoute(item),
-        arguments: ItemDetailsScreen(product: item),
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeSmall,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 3),
-              color: Colors.grey[Get.isDarkMode ? 700 : 200]!,
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
+    return GetBuilder<StoreController>(builder: (storeController) {
+      bool isSelected = storeController.selectedItemList.contains(item.id);
+
+      return InkWell(
+        onTap: () {
+          if (storeController.isSelectionMode) {
+            storeController.toggleSelection(item.id!);
+          } else {
+            Get.toNamed(
+              RouteHelper.getItemDetailsRoute(item),
+              arguments: ItemDetailsScreen(product: item),
+            );
+          }
+        },
+        onLongPress: () {
+          if (!storeController.isSelectionMode) {
+            storeController.enableSelectionMode(item.id!);
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimensions.paddingSizeSmall,
+          ),
+          margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            color: isSelected
+                ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                : Theme.of(context).cardColor,
+            border: isSelected
+                ? Border.all(color: Theme.of(context).primaryColor, width: 1)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(0, 3),
+                color: Colors.grey[Get.isDarkMode ? 700 : 200]!,
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              if (storeController.isSelectionMode)
+                Padding(
+                  padding: const EdgeInsets.only(right: Dimensions.paddingSizeExtraSmall),
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (val) => storeController.toggleSelection(item.id!),
+                    activeColor: Theme.of(context).primaryColor,
+                  ),
+                ),
             /// Image section
             item.imageFullUrl != null
                 ? Stack(
@@ -247,35 +277,25 @@ class ItemWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      PopupMenuButton<String>(
-                        padding: EdgeInsets.zero,
-                        onSelected: (_) => _showQuickUpdateDialog(context),
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                              PopupMenuItem<String>(
-                                value: 'add',
-                                child: ListTile(
-                                  title: Text('add'.tr, style: robotoMedium),
-                                  trailing: const Icon(
-                                    Icons.add_circle,
-                                    color: Colors.indigo,
-                                  ),
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ],
+                      IconButton(
+                        onPressed: () => _showQuickUpdateDialog(context),
                         icon: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).disabledColor.withValues(alpha: 0.1),
+                            ).primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               Dimensions.radiusSmall,
                             ),
                           ),
-                          padding: const EdgeInsets.all(3),
-                          child: Icon(Icons.more_vert_sharp, size: 20),
+                          padding: const EdgeInsets.all(5),
+                          child: Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
                         ),
+                        tooltip: 'add'.tr,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -296,13 +316,18 @@ class ItemWidget extends StatelessWidget {
                   )
                 : GestureDetector(
                     onTap: () => _showQuickUpdateDialog(context),
-                    child: const Icon(Icons.add_circle, color: Colors.indigo),
+                    child: Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: 25,
+                    ),
                   ),
           ],
         ),
       ),
     );
-  }
+  });
+}
 
   void _showQuickUpdateDialog(BuildContext context) {
     final TextEditingController priceController = TextEditingController(
@@ -364,7 +389,7 @@ class ItemWidget extends StatelessWidget {
                         }
 
                         final Map<String, String> data = {
-                          '_method': 'put',
+                          '_method': 'post',
                           'id': item.id.toString(),
                           'product_id': item.id.toString(),
                           'current_stock': stockText,
@@ -372,15 +397,17 @@ class ItemWidget extends StatelessWidget {
                           'unit_price': priceText,
                           'discount': item.discount?.toString() ?? '0',
                           'discount_type': item.discountType ?? 'amount',
+                          'store_id':
+                              Get.find<ProfileController>()
+                                  .profileModel
+                                  ?.stores?[0]
+                                  .id
+                                  .toString() ??
+                              '',
+                          'category_id': item.categoryId?.toString() ?? '',
                         };
 
-                        storeController.stockUpdate(data, item.id!).then((
-                          isSuccess,
-                        ) {
-                          if (isSuccess) {
-                            Get.back();
-                          }
-                        });
+                        storeController.stockUpdate(data, item.id!);
                       },
                       child: Text('update'.tr),
                     );

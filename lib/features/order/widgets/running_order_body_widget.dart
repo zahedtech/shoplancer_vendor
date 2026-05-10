@@ -40,7 +40,10 @@ class RunningOrderBodyWidget extends StatelessWidget {
             }
 
             List<OrderModel> orderList = [];
-            if (orderController.runningOrders != null && orderController.runningOrders!.isNotEmpty && orderController.orderIndex < orderController.runningOrders!.length) {
+            if (orderController.runningOrders != null &&
+                orderController.runningOrders!.isNotEmpty &&
+                orderController.orderIndex <
+                    orderController.runningOrders!.length) {
               orderList = orderController
                   .runningOrders![orderController.orderIndex]
                   .orderList;
@@ -53,59 +56,58 @@ class RunningOrderBodyWidget extends StatelessWidget {
               ),
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault,
-                      ),
-                      child:
-                          (profileController.modulePermission?.order ?? false)
-                          ? Padding(
-                              padding: const EdgeInsets.only(
-                                top: Dimensions.paddingSizeDefault,
-                                bottom: Dimensions.paddingSizeSmall,
-                              ),
-                              child: InkWell(
-                                onTap: () =>
-                                    orderController.toggleCampaignOnly(),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: Checkbox(
-                                        side: BorderSide(
-                                          color: Theme.of(
-                                            context,
-                                          ).disabledColor,
-                                          width: 1,
-                                        ),
-                                        activeColor: Theme.of(
-                                          context,
-                                        ).primaryColor,
-                                        value: orderController.campaignOnly,
-                                        onChanged: (isActive) => orderController
-                                            .toggleCampaignOnly(),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: Dimensions.paddingSizeSmall,
-                                    ),
-                                    Text(
-                                      'campaign_orders_only'.tr,
-                                      style: robotoRegular.copyWith(
-                                        fontSize: Dimensions.fontSizeSmall,
-                                        color: Theme.of(context).disabledColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                    ),
-                  ),
-
+                  // SliverToBoxAdapter(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(
+                  //       horizontal: Dimensions.paddingSizeDefault,
+                  //     ),
+                  //     child:
+                  //         (profileController.modulePermission?.order ?? false)
+                  //         ? Padding(
+                  //             padding: const EdgeInsets.only(
+                  //               top: Dimensions.paddingSizeDefault,
+                  //               bottom: Dimensions.paddingSizeSmall,
+                  //             ),
+                  //             child: InkWell(
+                  //               onTap: () =>
+                  //                   orderController.toggleCampaignOnly(),
+                  //               child: Row(
+                  //                 children: [
+                  //                   SizedBox(
+                  //                     height: 24,
+                  //                     width: 24,
+                  //                     child: Checkbox(
+                  //                       side: BorderSide(
+                  //                         color: Theme.of(
+                  //                           context,
+                  //                         ).disabledColor,
+                  //                         width: 1,
+                  //                       ),
+                  //                       activeColor: Theme.of(
+                  //                         context,
+                  //                       ).primaryColor,
+                  //                       value: orderController.campaignOnly,
+                  //                       onChanged: (isActive) => orderController
+                  //                           .toggleCampaignOnly(),
+                  //                     ),
+                  //                   ),
+                  //                   const SizedBox(
+                  //                     width: Dimensions.paddingSizeSmall,
+                  //                   ),
+                  //                   Text(
+                  //                     'campaign_orders_only'.tr,
+                  //                     style: robotoRegular.copyWith(
+                  //                       fontSize: Dimensions.fontSizeSmall,
+                  //                       color: Theme.of(context).disabledColor,
+                  //                     ),
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //           )
+                  //         : SizedBox.shrink(),
+                  //   ),
+                  // ),
                   if (orderController.runningOrders != null)
                     SliverPersistentHeader(
                       pinned: true,

@@ -2,10 +2,11 @@ import 'package:get/get.dart';
 import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
 
 class Images {
-  static String get logo =>
-      Get.find<LocalizationController>().locale.languageCode == 'ar'
-      ? logoar
-      : logoen;
+  // static String get logo =>
+  //     Get.find<LocalizationController>().locale.languageCode == 'ar'
+  //     ? logoar
+  //     : logoen;
+  static const String logo = 'assets/image/logo.png';
   static const String arabic = 'assets/image/arabic.png';
   static const String english = 'assets/image/english.png';
   static const String bangla = 'assets/image/bangla.png';
@@ -188,4 +189,5 @@ class Images {
   static const String languageBg = 'assets/image/language_bg.svg';
   static const String logoen = 'assets/image/logo_en.jpeg';
   static const String logoar = 'assets/image/logo_ar.jpeg';
+  static const String whatsapp = 'assets/image/whatsapp.png';
 }

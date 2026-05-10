@@ -24,10 +24,7 @@ import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../common/widgets/custom_tool_tip_widget.dart';
 import '../../profile/domain/models/profile_model.dart' hide Module;
-import '../widgets/meta_seo_item_widget.dart';
 
 class StoreEditScreen extends StatefulWidget {
   final profile.Store store;
@@ -53,6 +50,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
   final List<FocusNode> _addressNode = [];
   final FocusNode _contactNode = FocusNode();
   final FocusNode _metaTitleNode = FocusNode();
+  // ignore: unused_field
   final FocusNode _metaDescriptionNode = FocusNode();
 
   late profile.Store _store;
@@ -63,8 +61,6 @@ class _StoreEditScreenState extends State<StoreEditScreen>
 
   final List<Translation>? translation =
       Get.find<ProfileController>().profileModel!.translations!;
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
   String? _countryDialCode;
   String? _countryCode;
 
@@ -92,9 +88,6 @@ class _StoreEditScreenState extends State<StoreEditScreen>
       _maxVideoPreviewController.text =
           widget.store.metaData!.metaMaxVideoPreviewValue?.toString() ?? '';
     }
-
-    _tabController = TabController(length: 1, vsync: this);
-    _tabs.add(const Tab(text: 'افتراضي'));
 
     for (int index = 0; index < _languageList!.length; index++) {
       _nameController.add(TextEditingController());
@@ -170,62 +163,13 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                           children: [
                             Text('basic_info'.tr, style: robotoBold),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
-                            SizedBox(
-                              height: 40,
-                              child: TabBar(
-                                tabAlignment: TabAlignment.start,
-                                controller: _tabController,
-                                indicatorColor: Theme.of(context).primaryColor,
-                                indicatorWeight: 3,
-                                labelColor: Theme.of(context).primaryColor,
-                                unselectedLabelColor: Theme.of(
-                                  context,
-                                ).hintColor,
-                                unselectedLabelStyle: robotoRegular.copyWith(
-                                  color: Theme.of(context).hintColor,
-                                  fontSize: Dimensions.fontSizeSmall,
-                                ),
-                                labelStyle: robotoBold.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault,
-                                ),
-                                labelPadding: const EdgeInsets.only(
-                                  right: Dimensions.paddingSizeLarge,
-                                ),
-                                indicatorPadding: const EdgeInsets.only(
-                                  right: Dimensions.paddingSizeLarge,
-                                ),
-                                isScrollable: true,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                dividerColor: Colors.transparent,
-                                tabs: _tabs,
-                                onTap: (int? value) {
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                bottom: Dimensions.paddingSizeSmall,
-                              ),
-                              child: Divider(height: 0),
-                            ),
-                            const SizedBox(
-                              height: Dimensions.paddingSizeDefault,
-                            ),
                             CustomTextFieldWidget(
-                              hintText:
-                                  '${_module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr} (${_languageList?[_tabController!.index].value!})',
-                              labelText:
-                                  '${_module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr} (${_languageList?[_tabController!.index].value!})',
-                              controller:
-                                  _nameController[_tabController!.index],
+                              hintText: _module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr,
+                              labelText: _module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr,
+                              controller: _nameController[0],
                               capitalization: TextCapitalization.words,
-                              focusNode: _nameNode[_tabController!.index],
-                              nextFocus:
-                                  _tabController!.index !=
-                                      _languageList!.length - 1
-                                  ? _addressNode[_tabController!.index]
-                                  : _contactNode,
+                              focusNode: _nameNode[0],
+                              nextFocus: _addressNode[0],
                               required: true,
                             ),
                           ],
@@ -266,13 +210,10 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                               height: Dimensions.paddingSizeExtraLarge,
                             ),
                             CustomTextFieldWidget(
-                              hintText:
-                                  '${'address'.tr} (${_languageList[_tabController!.index].value!})',
-                              labelText:
-                                  '${'address'.tr} (${_languageList[_tabController!.index].value!})',
-                              controller:
-                                  _addressController[_tabController!.index],
-                              focusNode: _addressNode[_tabController!.index],
+                              hintText: 'address'.tr,
+                              labelText: 'address'.tr,
+                              controller: _addressController[0],
+                              focusNode: _addressNode[0],
                               capitalization: TextCapitalization.sentences,
                               maxLines: 3,
                               nextFocus: _contactNode,
@@ -433,7 +374,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                      CustomCard(
+                      /*CustomCard(
                         width: context.width,
                         padding: const EdgeInsets.all(
                           Dimensions.paddingSizeDefault,
@@ -586,7 +527,7 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                           ],
                         ),
                       ),
-                      const SizedBox(height: Dimensions.paddingSizeDefault),
+                      const SizedBox(height: Dimensions.paddingSizeDefault),*/
 
                       /*/// Meta Section
                       CustomCard(
@@ -1371,9 +1312,9 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                     } else if (widget.store.logoFullUrl == null &&
                         storeController.rawLogo == null) {
                       showCustomSnackBar('upload_business_logo'.tr);
-                    } else if (widget.store.coverPhotoFullUrl == null &&
+                    /*} else if (widget.store.coverPhotoFullUrl == null &&
                         storeController.rawCover == null) {
-                      showCustomSnackBar('upload_cover_image'.tr);
+                      showCustomSnackBar('upload_cover_image'.tr);*/
                     /*} else if (metaTitle.isEmpty) {
                       showCustomSnackBar('enter_meta_title'.tr);
                     } else if (metaDescription.isEmpty) {
@@ -1383,26 +1324,21 @@ class _StoreEditScreenState extends State<StoreEditScreen>
 
                       for (
                         int index = 0;
-                        index < _languageList.length;
+                        index < _languageList!.length;
                         index++
                       ) {
                         translation.add(
                           Translation(
                             locale: _languageList[index].key,
                             key: 'name',
-                            value: _nameController[index].text.trim().isNotEmpty
-                                ? _nameController[index].text.trim()
-                                : _nameController[0].text.trim(),
+                            value: _nameController[0].text.trim(),
                           ),
                         );
                         translation.add(
                           Translation(
                             locale: _languageList[index].key,
                             key: 'address',
-                            value:
-                                _addressController[index].text.trim().isNotEmpty
-                                ? _addressController[index].text.trim()
-                                : _addressController[0].text.trim(),
+                            value: _addressController[0].text.trim(),
                           ),
                         );
                       }

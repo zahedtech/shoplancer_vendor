@@ -109,8 +109,6 @@ class _AddItemScreenState extends State<AddItemScreen>
 
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
 
   @override
   void initState() {
@@ -134,29 +132,30 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
     storeController.clearVatTax();
 
-    _tabController = TabController(length: 1, vsync: this);
-    _tabs.add(const Tab(text: 'افتراضي'));
+    _nameControllerList.add(TextEditingController());
+    _descriptionControllerList.add(TextEditingController());
+    _nameFocusList.add(FocusNode());
+    _descriptionFocusList.add(FocusNode());
 
-    for (int index = 0; index < _languageList!.length; index++) {
-      _nameControllerList.add(TextEditingController());
-      _descriptionControllerList.add(TextEditingController());
-      _nameFocusList.add(FocusNode());
-      _descriptionFocusList.add(FocusNode());
-
+    if (_update) {
       if (widget.item?.translations != null) {
         for (var translation in widget.item!.translations!) {
-          if (_languageList[index].key == translation.locale &&
-              translation.key == 'name') {
-            _nameControllerList[index] = TextEditingController(
-              text: translation.value ?? '',
-            );
-          } else if (_languageList[index].key == translation.locale &&
+          if (translation.locale == 'ar' && translation.key == 'name') {
+            _nameControllerList[0].text = translation.value ?? '';
+          } else if (translation.locale == 'ar' &&
               translation.key == 'description') {
-            _descriptionControllerList[index] = TextEditingController(
-              text: translation.value ?? '',
-            );
+            _descriptionControllerList[0].text = translation.value ?? '';
           }
         }
+      }
+      
+      // Fallback if translations are empty or 'ar' not found
+      if (_nameControllerList[0].text.isEmpty && widget.item?.name != null) {
+        _nameControllerList[0].text = widget.item!.name!;
+      }
+      if (_descriptionControllerList[0].text.isEmpty && 
+          widget.item?.description != null) {
+        _descriptionControllerList[0].text = widget.item!.description!;
       }
     }
 
@@ -500,61 +499,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            SizedBox(
-                                              height: 40,
-                                              child: TabBar(
-                                                tabAlignment:
-                                                    TabAlignment.start,
-                                                controller: _tabController,
-                                                indicatorColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                indicatorWeight: 3,
-                                                labelColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                unselectedLabelColor: Theme.of(
-                                                  context,
-                                                ).disabledColor,
-                                                unselectedLabelStyle:
-                                                    robotoRegular.copyWith(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      fontSize: Dimensions
-                                                          .fontSizeSmall,
-                                                    ),
-                                                labelStyle: robotoBold.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                                ),
-                                                labelPadding:
-                                                    const EdgeInsets.only(
-                                                      right: Dimensions
-                                                          .radiusDefault,
-                                                    ),
-                                                isScrollable: true,
-                                                indicatorSize:
-                                                    TabBarIndicatorSize.tab,
-                                                dividerColor:
-                                                    Colors.transparent,
-                                                tabs: _tabs,
-                                                onTap: (int? value) {
-                                                  setState(() {});
-                                                },
-                                              ),
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsets.only(
-                                                bottom:
-                                                    Dimensions.paddingSizeLarge,
-                                              ),
-                                              child: Divider(height: 0),
-                                            ),
-
                                             Text(
                                               'insert_language_wise_item_name_and_description'
                                                   .tr,
@@ -575,19 +519,12 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               hintText: 'name'.tr,
                                               labelText: 'name'.tr,
                                               controller:
-                                                  _nameControllerList[_tabController!
-                                                      .index],
+                                                  _nameControllerList[0],
                                               capitalization:
                                                   TextCapitalization.words,
                                               focusNode:
-                                                  _nameFocusList[_tabController!
-                                                      .index],
-                                              nextFocus:
-                                                  _tabController!.index !=
-                                                      _languageList!.length - 1
-                                                  ? _descriptionFocusList[_tabController!
-                                                        .index]
-                                                  : _descriptionFocusList[0],
+                                                  _nameFocusList[0],
+                                              nextFocus: _descriptionFocusList[0],
                                               showTitle: false,
                                             ),
                                             const SizedBox(
@@ -599,26 +536,13 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               hintText: 'description'.tr,
                                               labelText: 'description'.tr,
                                               controller:
-                                                  _descriptionControllerList[_tabController!
-                                                      .index],
+                                                  _descriptionControllerList[0],
                                               focusNode:
-                                                  _descriptionFocusList[_tabController!
-                                                      .index],
+                                                  _descriptionFocusList[0],
                                               capitalization:
                                                   TextCapitalization.sentences,
                                               maxLines: 3,
-                                              inputAction:
-                                                  _tabController!.index !=
-                                                      _languageList.length - 1
-                                                  ? TextInputAction.next
-                                                  : TextInputAction.done,
-                                              nextFocus:
-                                                  _tabController!.index !=
-                                                      _languageList.length - 1
-                                                  ? _nameFocusList[_tabController!
-                                                            .index +
-                                                        1]
-                                                  : null,
+                                              inputAction: TextInputAction.done,
                                               showTitle: false,
                                             ),
                                           ],
@@ -2757,45 +2681,29 @@ class _AddItemScreenState extends State<AddItemScreen>
                                       List<Translation> translations = [];
                                       for (
                                         int index = 0;
-                                        index < _languageList.length;
+                                        index < _languageList!.length;
                                         index++
                                       ) {
                                         translations.add(
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'name',
-                                            value:
-                                                _nameControllerList[index].text
-                                                    .trim()
-                                                    .isNotEmpty
-                                                ? _nameControllerList[index]
-                                                      .text
-                                                      .trim()
-                                                : _nameControllerList[0].text
-                                                      .trim(),
+                                            value: _nameControllerList[0].text.trim(),
                                           ),
                                         );
                                         translations.add(
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'description',
-                                            value:
-                                                _descriptionControllerList[index]
-                                                    .text
-                                                    .trim()
-                                                    .isNotEmpty
-                                                ? _descriptionControllerList[index]
-                                                      .text
-                                                      .trim()
-                                                : _descriptionControllerList[0]
-                                                      .text
-                                                      .trim(),
+                                            value: _descriptionControllerList[0].text.trim(),
                                           ),
                                         );
                                       }
 
                                       _item.translations = [];
                                       _item.translations!.addAll(translations);
+                                      _item.name = _nameControllerList[0].text.trim();
+                                      _item.description = _descriptionControllerList[0].text.trim();
 
                                       _item.brandId =
                                           storeController.brandList != null &&

@@ -23,7 +23,7 @@ class _BannerListScreenState extends State<BannerListScreen> {
   final tooltipController = JustTheController();
   @override
   void initState() {
-    Get.find<BannerController>().getBannerList();
+    Get.find<BannerController>().getBannerList(willUpdate: false);
     super.initState();
   }
 
@@ -126,11 +126,7 @@ class _BannerListScreenState extends State<BannerListScreen> {
 
                             InkWell(
                               onTap: (){
-                                bannerController.getBannerDetails(bannerController.storeBannerList![index].id!).then((bannerDetails) {
-                                  if(bannerDetails != null) {
-                                    Get.toNamed(RouteHelper.getAddBannerRoute(storeBannerListModel: bannerDetails));
-                                  }
-                                });
+                                Get.toNamed(RouteHelper.getAddBannerRoute(storeBannerListModel: bannerController.storeBannerList![index]));
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),

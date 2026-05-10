@@ -7,21 +7,22 @@ class CustomAppBarWidget extends StatelessWidget implements PreferredSizeWidget 
   final String? title;
   final bool isBackButtonExist;
   final Widget? menuWidget;
+  final Widget? leadingWidget;
   final Function? onTap;
   final Widget? titleWidget;
   final TabBar? bottom;
-  const CustomAppBarWidget({super.key, this.title, this.isBackButtonExist = true, this.menuWidget, this.onTap, this.titleWidget, this.bottom});
+  const CustomAppBarWidget({super.key, this.title, this.isBackButtonExist = true, this.menuWidget, this.leadingWidget, this.onTap, this.titleWidget, this.bottom});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       title: titleWidget ?? Text(title!, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge!.color)),
       centerTitle: true,
-      leading: isBackButtonExist ? IconButton(
+      leading: leadingWidget ?? (isBackButtonExist ? IconButton(
         icon: const Icon(Icons.arrow_back_ios),
         color: Theme.of(context).textTheme.bodyLarge!.color,
         onPressed: onTap as void Function()? ?? () => Get.back(),
-      ) : const SizedBox(),
+      ) : const SizedBox()),
       backgroundColor: Theme.of(context).cardColor,
       surfaceTintColor: Theme.of(context).cardColor,
       shadowColor: Theme.of(context).disabledColor.withValues(alpha: 0.5),

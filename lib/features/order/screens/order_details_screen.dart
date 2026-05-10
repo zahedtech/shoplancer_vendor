@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:share_plus/share_plus.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -118,6 +119,41 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     _timer?.cancel();
   }
 
+  void _shareInvoice(OrderController controller) {
+    String invoiceText = "${'order_id'.tr}: ${controller.orderModel!.id}\n";
+    invoiceText +=
+        "${'order_date'.tr}: ${DateConverterHelper.dateTimeStringToMonthAndTime(controller.orderModel!.createdAt!)}\n";
+    invoiceText +=
+        "${'customer_name'.tr} ${controller.orderModel!.deliveryAddress?.contactPersonName ?? ''}\n";
+    invoiceText +=
+        "${'payment_method'.tr}: ${controller.orderModel!.paymentMethod!.tr}\n\n";
+
+    invoiceText += "${'items'.tr}:\n";
+    for (OrderDetailsModel detail in controller.orderDetailsModel!) {
+      invoiceText +=
+          "- ${detail.itemDetails!.name} x ${detail.quantity} = ${PriceConverterHelper.convertPrice(detail.price! * detail.quantity!)}\n";
+      if (detail.addOns != null && detail.addOns!.isNotEmpty) {
+        invoiceText += "  ${'addons'.tr}: ";
+        for (int i = 0; i < detail.addOns!.length; i++) {
+          invoiceText +=
+              "${detail.addOns![i].name} (${detail.addOns![i].quantity})${i == detail.addOns!.length - 1 ? '' : ', '}";
+        }
+        invoiceText += "\n";
+      }
+    }
+
+    invoiceText +=
+        "\n${'item_price'.tr}: ${PriceConverterHelper.convertPrice(controller.orderModel!.orderAmount! - controller.orderModel!.deliveryCharge! - controller.orderModel!.totalTaxAmount! + controller.orderModel!.storeDiscountAmount!)}\n";
+    invoiceText +=
+        "${'delivery_fee'.tr}: ${PriceConverterHelper.convertPrice(controller.orderModel!.deliveryCharge!)}\n";
+    invoiceText +=
+        "${'vat_tax'.tr}: ${PriceConverterHelper.convertPrice(controller.orderModel!.totalTaxAmount!)}\n";
+    invoiceText +=
+        "${'total_amount'.tr}: ${PriceConverterHelper.convertPrice(controller.orderModel!.orderAmount!)}";
+
+    Share.share(invoiceText);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool? cancelPermission =
@@ -177,10 +213,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               );
             },
           ),
-          menuWidget: Platform.isAndroid
-              ? GetBuilder<OrderController>(
-                  builder: (controller) {
-                    return GestureDetector(
+          menuWidget: GetBuilder<OrderController>(
+            builder: (controller) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (controller.orderModel != null &&
+                          controller.orderDetailsModel != null) {
+                        _shareInvoice(controller);
+                      }
+                    },
+                    icon: Icon(Icons.share,
+                        color: Theme.of(context).primaryColor),
+                  ),
+                  if (Platform.isAndroid)
+                    GestureDetector(
                       onTap: () {
                         _allowPermission().then((access) {
                           Get.dialog(
@@ -205,10 +254,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset(Images.downloadIcon),
                       ),
-                    );
-                  },
-                )
-              : null,
+                    ),
+                ],
+              );
+            },
+          ),
           onTap: () {
             if (widget.fromNotification) {
               Get.offAllNamed(RouteHelper.getInitialRoute());
@@ -235,9 +285,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                         controllerOrderModel.orderStatus == 'processing' ||
                         (controllerOrderModel.orderStatus == 'accepted' &&
                             controllerOrderModel.confirmed != null) ||
-                        (controllerOrderModel.orderStatus == 'handover' &&
-                            (selfDelivery ||
-                                controllerOrderModel.orderType == 'take_away'))
+                        controllerOrderModel.orderStatus == 'handover' ||
+                        controllerOrderModel.orderStatus == 'picked_up'
                   : false;
               bool showBottomView = controllerOrderModel != null
                   ? showSlider ||
@@ -2627,7 +2676,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                 ),
                               )
                             : showBottomView
-                            ? (controllerOrderModel.orderStatus == 'picked_up')
+                                ? false
                                   ? Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal:
@@ -3014,13 +3063,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                           }
                                                         });
                                                   }
-                                                } else if ((controllerOrderModel
+                                                } else if (controllerOrderModel
                                                             .orderStatus ==
-                                                        'handover' &&
-                                                    (controllerOrderModel
-                                                                .orderType ==
-                                                            'take_away' ||
-                                                        selfDelivery))) {
+                                                        'handover') {
+                                                  Get.find<OrderController>()
+                                                      .updateOrderStatus(
+                                                    controllerOrderModel.id,
+                                                    AppConstants.pickedUp,
+                                                  );
+                                                } else if (controllerOrderModel
+                                                            .orderStatus ==
+                                                        'picked_up') {
                                                   if (Get.find<
                                                             SplashController
                                                           >()
@@ -3116,13 +3169,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                           .tr
                                                     : (controllerOrderModel
                                                                   .orderStatus ==
-                                                              'handover' &&
-                                                          (controllerOrderModel
-                                                                      .orderType ==
-                                                                  'take_away' ||
-                                                              selfDelivery))
-                                                    ? 'swipe_to_deliver_order'
-                                                          .tr
+                                                              'handover')
+                                                    ? 'swipe_to_picked_up'.tr
+                                                    : (controllerOrderModel
+                                                                  .orderStatus ==
+                                                              'picked_up')
+                                                    ? 'swipe_to_deliver_order'.tr
                                                     : '',
                                                 style: robotoMedium.copyWith(
                                                   fontSize:

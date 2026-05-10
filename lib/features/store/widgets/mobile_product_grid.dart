@@ -62,34 +62,21 @@ class MobileProductGrid extends StatelessWidget {
           );
         }
 
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          child: ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: (items.length / 2).ceil(),
-            itemBuilder: (context, index) {
-              int firstIndex = index * 2;
-              int secondIndex = firstIndex + 1;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: MinimalProductCard(item: items[firstIndex]),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: secondIndex < items.length
-                          ? MinimalProductCard(item: items[secondIndex])
-                          : const SizedBox(),
-                    ),
-                  ],
-                ),
-              );
-            },
+        return GridView.builder(
+          key: UniqueKey(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 0.80,
           ),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return MinimalProductCard(item: items[index]);
+          },
         );
       },
     );
@@ -101,25 +88,20 @@ class _ProductShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: 4,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Row(
-              children: [
-                Expanded(child: _buildShimmerItem(context)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildShimmerItem(context)),
-              ],
-            ),
-          );
-        },
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 0.72,
       ),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        return _buildShimmerItem(context);
+      },
     );
   }
 
@@ -130,7 +112,9 @@ class _ProductShimmer extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-          border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.1)),
+          border: Border.all(
+            color: Theme.of(context).disabledColor.withOpacity(0.1),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,18 +132,36 @@ class _ProductShimmer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 14, width: 100, color: Theme.of(context).disabledColor.withOpacity(0.1)),
+                  Container(
+                    height: 14,
+                    width: 100,
+                    color: Theme.of(context).disabledColor.withOpacity(0.1),
+                  ),
                   const SizedBox(height: 8),
-                  Container(height: 12, width: 60, color: Theme.of(context).disabledColor.withOpacity(0.1)),
+                  Container(
+                    height: 12,
+                    width: 60,
+                    color: Theme.of(context).disabledColor.withOpacity(0.1),
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(height: 20, width: 50, color: Theme.of(context).disabledColor.withOpacity(0.1)),
-                      Container(height: 36, width: 36, decoration: BoxDecoration(
+                      Container(
+                        height: 20,
+                        width: 50,
                         color: Theme.of(context).disabledColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      )),
+                      ),
+                      Container(
+                        height: 36,
+                        width: 36,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).disabledColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ],
                   ),
                 ],

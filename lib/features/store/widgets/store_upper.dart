@@ -1,12 +1,17 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
 import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
+import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
 import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
 import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
 import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart_store/helper/route_helper.dart';
+import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:sixam_mart_store/util/images.dart';
 import 'package:sixam_mart_store/util/styles.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreUpper extends StatefulWidget {
   final List<StoreBannerListModel>? banners;
@@ -18,13 +23,14 @@ class StoreUpper extends StatefulWidget {
 }
 
 class _StoreUpperState extends State<StoreUpper> {
-  int _currentBannerIndex = 0;
+  // ignore: unused_field
+  final int _currentBannerIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Banner Section
+        /*// Banner Section
         if (widget.banners != null && widget.banners!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 0),
@@ -79,7 +85,7 @@ class _StoreUpperState extends State<StoreUpper> {
                 ),
               ],
             ),
-          ),
+          ),*/
 
         // Store Details Section
         Container(
@@ -167,7 +173,140 @@ class _StoreUpperState extends State<StoreUpper> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Get.toNamed(RouteHelper.getAddItemRoute(null));
+                          Get.dialog(
+                            AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusExtraLarge,
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.zero,
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical:
+                                          Dimensions.paddingSizeExtraLarge,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.05),
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(
+                                          Dimensions.radiusExtraLarge,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            height: 100,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.withOpacity(
+                                                0.1,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          Image.asset(
+                                            Images.whatsapp,
+                                            height: 60,
+                                            width: 60,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(
+                                      Dimensions.paddingSizeLarge,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'add_missing_store_item_title'.tr,
+                                          textAlign: TextAlign.center,
+                                          style: robotoBold.copyWith(
+                                            fontSize:
+                                                Dimensions.fontSizeExtraLarge,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
+                                        ),
+                                        Text(
+                                          'contact_to_add_item'.tr,
+                                          textAlign: TextAlign.center,
+                                          style: robotoRegular.copyWith(
+                                            fontSize: Dimensions.fontSizeLarge,
+                                            color: Theme.of(context).hintColor,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeDefault,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                buttonText: 'cancel'.tr,
+                                                icon: Icons.cancel_outlined,
+                                                iconColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withValues(alpha: 0.2),
+                                                textColor: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+
+                                                onPressed: () => Get.back(),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width:
+                                                  Dimensions.paddingSizeSmall,
+                                            ),
+                                            Expanded(
+                                              child: CustomButtonWidget(
+                                                buttonText: 'whatsapp'.tr,
+                                                icon: Icons.chat_bubble_outline,
+                                                color: Colors.green,
+                                                onPressed: () async {
+                                                  var url =
+                                                      "https://wa.me/972598765425";
+                                                  if (await canLaunchUrl(
+                                                    Uri.parse(url),
+                                                  )) {
+                                                    await launchUrl(
+                                                      Uri.parse(url),
+                                                      mode: LaunchMode
+                                                          .externalApplication,
+                                                    );
+                                                  } else {
+                                                    showCustomSnackBar(
+                                                      'can_not_launch_url'.tr,
+                                                    );
+                                                  }
+                                                  Get.back();
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
                         icon: Icon(
                           Icons.add_circle_outline_rounded,
@@ -187,40 +326,42 @@ class _StoreUpperState extends State<StoreUpper> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem(
-                    context,
-                    Icons.star_rounded,
-                    widget.store?.avgRating?.toStringAsFixed(1) ?? "0.0",
-                    'Rating',
+                  InkWell(
+                    onTap: () {
+                      if (widget.store?.slug != null) {
+                        final String slug = Uri.encodeComponent(
+                          widget.store!.slug!.trim(),
+                        );
+                        String storeUrl =
+                            'https://market.shoplanser.com/store/$slug';
+                        Share.share(storeUrl);
+                      }
+                    },
+                    child: _buildStatItem(
+                      context,
+                      Icons.share_outlined,
+                      'share'.tr,
+                      'store_link'.tr,
+                    ),
                   ),
                   _buildStatItem(
                     context,
                     Icons.shopping_bag_outlined,
                     '${widget.store?.totalOrder ?? 0}',
-                    'Orders',
+                    'orders'.tr,
                   ),
                   _buildStatItem(
                     context,
                     Icons.inventory_2_outlined,
                     '${widget.store?.totalItems ?? 0}',
-                    'Items',
+                    'items'.tr,
                   ),
                 ],
               ),
             ],
           ),
         ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: OutlinedButton.icon(
-              onPressed: () => Get.toNamed(RouteHelper.getStoreLinkRoute()),
-              icon: const Icon(Icons.qr_code),
-              label: Text('store_link'.tr),
-            ),
-          ),
-        ),
+
         // Category Selection
         GetBuilder<StoreController>(
           builder: (storeController) {

@@ -78,15 +78,11 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: _languageList!.length,
-      initialIndex: 0,
-      vsync: this,
-    );
+    _tabController = TabController(length: 1, initialIndex: 0, vsync: this);
     _countryDialCode = CountryCode.fromCountryCode(
       Get.find<SplashController>().configModel!.country!,
     ).dialCode;
-    for (var language in _languageList) {
+    for (var language in _languageList!) {
       if (kDebugMode) {
         print(language);
       }
@@ -235,81 +231,19 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       ),
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: Dimensions.paddingSizeSmall,
-                                        vertical: Dimensions.paddingSizeDefault,
                                       ),
                                       child: Column(
                                         children: [
-                                          SizedBox(
-                                            height: 40,
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: TabBar(
-                                                tabAlignment:
-                                                    TabAlignment.start,
-                                                controller: _tabController,
-                                                indicatorColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                indicatorWeight: 3,
-                                                labelColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                unselectedLabelColor: Theme.of(
-                                                  context,
-                                                ).disabledColor,
-                                                unselectedLabelStyle:
-                                                    robotoRegular.copyWith(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      fontSize: Dimensions
-                                                          .fontSizeSmall,
-                                                    ),
-                                                labelStyle: robotoBold.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                                ),
-                                                labelPadding:
-                                                    const EdgeInsets.only(
-                                                      right: Dimensions
-                                                          .radiusDefault,
-                                                    ),
-                                                isScrollable: true,
-                                                indicatorSize:
-                                                    TabBarIndicatorSize.tab,
-                                                tabs: _tabs,
-                                                onTap: (int? value) {
-                                                  setState(() {});
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(
-                                              bottom:
-                                                  Dimensions.paddingSizeLarge,
-                                            ),
-                                            child: Divider(height: 0),
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeLarge,
                                           ),
 
                                           CustomTextFieldWidget(
                                             hintText: 'write_vendor_name'.tr,
                                             labelText: 'vendor_name'.tr,
-                                            controller:
-                                                _nameController[_tabController!
-                                                    .index],
-                                            focusNode:
-                                                _nameFocus[_tabController!
-                                                    .index],
-                                            nextFocus:
-                                                _tabController!.index !=
-                                                    _languageList!.length - 1
-                                                ? _addressFocus[_tabController!
-                                                      .index]
-                                                : _addressFocus[0],
+                                            controller: _nameController[0],
+                                            focusNode: _nameFocus[0],
+                                            nextFocus: _addressFocus[0],
                                             inputType: TextInputType.name,
                                             prefixImage: Images.shopIcon,
                                             capitalization:
@@ -1872,118 +1806,301 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     ),
                                     child: Column(
                                       children: [
-                                        if (Get.find<SplashController>()
-                                                .configModel!
-                                                .commissionBusinessModel !=
-                                            0)
-                                          InkWell(
-                                            onTap: () =>
-                                                authController.setBusiness(0),
-                                            child: PackageCardWidget(
-                                              currentIndex:
-                                                  authController
-                                                          .businessIndex ==
-                                                      0
-                                                  ? 0
-                                                  : null,
-                                              package: Packages(
-                                                id: -1,
-                                                packageName:
-                                                    'commission_base'.tr,
-                                                price:
-                                                    Get.find<SplashController>()
-                                                        .configModel!
-                                                        .adminCommission
-                                                        ?.toDouble() ??
+                                        // Commission/Subscription Toggle
+                                        Container(
+                                          height: 45,
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            borderRadius: BorderRadius.circular(
+                                              Dimensions.radiusDefault,
+                                            ),
+                                            border: Border.all(
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: InkWell(
+                                                  onTap: () => authController.setBusiness(
                                                     0,
-                                                description:
-                                                    "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName} ${'from_each_order_You_will_get_access_of_all'.tr}",
+                                                    moduleId:
+                                                        addressController
+                                                                .selectedModuleIndex !=
+                                                            -1
+                                                        ? addressController
+                                                              .moduleList![addressController
+                                                                  .selectedModuleIndex!]
+                                                              .id
+                                                        : null,
+                                                  ),
+                                                  child: Container(
+                                                    alignment: Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          authController
+                                                                  .businessIndex ==
+                                                              0
+                                                          ? Theme.of(
+                                                              context,
+                                                            ).primaryColor
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            Dimensions
+                                                                    .radiusDefault -
+                                                                2,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      'commission'.tr,
+                                                      style: robotoMedium.copyWith(
+                                                        color:
+                                                            authController
+                                                                    .businessIndex ==
+                                                                0
+                                                            ? Colors.white
+                                                            : Theme.of(
+                                                                context,
+                                                              ).primaryColor,
+                                                        fontSize: Dimensions
+                                                            .fontSizeSmall,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
+                                              const SizedBox(width: 2),
+                                              Expanded(
+                                                child: InkWell(
+                                                  onTap: () => authController.setBusiness(
+                                                    1,
+                                                    moduleId:
+                                                        addressController
+                                                                .selectedModuleIndex !=
+                                                            -1
+                                                        ? addressController
+                                                              .moduleList![addressController
+                                                                  .selectedModuleIndex!]
+                                                              .id
+                                                        : null,
+                                                  ),
+                                                  child: Container(
+                                                    alignment: Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          authController
+                                                                  .businessIndex ==
+                                                              1
+                                                          ? Theme.of(
+                                                              context,
+                                                            ).primaryColor
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            Dimensions
+                                                                    .radiusDefault -
+                                                                2,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      'subscription'.tr,
+                                                      style: robotoMedium.copyWith(
+                                                        color:
+                                                            authController
+                                                                    .businessIndex ==
+                                                                1
+                                                            ? Colors.white
+                                                            : Theme.of(
+                                                                context,
+                                                              ).primaryColor,
+                                                        fontSize: Dimensions
+                                                            .fontSizeSmall,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeLarge,
+                                        ),
+
+                                        if (authController.businessIndex == 0)
+                                          PackageCardWidget(
+                                            currentIndex: 0,
+                                            package: Packages(
+                                              id: -1,
+                                              packageName: 'commission_base'.tr,
+                                              price:
+                                                  Get.find<SplashController>()
+                                                      .configModel!
+                                                      .adminCommission
+                                                      ?.toDouble() ??
+                                                  0,
+                                              description:
+                                                  "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName}",
                                             ),
                                           ),
 
-                                        if (Get.find<SplashController>()
-                                                    .configModel!
-                                                    .subscriptionBusinessModel !=
-                                                0 &&
-                                            authController.packageModel != null)
-                                          ListView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            itemCount: authController
-                                                .packageModel!
-                                                .packages!
-                                                .length,
-                                            itemBuilder: (context, index) {
-                                              Packages package = authController
-                                                  .packageModel!
-                                                  .packages![index];
-                                              bool isRentalModule =
-                                                  addressController
-                                                          .moduleList !=
-                                                      null &&
-                                                  addressController
-                                                          .selectedModuleIndex !=
-                                                      -1 &&
-                                                  addressController
-                                                          .moduleList![addressController
-                                                              .selectedModuleIndex!]
-                                                          .moduleType ==
-                                                      'rental';
-
-                                              return InkWell(
-                                                onTap: () {
-                                                  authController.setBusiness(1);
-                                                  authController
-                                                      .selectSubscriptionCard(
-                                                        index,
-                                                      );
-                                                },
-                                                child: PackageCardWidget(
-                                                  currentIndex:
-                                                      (authController
-                                                                  .businessIndex ==
-                                                              1 &&
-                                                          authController
-                                                                  .activeSubscriptionIndex ==
-                                                              index)
-                                                      ? index
-                                                      : null,
-                                                  package: package,
-                                                  isRental: isRentalModule,
+                                        if (authController.businessIndex ==
+                                            1) ...[
+                                          // Subscription Interval Toggle
+                                          Container(
+                                            height: 45,
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .disabledColor
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    Dimensions.radiusDefault,
+                                                  ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                _subscriptionTypeButton(
+                                                  authController,
+                                                  0,
+                                                  '1_to_3_month'.tr,
                                                 ),
-                                              );
-                                            },
+                                                const SizedBox(width: 4),
+                                                _subscriptionTypeButton(
+                                                  authController,
+                                                  1,
+                                                  '4_to_6_month'.tr,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                _subscriptionTypeButton(
+                                                  authController,
+                                                  2,
+                                                  'more_than_6_month'.tr,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeLarge,
                                           ),
 
-                                        if (Get.find<SplashController>()
-                                                    .configModel!
-                                                    .subscriptionBusinessModel !=
-                                                0 &&
+                                          if (authController.packageModel !=
+                                              null)
+                                            ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              itemCount: authController
+                                                  .packageModel!
+                                                  .packages!
+                                                  .where((p) {
+                                                    int months =
+                                                        (p.validity ?? 0) ~/ 30;
+                                                    if (authController
+                                                            .subscriptionTypeIndex ==
+                                                        0)
+                                                      return months >= 1 &&
+                                                          months <= 3;
+                                                    if (authController
+                                                            .subscriptionTypeIndex ==
+                                                        1)
+                                                      return months >= 4 &&
+                                                          months <= 6;
+                                                    return months > 6;
+                                                  })
+                                                  .length,
+                                              itemBuilder: (context, index) {
+                                                List<Packages>
+                                                filteredList = authController
+                                                    .packageModel!
+                                                    .packages!
+                                                    .where((p) {
+                                                      int months =
+                                                          (p.validity ?? 0) ~/
+                                                          30;
+                                                      if (authController
+                                                              .subscriptionTypeIndex ==
+                                                          0)
+                                                        return months >= 1 &&
+                                                            months <= 3;
+                                                      if (authController
+                                                              .subscriptionTypeIndex ==
+                                                          1)
+                                                        return months >= 4 &&
+                                                            months <= 6;
+                                                      return months > 6;
+                                                    })
+                                                    .toList();
+
+                                                Packages package =
+                                                    filteredList[index];
+                                                int originalIndex =
+                                                    authController
+                                                        .packageModel!
+                                                        .packages!
+                                                        .indexOf(package);
+
+                                                return InkWell(
+                                                  onTap: () => authController
+                                                      .selectSubscriptionCard(
+                                                        originalIndex,
+                                                      ),
+                                                  child: PackageCardWidget(
+                                                    currentIndex:
+                                                        authController
+                                                                .activeSubscriptionIndex ==
+                                                            originalIndex
+                                                        ? index
+                                                        : null,
+                                                    package: package,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+
+                                          if (authController.packageModel !=
+                                                  null &&
+                                              authController
+                                                  .packageModel!
+                                                  .packages!
+                                                  .where((p) {
+                                                    int months =
+                                                        (p.validity ?? 0) ~/ 30;
+                                                    if (authController
+                                                            .subscriptionTypeIndex ==
+                                                        0)
+                                                      return months >= 1 &&
+                                                          months <= 3;
+                                                    if (authController
+                                                            .subscriptionTypeIndex ==
+                                                        1)
+                                                      return months >= 4 &&
+                                                          months <= 6;
+                                                    return months > 6;
+                                                  })
+                                                  .isEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                top:
+                                                    Dimensions.paddingSizeLarge,
+                                              ),
+                                              child: Text(
+                                                'no_package_available'.tr,
+                                                style: robotoMedium,
+                                              ),
+                                            ),
+                                        ],
+
+                                        if (authController.businessIndex == 1 &&
                                             authController.packageModel == null)
                                           const Center(
                                             child: CircularProgressIndicator(),
-                                          ),
-
-                                        if (Get.find<SplashController>()
-                                                    .configModel!
-                                                    .subscriptionBusinessModel !=
-                                                0 &&
-                                            authController.packageModel !=
-                                                null &&
-                                            authController
-                                                .packageModel!
-                                                .packages!
-                                                .isEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: Dimensions.paddingSizeLarge,
-                                            ),
-                                            child: Text(
-                                              'no_package_available'.tr,
-                                              style: robotoMedium,
-                                            ),
                                           ),
                                       ],
                                     ),
@@ -2019,6 +2136,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                           ),
                           onPressed: () {
                             bool defaultNameNull = false;
+                            // ignore: unused_local_variable
                             bool defaultAddressNull = false;
 
                             if (_nameController[0].text.trim().isEmpty) {
@@ -2036,13 +2154,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                             if (phone.startsWith('0')) {
                               phone = phone.substring(1);
                             }
-                            String email = _emailController.text.trim();
                             String password = _passwordController.text.trim();
                             String confirmPassword = _confirmPasswordController
                                 .text
                                 .trim();
                             String phoneWithCountryCode =
                                 _countryDialCode! + phone;
+                            String email = _emailController.text.trim();
+                            if (email.isEmpty) {
+                              email = '$phoneWithCountryCode@gmail.com';
+                            }
                             bool valid = false;
                             bool isRentalModule =
                                 addressController.moduleList != null &&
@@ -2148,14 +2269,17 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                               List<Translation> translation = [];
                               for (
                                 int index = 0;
-                                index < _languageList.length;
+                                index < _languageList!.length;
                                 index++
                               ) {
                                 translation.add(
                                   Translation(
                                     locale: _languageList[index].key,
                                     key: 'name',
-                                    value: _nameController[index].text.trim().isNotEmpty
+                                    value:
+                                        _nameController[index].text
+                                            .trim()
+                                            .isNotEmpty
                                         ? _nameController[index].text.trim()
                                         : _nameController[0].text.trim(),
                                   ),
@@ -2164,7 +2288,10 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                   Translation(
                                     locale: _languageList[index].key,
                                     key: 'address',
-                                    value: _addressController[index].text.trim().isNotEmpty
+                                    value:
+                                        _addressController[index].text
+                                            .trim()
+                                            .isNotEmpty
                                         ? _addressController[index].text.trim()
                                         : _addressController[0].text.trim(),
                                   ),
@@ -2248,6 +2375,41 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
           },
         );
       },
+    );
+  }
+
+  Widget _subscriptionTypeButton(
+    AuthController authController,
+    int index,
+    String text,
+  ) {
+    bool isSelected = authController.subscriptionTypeIndex == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => authController.setSubscriptionTypeIndex(index),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault - 2),
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: robotoMedium.copyWith(
+              color: isSelected
+                  ? Colors.white
+                  : Theme.of(context).disabledColor,
+              fontSize: 11,
+            ),
+          ),
+        ),
+      ),
     );
   }
 

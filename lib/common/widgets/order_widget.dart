@@ -147,7 +147,7 @@ class OrderWidget extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "Customer Name:",
+                        "customer_name".tr,
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.fontSizeSmall,
                           color: Theme.of(

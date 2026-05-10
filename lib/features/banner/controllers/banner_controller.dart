@@ -22,7 +22,7 @@ class BannerController extends GetxController implements GetxService {
     update();
     bool isSuccess = await bannerServiceInterface.addBanner(banner: banner, image: image);
     if(isSuccess) {
-      getBannerList();
+      getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_added_successfully'.tr, isError: false);
     }
@@ -30,9 +30,11 @@ class BannerController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> getBannerList() async {
+  Future<void> getBannerList({bool willUpdate = true}) async {
     _isLoading = true;
-    update();
+    if(willUpdate) {
+      Future.microtask(() => update());
+    }
     List<StoreBannerListModel>? storeBannerList = await bannerServiceInterface.getBannerList();
     if(storeBannerList != null) {
       _storeBannerList = [];
@@ -47,7 +49,7 @@ class BannerController extends GetxController implements GetxService {
     update();
     bool isSuccess = await bannerServiceInterface.deleteBanner(bannerID);
     if(isSuccess) {
-      await getBannerList();
+      await getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_deleted_successfully'.tr, isError: false);
     }
@@ -60,7 +62,7 @@ class BannerController extends GetxController implements GetxService {
     update();
     bool isSuccess = await bannerServiceInterface.updateBanner(banner: banner, image: image);
     if(isSuccess) {
-      await getBannerList();
+      await getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_updated_successfully'.tr, isError: false);
     }

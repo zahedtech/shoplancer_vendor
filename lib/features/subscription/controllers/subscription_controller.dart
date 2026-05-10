@@ -40,12 +40,14 @@ class SubscriptionController extends GetxController implements GetxService {
   List<Packages>? _packageList;
   List<Packages>? get packageList => _packageList;
 
-
   bool _showSubscriptionAlertDialog = true;
   bool get showSubscriptionAlertDialog => _showSubscriptionAlertDialog;
 
   int _paymentIndex = 0;
   int get paymentIndex => _paymentIndex;
+
+  int _subscriptionTypeIndex = 0;
+  int get subscriptionTypeIndex => _subscriptionTypeIndex;
 
   ProfileModel? _profileModel;
   ProfileModel? get profileModel => _profileModel;
@@ -87,102 +89,134 @@ class SubscriptionController extends GetxController implements GetxService {
   bool _isTrialEndModalShown = false;
   bool get isTrialEndModalShown => _isTrialEndModalShown;
 
-  void isSelectChange(bool status){
+  void isSelectChange(bool status) {
     _isSelect = status;
     update();
   }
 
-  void changeDigitalPaymentName(String? name, {bool canUpdate = true}){
+  void changeDigitalPaymentName(String? name, {bool canUpdate = true}) {
     _digitalPaymentName = name;
     _isDigitalPaymentSelect = true;
-    if(canUpdate) {
+    if (canUpdate) {
       update();
     }
   }
 
-  void selectSubscriptionCard(int index){
+  void selectSubscriptionCard(int index) {
     _activeSubscriptionIndex = index;
     update();
   }
 
-  void renewChangePackage(String statusPackage){
+  void setSubscriptionTypeIndex(int index) {
+    _subscriptionTypeIndex = index;
+    update();
+  }
+
+  void renewChangePackage(String statusPackage) {
     _renewStatus = statusPackage;
     update();
   }
 
-  void initializeRenew(){
+  void initializeRenew() {
     _renewStatus = 'packages';
     _isActivePackage = true;
     _paymentIndex = 0;
   }
 
-  void activePackage(bool status){
+  void activePackage(bool status) {
     _isActivePackage = status;
     update();
   }
 
-  void setPaymentIndex(int index){
+  void setPaymentIndex(int index) {
     _paymentIndex = index;
     update();
   }
 
-  void showAlert({bool willUpdate = false}){
+  void showAlert({bool willUpdate = false}) {
     _showSubscriptionAlertDialog = !_showSubscriptionAlertDialog;
-    if(willUpdate){
+    if (willUpdate) {
       update();
     }
   }
 
-  void closeAlertDialog(){
-    if(_showSubscriptionAlertDialog) {
+  void closeAlertDialog() {
+    if (_showSubscriptionAlertDialog) {
       _showSubscriptionAlertDialog = !_showSubscriptionAlertDialog;
       update();
     }
   }
 
-  Future<ResponseModel?> renewBusinessPlan({required String storeId, required bool isCommission}) async {
+  Future<ResponseModel?> renewBusinessPlan({
+    required String storeId,
+    required bool isCommission,
+  }) async {
     _isLoading = true;
     update();
     int? packageId = _packageList![_activeSubscriptionIndex].id;
     Map<String, String> body = {
-      'package_id' : packageId.toString(),
+      'package_id': packageId.toString(),
       'store_id': storeId,
       'type': _isActivePackage! ? 'renew' : 'payment',
       'payment_type': _paymentIndex == 0 ? 'wallet' : 'pay_now',
-      'payment_method': _paymentIndex == 0 ? 'wallet' : _digitalPaymentName ?? '',
-      'payment_gateway': _paymentIndex == 0 ? 'wallet' : _digitalPaymentName ?? '',
+      'payment_method': _paymentIndex == 0
+          ? 'wallet'
+          : _digitalPaymentName ?? '',
+      'payment_gateway': _paymentIndex == 0
+          ? 'wallet'
+          : _digitalPaymentName ?? '',
       'business_plan': isCommission ? 'commission' : 'subscription',
       'callback': RouteHelper.success,
     };
     Map<String, String>? header;
-    if(_expiredToken != null){
+    if (_expiredToken != null) {
       header = {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $_expiredToken'
+        'Authorization': 'Bearer $_expiredToken',
       };
     }
-    Response response = await subscriptionServiceInterface.renewBusinessPlan(body, header);
+    Response response = await subscriptionServiceInterface.renewBusinessPlan(
+      body,
+      header,
+    );
     ResponseModel? responseModel;
     if (response.statusCode == 200) {
-      if(response.body['redirect_link'] != null) {
+      if (response.body['redirect_link'] != null) {
         String redirectUrl = response.body['redirect_link'];
         Get.back();
-        Get.toNamed(RouteHelper.getPaymentRoute(digitalPaymentName, redirectUrl,  null, false, null));
+        Get.toNamed(
+          RouteHelper.getPaymentRoute(
+            digitalPaymentName,
+            redirectUrl,
+            null,
+            false,
+            null,
+          ),
+        );
       } else {
         _renewStatus = 'packages';
-        if(Get.find<AuthController>().getModuleType() == 'rental'){
+        if (Get.find<AuthController>().getModuleType() == 'rental') {
           await Get.find<TaxiProfileController>().getProfile();
         }
         await Get.find<ProfileController>().getProfile();
         getProfile(Get.find<ProfileController>().profileModel);
         Get.back();
         Get.back();
-        showCustomSnackBar(response.body['store_business_model'] == 'commission' ? 'successfully_switched_to_commission_based_plan'.tr : 'subscription_payment_successfully'.tr, isError: false);
+        showCustomSnackBar(
+          response.body['store_business_model'] == 'commission'
+              ? 'successfully_switched_to_commission_based_plan'.tr
+              : 'subscription_payment_successfully'.tr,
+          isError: false,
+        );
       }
-    }else {
-      if(response.statusCode == 403) {
-        showCustomSnackBar('you_have_not_sufficient_balance_on_you_wallet_please_add_money_to_your_wallet_to_purchase_the_packages'.tr, isError: true);
-      }else {
+    } else {
+      if (response.statusCode == 403) {
+        showCustomSnackBar(
+          'you_have_not_sufficient_balance_on_you_wallet_please_add_money_to_your_wallet_to_purchase_the_packages'
+              .tr,
+          isError: true,
+        );
+      } else {
         showCustomSnackBar(response.body['errors']['message'], isError: true);
       }
     }
@@ -194,9 +228,12 @@ class SubscriptionController extends GetxController implements GetxService {
   Future<void> cancelSubscription(int storeId, int subscriptionId) async {
     _isLoading = true;
     update();
-    Response response = await subscriptionServiceInterface.cancelSubscription({'store_id' : '$storeId', 'subscription_id': '$subscriptionId'});
-    if(response.statusCode == 200) {
-      if(Get.find<AuthController>().getModuleType() == 'rental'){
+    Response response = await subscriptionServiceInterface.cancelSubscription({
+      'store_id': '$storeId',
+      'subscription_id': '$subscriptionId',
+    });
+    if (response.statusCode == 200) {
+      if (Get.find<AuthController>().getModuleType() == 'rental') {
         await Get.find<TaxiProfileController>().getProfile();
       }
       await Get.find<ProfileController>().getProfile();
@@ -209,17 +246,25 @@ class SubscriptionController extends GetxController implements GetxService {
   }
 
   Future<void> getPackageList() async {
-    if(Get.find<AuthController>().packageModel == null || Get.find<AuthController>().packageModel!.packages!.isEmpty) {
-      await Get.find<AuthController>().getPackageList(moduleId: Get.find<ProfileController>().profileModel!.stores![0].module?.id);
+    if (Get.find<AuthController>().packageModel == null ||
+        Get.find<AuthController>().packageModel!.packages!.isEmpty) {
+      await Get.find<AuthController>().getPackageList(
+        moduleId:
+            Get.find<ProfileController>().profileModel!.stores![0].module?.id,
+      );
     }
     _packageList = [];
-    if(Get.find<SplashController>().configModel?.commissionBusinessModel == 1){
-      _packageList!.add(Packages(
-        id: -1,
-        packageName: 'commission_base'.tr,
-        price: Get.find<SplashController>().configModel!.adminCommission,
-        description: "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName} ${'from_each_order_You_will_get_access_of_all'.tr}",
-      ));
+    if (Get.find<SplashController>().configModel?.commissionBusinessModel ==
+        1) {
+      _packageList!.add(
+        Packages(
+          id: -1,
+          packageName: 'commission_base'.tr,
+          price: Get.find<SplashController>().configModel!.adminCommission,
+          description:
+              "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName} ${'from_each_order_You_will_get_access_of_all'.tr}",
+        ),
+      );
     }
     for (var package in Get.find<AuthController>().packageModel!.packages!) {
       _packageList!.add(package);
@@ -232,21 +277,37 @@ class SubscriptionController extends GetxController implements GetxService {
     _profileModel = proModel;
   }
 
-  void initSetDate(){
-    _from = DateConverterHelper.dateTimeForCoupon(DateTime.now().subtract(const Duration(days: 30)));
+  void initSetDate() {
+    _from = DateConverterHelper.dateTimeForCoupon(
+      DateTime.now().subtract(const Duration(days: 30)),
+    );
     _to = DateConverterHelper.dateTimeForCoupon(DateTime.now());
     _searchText = '';
   }
 
-  void setSearchText({required String offset, required String? from, required String? to, required String searchText}){
+  void setSearchText({
+    required String offset,
+    required String? from,
+    required String? to,
+    required String searchText,
+  }) {
     _searchText = searchText;
     _searchMode = !_searchMode;
-    getSubscriptionTransactionList(offset: offset.toString(), from: from, to: to, searchText: searchText);
+    getSubscriptionTransactionList(
+      offset: offset.toString(),
+      from: from,
+      to: to,
+      searchText: searchText,
+    );
   }
 
-  Future<void> getSubscriptionTransactionList({required String offset, required String? from, required String? to, required String? searchText}) async {
-
-    if(offset == '1') {
+  Future<void> getSubscriptionTransactionList({
+    required String offset,
+    required String? from,
+    required String? to,
+    required String? searchText,
+  }) async {
+    if (offset == '1') {
       _offsetList = [];
       _offset = 1;
       _transactions = null;
@@ -255,10 +316,15 @@ class SubscriptionController extends GetxController implements GetxService {
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
 
-      SubscriptionTransactionModel? subscriptionTransactionModel = await subscriptionServiceInterface.getSubscriptionTransactionList(
-        offset: int.parse(offset), from: from, to: to,
-        restaurantId: Get.find<ProfileController>().profileModel!.stores![0].id, searchText: searchText,
-      );
+      SubscriptionTransactionModel? subscriptionTransactionModel =
+          await subscriptionServiceInterface.getSubscriptionTransactionList(
+            offset: int.parse(offset),
+            from: from,
+            to: to,
+            restaurantId:
+                Get.find<ProfileController>().profileModel!.stores![0].id,
+            searchText: searchText,
+          );
       if (subscriptionTransactionModel != null) {
         if (offset == '1') {
           _transactions = [];
@@ -268,8 +334,8 @@ class SubscriptionController extends GetxController implements GetxService {
         _isLoading = false;
         update();
       }
-    }else {
-      if(isLoading) {
+    } else {
+      if (isLoading) {
         _isLoading = false;
         update();
       }
@@ -300,16 +366,36 @@ class SubscriptionController extends GetxController implements GetxService {
       _from = _selectedDateRange.start.toString().split(' ')[0];
       _to = _selectedDateRange.end.toString().split(' ')[0];
       update();
-      getSubscriptionTransactionList(offset: '1', from: _from, to: _to, searchText: searchText);
+      getSubscriptionTransactionList(
+        offset: '1',
+        from: _from,
+        to: _to,
+        searchText: searchText,
+      );
     }
   }
 
   Future<bool> trialEndBottomSheet() async {
-    if(Get.find<ProfileController>().profileModel != null && Get.find<ProfileController>().profileModel!.stores![0].storeBusinessModel != 'commission' && Get.find<ProfileController>().profileModel!.subscription?.status == 0) {
+    if (Get.find<ProfileController>().profileModel != null &&
+        Get.find<ProfileController>()
+                .profileModel!
+                .stores![0]
+                .storeBusinessModel !=
+            'commission' &&
+        Get.find<ProfileController>().profileModel!.subscription?.status == 0) {
       Future.delayed(const Duration(seconds: 1), () {
         showModalBottomSheet(
-          context: Get.context!, isScrollControlled: true, backgroundColor: Colors.transparent,
-          builder: (con) => TrialEndBottomSheet(isTrial: Get.find<ProfileController>().profileModel!.subscription?.isTrial == 1),
+          context: Get.context!,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (con) => TrialEndBottomSheet(
+            isTrial:
+                Get.find<ProfileController>()
+                    .profileModel!
+                    .subscription
+                    ?.isTrial ==
+                1,
+          ),
         ).whenComplete(() {
           _isTrialEndModalShown = false;
           update();
@@ -326,14 +412,24 @@ class SubscriptionController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> getProductLimit({required int storeId, required int packageId, required Packages package, required Packages activePackage})async {
+  Future<void> getProductLimit({
+    required int storeId,
+    required int packageId,
+    required Packages package,
+    required Packages activePackage,
+  }) async {
     _isLoading = true;
     update();
 
-    CheckProductLimitModel? checkProductLimitModel = await subscriptionServiceInterface.getProductLimit(storeId: storeId, packageId: packageId);
+    CheckProductLimitModel? checkProductLimitModel =
+        await subscriptionServiceInterface.getProductLimit(
+          storeId: storeId,
+          packageId: packageId,
+        );
 
-    if(checkProductLimitModel != null) {
-      if(checkProductLimitModel.disableItemCount == null || checkProductLimitModel.disableItemCount == 0) {
+    if (checkProductLimitModel != null) {
+      if (checkProductLimitModel.disableItemCount == null ||
+          checkProductLimitModel.disableItemCount == 0) {
         showCustomBottomSheet(
           child: RenewSubscriptionPlanBottomSheet(
             isRenew: false,
@@ -343,28 +439,31 @@ class SubscriptionController extends GetxController implements GetxService {
           ),
         );
       } else {
-        Get.dialog(SubscriptionDialogWidget(
-          icon: Images.support,
-          title: 'are_you_sure_you_want_to_switch_to_this_plan'.tr,
-          description: '${'you_are_about_to_downgrade_your_plan_after_subscribing_to_this_plan_your_oldest'.tr} ${checkProductLimitModel.disableItemCount} ${'items_will_be_inactivated'.tr}',
-          onYesPressed: () {
-            Get.back();
+        Get.dialog(
+          SubscriptionDialogWidget(
+            icon: Images.support,
+            title: 'are_you_sure_you_want_to_switch_to_this_plan'.tr,
+            description:
+                '${'you_are_about_to_downgrade_your_plan_after_subscribing_to_this_plan_your_oldest'.tr} ${checkProductLimitModel.disableItemCount} ${'items_will_be_inactivated'.tr}',
+            onYesPressed: () {
+              Get.back();
 
-            showCustomBottomSheet(
-              child: RenewSubscriptionPlanBottomSheet(
-                isRenew: false,
-                package: package,
-                activePackage: activePackage,
-                checkProductLimitModel: checkProductLimitModel,
-              ),
-            );
-          },
-        ), useSafeArea: false);
+              showCustomBottomSheet(
+                child: RenewSubscriptionPlanBottomSheet(
+                  isRenew: false,
+                  package: package,
+                  activePackage: activePackage,
+                  checkProductLimitModel: checkProductLimitModel,
+                ),
+              );
+            },
+          ),
+          useSafeArea: false,
+        );
       }
     }
 
     _isLoading = false;
     update();
   }
-
 }
