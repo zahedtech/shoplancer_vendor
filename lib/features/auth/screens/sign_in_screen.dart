@@ -216,21 +216,21 @@ class _SignInScreenState extends State<SignInScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        authController.vendorTypeIndex == 1
-                            ? const SizedBox()
-                            : TextButton(
-                                onPressed: () => Get.toNamed(
-                                  RouteHelper.getForgotPassRoute(),
-                                ),
-                                child: Text('${'forgot_password'.tr}?'),
-                              ),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.end,
+                    //   children: [
+                    //     authController.vendorTypeIndex == 1
+                    //         ? const SizedBox()
+                    //         : TextButton(
+                    //             onPressed: () => Get.toNamed(
+                    //               RouteHelper.getForgotPassRoute(),
+                    //             ),
+                    //             child: Text('${'forgot_password'.tr}?'),
+                    //           ),
+                    //   ],
+                    // ),
                     const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
                     CustomButtonWidget(

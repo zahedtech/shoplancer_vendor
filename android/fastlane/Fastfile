@@ -1,0 +1,40 @@
+default_platform(:android)
+
+platform :android do
+
+  desc "Firebase Beta Distribution"
+
+  lane :beta do
+
+    sh "flutter clean"
+    sh "flutter pub get"
+    sh "flutter build apk --release"
+
+    firebase_app_distribution(
+      app: "1:780732592304:android:b5c95c7a731f570db28b75",
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      android_artifact_type: "APK",
+      android_artifact_path: "../build/app/outputs/flutter-apk/app-release.apk",
+      release_notes: "New beta build"
+    )
+
+  end
+
+  desc "Deploy to Google Play"
+
+  lane :deploy do
+
+    sh "flutter clean"
+    sh "flutter pub get"
+    sh "flutter build appbundle"
+
+    upload_to_play_store(
+      track: 'internal',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+  end
+end
