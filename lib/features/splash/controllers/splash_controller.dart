@@ -1,8 +1,8 @@
-import 'package:sixam_mart_store/common/models/config_model.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/domain/services/splash_service_interface.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/domain/services/splash_service_interface.dart';
 
 class SplashController extends GetxController implements GetxService {
   final SplashServiceInterface splashServiceInterface;
@@ -28,11 +28,11 @@ class SplashController extends GetxController implements GetxService {
   Future<bool> getConfigData() async {
     Response response = await splashServiceInterface.getConfigData();
     bool isSuccess = false;
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       _data = response.body;
       _configModel = ConfigModel.fromJson(response.body);
       isSuccess = true;
-    }else {
+    } else {
       isSuccess = false;
     }
     update();
@@ -58,14 +58,26 @@ class SplashController extends GetxController implements GetxService {
   bool isRestaurantClosed() {
     DateTime open = DateFormat('hh:mm').parse('');
     DateTime close = DateFormat('hh:mm').parse('');
-    DateTime openTime = DateTime(_currentTime.year, _currentTime.month, _currentTime.day, open.hour, open.minute);
-    DateTime closeTime = DateTime(_currentTime.year, _currentTime.month, _currentTime.day, close.hour, close.minute);
-    if(closeTime.isBefore(openTime)) {
+    DateTime openTime = DateTime(
+      _currentTime.year,
+      _currentTime.month,
+      _currentTime.day,
+      open.hour,
+      open.minute,
+    );
+    DateTime closeTime = DateTime(
+      _currentTime.year,
+      _currentTime.month,
+      _currentTime.day,
+      close.hour,
+      close.minute,
+    );
+    if (closeTime.isBefore(openTime)) {
       closeTime = closeTime.add(const Duration(days: 1));
     }
-    if(_currentTime.isAfter(openTime) && _currentTime.isBefore(closeTime)) {
+    if (_currentTime.isAfter(openTime) && _currentTime.isBefore(closeTime)) {
       return false;
-    }else {
+    } else {
       return true;
     }
   }
@@ -77,22 +89,40 @@ class SplashController extends GetxController implements GetxService {
   Future<void> setModule(int? moduleID, String? moduleType) async {
     _moduleID = moduleID;
     _moduleType = moduleType;
-    if(moduleType != null) {
-      _configModel!.moduleConfig!.module = Module.fromJson(_data!['module_config'][moduleType]);
+    if (moduleType != null) {
+      _configModel!.moduleConfig!.module = Module.fromJson(
+        _data!['module_config'][moduleType],
+      );
     }
     update();
   }
 
   Module getModuleConfig(String? moduleType) {
     Module module = Module.fromJson(_data!['module_config'][moduleType]);
-    moduleType == 'food' ? module.newVariation = true : module.newVariation = false;
+    moduleType == 'food'
+        ? module.newVariation = true
+        : module.newVariation = false;
     return module;
   }
 
   Module getStoreModuleConfig() {
-    Module module = Module.fromJson(_data!['module_config'][Get.find<ProfileController>().profileModel!.stores!.first.module!.moduleType]);
-    Get.find<ProfileController>().profileModel!.stores!.first.module!.moduleType == 'food' ? module.newVariation = true : module.newVariation = false;
+    Module module = Module.fromJson(
+      _data!['module_config'][Get.find<ProfileController>()
+          .profileModel!
+          .stores!
+          .first
+          .module!
+          .moduleType],
+    );
+    Get.find<ProfileController>()
+                .profileModel!
+                .stores!
+                .first
+                .module!
+                .moduleType ==
+            'food'
+        ? module.newVariation = true
+        : module.newVariation = false;
     return module;
   }
-
 }

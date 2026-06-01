@@ -1,8 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class CustomDropdownButton extends StatefulWidget {
   final List<String>? items;

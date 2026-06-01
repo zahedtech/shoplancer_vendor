@@ -1,8 +1,8 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/subscription/domain/models/check_product_limit_model.dart';
-import 'package:sixam_mart_store/features/subscription/domain/models/subscription_transaction_model.dart';
-import 'package:sixam_mart_store/features/subscription/domain/repositories/subscription_repository_interface.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/subscription/domain/models/check_product_limit_model.dart';
+import 'package:shoplancer_vendor/features/subscription/domain/models/subscription_transaction_model.dart';
+import 'package:shoplancer_vendor/features/subscription/domain/repositories/subscription_repository_interface.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:get/get.dart';
 
 class SubscriptionRepository implements SubscriptionRepositoryInterface {
@@ -10,16 +10,34 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface {
   SubscriptionRepository({required this.apiClient});
 
   @override
-  Future<Response> renewBusinessPlan(Map<String, String> body, Map<String, String>? headers) async {
-    return await apiClient.postData(AppConstants.businessPlanUri, body, headers: headers, handleError: false);
+  Future<Response> renewBusinessPlan(
+    Map<String, String> body,
+    Map<String, String>? headers,
+  ) async {
+    return await apiClient.postData(
+      AppConstants.businessPlanUri,
+      body,
+      headers: headers,
+      handleError: false,
+    );
   }
 
   @override
-  Future<SubscriptionTransactionModel?> getSubscriptionTransactionList({required int offset, required int? restaurantId, required String? from, required String? to,  required String? searchText}) async {
+  Future<SubscriptionTransactionModel?> getSubscriptionTransactionList({
+    required int offset,
+    required int? restaurantId,
+    required String? from,
+    required String? to,
+    required String? searchText,
+  }) async {
     SubscriptionTransactionModel? subscriptionTransactionModel;
-    Response response = await apiClient.getData('${AppConstants.subscriptionTransactionUri}?limit=10&offset=$offset&restaurant_id=$restaurantId&from=$from&to=$to&search=${searchText ?? ''}');
-    if(response.statusCode == 200){
-      subscriptionTransactionModel = SubscriptionTransactionModel.fromJson(response.body);
+    Response response = await apiClient.getData(
+      '${AppConstants.subscriptionTransactionUri}?limit=10&offset=$offset&restaurant_id=$restaurantId&from=$from&to=$to&search=${searchText ?? ''}',
+    );
+    if (response.statusCode == 200) {
+      subscriptionTransactionModel = SubscriptionTransactionModel.fromJson(
+        response.body,
+      );
     }
     return subscriptionTransactionModel;
   }
@@ -30,10 +48,15 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface {
   }
 
   @override
-  Future<CheckProductLimitModel?> getProductLimit({required int storeId, required int packageId})async{
+  Future<CheckProductLimitModel?> getProductLimit({
+    required int storeId,
+    required int packageId,
+  }) async {
     CheckProductLimitModel? checkProductLimitModel;
-    Response response = await apiClient.getData('${AppConstants.checkProductLimitsUri}?store_id=$storeId&package_id=$packageId');
-    if(response.statusCode == 200){
+    Response response = await apiClient.getData(
+      '${AppConstants.checkProductLimitsUri}?store_id=$storeId&package_id=$packageId',
+    );
+    if (response.statusCode == 200) {
       checkProductLimitModel = CheckProductLimitModel.fromJson(response.body);
     }
     return checkProductLimitModel;
@@ -63,5 +86,4 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface {
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

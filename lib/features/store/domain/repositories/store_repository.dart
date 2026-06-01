@@ -2,23 +2,23 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/common/models/vat_tax_model.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attr.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/band_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/pending_item_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/suitable_tag_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/unit_model.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attr.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/band_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/suitable_tag_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/store/domain/repositories/store_repository_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/repositories/store_repository_interface.dart';
 
 class StoreRepository implements StoreRepositoryInterface {
   final ApiClient apiClient;
@@ -191,8 +191,8 @@ class StoreRepository implements StoreRepositoryInterface {
     String max,
     String type,
   ) async {
-    Map<String, String> fields = {};
-    fields.addAll(<String, String>{
+    Map<String, dynamic> fields = {};
+    fields.addAll(<String, dynamic>{
       '_method': 'put',
       'schedule_order': store.scheduleOrder! ? '1' : '0',
       'minimum_order': store.minimumOrder.toString(),
@@ -217,6 +217,11 @@ class StoreRepository implements StoreRepositoryInterface {
       'extra_packaging_amount': store.extraPackagingAmount!.toString(),
       'minimum_stock_for_warning': store.minimumStockForWarning.toString(),
     });
+    if (store.paymentMethods != null && store.paymentMethods!.isNotEmpty) {
+      fields['methods'] = store.paymentMethods!.map(
+        (key, value) => MapEntry(key.toString(), value.toJson()),
+      );
+    }
     if (store.maximumShippingCharge != null) {
       fields.addAll({
         'maximum_delivery_charge': store.maximumShippingCharge.toString(),

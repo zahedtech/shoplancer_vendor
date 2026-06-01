@@ -1,13 +1,13 @@
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/auth/domain/models/module_model.dart';
-import 'package:sixam_mart_store/features/address/domain/models/prediction_model.dart';
-import 'package:sixam_mart_store/features/address/domain/models/zone_model.dart';
-import 'package:sixam_mart_store/features/address/domain/repositories/address_repository_interface.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/auth/domain/models/module_model.dart';
+import 'package:shoplancer_vendor/features/address/domain/models/prediction_model.dart';
+import 'package:shoplancer_vendor/features/address/domain/models/zone_model.dart';
+import 'package:shoplancer_vendor/features/address/domain/repositories/address_repository_interface.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class AddressRepository implements AddressRepositoryInterface {
   final ApiClient apiClient;

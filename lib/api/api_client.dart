@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:sixam_mart_store/api/api_checker.dart';
-import 'package:sixam_mart_store/common/models/error_response.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_checker.dart';
+import 'package:shoplancer_vendor/common/models/error_response.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' as foundation;
-import 'package:sixam_mart_store/api/api_logger.dart';
+import 'package:shoplancer_vendor/api/api_logger.dart';
 
 class ApiClient extends GetxService {
   final String appBaseUrl;

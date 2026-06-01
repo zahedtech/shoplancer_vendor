@@ -3,25 +3,25 @@ import 'dart:io';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
-import 'package:sixam_mart_store/common/widgets/custom_asset_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_card.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart'
+import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_card.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart'
     as profile;
-import 'package:sixam_mart_store/helper/custom_validator_helper.dart';
-import 'package:sixam_mart_store/helper/validate_check.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/helper/custom_validator_helper.dart';
+import 'package:shoplancer_vendor/helper/validate_check.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../profile/domain/models/profile_model.dart' hide Module;
@@ -99,7 +99,8 @@ class _StoreEditScreenState extends State<StoreEditScreen>
         if (_languageList[index].key == trans.locale && trans.key == 'name') {
           _nameController[index].text = trans.value ?? '';
         }
-        if (_languageList[index].key == trans.locale && trans.key == 'address') {
+        if (_languageList[index].key == trans.locale &&
+            trans.key == 'address') {
           _addressController[index].text = trans.value ?? '';
         }
       }
@@ -164,8 +165,12 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                             Text('basic_info'.tr, style: robotoBold),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
                             CustomTextFieldWidget(
-                              hintText: _module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr,
-                              labelText: _module.showRestaurantText! ? 'restaurant_name'.tr : 'store_name'.tr,
+                              hintText: _module.showRestaurantText!
+                                  ? 'restaurant_name'.tr
+                                  : 'store_name'.tr,
+                              labelText: _module.showRestaurantText!
+                                  ? 'restaurant_name'.tr
+                                  : 'store_name'.tr,
                               controller: _nameController[0],
                               capitalization: TextCapitalization.words,
                               focusNode: _nameNode[0],
@@ -1312,10 +1317,10 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                     } else if (widget.store.logoFullUrl == null &&
                         storeController.rawLogo == null) {
                       showCustomSnackBar('upload_business_logo'.tr);
-                    /*} else if (widget.store.coverPhotoFullUrl == null &&
+                      /*} else if (widget.store.coverPhotoFullUrl == null &&
                         storeController.rawCover == null) {
                       showCustomSnackBar('upload_cover_image'.tr);*/
-                    /*} else if (metaTitle.isEmpty) {
+                      /*} else if (metaTitle.isEmpty) {
                       showCustomSnackBar('enter_meta_title'.tr);
                     } else if (metaDescription.isEmpty) {
                       showCustomSnackBar('enter_meta_description'.tr);*/

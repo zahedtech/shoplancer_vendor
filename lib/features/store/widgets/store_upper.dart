@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StoreUpper extends StatefulWidget {
@@ -332,8 +332,7 @@ class _StoreUpperState extends State<StoreUpper> {
                         final String slug = Uri.encodeComponent(
                           widget.store!.slug!.trim(),
                         );
-                        String storeUrl =
-                            'https://market.shoplanser.com/store/$slug';
+                        String storeUrl = 'https://store.shoplanser.com/$slug';
                         Share.share(storeUrl);
                       }
                     },

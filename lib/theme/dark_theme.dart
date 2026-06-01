@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 ThemeData dark({Color color = const Color(0xFF2C5282)}) {
   ThemeData base = ThemeData(

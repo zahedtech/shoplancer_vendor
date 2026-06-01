@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/business/domain/models/business_plan_body.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/features/business/domain/repositories/business_repo_interface.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/business_plan_body.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/features/business/domain/repositories/business_repo_interface.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class BusinessRepo implements BusinessRepoInterface<dynamic> {
   final ApiClient apiClient;

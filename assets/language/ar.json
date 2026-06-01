@@ -381,6 +381,8 @@
   "enter_stock": "أدخل المخزون",
   "select": "يختار",
   "image": "صورة",
+  "text": "نص",
+  "banner_images_ration_3:1": "نسبة صور البانر 3:1",
   "item_images": "صور العنصر",
   "thumbnail_image": "صورة مصغرة",
   "maximum_image_limit_is_6": "الحد الأقصى للصورة هو 6",

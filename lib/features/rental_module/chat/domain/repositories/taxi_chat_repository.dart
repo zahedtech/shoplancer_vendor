@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/chat/domain/repositories/taxi_chat_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/chat/domain/repositories/taxi_chat_repository_interface.dart';
 
 class TaxiChatRepository implements TaxiChatRepositoryInterface {
   final ApiClient apiClient;

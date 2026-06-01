@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/attribute_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/services/ai_service_interface.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/other_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_des_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_suggestion_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/variation_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/attribute_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/services/ai_service_interface.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/other_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_des_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_suggestion_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/variation_data_model.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 
 class AiController extends GetxController implements GetxService {
   final AiServiceInterface aiServiceInterface;

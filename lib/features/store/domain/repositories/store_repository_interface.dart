@@ -1,12 +1,12 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/common/models/vat_tax_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/band_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/suitable_tag_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/band_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/suitable_tag_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 abstract class StoreRepositoryInterface<T>
     extends RepositoryInterface<Schedules> {

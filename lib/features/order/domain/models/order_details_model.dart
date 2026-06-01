@@ -1,4 +1,4 @@
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 class OrderDetailsModel {
   int? id;
@@ -11,7 +11,7 @@ class OrderDetailsModel {
   List<AddOn>? addOns;
   double? discountOnItem;
   String? discountType;
-  int? quantity;
+  double? quantity;
   double? taxAmount;
   String? variant;
   String? createdAt;
@@ -66,7 +66,7 @@ class OrderDetailsModel {
     }
     discountOnItem = json['discount_on_item']?.toDouble();
     discountType = json['discount_type'];
-    quantity = json['quantity'];
+    quantity = json['quantity'] != null ? double.tryParse(json['quantity'].toString()) : null;
     taxAmount = json['tax_amount']?.toDouble();
     variant = json['variant'];
     createdAt = json['created_at'];

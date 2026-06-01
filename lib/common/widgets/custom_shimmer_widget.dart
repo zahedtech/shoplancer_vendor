@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
 
 class CustomShimmerWidget extends StatelessWidget {
   final double? height;

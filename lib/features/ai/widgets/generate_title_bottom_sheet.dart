@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/features/ai/controllers/ai_controller.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class GenerateTitleBottomSheet extends StatefulWidget {
   final List<Language>? languageList;

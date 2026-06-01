@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/addon/models/addon_category_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/addon/models/addon_category_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 abstract class AddonServiceInterface {
   Future<List<AddOns>?> getAddonList();

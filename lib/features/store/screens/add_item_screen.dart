@@ -4,39 +4,39 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:sixam_mart_store/common/widgets/custom_asset_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_drop_down_button.dart.dart';
-import 'package:sixam_mart_store/common/widgets/custom_dropdown_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_ink_well_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_tool_tip_widget.dart';
-import 'package:sixam_mart_store/common/widgets/label_widget.dart';
-import 'package:sixam_mart_store/features/addon/controllers/addon_controller.dart';
-import 'package:sixam_mart_store/features/ai/controllers/ai_controller.dart';
-import 'package:sixam_mart_store/features/ai/widgets/ai_generator_bottom_sheet.dart';
-import 'package:sixam_mart_store/features/ai/widgets/animated_border_container.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/category/controllers/category_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variant_type_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/helper/type_converter.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_time_picker_widget.dart';
-import 'package:sixam_mart_store/features/store/widgets/attribute_view_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/label_widget.dart';
+import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
+import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
+import 'package:shoplancer_vendor/features/ai/widgets/ai_generator_bottom_sheet.dart';
+import 'package:shoplancer_vendor/features/ai/widgets/animated_border_container.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variant_type_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variation_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/helper/type_converter.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_time_picker_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/attribute_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/store/widgets/food_variation_view_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/food_variation_view_widget.dart';
 
 import '../../profile/domain/models/profile_model.dart' hide Module;
 
@@ -148,12 +148,12 @@ class _AddItemScreenState extends State<AddItemScreen>
           }
         }
       }
-      
+
       // Fallback if translations are empty or 'ar' not found
       if (_nameControllerList[0].text.isEmpty && widget.item?.name != null) {
         _nameControllerList[0].text = widget.item!.name!;
       }
-      if (_descriptionControllerList[0].text.isEmpty && 
+      if (_descriptionControllerList[0].text.isEmpty &&
           widget.item?.description != null) {
         _descriptionControllerList[0].text = widget.item!.description!;
       }
@@ -522,9 +522,9 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   _nameControllerList[0],
                                               capitalization:
                                                   TextCapitalization.words,
-                                              focusNode:
-                                                  _nameFocusList[0],
-                                              nextFocus: _descriptionFocusList[0],
+                                              focusNode: _nameFocusList[0],
+                                              nextFocus:
+                                                  _descriptionFocusList[0],
                                               showTitle: false,
                                             ),
                                             const SizedBox(
@@ -1315,12 +1315,16 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               isNumber: true,
                                             ),
                                             SizedBox(
-                                              height: (_module.unit! && unitList.isNotEmpty)
-                                                  ? Dimensions.paddingSizeExtraLarge
+                                              height:
+                                                  (_module.unit! &&
+                                                      unitList.isNotEmpty)
+                                                  ? Dimensions
+                                                        .paddingSizeExtraLarge
                                                   : 0,
                                             ),
 
-                                            (_module.unit! && unitList.isNotEmpty)
+                                            (_module.unit! &&
+                                                    unitList.isNotEmpty)
                                                 ? Row(
                                                     children: [
                                                       const SizedBox(),
@@ -1435,11 +1439,30 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           ],
                                         ),
                                       ),
-                                       SizedBox(
-                                         height: (!isGrocery && (Get.find<SplashController>().getStoreModuleConfig().newVariation! || (storeController.attributeList != null && storeController.attributeList!.isNotEmpty) || (_update && widget.item!.attributes != null && widget.item!.attributes!.isNotEmpty)))
-                                             ? Dimensions.paddingSizeDefault
-                                             : 0,
-                                       ),
+                                      SizedBox(
+                                        height:
+                                            (!isGrocery &&
+                                                (Get.find<SplashController>()
+                                                        .getStoreModuleConfig()
+                                                        .newVariation! ||
+                                                    (storeController
+                                                                .attributeList !=
+                                                            null &&
+                                                        storeController
+                                                            .attributeList!
+                                                            .isNotEmpty) ||
+                                                    (_update &&
+                                                        widget
+                                                                .item!
+                                                                .attributes !=
+                                                            null &&
+                                                        widget
+                                                            .item!
+                                                            .attributes!
+                                                            .isNotEmpty)))
+                                            ? Dimensions.paddingSizeDefault
+                                            : 0,
+                                      ),
 
                                       (!isGrocery &&
                                               (Get.find<SplashController>()
@@ -1991,7 +2014,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             : 0,
                                       ),
 
-                                       const SizedBox(),
+                                      const SizedBox(),
 
                                       // Item Image Section
                                       Row(
@@ -2688,22 +2711,28 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'name',
-                                            value: _nameControllerList[0].text.trim(),
+                                            value: _nameControllerList[0].text
+                                                .trim(),
                                           ),
                                         );
                                         translations.add(
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'description',
-                                            value: _descriptionControllerList[0].text.trim(),
+                                            value: _descriptionControllerList[0]
+                                                .text
+                                                .trim(),
                                           ),
                                         );
                                       }
 
                                       _item.translations = [];
                                       _item.translations!.addAll(translations);
-                                      _item.name = _nameControllerList[0].text.trim();
-                                      _item.description = _descriptionControllerList[0].text.trim();
+                                      _item.name = _nameControllerList[0].text
+                                          .trim();
+                                      _item.description =
+                                          _descriptionControllerList[0].text
+                                              .trim();
 
                                       _item.brandId =
                                           storeController.brandList != null &&

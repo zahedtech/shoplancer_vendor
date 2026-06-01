@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/driver/domain/repositories/driver_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/driver/domain/repositories/driver_repository_interface.dart';
 
 class DriverRepository implements DriverRepositoryInterface {
   final ApiClient apiClient;
@@ -29,5 +29,4 @@ class DriverRepository implements DriverRepositoryInterface {
   Future delete(int? id) {
     throw UnimplementedError();
   }
-
 }

@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/business/domain/models/business_plan_body.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/features/business/domain/repositories/business_repo_interface.dart';
-import 'package:sixam_mart_store/features/business/domain/services/business_service_interface.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/business_plan_body.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/features/business/domain/repositories/business_repo_interface.dart';
+import 'package:shoplancer_vendor/features/business/domain/services/business_service_interface.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
 
 class BusinessService implements BusinessServiceInterface{
   final BusinessRepoInterface businessRepoInterface;

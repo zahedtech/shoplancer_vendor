@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/language/domain/models/language_model.dart';
-import 'package:sixam_mart_store/util/images.dart';
+import 'package:shoplancer_vendor/features/language/domain/models/language_model.dart';
+import 'package:shoplancer_vendor/util/images.dart';
 
 class AppConstants {
   static const String appName = 'Shoplancer Vendor';
@@ -12,7 +12,7 @@ class AppConstants {
   static const double limitOfPickedVideoSizeInMB = 50;
   static const double maxSizeOfASingleFile = 10;
 
-  static const String baseUrl = 'https://market.shoplanser.com';
+  static const String baseUrl = 'https://dashboard.shoplanser.com';
 
   static const String configUri = '/api/v1/config';
   static const String loginUri = '/api/v1/auth/vendor/login';

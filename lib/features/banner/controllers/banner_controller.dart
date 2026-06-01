@@ -1,8 +1,8 @@
-import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/banner/domain/services/banner_service_interface.dart';
+import 'package:shoplancer_vendor/features/banner/domain/services/banner_service_interface.dart';
 
 class BannerController extends GetxController implements GetxService {
   final BannerServiceInterface bannerServiceInterface;
@@ -17,11 +17,17 @@ class BannerController extends GetxController implements GetxService {
   StoreBannerListModel? _storeBannerDetails;
   StoreBannerListModel? get storeBannerDetails => _storeBannerDetails;
 
-  Future<void> addBanner({required StoreBannerListModel? banner, required XFile image}) async {
+  Future<void> addBanner({
+    required StoreBannerListModel? banner,
+    XFile? image,
+  }) async {
     _isLoading = true;
     update();
-    bool isSuccess = await bannerServiceInterface.addBanner(banner: banner, image: image);
-    if(isSuccess) {
+    bool isSuccess = await bannerServiceInterface.addBanner(
+      banner: banner,
+      image: image,
+    );
+    if (isSuccess) {
       getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_added_successfully'.tr, isError: false);
@@ -32,11 +38,12 @@ class BannerController extends GetxController implements GetxService {
 
   Future<void> getBannerList({bool willUpdate = true}) async {
     _isLoading = true;
-    if(willUpdate) {
+    if (willUpdate) {
       Future.microtask(() => update());
     }
-    List<StoreBannerListModel>? storeBannerList = await bannerServiceInterface.getBannerList();
-    if(storeBannerList != null) {
+    List<StoreBannerListModel>? storeBannerList = await bannerServiceInterface
+        .getBannerList();
+    if (storeBannerList != null) {
       _storeBannerList = [];
       _storeBannerList!.addAll(storeBannerList);
     }
@@ -48,7 +55,7 @@ class BannerController extends GetxController implements GetxService {
     _isLoading = true;
     update();
     bool isSuccess = await bannerServiceInterface.deleteBanner(bannerID);
-    if(isSuccess) {
+    if (isSuccess) {
       await getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_deleted_successfully'.tr, isError: false);
@@ -57,11 +64,17 @@ class BannerController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> updateBanner({required StoreBannerListModel? banner, required XFile? image}) async {
+  Future<void> updateBanner({
+    required StoreBannerListModel? banner,
+    required XFile? image,
+  }) async {
     _isLoading = true;
     update();
-    bool isSuccess = await bannerServiceInterface.updateBanner(banner: banner, image: image);
-    if(isSuccess) {
+    bool isSuccess = await bannerServiceInterface.updateBanner(
+      banner: banner,
+      image: image,
+    );
+    if (isSuccess) {
       await getBannerList(willUpdate: false);
       Get.back();
       showCustomSnackBar('banner_updated_successfully'.tr, isError: false);
@@ -72,12 +85,12 @@ class BannerController extends GetxController implements GetxService {
 
   Future<StoreBannerListModel?> getBannerDetails(int id) async {
     _storeBannerDetails = null;
-    StoreBannerListModel? storeBannerDetails = await bannerServiceInterface.getBannerDetails(id);
-    if(storeBannerDetails != null) {
+    StoreBannerListModel? storeBannerDetails = await bannerServiceInterface
+        .getBannerDetails(id);
+    if (storeBannerDetails != null) {
       _storeBannerDetails = storeBannerDetails;
     }
     update();
     return _storeBannerDetails;
   }
-
 }

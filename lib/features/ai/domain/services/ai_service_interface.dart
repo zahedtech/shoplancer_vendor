@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/attribute_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/other_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_des_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_suggestion_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/variation_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/attribute_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/other_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_des_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_suggestion_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/variation_data_model.dart';
 
 abstract class AiServiceInterface {
   Future<TitleDesModel?> generateTitleAndDes({required String title, required String langCode, required String storeId, required String moduleType, required String generateFrom});

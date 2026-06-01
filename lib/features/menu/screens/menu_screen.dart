@@ -1,16 +1,16 @@
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/features/auth/domain/models/module_permission_model.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/menu/domain/models/menu_model.dart';
-import 'package:sixam_mart_store/helper/responsive_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/features/menu/widgets/menu_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/features/auth/domain/models/module_permission_model.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/menu/domain/models/menu_model.dart';
+import 'package:shoplancer_vendor/helper/responsive_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/features/menu/widgets/menu_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});

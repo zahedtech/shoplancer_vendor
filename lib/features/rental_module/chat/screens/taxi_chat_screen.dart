@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
+import 'package:shoplancer_vendor/features/notification/domain/models/notification_body_model.dart';
 
 class TaxiChatScreen extends StatefulWidget {
   final NotificationBodyModel? notificationBody;

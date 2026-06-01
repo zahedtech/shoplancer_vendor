@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 
 abstract class CategoryRepositoryInterface implements RepositoryInterface {
   Future<dynamic> getSubCategoryList(int? parentID);

@@ -1,10 +1,10 @@
-import 'package:sixam_mart_store/common/widgets/custom_ink_well_widget.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/price_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -157,7 +157,9 @@ class OrderWidget extends StatelessWidget {
                       ),
                       const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                       Text(
-                        orderModel.customer?.fName ?? "Unknown",
+                        orderModel.customer?.fName ??
+                            orderModel.deliveryAddress!.contactPersonName ??
+                            "Unknown",
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.fontSizeSmall,
                           color: Theme.of(

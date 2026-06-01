@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 
 class Images {
   // static String get logo =>

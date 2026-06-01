@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/features/auth/domain/repositories/auth_repository_interface.dart';
+import 'package:shoplancer_vendor/features/auth/domain/repositories/auth_repository_interface.dart';
 
 class AuthRepository implements AuthRepositoryInterface {
   final ApiClient apiClient;

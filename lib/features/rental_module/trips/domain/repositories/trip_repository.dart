@@ -1,7 +1,7 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/trips/domain/repositories/trip_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/trips/domain/repositories/trip_repository_interface.dart';
 
-class TripRepository implements TripRepositoryInterface{
+class TripRepository implements TripRepositoryInterface {
   final ApiClient apiClient;
   TripRepository({required this.apiClient});
 
@@ -29,5 +29,4 @@ class TripRepository implements TripRepositoryInterface{
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/splash/domain/repositories/splash_repository_interface.dart';
+import 'package:shoplancer_vendor/features/splash/domain/repositories/splash_repository_interface.dart';
 
 class SplashRepository implements SplashRepositoryInterface {
   final ApiClient apiClient;
@@ -16,22 +16,28 @@ class SplashRepository implements SplashRepositoryInterface {
 
   @override
   Future<bool> initSharedData() {
-    if(!sharedPreferences.containsKey(AppConstants.theme)) {
+    if (!sharedPreferences.containsKey(AppConstants.theme)) {
       return sharedPreferences.setBool(AppConstants.theme, false);
     }
-    if(!sharedPreferences.containsKey(AppConstants.countryCode)) {
-      return sharedPreferences.setString(AppConstants.countryCode, AppConstants.languages[0].countryCode!);
+    if (!sharedPreferences.containsKey(AppConstants.countryCode)) {
+      return sharedPreferences.setString(
+        AppConstants.countryCode,
+        AppConstants.languages[0].countryCode!,
+      );
     }
-    if(!sharedPreferences.containsKey(AppConstants.languageCode)) {
-      return sharedPreferences.setString(AppConstants.languageCode, AppConstants.languages[0].languageCode!);
+    if (!sharedPreferences.containsKey(AppConstants.languageCode)) {
+      return sharedPreferences.setString(
+        AppConstants.languageCode,
+        AppConstants.languages[0].languageCode!,
+      );
     }
-    if(!sharedPreferences.containsKey(AppConstants.notification)) {
+    if (!sharedPreferences.containsKey(AppConstants.notification)) {
       return sharedPreferences.setBool(AppConstants.notification, true);
     }
-    if(!sharedPreferences.containsKey(AppConstants.intro)) {
+    if (!sharedPreferences.containsKey(AppConstants.intro)) {
       return sharedPreferences.setBool(AppConstants.intro, true);
     }
-    if(!sharedPreferences.containsKey(AppConstants.intro)) {
+    if (!sharedPreferences.containsKey(AppConstants.intro)) {
       return sharedPreferences.setInt(AppConstants.notificationCount, 0);
     }
     return Future.value(true);
@@ -76,5 +82,4 @@ class SplashRepository implements SplashRepositoryInterface {
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

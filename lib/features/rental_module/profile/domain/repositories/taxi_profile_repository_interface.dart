@@ -1,5 +1,3 @@
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 
-abstract class TaxiProfileRepositoryInterface implements RepositoryInterface {
-
-}
+abstract class TaxiProfileRepositoryInterface implements RepositoryInterface {}

@@ -1,6 +1,6 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/order/domain/models/update_status_body_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/update_status_body_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 
 abstract class OrderRepositoryInterface implements RepositoryInterface {
   Future<dynamic> getPaginatedOrderList(int offset, String status);

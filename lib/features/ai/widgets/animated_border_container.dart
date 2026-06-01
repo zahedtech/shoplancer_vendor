@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
 
 class AnimatedBorderContainer extends StatefulWidget {
   final Widget child;

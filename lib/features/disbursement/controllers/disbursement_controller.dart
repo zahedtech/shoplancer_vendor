@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_report_model.dart' as report;
-import 'package:sixam_mart_store/common/widgets/custom_dropdown_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/disbursement/domain/services/disbursement_service_interface.dart';
-import 'package:sixam_mart_store/features/payment/controllers/payment_controller.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/widthdrow_method_model.dart';
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_report_model.dart' as report;
+import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/disbursement/domain/services/disbursement_service_interface.dart';
+import 'package:shoplancer_vendor/features/payment/controllers/payment_controller.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
 
 class DisbursementController extends GetxController implements GetxService {
   final DisbursementServiceInterface disbursementServiceInterface;

@@ -1,6 +1,6 @@
-import 'package:sixam_mart_store/common/widgets/details_custom_card.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/details_custom_card.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 
 class ProfileCardWidget extends StatelessWidget {

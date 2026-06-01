@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 
 abstract class ForgotPasswordRepositoryInterface implements RepositoryInterface {
   Future<dynamic> changePassword(ProfileModel userInfoModel, String password);

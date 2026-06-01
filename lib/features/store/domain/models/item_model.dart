@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 
 import '../../../profile/domain/models/profile_model.dart';
 

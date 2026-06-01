@@ -1,4 +1,5 @@
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'dart:convert';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 class ProfileModel {
   int? id;
@@ -116,6 +117,43 @@ class ProfileModel {
       json['stores'].forEach((v) {
         stores!.add(Store.fromJson(v));
       });
+    }
+    if (stores != null && stores!.isNotEmpty) {
+      if (json['store_payment_methods'] != null) {
+        Map<int, Map<int, StorePaymentMethod>> storeMethodMap = {};
+        for (var method in json['store_payment_methods']) {
+          int? storeId = method['store_id'];
+          int? methodId = method['zone_payment_method_id'];
+          if (storeId == null || methodId == null) {
+            continue;
+          }
+          bool isActive =
+              method['is_active'] == true || method['is_active'] == 1;
+          Map<String, dynamic>? config;
+          if (method['config'] is Map) {
+            config = Map<String, dynamic>.from(method['config']);
+          } else if (method['config'] is String &&
+              (method['config'] as String).isNotEmpty) {
+            try {
+              config = Map<String, dynamic>.from(
+                jsonDecode(method['config'] as String),
+              );
+            } catch (_) {
+              config = null;
+            }
+          }
+          storeMethodMap.putIfAbsent(storeId, () => {});
+          storeMethodMap[storeId]![methodId] = StorePaymentMethod(
+            isActive: isActive,
+            configData: config,
+          );
+        }
+        for (var store in stores!) {
+          if (store.id != null && storeMethodMap[store.id] != null) {
+            store.paymentMethods = storeMethodMap[store.id];
+          }
+        }
+      }
     }
     if (json['roles'] != null) {
       roles = [];
@@ -253,6 +291,7 @@ class Store {
   double? extraPackagingAmount;
   bool? isHalalActive;
   double? minimumStockForWarning;
+  Map<int, StorePaymentMethod>? paymentMethods;
   MetaSeoData? metaData;
 
   Store({
@@ -310,6 +349,7 @@ class Store {
     this.extraPackagingAmount,
     this.isHalalActive,
     this.minimumStockForWarning,
+    this.paymentMethods,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
@@ -378,6 +418,38 @@ class Store {
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     isHalalActive = json['halal_tag_status'] ?? false;
     minimumStockForWarning = json['minimum_stock_for_warning']?.toDouble();
+    if (json['methods'] != null) {
+      paymentMethods = {};
+      (json['methods'] as Map).forEach((key, value) {
+        int? methodId = int.tryParse(key.toString());
+        if (methodId != null) {
+          paymentMethods![methodId] = StorePaymentMethod.fromJson(value);
+        }
+      });
+    } else if (json['payment_methods'] != null) {
+      paymentMethods = {};
+      for (var method in json['payment_methods']) {
+        int? methodId = method['id'];
+        if (methodId == null) {
+          continue;
+        }
+        bool isActive =
+            method['pivot']?['is_active'] == 1 ||
+            method['pivot']?['is_active'] == true ||
+            method['is_active'] == 1 ||
+            method['is_active'] == true;
+        Map<String, dynamic>? config;
+        if (method['config_data'] is Map) {
+          config = Map<String, dynamic>.from(method['config_data']);
+        } else if (method['pivot']?['config'] is Map) {
+          config = Map<String, dynamic>.from(method['pivot']?['config']);
+        }
+        paymentMethods![methodId] = StorePaymentMethod(
+          isActive: isActive,
+          configData: config,
+        );
+      }
+    }
     metaData = json['meta_data'] != null
         ? MetaSeoData.fromJson(json['meta_data'])
         : null;
@@ -445,10 +517,38 @@ class Store {
     data['extra_packaging_amount'] = extraPackagingAmount;
     data['halal_tag_status'] = isHalalActive;
     data['minimum_stock_for_warning'] = minimumStockForWarning;
+    if (paymentMethods != null) {
+      data['methods'] = paymentMethods!.map(
+        (key, value) => MapEntry(key.toString(), value.toJson()),
+      );
+    }
     if (metaData != null) {
       data['meta_data'] = metaData!.toJson();
     }
     return data;
+  }
+}
+
+class StorePaymentMethod {
+  bool isActive;
+  Map<String, dynamic>? configData;
+
+  StorePaymentMethod({required this.isActive, this.configData});
+
+  factory StorePaymentMethod.fromJson(dynamic json) {
+    if (json == null) {
+      return StorePaymentMethod(isActive: false);
+    }
+    return StorePaymentMethod(
+      isActive: json['is_active'] == 1 || json['is_active'] == true,
+      configData: json['config_data'] != null
+          ? Map<String, dynamic>.from(json['config_data'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'is_active': isActive ? 1 : 0, 'config_data': configData};
   }
 }
 
