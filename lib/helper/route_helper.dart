@@ -65,6 +65,7 @@ import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart'
 import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_status_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 
 import 'package:shoplancer_vendor/features/splash/screens/splash_screen.dart';
@@ -144,6 +145,7 @@ class RouteHelper {
   static const String storeEdit = '/store-edit';
   static const String setting = '/setting';
   static const String productPriceUpdate = '/product-price-update';
+  static const String productStatus = '/product-status';
   static const String socialMedia = '/social-media';
 
   static String getInitialRoute() => initial;
@@ -357,6 +359,7 @@ class RouteHelper {
 
   static String getSettingRoute() => setting;
   static String getProductPriceUpdateRoute() => productPriceUpdate;
+  static String getProductStatusRoute() => productStatus;
   static String getSocialMediaRoute() => socialMedia;
 
   static List<GetPage> routes = [
@@ -755,6 +758,10 @@ class RouteHelper {
     GetPage(
       name: productPriceUpdate,
       page: () => const ProductPriceManagementScreen(),
+    ),
+    GetPage(
+      name: productStatus,
+      page: () => const ProductStatusScreen(),
     ),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
   ];

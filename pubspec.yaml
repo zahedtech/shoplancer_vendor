@@ -1,7 +1,7 @@
 name: shoplancer_vendor
 description: An application for multivendor ecommerce restaurant.
 publish_to: 'none'
-version: 1.0.2+6
+version: 1.0.3+7
 
 environment:
   sdk: ^3.10.0

@@ -24,8 +24,8 @@ class BannerService implements BannerServiceInterface {
   }
 
   @override
-  Future<bool> deleteBanner(int? bannerID) async {
-    return await bannerRepositoryInterface.delete(bannerID);
+  Future<bool> deleteBanner(int? bannerID, {int? catalogId}) async {
+    return await bannerRepositoryInterface.delete(bannerID, catalogId: catalogId);
   }
 
   @override
@@ -42,5 +42,15 @@ class BannerService implements BannerServiceInterface {
   @override
   Future<StoreBannerListModel?> getBannerDetails(int id) async {
     return await bannerRepositoryInterface.get(id);
+  }
+
+  @override
+  Future<List<StoreBannerListModel>?> getCatalogBannerList() async {
+    return await bannerRepositoryInterface.getCatalogBannerList();
+  }
+
+  @override
+  Future<bool> addCatalogBanner(int? bannerId) async {
+    return await bannerRepositoryInterface.addCatalogBanner(bannerId);
   }
 }

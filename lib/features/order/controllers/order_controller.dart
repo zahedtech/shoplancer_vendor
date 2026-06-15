@@ -280,6 +280,7 @@ class OrderController extends GetxController implements GetxService {
     String? reason,
     String? processingTime,
     bool fromNotification = false,
+    String? externalDeliveryManName,
   }) async {
     _isLoading = true;
     update();
@@ -291,6 +292,7 @@ class OrderController extends GetxController implements GetxService {
       otp: status == 'delivered' ? _otp : null,
       processingTime: processingTime,
       reason: reason,
+      externalDeliveryManName: externalDeliveryManName,
     );
     ResponseModel responseModel = await orderServiceInterface.updateOrderStatus(
       updateStatusBody,
@@ -308,9 +310,9 @@ class OrderController extends GetxController implements GetxService {
       }
       getCurrentOrders();
       Get.find<ProfileController>().getProfile();
-      showCustomSnackBar(responseModel.message, isError: false);
+      showCustomSnackBar('order_status_updated'.tr, isError: false);
     } else {
-      showCustomSnackBar(responseModel.message, isError: true);
+      showCustomSnackBar(responseModel.message?.tr, isError: true);
     }
     _isLoading = false;
     update();

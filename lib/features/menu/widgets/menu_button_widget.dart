@@ -55,12 +55,12 @@ class MenuButtonWidget extends StatelessWidget {
             }
           } else {
             if(menu.route == RouteHelper.mySubscription) {
-              Get.offNamed(menu.route);
+              Get.toNamed(menu.route);
             } else {
               if (!Get.find<SubscriptionController>().isTrialEndModalShown) {
                 Get.find<SubscriptionController>().trialEndBottomSheet().then((trialEnd) {
                   if(trialEnd) {
-                    Get.offNamed(menu.route);
+                    Get.toNamed(menu.route);
                   }else {
                     Get.find<SubscriptionController>().setTrialEndModalShown(true);
                   }

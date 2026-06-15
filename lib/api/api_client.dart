@@ -201,6 +201,7 @@ class ApiClient extends GetxService {
   Future<Response> deleteData(
     String uri, {
     Map<String, String>? headers,
+    dynamic body,
     bool handleError = true,
   }) async {
     try {
@@ -208,9 +209,14 @@ class ApiClient extends GetxService {
         method: 'DELETE',
         url: appBaseUrl + uri,
         headers: headers ?? _mainHeaders,
+        body: body,
       );
       http.Response response = await http
-          .delete(Uri.parse(appBaseUrl + uri), headers: headers ?? _mainHeaders)
+          .delete(
+            Uri.parse(appBaseUrl + uri),
+            headers: headers ?? _mainHeaders,
+            body: body != null ? jsonEncode(body) : null,
+          )
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri, handleError);
     } catch (e) {

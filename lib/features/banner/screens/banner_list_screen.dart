@@ -21,9 +21,12 @@ class BannerListScreen extends StatefulWidget {
 
 class _BannerListScreenState extends State<BannerListScreen> {
   final tooltipController = JustTheController();
+  bool _isCatalogSelected = false;
+
   @override
   void initState() {
     Get.find<BannerController>().getBannerList(willUpdate: false);
+    Get.find<BannerController>().getCatalogBannerList(willUpdate: false);
     super.initState();
   }
 
@@ -81,6 +84,81 @@ class _BannerListScreenState extends State<BannerListScreen> {
 
       body: Column(
         children: [
+          // Segmented Toggle Tab Bar (My Banners vs Catalog Banners)
+          Container(
+            height: 45,
+            width: double.infinity,
+            margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+              border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).disabledColor.withValues(alpha: 0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isCatalogSelected = false;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(Dimensions.radiusDefault),
+                          bottomLeft: Radius.circular(Dimensions.radiusDefault),
+                        ),
+                        color: !_isCatalogSelected ? Theme.of(context).primaryColor : Colors.transparent,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'my_banners'.tr,
+                          style: robotoMedium.copyWith(
+                            color: !_isCatalogSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isCatalogSelected = true;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(Dimensions.radiusDefault),
+                          bottomRight: Radius.circular(Dimensions.radiusDefault),
+                        ),
+                        color: _isCatalogSelected ? Theme.of(context).primaryColor : Colors.transparent,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'catalog_banners'.tr,
+                          style: robotoMedium.copyWith(
+                            color: _isCatalogSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -89,27 +167,35 @@ class _BannerListScreenState extends State<BannerListScreen> {
               ),
               child: GetBuilder<BannerController>(
                 builder: (bannerController) {
-                  return bannerController.storeBannerList != null
-                      ? bannerController.storeBannerList!.isNotEmpty
+                  bool showCatalog = _isCatalogSelected;
+                  var bannerList = showCatalog
+                      ? bannerController.catalogBannerList
+                      : bannerController.storeBannerList;
+                  bool isLoading = showCatalog
+                      ? bannerController.isCatalogLoading
+                      : bannerController.storeBannerList == null;
+
+                  return !isLoading
+                      ? bannerList != null && bannerList.isNotEmpty
                             ? ListView.builder(
                                 physics: const BouncingScrollPhysics(),
-                                itemCount:
-                                    bannerController.storeBannerList!.length,
+                                itemCount: bannerList.length,
                                 itemBuilder: (context, index) {
-                                  bool hasImage =
-                                      (bannerController
-                                                  .storeBannerList![index]
-                                                  .imageFullUrl ??
-                                              '')
-                                          .isNotEmpty;
+                                  var banner = bannerList[index];
+                                  bool isImage = banner.type == 'image' ||
+                                      (banner.imageFullUrl ?? '').isNotEmpty;
+                                  bool isAdded = !showCatalog
+                                      ? false
+                                      : (bannerController.storeBannerList?.any((storeBanner) => storeBanner.bannerCatalogId == banner.id) ?? false);
+
                                   return Container(
-                                    height: hasImage ? 200 : null,
+                                    height: 180,
                                     width: Get.width,
                                     margin: const EdgeInsets.only(
                                       bottom: Dimensions.paddingSizeSmall,
                                     ),
                                     padding: const EdgeInsets.all(
-                                      Dimensions.paddingSizeDefault,
+                                      Dimensions.paddingSizeSmall,
                                     ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(
@@ -128,242 +214,208 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                     ),
                                     child: Column(
                                       children: [
-                                        if (hasImage) ...[
-                                          Expanded(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                    Radius.circular(
+                                        Expanded(
+                                          child: isImage
+                                              ? ClipRRect(
+                                                  borderRadius: BorderRadius.circular(
+                                                    Dimensions.radiusSmall,
+                                                  ),
+                                                  child: CustomImageWidget(
+                                                    image: '${banner.imageFullUrl}',
+                                                    fit: BoxFit.cover,
+                                                    width: Get.width,
+                                                  ),
+                                                )
+                                              : Container(
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(
                                                       Dimensions.radiusSmall,
                                                     ),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Theme.of(context).primaryColor,
+                                                        Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end: Alignment.bottomRight,
+                                                    ),
                                                   ),
-                                              child: CustomImageWidget(
-                                                image:
-                                                    '${bannerController.storeBannerList![index].imageFullUrl}',
-                                                fit: BoxFit.cover,
-                                                width: Get.width,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height:
-                                                Dimensions.paddingSizeDefault,
-                                          ),
-                                        ],
-
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Wrap(
-                                                    crossAxisAlignment:
-                                                        WrapCrossAlignment
-                                                            .center,
-                                                    runAlignment:
-                                                        WrapAlignment.center,
+                                                  child: Stack(
                                                     children: [
-                                                      Text(
-                                                        '${'redirection_url'.tr}: ',
-                                                        style: robotoRegular.copyWith(
-                                                          fontSize: Dimensions
-                                                              .fontSizeSmall,
-                                                          color:
-                                                              bannerController
-                                                                      .storeBannerList![index]
-                                                                      .defaultLink !=
-                                                                  null
-                                                              ? Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color
-                                                              : Theme.of(
-                                                                  context,
-                                                                ).disabledColor,
+                                                      Positioned(
+                                                        top: -20,
+                                                        right: -20,
+                                                        child: Container(
+                                                          width: 80,
+                                                          height: 80,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: Colors.white.withValues(alpha: 0.08),
+                                                          ),
                                                         ),
                                                       ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeSmall,
+                                                      Positioned(
+                                                        bottom: -30,
+                                                        left: 10,
+                                                        child: Container(
+                                                          width: 60,
+                                                          height: 60,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            color: Colors.white.withValues(alpha: 0.05),
+                                                          ),
+                                                        ),
                                                       ),
-
-                                                      InkWell(
-                                                        onTap: () {
-                                                          if (bannerController
-                                                                  .storeBannerList![index]
-                                                                  .defaultLink !=
-                                                              null) {
-                                                            _launchURL(
-                                                              bannerController
-                                                                  .storeBannerList![index]
-                                                                  .defaultLink
-                                                                  .toString(),
-                                                            );
-                                                          }
-                                                        },
-                                                        child: Text(
-                                                          bannerController
-                                                                      .storeBannerList![index]
-                                                                      .defaultLink ==
-                                                                  null
-                                                              ? 'N/A'
-                                                              : bannerController
-                                                                    .storeBannerList![index]
-                                                                    .defaultLink
-                                                                    .toString(),
-                                                          style: robotoRegular.copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                            color:
-                                                                bannerController
-                                                                        .storeBannerList![index]
-                                                                        .defaultLink !=
-                                                                    null
-                                                                ? Colors.blue
-                                                                : Theme.of(
-                                                                    context,
-                                                                  ).disabledColor,
+                                                      Center(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: Dimensions.paddingSizeLarge,
+                                                          ),
+                                                          child: FittedBox(
+                                                            fit: BoxFit.scaleDown,
+                                                            child: Text(
+                                                              banner.title.toString(),
+                                                              textAlign: TextAlign.center,
+                                                              style: robotoBold.copyWith(
+                                                                fontSize: 20,
+                                                                color: Colors.white,
+                                                                shadows: [
+                                                                  Shadow(
+                                                                    color: Colors.black.withValues(alpha: 0.25),
+                                                                    offset: const Offset(0, 2),
+                                                                    blurRadius: 4,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(
-                                                    height: Dimensions
-                                                        .paddingSizeSmall,
-                                                  ),
-                                                  Wrap(
-                                                    crossAxisAlignment:
-                                                        WrapCrossAlignment
-                                                            .center,
-                                                    runAlignment:
-                                                        WrapAlignment.center,
-                                                    children: [
-                                                      Text(
-                                                        '${'title'.tr}: ',
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                            ),
+                                                ),
+                                        ),
+                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                                        Row(
+                                          children: [
+                                            const Spacer(),
+                                            if (showCatalog) ...[
+                                              if (!isAdded)
+                                                InkWell(
+                                                  onTap: () async {
+                                                    bool success = await bannerController.addCatalogBanner(banner.id);
+                                                    if (success) {
+                                                      setState(() {
+                                                        _isCatalogSelected = false;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: Dimensions.paddingSizeDefault,
+                                                      vertical: Dimensions.paddingSizeExtraSmall,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Theme.of(context).primaryColor,
+                                                      borderRadius: BorderRadius.circular(
+                                                        Dimensions.radiusSmall,
                                                       ),
-                                                      const SizedBox(
-                                                        height: Dimensions
-                                                            .paddingSizeSmall,
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.add,
+                                                          color: Colors.white,
+                                                          size: 15,
+                                                        ),
+                                                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                                                        Text(
+                                                          'add_to_my_store'.tr,
+                                                          style: robotoMedium.copyWith(
+                                                            color: Colors.white,
+                                                            fontSize: Dimensions.fontSizeSmall,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                            ] else ...[
+                                              if (banner.bannerCatalogId == null) ...[
+                                                InkWell(
+                                                  onTap: () {
+                                                    banner.type = isImage ? 'image' : 'text';
+                                                    Get.toNamed(
+                                                      RouteHelper.getAddBannerRoute(
+                                                        storeBannerListModel: banner,
                                                       ),
-
-                                                      Text(
-                                                        bannerController
-                                                            .storeBannerList![index]
-                                                            .title
-                                                            .toString(),
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                            ),
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(
+                                                      Dimensions.paddingSizeExtraSmall,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.blue,
                                                       ),
-                                                    ],
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.blue,
+                                                      size: 15,
+                                                    ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            InkWell(
-                                              onTap: () {
-                                                var banner = bannerController
-                                                    .storeBannerList![index];
-                                                bool hasImage =
-                                                    (banner.imageFullUrl ?? '')
-                                                        .isNotEmpty;
-                                                banner.type = hasImage
-                                                    ? 'image'
-                                                    : 'text';
-                                                Get.toNamed(
-                                                  RouteHelper.getAddBannerRoute(
-                                                    storeBannerListModel:
-                                                        banner,
+                                                ),
+                                                const SizedBox(
+                                                  width: Dimensions.paddingSizeSmall,
+                                                ),
+                                              ],
+                                              InkWell(
+                                                onTap: () {
+                                                  Get.dialog(
+                                                    ConfirmationDialogWidget(
+                                                      icon: Images.support,
+                                                      description:
+                                                          'are_you_sure_to_delete_this_banner'
+                                                              .tr,
+                                                      onYesPressed: () {
+                                                        if (banner.id != null) {
+                                                          bannerController.deleteBanner(
+                                                            banner.id,
+                                                            catalogId: banner.bannerCatalogId,
+                                                          );
+                                                        }
+                                                      },
+                                                    ),
+                                                    useSafeArea: false,
+                                                  );
+                                                },
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(
+                                                    Dimensions.paddingSizeExtraSmall,
                                                   ),
-                                                );
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  Dimensions
-                                                      .paddingSizeExtraSmall,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.blue,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.error,
+                                                    ),
+                                                    shape: BoxShape.circle,
                                                   ),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.blue,
-                                                  size: 15,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-
-                                            InkWell(
-                                              onTap: () {
-                                                Get.dialog(
-                                                  ConfirmationDialogWidget(
-                                                    icon: Images.support,
-                                                    description:
-                                                        'are_you_sure_to_delete_this_banner'
-                                                            .tr,
-                                                    onYesPressed: () {
-                                                      if (bannerController
-                                                              .storeBannerList![index]
-                                                              .id !=
-                                                          null) {
-                                                        bannerController
-                                                            .deleteBanner(
-                                                              bannerController
-                                                                  .storeBannerList![index]
-                                                                  .id,
-                                                            );
-                                                      }
-                                                    },
-                                                  ),
-                                                  useSafeArea: false,
-                                                );
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  Dimensions
-                                                      .paddingSizeExtraSmall,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
+                                                  child: Icon(
+                                                    Icons.delete_outline,
                                                     color: Theme.of(
                                                       context,
                                                     ).colorScheme.error,
+                                                    size: 15,
                                                   ),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: Icon(
-                                                  Icons.delete_outline,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).colorScheme.error,
-                                                  size: 15,
                                                 ),
                                               ),
-                                            ),
+                                            ],
                                           ],
                                         ),
                                       ],
@@ -378,21 +430,22 @@ class _BannerListScreenState extends State<BannerListScreen> {
             ),
           ),
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              child: GetBuilder<BannerController>(
-                builder: (bannerController) {
-                  return CustomButtonWidget(
-                    onPressed: () => Get.toNamed(
-                      RouteHelper.getAddBannerRoute(storeBannerListModel: null),
-                    ),
-                    buttonText: 'add_new_banner'.tr,
-                  );
-                },
+          if (!_isCatalogSelected)
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                child: GetBuilder<BannerController>(
+                  builder: (bannerController) {
+                    return CustomButtonWidget(
+                      onPressed: () => Get.toNamed(
+                        RouteHelper.getAddBannerRoute(storeBannerListModel: null),
+                      ),
+                      buttonText: 'add_new_banner'.tr,
+                    );
+                  },
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -51,6 +51,15 @@ class MenuScreen extends StatelessWidget {
           isBlocked: !store.itemSection!,
         ),
       );
+
+      menuList.add(
+        MenuModel(
+          icon: Images.active,
+          title: 'product_status_update'.tr,
+          route: RouteHelper.getProductStatusRoute(),
+          isBlocked: !store.itemSection!,
+        ),
+      );
     }
 
     if (modulePermission.item!) {
@@ -184,7 +193,7 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.chat!) {
+    /*if (modulePermission.chat!) {
       menuList.add(
         MenuModel(
           icon: Images.chat,
@@ -196,7 +205,7 @@ class MenuScreen extends StatelessWidget {
                   0),
         ),
       );
-    }
+    }*/
 
     menuList.add(
       MenuModel(

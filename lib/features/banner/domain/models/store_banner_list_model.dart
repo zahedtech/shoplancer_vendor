@@ -15,6 +15,7 @@ class StoreBannerListModel {
   String? defaultLink;
   String? createdBy;
   List<Translation>? translations;
+  int? bannerCatalogId;
 
   StoreBannerListModel({
     this.id,
@@ -31,6 +32,7 @@ class StoreBannerListModel {
     this.defaultLink,
     this.createdBy,
     this.translations,
+    this.bannerCatalogId,
   });
 
   StoreBannerListModel.fromJson(Map<String, dynamic> json) {
@@ -38,15 +40,16 @@ class StoreBannerListModel {
     title = json['title'];
     type = json['type'];
     imageFullUrl = json['image_full_url'];
-    status = json['status'];
+    status = json['status'] is int ? json['status'] == 1 : json['status'];
     data = json['data'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     zoneId = json['zone_id'];
     moduleId = json['module_id'];
-    featured = json['featured'];
+    featured = json['featured'] is int ? json['featured'] == 1 : json['featured'];
     defaultLink = json['default_link'];
     createdBy = json['created_by'];
+    bannerCatalogId = json['banner_catalog_id'];
     if (json['translations'] != null) {
       translations = [];
       json['translations'].forEach((v) {
@@ -70,6 +73,7 @@ class StoreBannerListModel {
     data['featured'] = featured;
     data['default_link'] = defaultLink;
     data['created_by'] = createdBy;
+    data['banner_catalog_id'] = bannerCatalogId;
     if (translations != null) {
       data['translations'] = translations!.map((v) => v.toJson()).toList();
     }

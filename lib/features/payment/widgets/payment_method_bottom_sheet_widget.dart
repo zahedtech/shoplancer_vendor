@@ -7,6 +7,7 @@ import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 
 class PaymentMethodBottomSheetWidget extends StatefulWidget {
   final bool isWalletPayment;
@@ -123,8 +124,12 @@ class _PaymentMethodBottomSheetWidgetState extends State<PaymentMethodBottomShee
                 buttonText: 'select'.tr,
                 onPressed: () {
                   if(widget.isWalletPayment) {
-                    double amount = Get.find<ProfileController>().profileModel!.cashInHands!;
-                    Get.find<PaymentController>().makeCollectCashPayment(amount, Get.find<PaymentController>().digitalPaymentName!);
+                    if (Get.find<PaymentController>().digitalPaymentName != null) {
+                      double amount = Get.find<ProfileController>().profileModel!.cashInHands!;
+                      Get.find<PaymentController>().makeCollectCashPayment(amount, Get.find<PaymentController>().digitalPaymentName!);
+                    } else {
+                      showCustomSnackBar('please_select_payment_method'.tr);
+                    }
                   }else {
                     Get.back();
                   }

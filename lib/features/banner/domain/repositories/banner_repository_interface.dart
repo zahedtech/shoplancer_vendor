@@ -8,4 +8,8 @@ abstract class BannerRepositoryInterface extends RepositoryInterface {
     required StoreBannerListModel? banner,
     XFile? image,
   });
+  Future<List<StoreBannerListModel>?> getCatalogBannerList();
+  Future<bool> addCatalogBanner(int? bannerId);
+  @override
+  Future<bool> delete(int? id, {int? catalogId});
 }

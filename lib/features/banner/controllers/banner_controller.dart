@@ -51,10 +51,10 @@ class BannerController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> deleteBanner(int? bannerID) async {
+  Future<void> deleteBanner(int? bannerID, {int? catalogId}) async {
     _isLoading = true;
     update();
-    bool isSuccess = await bannerServiceInterface.deleteBanner(bannerID);
+    bool isSuccess = await bannerServiceInterface.deleteBanner(bannerID, catalogId: catalogId);
     if (isSuccess) {
       await getBannerList(willUpdate: false);
       Get.back();
@@ -92,5 +92,38 @@ class BannerController extends GetxController implements GetxService {
     }
     update();
     return _storeBannerDetails;
+  }
+
+  List<StoreBannerListModel>? _catalogBannerList;
+  List<StoreBannerListModel>? get catalogBannerList => _catalogBannerList;
+
+  bool _isCatalogLoading = false;
+  bool get isCatalogLoading => _isCatalogLoading;
+
+  Future<void> getCatalogBannerList({bool willUpdate = true}) async {
+    _isCatalogLoading = true;
+    if (willUpdate) {
+      Future.microtask(() => update());
+    }
+    List<StoreBannerListModel>? catalogList = await bannerServiceInterface.getCatalogBannerList();
+    if (catalogList != null) {
+      _catalogBannerList = [];
+      _catalogBannerList!.addAll(catalogList);
+    }
+    _isCatalogLoading = false;
+    update();
+  }
+
+  Future<bool> addCatalogBanner(int? bannerId) async {
+    _isLoading = true;
+    update();
+    bool isSuccess = await bannerServiceInterface.addCatalogBanner(bannerId);
+    if (isSuccess) {
+      await getBannerList(willUpdate: false);
+      showCustomSnackBar('banner_added_successfully'.tr, isError: false);
+    }
+    _isLoading = false;
+    update();
+    return isSuccess;
   }
 }

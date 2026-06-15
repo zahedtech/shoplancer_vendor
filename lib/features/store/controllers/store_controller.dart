@@ -1289,6 +1289,34 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  Future<bool> updateItemStatusForProduct(int? itemId, bool isActive) async {
+    _isLoading = true;
+    update();
+    bool isSuccess = await storeServiceInterface.updateItemStatus(
+      itemId,
+      isActive ? 1 : 0,
+    );
+    if (isSuccess) {
+      if (_itemList != null) {
+        int index = _itemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _itemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      if (_stockItemList != null) {
+        int index = _stockItemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _stockItemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
+    }
+    _isLoading = false;
+    update();
+    return isSuccess;
+  }
+
+
   void initStoreBasicData() {
     _rawLogo = null;
     _rawCover = null;

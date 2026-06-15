@@ -225,126 +225,185 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                 height: Dimensions.paddingSizeLarge,
                               ),
 
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'title'.tr,
-                                      style: robotoBold.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
+                              if (_bannerType == _bannerTypeText) ...[
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'title'.tr,
+                                        style: robotoBold.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).textTheme.bodyLarge?.color,
+                                        ),
                                       ),
-                                    ),
-                                    TextSpan(
-                                      text: ' *'.tr,
-                                      style: robotoMedium.copyWith(
-                                        color: Colors.red,
+                                      TextSpan(
+                                        text: ' *'.tr,
+                                        style: robotoMedium.copyWith(
+                                          color: Colors.red,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeSmall,
-                              ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withValues(alpha: 0.2),
+                                    ),
+                                  ),
+                                  child: CustomTextFieldWidget(
+                                    hintText: 'enter_title'.tr,
+                                    showLabelText: false,
+                                    controller: _titleController[0],
+                                    capitalization: TextCapitalization.words,
+                                    focusNode: _titleFocusNode[0],
+                                    inputAction: TextInputAction.done,
+                                    showTitle: false,
+                                    required: true,
+                                    onChanged: (value) {
+                                      setState(() {});
+                                    },
+                                    validator: (value) {
+                                      if (_bannerType == _bannerTypeText) {
+                                        if (value == null || value.trim().isEmpty) {
+                                          return 'enter_title'.tr;
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
+                                ),
 
-                              Container(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeDefault,
+                                // Real-Time Preview
+                                Text('live_preview'.tr, style: robotoBold),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
                                 ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusDefault,
-                                  ),
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).disabledColor.withValues(alpha: 0.2),
-                                  ),
-                                ),
-                                child: CustomTextFieldWidget(
-                                  hintText: 'enter_title'.tr,
-                                  showLabelText: false,
-                                  controller: _titleController[0],
-                                  capitalization: TextCapitalization.words,
-                                  focusNode: _titleFocusNode[0],
-                                  nextFocus: _urlFocusNode,
-                                  showTitle: false,
-                                  required: true,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'enter_title'.tr;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeLarge,
-                              ),
-
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'redirection_url_link'.tr,
-                                      style: robotoBold.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
+                                  Container(
+                                    height: 125,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Theme.of(context).primaryColor,
+                                          Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
                                     ),
-                                    TextSpan(
-                                      text: ' *',
-                                      style: robotoBold.copyWith(
-                                        color: Colors.red,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        top: -20,
+                                        right: -20,
+                                        child: Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white.withValues(alpha: 0.08),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeSmall,
-                              ),
-
-                              Container(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeDefault,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusDefault,
+                                      Positioned(
+                                        bottom: -30,
+                                        left: 10,
+                                        child: Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white.withValues(alpha: 0.05),
+                                          ),
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              _titleController[0].text.isEmpty ? 'your_banner_text_here'.tr : _titleController[0].text,
+                                              textAlign: TextAlign.center,
+                                              style: robotoBold.copyWith(
+                                                fontSize: 24,
+                                                color: Colors.white,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black.withValues(alpha: 0.25),
+                                                    offset: const Offset(0, 2),
+                                                    blurRadius: 4,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 6,
+                                                height: 6,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.greenAccent,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'live'.tr.toUpperCase(),
+                                                style: robotoMedium.copyWith(
+                                                  fontSize: 8,
+                                                  color: Colors.white,
+                                                  letterSpacing: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).disabledColor.withValues(alpha: 0.2),
-                                  ),
                                 ),
-                                child: CustomTextFieldWidget(
-                                  hintText: 'enter_url'.tr,
-                                  showLabelText: false,
-                                  controller: _urlController,
-                                  focusNode: _urlFocusNode,
-                                  inputType: TextInputType.url,
-                                  inputAction: TextInputAction.done,
-                                  required: true,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'enter_url'.tr;
-                                    } else if (!UrlValidator.isValidUrl(
-                                      value.trim(),
-                                    )) {
-                                      return 'enter_valid_url'.tr;
-                                    }
-                                    return null;
-                                  },
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
                                 ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeLarge,
-                              ),
+                              ],
 
                               if (_bannerType == _bannerTypeImage) ...[
                                 RichText(
@@ -567,6 +626,11 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                               showCustomSnackBar('upload_a_banner'.tr);
                             } else {
                               List<Translation> translations = [];
+                              String titleText = isImageBanner
+                                  ? 'Banner Image'
+                                  : _titleController[0].text.trim();
+                              String defaultLinkText = 'https://example.com';
+
                               for (
                                 int index = 0;
                                 index < _languageList!.length;
@@ -576,7 +640,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                   Translation(
                                     locale: _languageList[index].key,
                                     key: 'title',
-                                    value: _titleController[0].text.trim(),
+                                    value: titleText,
                                   ),
                                 );
                               }
@@ -586,18 +650,17 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                               _storeBannerListModel?.translations!.addAll(
                                 translations,
                               );
-                              _storeBannerListModel?.defaultLink =
-                                  _urlController.text.trim();
+                              _storeBannerListModel?.defaultLink = defaultLinkText;
                               _storeBannerListModel?.type = _bannerType;
                               if (_update) {
                                 bannerController.updateBanner(
                                   banner: _storeBannerListModel,
-                                  image: storeController.rawLogo,
+                                  image: isImageBanner ? storeController.rawLogo : null,
                                 );
                               } else {
                                 bannerController.addBanner(
                                   banner: _storeBannerListModel,
-                                  image: storeController.rawLogo,
+                                  image: isImageBanner ? storeController.rawLogo : null,
                                 );
                               }
                             }

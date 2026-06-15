@@ -4,10 +4,12 @@ import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_lis
 abstract class BannerServiceInterface {
   Future<bool> addBanner({required StoreBannerListModel? banner, XFile? image});
   Future<List<StoreBannerListModel>?> getBannerList();
-  Future<bool> deleteBanner(int? bannerID);
+  Future<bool> deleteBanner(int? bannerID, {int? catalogId});
   Future<bool> updateBanner({
     required StoreBannerListModel? banner,
     XFile? image,
   });
   Future<StoreBannerListModel?> getBannerDetails(int id);
+  Future<List<StoreBannerListModel>?> getCatalogBannerList();
+  Future<bool> addCatalogBanner(int? bannerId);
 }

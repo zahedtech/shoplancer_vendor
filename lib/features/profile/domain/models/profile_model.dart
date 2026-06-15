@@ -43,6 +43,7 @@ class ProfileModel {
   SubscriptionOtherData? subscriptionOtherData;
   bool? subscriptionTransactions;
   int? outOfStockCount;
+  double? totalCommissionCollected;
 
   ProfileModel({
     this.id,
@@ -86,6 +87,7 @@ class ProfileModel {
     this.subscriptionOtherData,
     this.subscriptionTransactions,
     this.outOfStockCount,
+    this.totalCommissionCollected,
   });
 
   ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -186,6 +188,7 @@ class ProfileModel {
         : null;
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
+    totalCommissionCollected = json['total_commission_collected']?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
@@ -232,6 +235,7 @@ class ProfileModel {
     data['show_pay_now_button'] = showPayNowButton;
     data['subscription_transactions'] = subscriptionTransactions;
     data['out_of_stock_count'] = outOfStockCount;
+    data['total_commission_collected'] = totalCommissionCollected;
     return data;
   }
 }
@@ -293,6 +297,9 @@ class Store {
   double? minimumStockForWarning;
   Map<int, StorePaymentMethod>? paymentMethods;
   MetaSeoData? metaData;
+  String? facebook;
+  String? instagram;
+  String? tiktok;
 
   Store({
     this.id,
@@ -350,6 +357,9 @@ class Store {
     this.isHalalActive,
     this.minimumStockForWarning,
     this.paymentMethods,
+    this.facebook,
+    this.instagram,
+    this.tiktok,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
@@ -418,6 +428,9 @@ class Store {
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     isHalalActive = json['halal_tag_status'] ?? false;
     minimumStockForWarning = json['minimum_stock_for_warning']?.toDouble();
+    facebook = json['facebook'];
+    instagram = json['instagram'];
+    tiktok = json['tiktok'];
     if (json['methods'] != null) {
       paymentMethods = {};
       (json['methods'] as Map).forEach((key, value) {
@@ -517,6 +530,9 @@ class Store {
     data['extra_packaging_amount'] = extraPackagingAmount;
     data['halal_tag_status'] = isHalalActive;
     data['minimum_stock_for_warning'] = minimumStockForWarning;
+    data['facebook'] = facebook;
+    data['instagram'] = instagram;
+    data['tiktok'] = tiktok;
     if (paymentMethods != null) {
       data['methods'] = paymentMethods!.map(
         (key, value) => MapEntry(key.toString(), value.toJson()),

@@ -51,9 +51,9 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   final TextEditingController _walletPhoneController = TextEditingController();
   final TextEditingController _walletAccountNameController =
       TextEditingController();
-  final TextEditingController _instaPayApiKeyController =
+  final TextEditingController _instaPayPhoneController =
       TextEditingController();
-  final TextEditingController _instaPayMerchantIdController =
+  final TextEditingController _instaPayAccountNameController =
       TextEditingController();
 
   final FocusNode _orderAmountNode = FocusNode();
@@ -100,8 +100,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   late bool _initialIsInstaPayMethodEnabled;
   late String _initialWalletPhone;
   late String _initialWalletAccountName;
-  late String _initialInstaPayApiKey;
-  late String _initialInstaPayMerchantId;
+  late String _initialInstaPayPhone;
+  late String _initialInstaPayAccountName;
 
   @override
   void initState() {
@@ -157,10 +157,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
         .toString();
     _walletAccountNameController.text =
         (walletMethod?.configData?['account_name'] ?? '').toString();
-    _instaPayApiKeyController.text =
-        (instaPayMethod?.configData?['api_key'] ?? '').toString();
-    _instaPayMerchantIdController.text =
-        (instaPayMethod?.configData?['merchant_id'] ?? '').toString();
+    _instaPayPhoneController.text =
+        (instaPayMethod?.configData?['phone'] ?? '').toString();
+    _instaPayAccountNameController.text =
+        (instaPayMethod?.configData?['account_name'] ?? '').toString();
     print("hala tag :: ${_store.isHalalActive}");
 
     // Store initial values for reset functionality
@@ -193,8 +193,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _initialIsInstaPayMethodEnabled = _isInstaPayMethodEnabled;
     _initialWalletPhone = _walletPhoneController.text;
     _initialWalletAccountName = _walletAccountNameController.text;
-    _initialInstaPayApiKey = _instaPayApiKeyController.text;
-    _initialInstaPayMerchantId = _instaPayMerchantIdController.text;
+    _initialInstaPayPhone = _instaPayPhoneController.text;
+    _initialInstaPayAccountName = _instaPayAccountNameController.text;
   }
 
   profile.StorePaymentMethod? _getPaymentMethod(int methodId) {
@@ -219,8 +219,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _maximumController.text = _initialMaxTime;
     _walletPhoneController.text = _initialWalletPhone;
     _walletAccountNameController.text = _initialWalletAccountName;
-    _instaPayApiKeyController.text = _initialInstaPayApiKey;
-    _instaPayMerchantIdController.text = _initialInstaPayMerchantId;
+    _instaPayPhoneController.text = _initialInstaPayPhone;
+    _instaPayAccountNameController.text = _initialInstaPayAccountName;
 
     // Reset controller toggle states
     storeController.setGstEnabled(_initialIsGstEnabled);
@@ -554,10 +554,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                             Dimensions.paddingSizeExtraLarge,
                                       ),
                                       CustomTextFieldWidget(
-                                        hintText: 'API Key',
-                                        labelText: 'API Key',
-                                        controller: _instaPayApiKeyController,
-                                        inputType: TextInputType.text,
+                                        hintText: 'phone_number'.tr,
+                                        labelText: 'phone_number'.tr,
+                                        controller: _instaPayPhoneController,
+                                        inputType: TextInputType.phone,
                                         isEnabled: _isInstaPayMethodEnabled,
                                         hideEnableText: true,
                                       ),
@@ -566,10 +566,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                             Dimensions.paddingSizeExtraLarge,
                                       ),
                                       CustomTextFieldWidget(
-                                        hintText: 'Merchant ID',
-                                        labelText: 'Merchant ID',
+                                        hintText: 'holder_name'.tr,
+                                        labelText: 'holder_name'.tr,
                                         controller:
-                                            _instaPayMerchantIdController,
+                                            _instaPayAccountNameController,
                                         inputType: TextInputType.text,
                                         isEnabled: _isInstaPayMethodEnabled,
                                         hideEnableText: true,
@@ -1128,10 +1128,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       .trim();
                                   String walletAccountName =
                                       _walletAccountNameController.text.trim();
-                                  String instaPayApiKey =
-                                      _instaPayApiKeyController.text.trim();
-                                  String instaPayMerchantId =
-                                      _instaPayMerchantIdController.text.trim();
+                                  String instaPayPhone =
+                                      _instaPayPhoneController.text.trim();
+                                  String instaPayAccountName =
+                                      _instaPayAccountNameController.text.trim();
 
                                   if (minimumOrder.isEmpty) {
                                     showCustomSnackBar(
@@ -1300,9 +1300,9 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                         isActive: _isInstaPayMethodEnabled,
                                         configData: _isInstaPayMethodEnabled
                                             ? {
-                                                'api_key': instaPayApiKey,
-                                                'merchant_id':
-                                                    instaPayMerchantId,
+                                                'phone': instaPayPhone,
+                                                'account_name':
+                                                    instaPayAccountName,
                                               }
                                             : null,
                                       ),

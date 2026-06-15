@@ -63,15 +63,67 @@ class OrderWidget extends StatelessWidget {
                             ),
                           ),
                           Text(' # ${orderModel.id}', style: robotoBold),
-                          Text(
-                            ' (${orderModel.detailsCount} ${orderModel.detailsCount! < 2 ? 'item'.tr : 'items'.tr})',
-                            style: robotoRegular.copyWith(
-                              color: Theme.of(context).hintColor,
-                            ),
-                          ),
                         ],
                       ),
 
+                      Text(
+                        DateConverterHelper.orderCardDate(
+                          orderModel.createdAt!,
+                        ),
+                        style: robotoRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                  //Customer name
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "customer_name".tr,
+                              style: robotoMedium.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .color!
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: Dimensions.paddingSizeExtraSmall,
+                            ),
+                            Flexible(
+                              child: Text(
+                                orderModel.customer?.fName ??
+                                    orderModel
+                                        .deliveryAddress!
+                                        .contactPersonName ??
+                                    "Unknown",
+                                style: robotoMedium.copyWith(
+                                  fontSize: Dimensions.fontSizeSmall,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .color!
+                                      .withValues(alpha: 0.5),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: Dimensions.paddingSizeSmall,
@@ -132,43 +184,6 @@ class OrderWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                  Text(
-                    DateConverterHelper.utcToDateTime(orderModel.createdAt!),
-                    style: robotoRegular.copyWith(
-                      fontSize: Dimensions.fontSizeSmall,
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodyLarge!.color!.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  //Customer name
-                  Row(
-                    children: [
-                      Text(
-                        "customer_name".tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge!.color!.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                      Text(
-                        orderModel.customer?.fName ??
-                            orderModel.deliveryAddress!.contactPersonName ??
-                            "Unknown",
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge!.color!.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
               Divider(),
@@ -181,7 +196,7 @@ class OrderWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'order_type'.tr,
+                          'payment_method'.tr,
                           style: robotoRegular.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
                             color: Theme.of(context).hintColor,
@@ -190,16 +205,20 @@ class OrderWidget extends StatelessWidget {
                         const SizedBox(height: Dimensions.paddingSizeSmall),
 
                         Text(
-                          orderModel.orderType == 'delivery'
-                              ? 'home_delivery'.tr
-                              : orderModel.orderType!.tr,
+                          orderModel.paymentMethod == 'cash_on_delivery'
+                              ? 'cash_on_delivery'.tr
+                              : orderModel.paymentMethod == 'wallet'
+                              ? 'wallet_payment'.tr
+                              : orderModel.paymentMethod == 'cash'
+                              ? 'cash'.tr
+                              : orderModel.paymentMethod == 'digital_payment'
+                              ? 'digital_payment'.tr
+                              : (orderModel.paymentMethod ?? '')
+                                    .replaceAll('_', ' ')
+                                    .tr,
                           style: robotoMedium.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
-                            color: orderModel.orderType == 'delivery'
-                                ? Colors.indigo
-                                : orderModel.orderType == 'take_away'
-                                ? Colors.orangeAccent
-                                : Theme.of(context).primaryColor,
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                       ],
@@ -210,16 +229,7 @@ class OrderWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        orderModel.paymentMethod == 'cash_on_delivery'
-                            ? 'amount'.tr
-                            : orderModel.paymentMethod == 'wallet'
-                            ? 'wallet_payment'.tr
-                            : orderModel.paymentMethod == 'cash'
-                            ? 'cash'.tr
-                            : orderModel.paymentMethod == 'digital_payment'
-                            ? 'digital_payment'.tr
-                            : orderModel.paymentMethod?.replaceAll('_', ' ') ??
-                                  '',
+                        'total_amount'.tr,
                         style: robotoRegular.copyWith(
                           fontSize: Dimensions.fontSizeSmall,
                           color: Theme.of(context).hintColor,

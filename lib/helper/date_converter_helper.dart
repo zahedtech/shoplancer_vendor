@@ -83,6 +83,10 @@ class DateConverterHelper {
     ).format(DateTime.parse(dateTime).toLocal());
   }
 
+  static String orderCardDate(String dateTime) {
+    return DateFormat('M/d h:mma').format(DateTime.parse(dateTime).toLocal());
+  }
+
   static String utcToDate(String dateTime) {
     return DateFormat('dd MMM, yyyy').format(DateTime.parse(dateTime));
   }
