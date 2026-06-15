@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/banner/domain/repositories/taxi_banner_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/banner/domain/repositories/taxi_banner_repository_interface.dart';
 
 class TaxiBannerRepository implements TaxiBannerRepositoryInterface {
   final ApiClient apiClient;

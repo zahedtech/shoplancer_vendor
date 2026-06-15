@@ -1,9 +1,9 @@
 import 'package:get/get_connect/http/src/response/response.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/advertisement/domain/repositories/advertisement_repository_interface.dart';
-import 'package:sixam_mart_store/features/advertisement/domain/services/advertisement_service_interface.dart';
-import 'package:sixam_mart_store/features/advertisement/models/ads_details_model.dart';
-import 'package:sixam_mart_store/features/advertisement/models/advertisement_model.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/advertisement/domain/repositories/advertisement_repository_interface.dart';
+import 'package:shoplancer_vendor/features/advertisement/domain/services/advertisement_service_interface.dart';
+import 'package:shoplancer_vendor/features/advertisement/models/ads_details_model.dart';
+import 'package:shoplancer_vendor/features/advertisement/models/advertisement_model.dart';
 
 class AdvertisementService implements AdvertisementServiceInterface {
   final AdvertisementRepositoryInterface advertisementRepositoryInterface;

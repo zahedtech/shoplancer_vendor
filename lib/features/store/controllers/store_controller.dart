@@ -1,37 +1,37 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/common/models/vat_tax_model.dart';
-import 'package:sixam_mart_store/features/addon/controllers/addon_controller.dart';
-import 'package:sixam_mart_store/features/ai/controllers/ai_controller.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/attribute_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/other_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/variation_data_model.dart';
-import 'package:sixam_mart_store/features/category/controllers/category_controller.dart';
-import 'package:sixam_mart_store/features/category/domain/models/category_model.dart';
-import 'package:sixam_mart_store/features/dashboard/screens/dashboard_screen.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attr.dart';
-import 'package:sixam_mart_store/features/store/domain/models/band_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/suitable_tag_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variant_type_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/pending_item_model.dart'
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
+import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
+import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/attribute_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/other_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/variation_data_model.dart';
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
+import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
+import 'package:shoplancer_vendor/features/dashboard/screens/dashboard_screen.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attr.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/band_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/suitable_tag_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variant_type_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variation_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart'
     hide CategoryIds;
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/unit_model.dart';
-import 'package:sixam_mart_store/features/rental_module/profile/controllers/taxi_profile_controller.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
+import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/store/domain/services/store_service_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/services/store_service_interface.dart';
 
 class StoreController extends GetxController implements GetxService {
   final StoreServiceInterface storeServiceInterface;
@@ -373,7 +373,10 @@ class StoreController extends GetxController implements GetxService {
       await storeServiceInterface.stockUpdate(data);
     }
     _isLoading = false;
-    showCustomSnackBar('selected_items_updated_successfully'.tr, isError: false);
+    showCustomSnackBar(
+      'selected_items_updated_successfully'.tr,
+      isError: false,
+    );
     _selectedItemList = [];
     _isSelectionMode = false;
     getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
@@ -381,7 +384,11 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Map<String, String> buildStockUpdateData(Item item, {double? price, int? stock}) {
+  Map<String, String> buildStockUpdateData(
+    Item item, {
+    double? price,
+    int? stock,
+  }) {
     final Map<String, String> data = {
       '_method': 'post',
       'id': item.id.toString(),
@@ -392,7 +399,10 @@ class StoreController extends GetxController implements GetxService {
       'unit_price': price?.toString() ?? item.price.toString(),
       'discount': item.discount?.toString() ?? '0',
       'discount_type': item.discountType ?? 'amount',
-      'store_id': Get.find<ProfileController>().profileModel?.stores?[0].id.toString() ?? '',
+      'store_id':
+          Get.find<ProfileController>().profileModel?.stores?[0].id
+              .toString() ??
+          '',
       'category_id': item.categoryId?.toString() ?? '',
     };
 
@@ -1279,6 +1289,34 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  Future<bool> updateItemStatusForProduct(int? itemId, bool isActive) async {
+    _isLoading = true;
+    update();
+    bool isSuccess = await storeServiceInterface.updateItemStatus(
+      itemId,
+      isActive ? 1 : 0,
+    );
+    if (isSuccess) {
+      if (_itemList != null) {
+        int index = _itemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _itemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      if (_stockItemList != null) {
+        int index = _stockItemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _stockItemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
+    }
+    _isLoading = false;
+    update();
+    return isSuccess;
+  }
+
+
   void initStoreBasicData() {
     _rawLogo = null;
     _rawCover = null;
@@ -1327,9 +1365,14 @@ class StoreController extends GetxController implements GetxService {
       showCustomSnackBar('disable_open_24_hours_to_edit_schedule'.tr);
       return;
     }
-    schedule.openingTime = schedule.openingTime!.length == 5 ? '${schedule.openingTime!}:00' : schedule.openingTime;
-    schedule.closingTime = schedule.closingTime!.length == 5 ? '${schedule.closingTime!}:00' : schedule.closingTime;
-    schedule.storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
+    schedule.openingTime = schedule.openingTime!.length == 5
+        ? '${schedule.openingTime!}:00'
+        : schedule.openingTime;
+    schedule.closingTime = schedule.closingTime!.length == 5
+        ? '${schedule.closingTime!}:00'
+        : schedule.closingTime;
+    schedule.storeId =
+        Get.find<ProfileController>().profileModel?.stores?[0].id;
     _scheduleLoading = true;
     update();
     int? scheduleID = await storeServiceInterface.addSchedule(schedule);
@@ -1517,8 +1560,12 @@ class StoreController extends GetxController implements GetxService {
       for (final schedule in _backupScheduleList!) {
         final Schedules newSchedule = Schedules(
           day: schedule.day,
-          openingTime: schedule.openingTime!.length == 5 ? '${schedule.openingTime!}:00' : schedule.openingTime,
-          closingTime: schedule.closingTime!.length == 5 ? '${schedule.closingTime!}:00' : schedule.closingTime,
+          openingTime: schedule.openingTime!.length == 5
+              ? '${schedule.openingTime!}:00'
+              : schedule.openingTime,
+          closingTime: schedule.closingTime!.length == 5
+              ? '${schedule.closingTime!}:00'
+              : schedule.closingTime,
           storeId: Get.find<ProfileController>().profileModel?.stores?[0].id,
         );
         final int? scheduleId = await storeServiceInterface.addSchedule(

@@ -4,7 +4,12 @@ class WalletPaymentModel {
   int? offset;
   List<Transactions>? transactions;
 
-  WalletPaymentModel({this.totalSize, this.limit, this.offset, this.transactions});
+  WalletPaymentModel({
+    this.totalSize,
+    this.limit,
+    this.offset,
+    this.transactions,
+  });
 
   WalletPaymentModel.fromJson(Map<String, dynamic> json) {
     totalSize = json['total_size'];

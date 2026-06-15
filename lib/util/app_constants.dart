@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/language/domain/models/language_model.dart';
-import 'package:sixam_mart_store/util/images.dart';
+import 'package:shoplancer_vendor/features/language/domain/models/language_model.dart';
+import 'package:shoplancer_vendor/util/images.dart';
 
 class AppConstants {
   static const String appName = 'Shoplancer Vendor';
@@ -12,7 +12,7 @@ class AppConstants {
   static const double limitOfPickedVideoSizeInMB = 50;
   static const double maxSizeOfASingleFile = 10;
 
-  static const String baseUrl = 'https://market.shoplanser.com';
+  static const String baseUrl = 'https://dashboard.shoplanser.com';
 
   static const String configUri = '/api/v1/config';
   static const String loginUri = '/api/v1/auth/vendor/login';
@@ -108,6 +108,8 @@ class AppConstants {
   static const String deleteStoreBannerUri = '/api/v1/vendor/banner/delete';
   static const String updateStoreBannerUri = '/api/v1/vendor/banner/update';
   static const String storeBannerDetailsUri = '/api/v1/vendor/banner/edit';
+  static const String catalogBannerUri = '/api/v1/banner-catalogs';
+  static const String addCatalogBannerUri = '/api/v1/vendor/banner/catalog/add';
   static const String announcementUri = '/api/v1/vendor/update-announcment';
   static const String addWithdrawMethodUri =
       '/api/v1/vendor/withdraw-method/store';
@@ -144,6 +146,7 @@ class AppConstants {
   static const String getTaxReportUri = '/api/v1/vendor/get-tax-report';
   static const String categoryWiseProducts =
       '/api/v1/vendor/categories/category-wise-products';
+  static const String updateSocialMediaUri = '/api/v1/vendor/social-media';
 
   /// Subscription url
   static const String restaurantPackagesUri = '/api/v1/vendor/package-view';

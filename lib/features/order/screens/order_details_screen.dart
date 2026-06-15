@@ -6,36 +6,34 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
-import 'package:sixam_mart_store/features/order/controllers/order_controller.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
-import 'package:sixam_mart_store/features/chat/domain/models/conversation_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_details_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/price_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/confirmation_dialog_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/input_dialog_widget.dart';
-import 'package:sixam_mart_store/features/order/screens/invoice_print_screen.dart';
-import 'package:sixam_mart_store/features/order/widgets/amount_input_dialogue_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/camera_button_sheet_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/cancellation_dialogue_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/collect_money_delivery_sheet_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/dialogue_image_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/order_item_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/slider_button_widget.dart';
-import 'package:sixam_mart_store/features/order/widgets/verify_delivery_sheet_widget.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_details_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/input_dialog_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/order/screens/invoice_print_screen.dart';
+import 'package:shoplancer_vendor/features/order/widgets/amount_input_dialogue_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/camera_button_sheet_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/cancellation_dialogue_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/collect_money_delivery_sheet_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/dialogue_image_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/order_item_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/slider_button_widget.dart';
+import 'package:shoplancer_vendor/features/order/widgets/verify_delivery_sheet_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -225,8 +223,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                         _shareInvoice(controller);
                       }
                     },
-                    icon: Icon(Icons.share,
-                        color: Theme.of(context).primaryColor),
+                    icon: Icon(
+                      Icons.share,
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                   if (Platform.isAndroid)
                     GestureDetector(
@@ -490,24 +490,53 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             ],
                                           ),
 
-                                          if (orderController.isOrderChecklistComplete(order!.id!)) ...[
+                                          if (orderController
+                                              .isOrderChecklistComplete(
+                                                order!.id!,
+                                              )) ...[
                                             Container(
                                               width: double.infinity,
-                                              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                              margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-                                              decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                border: Border.all(color: Colors.green.withOpacity(0.5)),
+                                              padding: const EdgeInsets.all(
+                                                Dimensions.paddingSizeSmall,
                                               ),
-                                              child: Row(children: [
-                                                const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                                                const SizedBox(width: Dimensions.paddingSizeSmall),
-                                                Text(
-                                                  'all_items_prepared_and_ready_for_delivery'.tr,
-                                                  style: robotoMedium.copyWith(color: Colors.green),
+                                              margin: const EdgeInsets.only(
+                                                bottom:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.green.withOpacity(
+                                                  0.1,
                                                 ),
-                                              ]),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      Dimensions.radiusSmall,
+                                                    ),
+                                                border: Border.all(
+                                                  color: Colors.green
+                                                      .withOpacity(0.5),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.green,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(
+                                                    width: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
+                                                  Text(
+                                                    'all_items_prepared_and_ready_for_delivery'
+                                                        .tr,
+                                                    style: robotoMedium
+                                                        .copyWith(
+                                                          color: Colors.green,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
 
@@ -533,18 +562,45 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         Row(
                                                           children: [
                                                             Checkbox(
-                                                              value: orderController.isItemChecked(order!.id!, orderController.orderDetailsModel![index].id!),
-                                                              activeColor: Theme.of(context).primaryColor,
-                                                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                                              value: orderController
+                                                                  .isItemChecked(
+                                                                    order!.id!,
+                                                                    orderController
+                                                                        .orderDetailsModel![index]
+                                                                        .id!,
+                                                                  ),
+                                                              activeColor:
+                                                                  Theme.of(
+                                                                    context,
+                                                                  ).primaryColor,
+                                                              visualDensity:
+                                                                  const VisualDensity(
+                                                                    horizontal:
+                                                                        -4,
+                                                                    vertical:
+                                                                        -4,
+                                                                  ),
                                                               onChanged: (bool? value) {
-                                                                orderController.toggleItemCheck(order!.id!, orderController.orderDetailsModel![index].id!);
+                                                                orderController
+                                                                    .toggleItemCheck(
+                                                                      order!
+                                                                          .id!,
+                                                                      orderController
+                                                                          .orderDetailsModel![index]
+                                                                          .id!,
+                                                                    );
                                                               },
                                                             ),
-                                                            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                                                            const SizedBox(
+                                                              width: Dimensions
+                                                                  .paddingSizeExtraSmall,
+                                                            ),
                                                             Expanded(
                                                               child: OrderItemWidget(
                                                                 order: order,
-                                                                orderDetails: orderController.orderDetailsModel![index],
+                                                                orderDetails:
+                                                                    orderController
+                                                                        .orderDetailsModel![index],
                                                               ),
                                                             ),
                                                           ],
@@ -796,19 +852,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             ),
                                             Row(
                                               children: [
-                                                ClipOval(
-                                                  child: CustomImageWidget(
-                                                    image:
-                                                        '${order.customer != null ? order.customer!.imageFullUrl : ''}',
-                                                    height: 55,
-                                                    width: 55,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
                                                 Expanded(
                                                   child: Column(
                                                     crossAxisAlignment:
@@ -893,65 +936,64 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                           ? const SizedBox()
                                                           : Row(
                                                               children: [
-                                                                IconButton(
-                                                                  onPressed: () async {
-                                                                    if (Get.find<
-                                                                                  ProfileController
-                                                                                >()
-                                                                                .profileModel!
-                                                                                .subscription !=
-                                                                            null &&
-                                                                        Get.find<
-                                                                                  ProfileController
-                                                                                >()
-                                                                                .profileModel!
-                                                                                .subscription!
-                                                                                .chat ==
-                                                                            0 &&
-                                                                        Get.find<
-                                                                                  ProfileController
-                                                                                >()
-                                                                                .profileModel!
-                                                                                .stores![0]
-                                                                                .storeBusinessModel ==
-                                                                            'subscription') {
-                                                                      showCustomSnackBar(
-                                                                        'you_have_no_available_subscription'
-                                                                            .tr,
-                                                                      );
-                                                                    } else {
-                                                                      _timer
-                                                                          ?.cancel();
-                                                                      await Get.toNamed(
-                                                                        RouteHelper.getChatRoute(
-                                                                          notificationBody: NotificationBodyModel(
-                                                                            orderId:
-                                                                                order.id,
-                                                                            customerId:
-                                                                                order.customer!.id,
-                                                                          ),
-                                                                          user: User(
-                                                                            id: order.customer!.id,
-                                                                            fName:
-                                                                                order.customer!.fName,
-                                                                            lName:
-                                                                                order.customer!.lName,
-                                                                            imageFullUrl:
-                                                                                order.customer!.imageFullUrl,
-                                                                          ),
-                                                                        ),
-                                                                      );
-                                                                      _startApiCalling();
-                                                                    }
-                                                                  },
-                                                                  icon: Image.asset(
-                                                                    Images
-                                                                        .chatIcon,
-                                                                    width: 22,
-                                                                    height: 22,
-                                                                  ),
-                                                                ),
-
+                                                                // IconButton(
+                                                                //   onPressed: () async {
+                                                                //     if (Get.find<
+                                                                //                   ProfileController
+                                                                //                 >()
+                                                                //                 .profileModel!
+                                                                //                 .subscription !=
+                                                                //             null &&
+                                                                //         Get.find<
+                                                                //                   ProfileController
+                                                                //                 >()
+                                                                //                 .profileModel!
+                                                                //                 .subscription!
+                                                                //                 .chat ==
+                                                                //             0 &&
+                                                                //         Get.find<
+                                                                //                   ProfileController
+                                                                //                 >()
+                                                                //                 .profileModel!
+                                                                //                 .stores![0]
+                                                                //                 .storeBusinessModel ==
+                                                                //             'subscription') {
+                                                                //       showCustomSnackBar(
+                                                                //         'you_have_no_available_subscription'
+                                                                //             .tr,
+                                                                //       );
+                                                                //     } else {
+                                                                //       _timer
+                                                                //           ?.cancel();
+                                                                //       await Get.toNamed(
+                                                                //         RouteHelper.getChatRoute(
+                                                                //           notificationBody: NotificationBodyModel(
+                                                                //             orderId:
+                                                                //                 order.id,
+                                                                //             customerId:
+                                                                //                 order.customer!.id,
+                                                                //           ),
+                                                                //           user: User(
+                                                                //             id: order.customer!.id,
+                                                                //             fName:
+                                                                //                 order.customer!.fName,
+                                                                //             lName:
+                                                                //                 order.customer!.lName,
+                                                                //             imageFullUrl:
+                                                                //                 order.customer!.imageFullUrl,
+                                                                //           ),
+                                                                //         ),
+                                                                //       );
+                                                                //       _startApiCalling();
+                                                                //     }
+                                                                //   },
+                                                                //   icon: Image.asset(
+                                                                //     Images
+                                                                //         .chatIcon,
+                                                                //     width: 22,
+                                                                //     height: 22,
+                                                                //   ),
+                                                                // ),
                                                                 if (order
                                                                             .customer
                                                                             ?.phone !=
@@ -2676,7 +2718,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                 ),
                               )
                             : showBottomView
-                                ? false
+                            ? false
                                   ? Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal:
@@ -2865,38 +2907,39 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
                                                     Expanded(
                                                       child: CustomButtonWidget(
-                                                        buttonText:
-                                                            'confirm'.tr,
+                                                        buttonText: order!.moduleType == 'grocery'
+                                                            ? 'ready_for_handover'.tr
+                                                            : 'confirm'.tr,
                                                         height: 40,
                                                         onPressed: () {
-                                                          Get.dialog(
-                                                            ConfirmationDialogWidget(
-                                                              icon: Images
-                                                                  .warning,
-                                                              title:
-                                                                  'are_you_sure_to_confirm'
-                                                                      .tr,
-                                                              description:
-                                                                  'you_want_to_confirm_this_order'
-                                                                      .tr,
-                                                              onYesPressed: () {
-                                                                orderController.updateOrderStatus(
-                                                                  widget
-                                                                      .orderId,
-                                                                  order!.moduleType ==
-                                                                          'grocery'
-                                                                      ? AppConstants
-                                                                            .handover
-                                                                      : AppConstants
-                                                                            .confirmed,
-                                                                  fromNotification:
-                                                                      true,
-                                                                );
-                                                              },
-                                                            ),
-                                                            barrierDismissible:
-                                                                false,
-                                                          );
+                                                          if (order!.moduleType == 'grocery') {
+                                                            orderController.updateOrderStatus(
+                                                              widget.orderId,
+                                                              AppConstants.handover,
+                                                              fromNotification: true,
+                                                            );
+                                                          } else {
+                                                            Get.dialog(
+                                                              ConfirmationDialogWidget(
+                                                                icon: Images.warning,
+                                                                title:
+                                                                    'are_you_sure_to_confirm'
+                                                                        .tr,
+                                                                description:
+                                                                    'you_want_to_confirm_this_order'
+                                                                        .tr,
+                                                                onYesPressed: () {
+                                                                  orderController.updateOrderStatus(
+                                                                    widget.orderId,
+                                                                    AppConstants.confirmed,
+                                                                    fromNotification: true,
+                                                                  );
+                                                                },
+                                                              ),
+                                                              barrierDismissible:
+                                                                  false,
+                                                            );
+                                                          }
                                                         },
                                                       ),
                                                     ),
@@ -2920,43 +2963,46 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                             'take_away' ||
                                                         restConfModel ||
                                                         selfDelivery)) {
-                                                  Get.dialog(
-                                                    ConfirmationDialogWidget(
-                                                      icon: Images.warning,
-                                                      title:
-                                                          'are_you_sure_to_confirm'
-                                                              .tr,
-                                                      description:
-                                                          'you_want_to_confirm_this_order'
-                                                              .tr,
-                                                      onYesPressed: () {
-                                                        orderController
-                                                            .updateOrderStatus(
-                                                              widget.orderId,
-                                                              order!.moduleType ==
-                                                                      'grocery'
-                                                                  ? AppConstants
-                                                                        .handover
-                                                                  : AppConstants
-                                                                        .confirmed,
-                                                            );
-                                                      },
-                                                      onNoPressed: () {
-                                                        if (cancelPermission!) {
+                                                  if (order!.moduleType == 'grocery') {
+                                                    orderController.updateOrderStatus(
+                                                      widget.orderId,
+                                                      AppConstants.handover,
+                                                    );
+                                                  } else {
+                                                    Get.dialog(
+                                                      ConfirmationDialogWidget(
+                                                        icon: Images.warning,
+                                                        title:
+                                                            'are_you_sure_to_confirm'
+                                                                .tr,
+                                                        description:
+                                                            'you_want_to_confirm_this_order'
+                                                                .tr,
+                                                        onYesPressed: () {
                                                           orderController
                                                               .updateOrderStatus(
                                                                 widget.orderId,
                                                                 AppConstants
-                                                                    .canceled,
-                                                                back: true,
+                                                                    .confirmed,
                                                               );
-                                                        } else {
-                                                          Get.back();
-                                                        }
-                                                      },
-                                                    ),
-                                                    barrierDismissible: false,
-                                                  );
+                                                        },
+                                                        onNoPressed: () {
+                                                          if (cancelPermission!) {
+                                                            orderController
+                                                                .updateOrderStatus(
+                                                                  widget.orderId,
+                                                                  AppConstants
+                                                                      .canceled,
+                                                                  back: true,
+                                                                );
+                                                          } else {
+                                                            Get.back();
+                                                          }
+                                                        },
+                                                      ),
+                                                      barrierDismissible: false,
+                                                    );
+                                                  }
                                                 } else if (order!.moduleType ==
                                                         'grocery' &&
                                                     (controllerOrderModel
@@ -3064,42 +3110,131 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         });
                                                   }
                                                 } else if (controllerOrderModel
-                                                            .orderStatus ==
-                                                        'handover') {
-                                                  Get.find<OrderController>()
-                                                      .updateOrderStatus(
-                                                    controllerOrderModel.id,
-                                                    AppConstants.pickedUp,
-                                                  );
-                                                } else if (controllerOrderModel
-                                                            .orderStatus ==
-                                                        'picked_up') {
-                                                  if (Get.find<
-                                                            SplashController
-                                                          >()
-                                                          .configModel!
-                                                          .orderDeliveryVerification! ||
-                                                      controllerOrderModel
-                                                              .paymentMethod ==
-                                                          'cash_on_delivery') {
-                                                    orderController
-                                                        .changeDeliveryImageStatus();
-                                                    if (kDebugMode) {
-                                                      print(
-                                                        '=====jjj : ${Get.find<SplashController>().configModel!.dmPictureUploadStatus!}',
-                                                      );
-                                                    }
-                                                    if (Get.find<
-                                                          SplashController
-                                                        >()
-                                                        .configModel!
-                                                        .dmPictureUploadStatus!) {
-                                                      Get.dialog(
-                                                        const DialogImageWidget(),
-                                                        barrierDismissible:
-                                                            false,
-                                                      );
-                                                    }
+                                                        .orderStatus ==
+                                                    'handover') {
+                                                  if (!selfDelivery) {
+                                                    Get.dialog(
+                                                      DriverNameInputDialogWidget(
+                                                        onPressed: (driverName) {
+                                                          Get.find<OrderController>()
+                                                              .updateOrderStatus(
+                                                                controllerOrderModel.id,
+                                                                AppConstants.pickedUp,
+                                                                externalDeliveryManName: driverName,
+                                                              );
+                                                        },
+                                                      ),
+                                                      barrierDismissible: false,
+                                                    );
+                                                  } else {
+                                                    Get.find<OrderController>()
+                                                        .updateOrderStatus(
+                                                          controllerOrderModel.id,
+                                                          AppConstants.pickedUp,
+                                                        );
+                                                  }
+                                                } else if (controllerOrderModel.orderStatus == 'picked_up') {
+                                                  if (Get.find<SplashController>()
+                                                      .configModel!
+                                                      .orderDeliveryVerification!) {
+                                                    orderController.sendDeliveredNotification(
+                                                      controllerOrderModel.id,
+                                                    );
+                                                    Get.bottomSheet(
+                                                      VerifyDeliverySheetWidget(
+                                                        orderID: controllerOrderModel.id,
+                                                        verify: Get.find<SplashController>()
+                                                            .configModel!
+                                                            .orderDeliveryVerification,
+                                                        orderAmount:
+                                                            order!.paymentMethod ==
+                                                                    'partial_payment'
+                                                                ? order.payments![1].amount!
+                                                                      .toDouble()
+                                                                : controllerOrderModel
+                                                                      .orderAmount,
+                                                        cod:
+                                                            controllerOrderModel
+                                                                    .paymentMethod ==
+                                                                'cash_on_delivery' ||
+                                                            (order.paymentMethod ==
+                                                                    'partial_payment' &&
+                                                                order
+                                                                        .payments![1]
+                                                                        .paymentMethod ==
+                                                                    'cash_on_delivery'),
+                                                      ),
+                                                      isScrollControlled: true,
+                                                    ).then((isSuccess) {
+                                                      if (isSuccess &&
+                                                          (controllerOrderModel
+                                                                  .paymentMethod ==
+                                                              'cash_on_delivery' ||
+                                                          (order.paymentMethod ==
+                                                                  'partial_payment' &&
+                                                              order
+                                                                      .payments![1]
+                                                                      .paymentMethod ==
+                                                                  'cash_on_delivery'))) {
+                                                        Get.bottomSheet(
+                                                          CollectMoneyDeliverySheetWidget(
+                                                            orderID: controllerOrderModel.id,
+                                                            verify:
+                                                                Get.find<SplashController>()
+                                                                    .configModel!
+                                                                    .orderDeliveryVerification,
+                                                            orderAmount:
+                                                                order.paymentMethod ==
+                                                                        'partial_payment'
+                                                                    ? order.payments![1].amount!
+                                                                          .toDouble()
+                                                                    : controllerOrderModel
+                                                                          .orderAmount,
+                                                            cod:
+                                                                controllerOrderModel
+                                                                        .paymentMethod ==
+                                                                    'cash_on_delivery' ||
+                                                                (order.paymentMethod ==
+                                                                        'partial_payment' &&
+                                                                    order
+                                                                            .payments![1]
+                                                                            .paymentMethod ==
+                                                                        'cash_on_delivery'),
+                                                          ),
+                                                          isScrollControlled: true,
+                                                          isDismissible: false,
+                                                        );
+                                                      }
+                                                    });
+                                                  } else if (controllerOrderModel.paymentMethod == 'cash_on_delivery' ||
+                                                      (order!.paymentMethod == 'partial_payment' &&
+                                                          order.payments![1].paymentMethod == 'cash_on_delivery')) {
+                                                    Get.bottomSheet(
+                                                      CollectMoneyDeliverySheetWidget(
+                                                        orderID: controllerOrderModel.id,
+                                                        verify: Get.find<SplashController>()
+                                                            .configModel!
+                                                            .orderDeliveryVerification,
+                                                        orderAmount:
+                                                            order.paymentMethod ==
+                                                                    'partial_payment'
+                                                                ? order.payments![1].amount!
+                                                                      .toDouble()
+                                                                : controllerOrderModel
+                                                                      .orderAmount,
+                                                        cod:
+                                                            controllerOrderModel
+                                                                    .paymentMethod ==
+                                                                'cash_on_delivery' ||
+                                                            (order.paymentMethod ==
+                                                                    'partial_payment' &&
+                                                                order
+                                                                        .payments![1]
+                                                                        .paymentMethod ==
+                                                                    'cash_on_delivery'),
+                                                      ),
+                                                      isScrollControlled: true,
+                                                    );
                                                   } else {
                                                     Get.find<OrderController>()
                                                         .updateOrderStatus(
@@ -3120,8 +3255,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                 'take_away' ||
                                                             restConfModel ||
                                                             selfDelivery))
-                                                    ? 'swipe_to_confirm_order'
-                                                          .tr
+                                                    ? (order!.moduleType == 'grocery'
+                                                        ? 'swipe_if_ready_for_handover'.tr
+                                                        : 'swipe_to_confirm_order'.tr)
                                                     : (order!.moduleType ==
                                                               'grocery' &&
                                                           (controllerOrderModel
@@ -3168,13 +3304,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                     ? 'swipe_if_ready_for_handover'
                                                           .tr
                                                     : (controllerOrderModel
-                                                                  .orderStatus ==
-                                                              'handover')
+                                                              .orderStatus ==
+                                                          'handover')
                                                     ? 'swipe_to_picked_up'.tr
                                                     : (controllerOrderModel
-                                                                  .orderStatus ==
-                                                              'picked_up')
-                                                    ? 'swipe_to_deliver_order'.tr
+                                                              .orderStatus ==
+                                                          'picked_up')
+                                                    ? 'swipe_to_deliver_order'
+                                                          .tr
                                                     : '',
                                                 style: robotoMedium.copyWith(
                                                   fontSize:
@@ -3308,4 +3445,114 @@ Future<bool> _requestAndCheckPermission(Permission permission) async {
   await permission.request();
   var status = await permission.status;
   return !status.isDenied;
+}
+
+class DriverNameInputDialogWidget extends StatefulWidget {
+  final Function(String driverName) onPressed;
+  const DriverNameInputDialogWidget({super.key, required this.onPressed});
+
+  @override
+  State<DriverNameInputDialogWidget> createState() => _DriverNameInputDialogWidgetState();
+}
+
+class _DriverNameInputDialogWidgetState extends State<DriverNameInputDialogWidget> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
+      insetPadding: const EdgeInsets.all(30),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: SizedBox(
+        width: 500,
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                  child: Image.asset(Images.warning, width: 50, height: 50),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                  child: Text(
+                    'enter_delivery_driver_name'.tr,
+                    textAlign: TextAlign.center,
+                    style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge, color: Theme.of(context).primaryColor),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                  child: Text(
+                    'please_enter_driver_name'.tr,
+                    style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeLarge),
+                CustomTextFieldWidget(
+                  maxLines: 1,
+                  controller: _controller,
+                  hintText: 'delivery_driver_name'.tr,
+                  isEnabled: true,
+                  inputType: TextInputType.text,
+                  inputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: Dimensions.paddingSizeLarge),
+                GetBuilder<OrderController>(
+                  builder: (orderController) {
+                    return orderController.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: CustomButtonWidget(
+                                  buttonText: 'submit'.tr,
+                                  onPressed: () {
+                                    if (_controller.text.trim().isEmpty) {
+                                      showCustomSnackBar('please_enter_driver_name'.tr);
+                                    } else {
+                                      widget.onPressed(_controller.text.trim());
+                                    }
+                                  },
+                                  height: 40,
+                                ),
+                              ),
+                              const SizedBox(width: Dimensions.paddingSizeLarge),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => Get.back(),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Theme.of(context).disabledColor.withValues(alpha: 0.3),
+                                    minimumSize: const Size(1170, 40),
+                                    padding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
+                                  ),
+                                  child: Text(
+                                    'cancel'.tr,
+                                    textAlign: TextAlign.center,
+                                    style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

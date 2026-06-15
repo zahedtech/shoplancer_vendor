@@ -6,8 +6,9 @@ class UpdateStatusBodyModel {
   String? processingTime;
   String method = 'put';
   String? reason;
+  String? externalDeliveryManName;
 
-  UpdateStatusBodyModel({this.token, this.orderId, this.status, this.otp, this.reason, this.processingTime});
+  UpdateStatusBodyModel({this.token, this.orderId, this.status, this.otp, this.reason, this.processingTime, this.externalDeliveryManName});
 
   UpdateStatusBodyModel.fromJson(Map<String, dynamic> json) {
     token = json['token'];
@@ -17,6 +18,7 @@ class UpdateStatusBodyModel {
     processingTime = json['processing_time'];
     status = json['_method'];
     reason = json['reason'];
+    externalDeliveryManName = json['external_delivery_man_name'];
   }
 
   Map<String, String> toJson() {
@@ -29,6 +31,9 @@ class UpdateStatusBodyModel {
     data['_method'] = method;
     if(reason != '' && reason != null) {
       data['reason'] = reason!;
+    }
+    if(externalDeliveryManName != null) {
+      data['external_delivery_man_name'] = externalDeliveryManName!;
     }
     return data;
   }

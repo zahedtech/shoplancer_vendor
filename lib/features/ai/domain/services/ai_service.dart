@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/attribute_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/other_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_des_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/title_suggestion_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/variation_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/repositories/ai_repository_interface.dart';
-import 'package:sixam_mart_store/features/ai/domain/services/ai_service_interface.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/attribute_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/other_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_des_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/title_suggestion_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/variation_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/repositories/ai_repository_interface.dart';
+import 'package:shoplancer_vendor/features/ai/domain/services/ai_service_interface.dart';
 
 class AiService implements AiServiceInterface {
   final AiRepositoryInterface aiRepositoryInterface;

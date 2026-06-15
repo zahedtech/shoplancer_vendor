@@ -1,20 +1,22 @@
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/store/widgets/update_stock_bottom_sheet.dart';
-import 'package:sixam_mart_store/features/store/widgets/variation_view_widget.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/price_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/store/widgets/review_widget.dart';
+import 'dart:convert';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/widgets/update_stock_bottom_sheet.dart';
+import 'package:shoplancer_vendor/features/store/widgets/variation_view_widget.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/review_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
@@ -29,11 +31,75 @@ class ItemDetailsScreen extends StatefulWidget {
 
 class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   Item item = Item();
+  bool _hasDiscount = false;
+  final TextEditingController _discountController = TextEditingController();
+  int _discountTypeIndex = 0;
 
   @override
   void initState() {
     super.initState();
     item = widget.product;
+    _hasDiscount = item.discount != null && item.discount! > 0;
+    _discountController.text = (item.discount ?? 0).toString();
+    _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
+  }
+
+  @override
+  void dispose() {
+    _discountController.dispose();
+    super.dispose();
+  }
+
+  void _updateDiscount(StoreController storeController, double discountValue, String discountType) {
+    Map<String, String> data = {};
+    data.addAll({"_method": 'post'});
+    data.addAll({"id": item.id.toString()});
+    data.addAll({"product_id": item.id.toString()});
+    data.addAll({"current_stock": (item.stock ?? 0).toString()});
+    data.addAll({"manage_stock": "1"});
+    data.addAll({
+      "store_id":
+          Get.find<ProfileController>().profileModel?.stores?[0].id
+              ?.toString() ??
+          '',
+    });
+    data.addAll({"category_id": item.categoryId?.toString() ?? ''});
+    data.addAll({"price": item.price.toString()});
+    data.addAll({"unit_price": item.price.toString()});
+    data.addAll({"discount": discountValue.toString()});
+    data.addAll({"discount_type": discountType});
+
+    if (item.variations != null && item.variations!.isNotEmpty) {
+      for (var variation in item.variations!) {
+        int index = item.variations!.indexOf(variation);
+        data.addAll({
+          "price_${index}_${variation.type}": variation.price.toString(),
+        });
+        data.addAll({
+          "stock_${index}_${variation.type}": variation.stock.toString(),
+        });
+      }
+      List<String> types = [];
+      for (var variation in item.variations!) {
+        types.add(variation.type!);
+      }
+      data.addAll({"type": jsonEncode(types)});
+    }
+
+    storeController.stockUpdate(data, item.id!, shouldBack: false).then((isSuccess) async {
+      if (isSuccess) {
+        showCustomSnackBar('discount_updated_successfully'.tr, isError: false);
+        Item? updatedItem = await storeController.getItemDetails(item.id!);
+        if (updatedItem != null) {
+          setState(() {
+            item = updatedItem;
+            _hasDiscount = item.discount != null && item.discount! > 0;
+            _discountController.text = (item.discount ?? 0).toString();
+            _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -308,52 +374,144 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        isGrocery
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    cardRadius,
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(cardRadius),
+                            color: Theme.of(context).cardColor,
+                            boxShadow: [boxShadow],
+                          ),
+                          padding: const EdgeInsets.all(
+                            Dimensions.paddingSizeSmall,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'discount'.tr,
+                                      style: robotoMedium.copyWith(
+                                        fontSize: Dimensions.fontSizeLarge,
+                                      ),
+                                    ),
                                   ),
-                                  color: Theme.of(context).cardColor,
-                                  boxShadow: [boxShadow],
-                                ),
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeSmall,
-                                ),
-                                child: Row(
+
+                                  FlutterSwitch(
+                                    width: 60,
+                                    height: 30,
+                                    valueFontSize: Dimensions.fontSizeExtraSmall,
+                                    showOnOff: true,
+                                    activeColor: Theme.of(context).primaryColor,
+                                    value: _hasDiscount,
+                                    onToggle: (bool isActive) {
+                                      setState(() {
+                                        _hasDiscount = isActive;
+                                        if (!_hasDiscount) {
+                                          _updateDiscount(storeController, 0, 'amount');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              if (_hasDiscount) ...[
+                                const SizedBox(height: Dimensions.paddingSizeDefault),
+                                Row(
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        'organic'.tr,
-                                        style: robotoMedium.copyWith(
-                                          fontSize: Dimensions.fontSizeLarge,
+                                      flex: 2,
+                                      child: CustomTextFieldWidget(
+                                        hintText: 'discount'.tr,
+                                        labelText: 'discount'.tr,
+                                        controller: _discountController,
+                                        inputType: TextInputType.number,
+                                        isAmount: _discountTypeIndex == 1,
+                                        isNumber: _discountTypeIndex == 0,
+                                      ),
+                                    ),
+                                    const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                                    Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                        height: 50,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: Dimensions.paddingSizeSmall,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(
+                                            Dimensions.radiusDefault,
+                                          ),
+                                          border: Border.all(
+                                            color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
+                                          ),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                            value: _discountTypeIndex,
+                                            items: [
+                                              DropdownMenuItem<int>(
+                                                value: 0,
+                                                child: Text('percent'.tr),
+                                              ),
+                                              DropdownMenuItem<int>(
+                                                value: 1,
+                                                child: Text('amount'.tr),
+                                              ),
+                                            ],
+                                            onChanged: (int? index) {
+                                              if (index != null) {
+                                                setState(() {
+                                                  _discountTypeIndex = index;
+                                                });
+                                              }
+                                            },
+                                            isExpanded: true,
+                                          ),
                                         ),
                                       ),
                                     ),
-
-                                    FlutterSwitch(
-                                      width: 60,
-                                      height: 30,
-                                      valueFontSize:
-                                          Dimensions.fontSizeExtraSmall,
-                                      showOnOff: true,
-                                      activeColor: Theme.of(
-                                        context,
-                                      ).primaryColor,
-                                      value: storeController.isOrganic,
-                                      onToggle: (bool isActive) {
-                                        storeController.toggleOrganicProduct(
-                                          item.id,
+                                  ],
+                                ),
+                                const SizedBox(height: Dimensions.paddingSizeDefault),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomButtonWidget(
+                                      width: 100,
+                                      height: 35,
+                                      buttonText: 'update'.tr,
+                                      onPressed: () {
+                                        double discount = double.tryParse(_discountController.text) ?? 0.0;
+                                        if (discount <= 0) {
+                                          showCustomSnackBar('enter_item_discount'.tr);
+                                          return;
+                                        }
+                                        if (_discountTypeIndex == 0 && discount > 100) {
+                                          showCustomSnackBar('discount_cannot_be_more_than_100'.tr);
+                                          return;
+                                        }
+                                        if (_discountTypeIndex == 1 && discount > (item.price ?? 0.0)) {
+                                          showCustomSnackBar('discount_cannot_be_more_than_price'.tr);
+                                          return;
+                                        }
+                                        _updateDiscount(
+                                          storeController,
+                                          discount,
+                                          _discountTypeIndex == 0 ? 'percent' : 'amount',
                                         );
                                       },
                                     ),
                                   ],
                                 ),
-                              )
-                            : const SizedBox(),
-                        SizedBox(
-                          height: isGrocery ? Dimensions.paddingSizeLarge : 0,
+                              ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: Dimensions.paddingSizeLarge),
 
                         Get.find<SplashController>()
                                 .getStoreModuleConfig()

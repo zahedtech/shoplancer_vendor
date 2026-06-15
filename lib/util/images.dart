@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 
 class Images {
   // static String get logo =>
@@ -40,6 +40,7 @@ class Images {
   static const String addon = 'assets/image/addon.png';
   static const String categories = 'assets/image/categories.png';
   static const String edit = 'assets/image/edit.png';
+  static const String active = 'assets/image/active.png';
   static const String addFood = 'assets/image/add_food.png';
   static const String notificationIn = 'assets/image/notification_in.png';
   static const String pos = 'assets/image/pos.png';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
 
 class EditButtonWidget extends StatefulWidget {
   final Function onTap;
@@ -15,19 +15,30 @@ class _EditButtonWidgetState extends State<EditButtonWidget> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: isLoading ? null : () async{
-        setState(() {
-          isLoading = true;
-        });
-        await widget.onTap();
-        setState(() {
-          isLoading = false;
-        });
-      },
+      onTap: isLoading
+          ? null
+          : () async {
+              setState(() {
+                isLoading = true;
+              });
+              await widget.onTap();
+              setState(() {
+                isLoading = false;
+              });
+            },
       child: Container(
         padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.radiusDefault), border: Border.all(color: Theme.of(context).primaryColor),),
-        child: isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator()) : Icon(Icons.edit, color: Theme.of(context).primaryColor, size: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          border: Border.all(color: Theme.of(context).primaryColor),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(),
+              )
+            : Icon(Icons.edit, color: Theme.of(context).primaryColor, size: 20),
       ),
     );
   }

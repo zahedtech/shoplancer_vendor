@@ -1,8 +1,8 @@
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:sixam_mart_store/features/html/controllers/html_controller.dart';
+import 'package:shoplancer_vendor/features/html/controllers/html_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

@@ -1,18 +1,18 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/business/controllers/business_controller.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/business/controllers/business_controller.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/auth/domain/services/auth_service_interface.dart';
-import 'package:sixam_mart_store/features/rental_module/profile/controllers/taxi_profile_controller.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
+import 'package:shoplancer_vendor/features/auth/domain/services/auth_service_interface.dart';
+import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
 
 class AuthController extends GetxController implements GetxService {
   final AuthServiceInterface authServiceInterface;

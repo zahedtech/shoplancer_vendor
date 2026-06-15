@@ -1,23 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:sixam_mart_store/common/widgets/custom_card.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_tool_tip_widget.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart'
+import 'package:shoplancer_vendor/common/widgets/custom_card.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart'
     as profile;
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/switch_button_widget.dart';
-import 'package:sixam_mart_store/features/store/widgets/daily_time_widget.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/switch_button_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/daily_time_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/store/widgets/pickup_time_input.dart';
+import 'package:shoplancer_vendor/features/store/widgets/pickup_time_input.dart';
 
 import '../../../common/widgets/confirmation_dialog_widget.dart';
 import '../../../util/images.dart';
@@ -48,6 +48,13 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   final TextEditingController _extraPackagingController =
       TextEditingController();
   final TextEditingController _minimumStockController = TextEditingController();
+  final TextEditingController _walletPhoneController = TextEditingController();
+  final TextEditingController _walletAccountNameController =
+      TextEditingController();
+  final TextEditingController _instaPayPhoneController =
+      TextEditingController();
+  final TextEditingController _instaPayAccountNameController =
+      TextEditingController();
 
   final FocusNode _orderAmountNode = FocusNode();
   final FocusNode _minimumDeliveryFeeNode = FocusNode();
@@ -59,6 +66,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   late profile.Store _store;
   final Module? _module =
       Get.find<SplashController>().configModel!.moduleConfig!.module;
+
+  bool _isCashMethodEnabled = true;
+  bool _isWalletMethodEnabled = false;
+  bool _isInstaPayMethodEnabled = false;
 
   // Initial values for reset functionality
   late String _initialMinimumOrder;
@@ -84,6 +95,13 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   late bool _initialIsPrescriptionStatusEnable;
   late bool _initialIsHalalEnabled;
   late bool _initialIsOpen24Hours;
+  late bool _initialIsCashMethodEnabled;
+  late bool _initialIsWalletMethodEnabled;
+  late bool _initialIsInstaPayMethodEnabled;
+  late String _initialWalletPhone;
+  late String _initialWalletAccountName;
+  late String _initialInstaPayPhone;
+  late String _initialInstaPayAccountName;
 
   @override
   void initState() {
@@ -128,6 +146,21 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
       }
     }
     _store = widget.store;
+    profile.StorePaymentMethod? cashMethod = _getPaymentMethod(1);
+    profile.StorePaymentMethod? walletMethod = _getPaymentMethod(2);
+    profile.StorePaymentMethod? instaPayMethod = _getPaymentMethod(3);
+
+    _isCashMethodEnabled = cashMethod?.isActive ?? true;
+    _isWalletMethodEnabled = walletMethod?.isActive ?? false;
+    _isInstaPayMethodEnabled = instaPayMethod?.isActive ?? false;
+    _walletPhoneController.text = (walletMethod?.configData?['phone'] ?? '')
+        .toString();
+    _walletAccountNameController.text =
+        (walletMethod?.configData?['account_name'] ?? '').toString();
+    _instaPayPhoneController.text =
+        (instaPayMethod?.configData?['phone'] ?? '').toString();
+    _instaPayAccountNameController.text =
+        (instaPayMethod?.configData?['account_name'] ?? '').toString();
     print("hala tag :: ${_store.isHalalActive}");
 
     // Store initial values for reset functionality
@@ -155,6 +188,19 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
         storeController.isPrescriptionStatusEnable!;
     _initialIsHalalEnabled = storeController.isHalalEnabled!;
     _initialIsOpen24Hours = storeController.isOpen24Hours;
+    _initialIsCashMethodEnabled = _isCashMethodEnabled;
+    _initialIsWalletMethodEnabled = _isWalletMethodEnabled;
+    _initialIsInstaPayMethodEnabled = _isInstaPayMethodEnabled;
+    _initialWalletPhone = _walletPhoneController.text;
+    _initialWalletAccountName = _walletAccountNameController.text;
+    _initialInstaPayPhone = _instaPayPhoneController.text;
+    _initialInstaPayAccountName = _instaPayAccountNameController.text;
+  }
+
+  profile.StorePaymentMethod? _getPaymentMethod(int methodId) {
+    return widget.store.paymentMethods != null
+        ? widget.store.paymentMethods![methodId]
+        : null;
   }
 
   void resetToInitialData() {
@@ -171,6 +217,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _minimumStockController.text = _initialMinimumStock;
     _minimumController.text = _initialMinTime;
     _maximumController.text = _initialMaxTime;
+    _walletPhoneController.text = _initialWalletPhone;
+    _walletAccountNameController.text = _initialWalletAccountName;
+    _instaPayPhoneController.text = _initialInstaPayPhone;
+    _instaPayAccountNameController.text = _initialInstaPayAccountName;
 
     // Reset controller toggle states
     storeController.setGstEnabled(_initialIsGstEnabled);
@@ -188,6 +238,12 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     storeController.setHalalEnabled(_initialIsHalalEnabled);
     storeController.setSelectedDuration(_initialDurationType);
     storeController.setOpen24Hours(_initialIsOpen24Hours);
+
+    setState(() {
+      _isCashMethodEnabled = _initialIsCashMethodEnabled;
+      _isWalletMethodEnabled = _initialIsWalletMethodEnabled;
+      _isInstaPayMethodEnabled = _initialIsInstaPayMethodEnabled;
+    });
 
     showCustomSnackBar('reset_successful'.tr, isError: false);
   }
@@ -409,6 +465,116 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                           ? Dimensions.paddingSizeDefault
                                           : 0,
                                     ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+
+                              /// Payment Methods
+                              Text('payment_method'.tr, style: robotoBold),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeSmall,
+                              ),
+                              CustomCard(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeDefault,
+                                ),
+                                child: Column(
+                                  children: [
+                                    SwitchButtonWidget(
+                                      title: 'cash'.tr,
+                                      isButtonActive: _isCashMethodEnabled,
+                                      onTap: () {
+                                        setState(() {
+                                          _isCashMethodEnabled =
+                                              !_isCashMethodEnabled;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeDefault,
+                                    ),
+
+                                    SwitchButtonWidget(
+                                      title: 'wallet'.tr,
+                                      isButtonActive: _isWalletMethodEnabled,
+                                      onTap: () {
+                                        setState(() {
+                                          _isWalletMethodEnabled =
+                                              !_isWalletMethodEnabled;
+                                        });
+                                      },
+                                    ),
+                                    if (_isWalletMethodEnabled) ...[
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraLarge,
+                                      ),
+                                      CustomTextFieldWidget(
+                                        hintText: 'phone_number'.tr,
+                                        labelText: 'phone_number'.tr,
+                                        controller: _walletPhoneController,
+                                        inputType: TextInputType.phone,
+                                        isEnabled: _isWalletMethodEnabled,
+                                        hideEnableText: true,
+                                      ),
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraLarge,
+                                      ),
+                                      CustomTextFieldWidget(
+                                        hintText: 'holder_name'.tr,
+                                        labelText: 'holder_name'.tr,
+                                        controller:
+                                            _walletAccountNameController,
+                                        inputType: TextInputType.text,
+                                        isEnabled: _isWalletMethodEnabled,
+                                        hideEnableText: true,
+                                      ),
+                                    ],
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeDefault,
+                                    ),
+
+                                    SwitchButtonWidget(
+                                      title: 'InstaPay',
+                                      isButtonActive: _isInstaPayMethodEnabled,
+                                      onTap: () {
+                                        setState(() {
+                                          _isInstaPayMethodEnabled =
+                                              !_isInstaPayMethodEnabled;
+                                        });
+                                      },
+                                    ),
+                                    if (_isInstaPayMethodEnabled) ...[
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraLarge,
+                                      ),
+                                      CustomTextFieldWidget(
+                                        hintText: 'phone_number'.tr,
+                                        labelText: 'phone_number'.tr,
+                                        controller: _instaPayPhoneController,
+                                        inputType: TextInputType.phone,
+                                        isEnabled: _isInstaPayMethodEnabled,
+                                        hideEnableText: true,
+                                      ),
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraLarge,
+                                      ),
+                                      CustomTextFieldWidget(
+                                        hintText: 'holder_name'.tr,
+                                        labelText: 'holder_name'.tr,
+                                        controller:
+                                            _instaPayAccountNameController,
+                                        inputType: TextInputType.text,
+                                        isEnabled: _isInstaPayMethodEnabled,
+                                        hideEnableText: true,
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -957,6 +1123,15 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       _maximumDeliveryFeeController.text.trim();
                                   String minimumStockForWarning =
                                       _minimumStockController.text.trim();
+                                  String walletPhone = _walletPhoneController
+                                      .text
+                                      .trim();
+                                  String walletAccountName =
+                                      _walletAccountNameController.text.trim();
+                                  String instaPayPhone =
+                                      _instaPayPhoneController.text.trim();
+                                  String instaPayAccountName =
+                                      _instaPayAccountNameController.text.trim();
 
                                   if (minimumOrder.isEmpty) {
                                     showCustomSnackBar(
@@ -1106,6 +1281,32 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                         minimumStockForWarning.isNotEmpty
                                         ? double.parse(minimumStockForWarning)
                                         : 0;
+                                    _store.paymentMethods = {
+                                      1: profile.StorePaymentMethod(
+                                        isActive: _isCashMethodEnabled,
+                                        configData: null,
+                                      ),
+                                      2: profile.StorePaymentMethod(
+                                        isActive: _isWalletMethodEnabled,
+                                        configData: _isWalletMethodEnabled
+                                            ? {
+                                                'phone': walletPhone,
+                                                'account_name':
+                                                    walletAccountName,
+                                              }
+                                            : null,
+                                      ),
+                                      3: profile.StorePaymentMethod(
+                                        isActive: _isInstaPayMethodEnabled,
+                                        configData: _isInstaPayMethodEnabled
+                                            ? {
+                                                'phone': instaPayPhone,
+                                                'account_name':
+                                                    instaPayAccountName,
+                                              }
+                                            : null,
+                                      ),
+                                    };
 
                                     print('Halal Tag: ${_store.isHalalActive}');
                                     storeController.updateStore(

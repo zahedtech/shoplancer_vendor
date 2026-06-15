@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/common/models/vat_tax_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/band_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/pending_item_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/suitable_tag_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/unit_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variant_type_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/repositories/store_repository_interface.dart';
-import 'package:sixam_mart_store/features/store/domain/services/store_service_interface.dart';
+import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/band_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/suitable_tag_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variant_type_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variation_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/repositories/store_repository_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/services/store_service_interface.dart';
 
 class StoreService implements StoreServiceInterface {
   final StoreRepositoryInterface storeRepositoryInterface;

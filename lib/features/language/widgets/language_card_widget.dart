@@ -1,8 +1,8 @@
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
-import 'package:sixam_mart_store/features/language/domain/models/language_model.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/language/domain/models/language_model.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 
 class LanguageCardWidget extends StatelessWidget {

@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/deliveryman/domain/repositories/deliveryman_repository_interface.dart';
-import 'package:sixam_mart_store/features/deliveryman/domain/services/deliveryman_service_interface.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/deliveryman/domain/repositories/deliveryman_repository_interface.dart';
+import 'package:shoplancer_vendor/features/deliveryman/domain/services/deliveryman_service_interface.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/deliveryman/domain/models/delivery_man_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/deliveryman/domain/models/delivery_man_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 
 class DeliverymanService implements DeliverymanServiceInterface {
   final DeliverymanRepositoryInterface deliverymanRepositoryInterface;

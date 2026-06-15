@@ -1,75 +1,76 @@
 import 'dart:convert';
-import 'package:sixam_mart_store/features/addon/screens/add_addon_screen.dart';
-import 'package:sixam_mart_store/features/advertisement/screens/advertisement_details_screen.dart';
-import 'package:sixam_mart_store/features/advertisement/screens/advertisement_list_screen.dart';
-import 'package:sixam_mart_store/features/advertisement/screens/create_advertisement_screen.dart';
-import 'package:sixam_mart_store/features/business/screens/subscription_payment_screen.dart';
-import 'package:sixam_mart_store/features/business/screens/subscription_success_or_failed_screen.dart';
-import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
-import 'package:sixam_mart_store/features/chat/domain/models/conversation_model.dart';
-import 'package:sixam_mart_store/features/deliveryman/domain/models/delivery_man_model.dart';
-import 'package:sixam_mart_store/features/profile/screens/setting_screen.dart';
-import 'package:sixam_mart_store/features/reports/expense/screens/expense_screen.dart';
-import 'package:sixam_mart_store/features/reports/screens/reports_screen.dart';
-import 'package:sixam_mart_store/features/reports/tax/screens/tax_report_screen.dart';
-import 'package:sixam_mart_store/features/review/screens/customer_review_screen.dart';
-import 'package:sixam_mart_store/features/review/screens/review_reply_screen.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
-import 'package:sixam_mart_store/features/addon/screens/addon_screen.dart';
-import 'package:sixam_mart_store/features/auth/screens/sign_in_screen.dart';
-import 'package:sixam_mart_store/features/auth/screens/store_registration_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/bank_info_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/payment_history_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/payment_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/payment_successful_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/wallet_screen.dart';
-import 'package:sixam_mart_store/features/payment/screens/withdraw_history_screen.dart';
-import 'package:sixam_mart_store/features/banner/screens/add_banner_screen.dart';
-import 'package:sixam_mart_store/features/banner/screens/banner_list_screen.dart';
-import 'package:sixam_mart_store/features/campaign/screens/campaign_details_screen.dart';
-import 'package:sixam_mart_store/features/campaign/screens/campaign_screen.dart';
-import 'package:sixam_mart_store/features/category/screens/category_screen.dart';
-import 'package:sixam_mart_store/features/chat/screens/chat_screen.dart';
-import 'package:sixam_mart_store/features/chat/screens/conversation_screen.dart';
-import 'package:sixam_mart_store/features/coupon/screens/coupon_screen.dart';
-import 'package:sixam_mart_store/features/dashboard/screens/dashboard_screen.dart';
-import 'package:sixam_mart_store/features/deliveryman/screens/add_delivery_man_screen.dart';
-import 'package:sixam_mart_store/features/deliveryman/screens/delivery_man_details_screen.dart';
-import 'package:sixam_mart_store/features/deliveryman/screens/delivery_man_screen.dart';
-import 'package:sixam_mart_store/features/disbursement/screens/add_withdraw_method_screen.dart';
-import 'package:sixam_mart_store/features/disbursement/screens/disbursement_menu_screen.dart';
-import 'package:sixam_mart_store/features/disbursement/screens/disbursement_screen.dart';
-import 'package:sixam_mart_store/features/disbursement/screens/withdraw_method_screen.dart';
-import 'package:sixam_mart_store/features/forgot_password/screens/forget_pass_screen.dart';
-import 'package:sixam_mart_store/features/forgot_password/screens/new_pass_screen.dart';
-import 'package:sixam_mart_store/features/forgot_password/screens/verification_screen.dart';
-import 'package:sixam_mart_store/features/html/screens/html_viewer_screen.dart';
-import 'package:sixam_mart_store/features/language/screens/language_screen.dart';
-import 'package:sixam_mart_store/features/notification/screens/notification_screen.dart';
-import 'package:sixam_mart_store/features/order/screens/order_details_screen.dart';
-import 'package:sixam_mart_store/features/profile/screens/profile_screen.dart';
-import 'package:sixam_mart_store/features/profile/screens/update_profile_screen.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/screens/add_item_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/all_items_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/announcement_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/image_viewer_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/item_details_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/low_stock_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/pending_item_details_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/pending_item_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/store_edit_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/store_link_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/store_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/store_settings_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/product_price_management_screen.dart';
-import 'package:sixam_mart_store/features/store/screens/social_media_screen.dart';
+import 'package:shoplancer_vendor/features/addon/screens/add_addon_screen.dart';
+import 'package:shoplancer_vendor/features/advertisement/screens/advertisement_details_screen.dart';
+import 'package:shoplancer_vendor/features/advertisement/screens/advertisement_list_screen.dart';
+import 'package:shoplancer_vendor/features/advertisement/screens/create_advertisement_screen.dart';
+import 'package:shoplancer_vendor/features/business/screens/subscription_payment_screen.dart';
+import 'package:shoplancer_vendor/features/business/screens/subscription_success_or_failed_screen.dart';
+import 'package:shoplancer_vendor/features/notification/domain/models/notification_body_model.dart';
+import 'package:shoplancer_vendor/features/chat/domain/models/conversation_model.dart';
+import 'package:shoplancer_vendor/features/deliveryman/domain/models/delivery_man_model.dart';
+import 'package:shoplancer_vendor/features/profile/screens/setting_screen.dart';
+import 'package:shoplancer_vendor/features/reports/expense/screens/expense_screen.dart';
+import 'package:shoplancer_vendor/features/reports/screens/reports_screen.dart';
+import 'package:shoplancer_vendor/features/reports/tax/screens/tax_report_screen.dart';
+import 'package:shoplancer_vendor/features/review/screens/customer_review_screen.dart';
+import 'package:shoplancer_vendor/features/review/screens/review_reply_screen.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
+import 'package:shoplancer_vendor/features/addon/screens/addon_screen.dart';
+import 'package:shoplancer_vendor/features/auth/screens/sign_in_screen.dart';
+import 'package:shoplancer_vendor/features/auth/screens/store_registration_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/bank_info_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/payment_history_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/payment_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/payment_successful_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/wallet_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/withdraw_history_screen.dart';
+import 'package:shoplancer_vendor/features/banner/screens/add_banner_screen.dart';
+import 'package:shoplancer_vendor/features/banner/screens/banner_list_screen.dart';
+import 'package:shoplancer_vendor/features/campaign/screens/campaign_details_screen.dart';
+import 'package:shoplancer_vendor/features/campaign/screens/campaign_screen.dart';
+import 'package:shoplancer_vendor/features/category/screens/category_screen.dart';
+import 'package:shoplancer_vendor/features/chat/screens/chat_screen.dart';
+import 'package:shoplancer_vendor/features/chat/screens/conversation_screen.dart';
+import 'package:shoplancer_vendor/features/coupon/screens/coupon_screen.dart';
+import 'package:shoplancer_vendor/features/dashboard/screens/dashboard_screen.dart';
+import 'package:shoplancer_vendor/features/deliveryman/screens/add_delivery_man_screen.dart';
+import 'package:shoplancer_vendor/features/deliveryman/screens/delivery_man_details_screen.dart';
+import 'package:shoplancer_vendor/features/deliveryman/screens/delivery_man_screen.dart';
+import 'package:shoplancer_vendor/features/disbursement/screens/add_withdraw_method_screen.dart';
+import 'package:shoplancer_vendor/features/disbursement/screens/disbursement_menu_screen.dart';
+import 'package:shoplancer_vendor/features/disbursement/screens/disbursement_screen.dart';
+import 'package:shoplancer_vendor/features/disbursement/screens/withdraw_method_screen.dart';
+import 'package:shoplancer_vendor/features/forgot_password/screens/forget_pass_screen.dart';
+import 'package:shoplancer_vendor/features/forgot_password/screens/new_pass_screen.dart';
+import 'package:shoplancer_vendor/features/forgot_password/screens/verification_screen.dart';
+import 'package:shoplancer_vendor/features/html/screens/html_viewer_screen.dart';
+import 'package:shoplancer_vendor/features/language/screens/language_screen.dart';
+import 'package:shoplancer_vendor/features/notification/screens/notification_screen.dart';
+import 'package:shoplancer_vendor/features/order/screens/order_details_screen.dart';
+import 'package:shoplancer_vendor/features/profile/screens/profile_screen.dart';
+import 'package:shoplancer_vendor/features/profile/screens/update_profile_screen.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/screens/add_item_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/all_items_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/announcement_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/image_viewer_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/item_details_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/low_stock_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/pending_item_details_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/pending_item_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/store_edit_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_status_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 
-import 'package:sixam_mart_store/features/splash/screens/splash_screen.dart';
-import 'package:sixam_mart_store/features/subscription/screens/my_subscription_screen.dart';
-import 'package:sixam_mart_store/features/update/screens/update_screen.dart';
+import 'package:shoplancer_vendor/features/splash/screens/splash_screen.dart';
+import 'package:shoplancer_vendor/features/subscription/screens/my_subscription_screen.dart';
+import 'package:shoplancer_vendor/features/update/screens/update_screen.dart';
 import 'package:get/get.dart';
 
 class RouteHelper {
@@ -144,6 +145,7 @@ class RouteHelper {
   static const String storeEdit = '/store-edit';
   static const String setting = '/setting';
   static const String productPriceUpdate = '/product-price-update';
+  static const String productStatus = '/product-status';
   static const String socialMedia = '/social-media';
 
   static String getInitialRoute() => initial;
@@ -357,6 +359,7 @@ class RouteHelper {
 
   static String getSettingRoute() => setting;
   static String getProductPriceUpdateRoute() => productPriceUpdate;
+  static String getProductStatusRoute() => productStatus;
   static String getSocialMediaRoute() => socialMedia;
 
   static List<GetPage> routes = [
@@ -755,6 +758,10 @@ class RouteHelper {
     GetPage(
       name: productPriceUpdate,
       page: () => const ProductPriceManagementScreen(),
+    ),
+    GetPage(
+      name: productStatus,
+      page: () => const ProductStatusScreen(),
     ),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
   ];

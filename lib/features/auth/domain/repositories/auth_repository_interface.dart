@@ -1,6 +1,6 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 

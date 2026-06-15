@@ -1,11 +1,11 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/chat/domain/models/conversation_model.dart';
-import 'package:sixam_mart_store/features/chat/domain/models/message_model.dart';
-import 'package:sixam_mart_store/features/chat/domain/repositories/chat_repository_interface.dart';
-import 'package:sixam_mart_store/features/chat/domain/services/chat_service_interface.dart';
-import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/chat/domain/models/conversation_model.dart';
+import 'package:shoplancer_vendor/features/chat/domain/models/message_model.dart';
+import 'package:shoplancer_vendor/features/chat/domain/repositories/chat_repository_interface.dart';
+import 'package:shoplancer_vendor/features/chat/domain/services/chat_service_interface.dart';
+import 'package:shoplancer_vendor/features/notification/domain/models/notification_body_model.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class ChatService implements ChatServiceInterface {
   final ChatRepositoryInterface chatRepositoryInterface;

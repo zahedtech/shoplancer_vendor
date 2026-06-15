@@ -2,17 +2,17 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/widgets/custom_bottom_sheet_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/features/auth/controllers/auth_controller.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/subscription/controllers/subscription_controller.dart';
-import 'package:sixam_mart_store/features/subscription/widgets/renew_subscription_plan_bottom_sheet.dart';
-import 'package:sixam_mart_store/features/subscription/widgets/subscription_dialog_widget.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_bottom_sheet_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/subscription/controllers/subscription_controller.dart';
+import 'package:shoplancer_vendor/features/subscription/widgets/renew_subscription_plan_bottom_sheet.dart';
+import 'package:shoplancer_vendor/features/subscription/widgets/subscription_dialog_widget.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class ChangeSubscriptionPlanBottomSheet extends StatefulWidget {
   final bool businessIsCommission;

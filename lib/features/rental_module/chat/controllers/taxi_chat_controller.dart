@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/chat/domain/models/conversation_model.dart';
-import 'package:sixam_mart_store/features/notification/domain/models/notification_body_model.dart';
-import 'package:sixam_mart_store/features/rental_module/chat/domain/models/taxi_message_model.dart';
-import 'package:sixam_mart_store/features/rental_module/chat/domain/services/taxi_chat_service_interface.dart';
+import 'package:shoplancer_vendor/features/chat/domain/models/conversation_model.dart';
+import 'package:shoplancer_vendor/features/notification/domain/models/notification_body_model.dart';
+import 'package:shoplancer_vendor/features/rental_module/chat/domain/models/taxi_message_model.dart';
+import 'package:shoplancer_vendor/features/rental_module/chat/domain/services/taxi_chat_service_interface.dart';
 
 class TaxiChatController extends GetxController implements GetxService {
   final TaxiChatServiceInterface chatServiceInterface;

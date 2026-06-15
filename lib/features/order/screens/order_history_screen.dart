@@ -1,20 +1,31 @@
-import 'package:sixam_mart_store/features/order/controllers/order_controller.dart';
-import 'package:sixam_mart_store/features/order/widgets/running_order_body_widget.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
+import 'package:shoplancer_vendor/features/order/widgets/running_order_body_widget.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../widgets/order_history_body_widget.dart';
 
-class OrderHistoryScreen extends StatelessWidget {
+class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Get.find<OrderController>().getPaginatedOrders(1, true);
+  State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
+}
 
+class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<OrderController>().getPaginatedOrders(1, true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(

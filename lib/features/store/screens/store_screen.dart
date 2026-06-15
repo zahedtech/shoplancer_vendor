@@ -1,12 +1,12 @@
-import 'package:sixam_mart_store/features/banner/controllers/banner_controller.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/widgets/mobile_product_grid.dart';
-import 'package:sixam_mart_store/features/store/widgets/store_upper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/features/banner/controllers/banner_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/widgets/mobile_product_grid.dart';
+import 'package:shoplancer_vendor/features/store/widgets/store_upper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -118,10 +118,13 @@ class _StoreScreenState extends State<StoreScreen> {
                                     storeController.isSearching
                                         ? 'search_results'.tr
                                         : (storeController.categoryIndex != 0 &&
-                                                  storeController.categoryNameList != null
-                                              ? storeController.categoryNameList![
-                                                      storeController.categoryIndex!]
-                                                  .tr
+                                                  storeController
+                                                          .categoryNameList !=
+                                                      null
+                                              ? storeController
+                                                    .categoryNameList![storeController
+                                                        .categoryIndex!]
+                                                    .tr
                                               : 'all_products'.tr),
                                     style: robotoBold.copyWith(
                                       fontSize: 18,

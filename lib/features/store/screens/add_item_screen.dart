@@ -4,39 +4,39 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:sixam_mart_store/common/widgets/custom_asset_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_drop_down_button.dart.dart';
-import 'package:sixam_mart_store/common/widgets/custom_dropdown_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_ink_well_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_tool_tip_widget.dart';
-import 'package:sixam_mart_store/common/widgets/label_widget.dart';
-import 'package:sixam_mart_store/features/addon/controllers/addon_controller.dart';
-import 'package:sixam_mart_store/features/ai/controllers/ai_controller.dart';
-import 'package:sixam_mart_store/features/ai/widgets/ai_generator_bottom_sheet.dart';
-import 'package:sixam_mart_store/features/ai/widgets/animated_border_container.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/category/controllers/category_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variant_type_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/helper/type_converter.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_time_picker_widget.dart';
-import 'package:sixam_mart_store/features/store/widgets/attribute_view_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/label_widget.dart';
+import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
+import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
+import 'package:shoplancer_vendor/features/ai/widgets/ai_generator_bottom_sheet.dart';
+import 'package:shoplancer_vendor/features/ai/widgets/animated_border_container.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variant_type_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variation_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/helper/type_converter.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_time_picker_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/attribute_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/store/widgets/food_variation_view_widget.dart';
+import 'package:shoplancer_vendor/features/store/widgets/food_variation_view_widget.dart';
 
 import '../../profile/domain/models/profile_model.dart' hide Module;
 
@@ -117,7 +117,7 @@ class _AddItemScreenState extends State<AddItemScreen>
     CategoryController categoryController = Get.find<CategoryController>();
 
     _update = widget.item != null;
-    _discountTypeSelected = _update;
+    _discountTypeSelected = true;
 
     storeController.initItemData(
       item: widget.item,
@@ -148,12 +148,12 @@ class _AddItemScreenState extends State<AddItemScreen>
           }
         }
       }
-      
+
       // Fallback if translations are empty or 'ar' not found
       if (_nameControllerList[0].text.isEmpty && widget.item?.name != null) {
         _nameControllerList[0].text = widget.item!.name!;
       }
-      if (_descriptionControllerList[0].text.isEmpty && 
+      if (_descriptionControllerList[0].text.isEmpty &&
           widget.item?.description != null) {
         _descriptionControllerList[0].text = widget.item!.description!;
       }
@@ -211,6 +211,7 @@ class _AddItemScreenState extends State<AddItemScreen>
       }
     } else {
       _item = Item(imagesFullUrl: []);
+      _discountController.text = '0';
       storeController.setTag('', isUpdate: false, isClear: true);
       storeController.setEmptyVariationList();
       storeController.pickImage(false, true);
@@ -522,9 +523,9 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   _nameControllerList[0],
                                               capitalization:
                                                   TextCapitalization.words,
-                                              focusNode:
-                                                  _nameFocusList[0],
-                                              nextFocus: _descriptionFocusList[0],
+                                              focusNode: _nameFocusList[0],
+                                              nextFocus:
+                                                  _descriptionFocusList[0],
                                               showTitle: false,
                                             ),
                                             const SizedBox(
@@ -1179,148 +1180,38 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               labelText: 'price'.tr,
                                               controller: _priceController,
                                               focusNode: _priceNode,
-                                              nextFocus: _discountNode,
                                               isAmount: true,
                                             ),
-                                            const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraLarge,
-                                            ),
-
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            Dimensions
-                                                                .radiusDefault,
-                                                          ),
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).cardColor,
-                                                      border: Border.all(
-                                                        color: Theme.of(context)
-                                                            .disabledColor
-                                                            .withValues(
-                                                              alpha: 0.5,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    child: CustomDropdown(
-                                                      onChange:
-                                                          (
-                                                            int? value,
-                                                            int index,
-                                                          ) {
-                                                            storeController
-                                                                .setDiscountTypeIndex(
-                                                                  value!,
-                                                                  true,
-                                                                );
-                                                            _discountTypeSelected =
-                                                                true;
-                                                            _validateDiscount();
-                                                          },
-                                                      dropdownButtonStyle:
-                                                          DropdownButtonStyle(
-                                                            height: 45,
-                                                            padding: const EdgeInsets.symmetric(
-                                                              vertical: Dimensions
-                                                                  .paddingSizeExtraSmall,
-                                                            ),
-                                                            primaryColor:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color,
-                                                          ),
-                                                      iconColor: Theme.of(
-                                                        context,
-                                                      ).disabledColor,
-                                                      dropdownStyle: DropdownStyle(
-                                                        elevation: 10,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusDefault,
-                                                            ),
-                                                        padding:
-                                                            const EdgeInsets.all(
-                                                              Dimensions
-                                                                  .paddingSizeExtraSmall,
-                                                            ),
-                                                      ),
-                                                      items: discountTypeList,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                              left: 2,
-                                                            ),
-                                                        child: Text(
-                                                          widget.item != null
-                                                              ? storeController
-                                                                    .discountTypeList[storeController
-                                                                        .discountTypeIndex]!
-                                                                    .tr
-                                                              : 'discount_type'
-                                                                    .tr,
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).disabledColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeDefault,
-                                                ),
-
-                                                Expanded(
-                                                  child: CustomTextFieldWidget(
-                                                    hintText: 'discount'.tr,
-                                                    labelText: 'discount'.tr,
-                                                    controller:
-                                                        _discountController,
-                                                    focusNode: _discountNode,
-                                                    isAmount: true,
-                                                    onChanged: (value) =>
-                                                        _validateDiscount(),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraLarge,
-                                            ),
-
-                                            CustomTextFieldWidget(
-                                              hintText:
-                                                  'maximum_order_quantity'.tr,
-                                              labelText:
-                                                  'maximum_order_quantity'.tr,
-                                              controller:
-                                                  _maxOrderQuantityController,
-                                              isNumber: true,
-                                            ),
                                             SizedBox(
-                                              height: (_module.unit! && unitList.isNotEmpty)
+                                              height: !isGrocery
                                                   ? Dimensions.paddingSizeExtraLarge
-                                                  : 0,
+                                                  : ((_module.unit! && unitList.isNotEmpty)
+                                                      ? Dimensions.paddingSizeExtraLarge
+                                                      : 0),
                                             ),
 
-                                            (_module.unit! && unitList.isNotEmpty)
+                                            if (!isGrocery) ...[
+                                              CustomTextFieldWidget(
+                                                hintText:
+                                                    'maximum_order_quantity'.tr,
+                                                labelText:
+                                                    'maximum_order_quantity'.tr,
+                                                controller:
+                                                    _maxOrderQuantityController,
+                                                isNumber: true,
+                                              ),
+                                              SizedBox(
+                                                height:
+                                                    (_module.unit! &&
+                                                        unitList.isNotEmpty)
+                                                    ? Dimensions
+                                                          .paddingSizeExtraLarge
+                                                    : 0,
+                                              ),
+                                            ],
+
+                                            (_module.unit! &&
+                                                    unitList.isNotEmpty)
                                                 ? Row(
                                                     children: [
                                                       const SizedBox(),
@@ -1435,11 +1326,30 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           ],
                                         ),
                                       ),
-                                       SizedBox(
-                                         height: (!isGrocery && (Get.find<SplashController>().getStoreModuleConfig().newVariation! || (storeController.attributeList != null && storeController.attributeList!.isNotEmpty) || (_update && widget.item!.attributes != null && widget.item!.attributes!.isNotEmpty)))
-                                             ? Dimensions.paddingSizeDefault
-                                             : 0,
-                                       ),
+                                      SizedBox(
+                                        height:
+                                            (!isGrocery &&
+                                                (Get.find<SplashController>()
+                                                        .getStoreModuleConfig()
+                                                        .newVariation! ||
+                                                    (storeController
+                                                                .attributeList !=
+                                                            null &&
+                                                        storeController
+                                                            .attributeList!
+                                                            .isNotEmpty) ||
+                                                    (_update &&
+                                                        widget
+                                                                .item!
+                                                                .attributes !=
+                                                            null &&
+                                                        widget
+                                                            .item!
+                                                            .attributes!
+                                                            .isNotEmpty)))
+                                            ? Dimensions.paddingSizeDefault
+                                            : 0,
+                                      ),
 
                                       (!isGrocery &&
                                               (Get.find<SplashController>()
@@ -1765,166 +1675,168 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             : 0,
                                       ),
 
-                                      Text('tag'.tr, style: robotoBold),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeSmall,
-                                      ),
-
-                                      AnimatedBorderContainer(
-                                        padding: const EdgeInsets.all(
-                                          Dimensions.paddingSizeSmall,
+                                      if (!isGrocery) ...[
+                                        Text('tag'.tr, style: robotoBold),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
                                         ),
-                                        isLoading:
-                                            aiController.otherDataLoading,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 8,
-                                                  child: CustomTextFieldWidget(
-                                                    hintText: 'tag'.tr,
-                                                    labelText: 'tag'.tr,
-                                                    controller: _tagController,
-                                                    inputAction:
-                                                        TextInputAction.done,
-                                                    onSubmit: (name) {
-                                                      if (name != null &&
-                                                          name.isNotEmpty) {
-                                                        storeController.setTag(
-                                                          name,
-                                                        );
-                                                        _tagController.text =
-                                                            '';
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
 
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: CustomButtonWidget(
-                                                    buttonText: 'add'.tr,
-                                                    onPressed: () {
-                                                      if (_tagController.text !=
-                                                              '' &&
-                                                          _tagController
-                                                              .text
-                                                              .isNotEmpty) {
-                                                        storeController.setTag(
-                                                          _tagController.text
-                                                              .trim(),
-                                                        );
-                                                        _tagController.text =
-                                                            '';
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeDefault,
-                                            ),
-
-                                            storeController.tagList.isNotEmpty
-                                                ? SizedBox(
-                                                    height: 40,
-                                                    child: ListView.builder(
-                                                      shrinkWrap: true,
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      itemCount: storeController
-                                                          .tagList
-                                                          .length,
-                                                      itemBuilder: (context, index) {
-                                                        return Container(
-                                                          margin: const EdgeInsets.symmetric(
-                                                            horizontal: Dimensions
-                                                                .paddingSizeExtraSmall,
-                                                          ),
-                                                          padding: const EdgeInsets.symmetric(
-                                                            horizontal: Dimensions
-                                                                .paddingSizeSmall,
-                                                          ),
-                                                          decoration: BoxDecoration(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .disabledColor
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.2,
-                                                                    ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusSmall,
-                                                                ),
-                                                          ),
-                                                          child: Center(
-                                                            child: Row(
-                                                              children: [
-                                                                Text(
-                                                                  storeController
-                                                                      .tagList[index]!,
-                                                                  style: robotoRegular.copyWith(
-                                                                    color:
-                                                                        Theme.of(
-                                                                          context,
-                                                                        ).disabledColor.withValues(
-                                                                          alpha:
-                                                                              0.7,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: Dimensions
-                                                                      .paddingSizeExtraSmall,
-                                                                ),
-
-                                                                InkWell(
-                                                                  onTap: () =>
-                                                                      storeController
-                                                                          .removeTag(
-                                                                            index,
-                                                                          ),
-                                                                  child: Icon(
-                                                                    Icons.clear,
-                                                                    size: 18,
-                                                                    color:
-                                                                        Theme.of(
-                                                                          context,
-                                                                        ).disabledColor.withValues(
-                                                                          alpha:
-                                                                              0.7,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        );
+                                        AnimatedBorderContainer(
+                                          padding: const EdgeInsets.all(
+                                            Dimensions.paddingSizeSmall,
+                                          ),
+                                          isLoading:
+                                              aiController.otherDataLoading,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    flex: 8,
+                                                    child: CustomTextFieldWidget(
+                                                      hintText: 'tag'.tr,
+                                                      labelText: 'tag'.tr,
+                                                      controller: _tagController,
+                                                      inputAction:
+                                                          TextInputAction.done,
+                                                      onSubmit: (name) {
+                                                        if (name != null &&
+                                                            name.isNotEmpty) {
+                                                          storeController.setTag(
+                                                            name,
+                                                          );
+                                                          _tagController.text =
+                                                              '';
+                                                        }
                                                       },
                                                     ),
-                                                  )
-                                                : const SizedBox(),
-                                          ],
+                                                  ),
+                                                  const SizedBox(
+                                                    width: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
+
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: CustomButtonWidget(
+                                                      buttonText: 'add'.tr,
+                                                      onPressed: () {
+                                                        if (_tagController.text !=
+                                                                '' &&
+                                                            _tagController
+                                                                .text
+                                                                .isNotEmpty) {
+                                                          storeController.setTag(
+                                                            _tagController.text
+                                                                .trim(),
+                                                          );
+                                                          _tagController.text =
+                                                              '';
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height:
+                                                    Dimensions.paddingSizeDefault,
+                                              ),
+
+                                              storeController.tagList.isNotEmpty
+                                                  ? SizedBox(
+                                                      height: 40,
+                                                      child: ListView.builder(
+                                                        shrinkWrap: true,
+                                                        scrollDirection:
+                                                            Axis.horizontal,
+                                                        itemCount: storeController
+                                                            .tagList
+                                                            .length,
+                                                        itemBuilder: (context, index) {
+                                                          return Container(
+                                                            margin: const EdgeInsets.symmetric(
+                                                              horizontal: Dimensions
+                                                                  .paddingSizeExtraSmall,
+                                                            ),
+                                                            padding: const EdgeInsets.symmetric(
+                                                              horizontal: Dimensions
+                                                                  .paddingSizeSmall,
+                                                            ),
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .disabledColor
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.2,
+                                                                      ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    Dimensions
+                                                                        .radiusSmall,
+                                                                  ),
+                                                            ),
+                                                            child: Center(
+                                                              child: Row(
+                                                                children: [
+                                                                  Text(
+                                                                    storeController
+                                                                        .tagList[index]!,
+                                                                    style: robotoRegular.copyWith(
+                                                                      color:
+                                                                          Theme.of(
+                                                                            context,
+                                                                          ).disabledColor.withValues(
+                                                                            alpha:
+                                                                                0.7,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: Dimensions
+                                                                        .paddingSizeExtraSmall,
+                                                                  ),
+
+                                                                  InkWell(
+                                                                    onTap: () =>
+                                                                        storeController
+                                                                            .removeTag(
+                                                                              index,
+                                                                            ),
+                                                                    child: Icon(
+                                                                      Icons.clear,
+                                                                      size: 18,
+                                                                      color:
+                                                                          Theme.of(
+                                                                            context,
+                                                                          ).disabledColor.withValues(
+                                                                            alpha:
+                                                                                0.7,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    )
+                                                  : const SizedBox(),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(
-                                        height: Dimensions.paddingSizeDefault,
-                                      ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeDefault,
+                                        ),
+                                      ],
 
                                       _module.itemAvailableTime!
                                           ? Text(
@@ -1991,7 +1903,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             : 0,
                                       ),
 
-                                       const SizedBox(),
+                                      const SizedBox(),
 
                                       // Item Image Section
                                       Row(
@@ -2429,9 +2341,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                     bool defaultDataNull = false;
                                     if (_nameControllerList[0].text
                                             .trim()
-                                            .isEmpty ||
-                                        _descriptionControllerList[0].text
-                                            .trim()
                                             .isEmpty) {
                                       defaultDataNull = true;
                                     }
@@ -2688,22 +2597,28 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'name',
-                                            value: _nameControllerList[0].text.trim(),
+                                            value: _nameControllerList[0].text
+                                                .trim(),
                                           ),
                                         );
                                         translations.add(
                                           Translation(
                                             locale: _languageList[index].key,
                                             key: 'description',
-                                            value: _descriptionControllerList[0].text.trim(),
+                                            value: _descriptionControllerList[0]
+                                                .text
+                                                .trim(),
                                           ),
                                         );
                                       }
 
                                       _item.translations = [];
                                       _item.translations!.addAll(translations);
-                                      _item.name = _nameControllerList[0].text.trim();
-                                      _item.description = _descriptionControllerList[0].text.trim();
+                                      _item.name = _nameControllerList[0].text
+                                          .trim();
+                                      _item.description =
+                                          _descriptionControllerList[0].text
+                                              .trim();
 
                                       _item.brandId =
                                           storeController.brandList != null &&

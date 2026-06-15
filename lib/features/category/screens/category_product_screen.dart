@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/item_shimmer_widget.dart';
-import 'package:sixam_mart_store/common/widgets/item_widget.dart';
-import 'package:sixam_mart_store/features/category/controllers/category_controller.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/item_widget.dart';
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class CategoryProductScreen extends StatefulWidget {
   final int categoryId;
