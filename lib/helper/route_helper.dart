@@ -67,6 +67,7 @@ import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.d
 import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_status_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
+import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
 
 import 'package:shoplancer_vendor/features/splash/screens/splash_screen.dart';
 import 'package:shoplancer_vendor/features/subscription/screens/my_subscription_screen.dart';
@@ -147,6 +148,7 @@ class RouteHelper {
   static const String productPriceUpdate = '/product-price-update';
   static const String productStatus = '/product-status';
   static const String socialMedia = '/social-media';
+  static const String alternativeItemSelection = '/alternative-item-selection';
 
   static String getInitialRoute() => initial;
   static String getSplashRoute(NotificationBodyModel? body) {
@@ -187,12 +189,12 @@ class RouteHelper {
   }) => '$campaignDetails?id=$id&from_notification=$fromNotification';
   static String getUpdateRoute(bool isUpdate) =>
       '$update?update=${isUpdate.toString()}';
-  static String getAddItemRoute(Item? itemModel) {
+  static String getAddItemRoute(Item? itemModel, {bool isSimple = false}) {
     if (itemModel == null) {
-      return '$addItem?data=null';
+      return '$addItem?data=null&simple=$isSimple';
     }
     String data = base64Encode(utf8.encode(jsonEncode(itemModel.toJson())));
-    return '$addItem?data=$data';
+    return '$addItem?data=$data&simple=$isSimple';
   }
 
   static String getCategoriesRoute() => categories;
@@ -361,6 +363,7 @@ class RouteHelper {
   static String getProductPriceUpdateRoute() => productPriceUpdate;
   static String getProductStatusRoute() => productStatus;
   static String getSocialMediaRoute() => socialMedia;
+  static String getAlternativeItemSelectionRoute(int orderId) => '$alternativeItemSelection?order_id=$orderId';
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => const DashboardScreen(pageIndex: 0)),
@@ -448,14 +451,15 @@ class RouteHelper {
     GetPage(
       name: addItem,
       page: () {
+        bool isSimple = Get.parameters['simple'] == 'true';
         if (Get.parameters['data'] == 'null') {
-          return const AddItemScreen(item: null);
+          return AddItemScreen(item: null, isSimple: isSimple);
         }
         List<int> decode = base64Decode(
           Get.parameters['data']!.replaceAll(' ', '+'),
         );
         Item data = Item.fromJson(jsonDecode(utf8.decode(decode)));
-        return AddItemScreen(item: data);
+        return AddItemScreen(item: data, isSimple: isSimple);
       },
     ),
     GetPage(name: categories, page: () => const CategoryScreen()),
@@ -764,5 +768,11 @@ class RouteHelper {
       page: () => const ProductStatusScreen(),
     ),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
+    GetPage(
+      name: alternativeItemSelection,
+      page: () => AlternativeItemSelectionScreen(
+        orderId: int.parse(Get.parameters['order_id']!),
+      ),
+    ),
   ];
 }

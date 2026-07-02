@@ -210,8 +210,8 @@ class MenuScreen extends StatelessWidget {
     menuList.add(
       MenuModel(
         icon: Images.whatsapp,
-        title: 'WhatsApp',
-        route: 'https://wa.me/972598765425',
+        title: 'الدعم الفني',
+        route: 'https://wa.me/+201036860264',
         isWhatsApp: true,
       ),
     );
@@ -253,19 +253,19 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.disbursementReport! ||
-        modulePermission.walletMethod!) {
-      if (Get.find<SplashController>().configModel!.disbursementType ==
-          'automated') {
-        menuList.add(
-          MenuModel(
-            icon: Images.disbursementIcon,
-            title: 'disbursement'.tr,
-            route: RouteHelper.getDisbursementMenuRoute(),
-          ),
-        );
-      }
-    }
+    // if (modulePermission.disbursementReport! ||
+    //     modulePermission.walletMethod!) {
+    //   if (Get.find<SplashController>().configModel!.disbursementType ==
+    //       'automated') {
+    //     menuList.add(
+    //       MenuModel(
+    //         icon: Images.disbursementIcon,
+    //         title: 'disbursement'.tr,
+    //         route: RouteHelper.getDisbursementMenuRoute(),
+    //       ),
+    //     );
+    //   }
+    // }
     menuList.add(
       MenuModel(
         icon: Images.settingIcon,

@@ -8,6 +8,7 @@ import 'package:shoplancer_vendor/features/business/domain/models/package_model.
 abstract class AuthServiceInterface {
   Future<Response> login(String? phone, String password, String type);
   Future<Response> registerRestaurant(Map<String, String> data, XFile? logo, XFile? cover, List<MultipartDocument> tinFiles);
+  Future<ResponseModel> checkSlug(String slug);
   Future<Response> updateToken();
   Future<bool> saveUserToken(String token, String zoneTopic, String type);
   String getUserToken();

@@ -17,6 +17,9 @@ class CouponController extends GetxController implements GetxService {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  final List<int> _loadingCouponList = [];
+  List<int> get loadingCouponList => _loadingCouponList;
+
   List<CouponBodyModel>? _coupons;
   List<CouponBodyModel>? get coupons => _coupons;
 
@@ -57,7 +60,15 @@ class CouponController extends GetxController implements GetxService {
   }
 
   Future<bool> changeStatus(int? couponId, bool status) async {
+    if (couponId != null) {
+      _loadingCouponList.add(couponId);
+      update();
+    }
     bool success = await couponServiceInterface.changeStatus(couponId, status ? 1 : 0);
+    if (couponId != null) {
+      _loadingCouponList.remove(couponId);
+    }
+    update();
     return success;
   }
 

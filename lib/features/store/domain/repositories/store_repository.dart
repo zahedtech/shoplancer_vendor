@@ -181,6 +181,23 @@ class StoreRepository implements StoreRepositoryInterface {
           MultipartBody('cover_photo', cover),
           MultipartBody('meta_image', metaImage),
         ]);
+    if (response.statusCode == 200) {
+      String min = '0';
+      String max = '0';
+      String type = 'min';
+      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+        try {
+          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+          if (match != null) {
+            min = match.group(1)!;
+            max = match.group(2)!;
+            type = match.group(3)!;
+          }
+        } catch (e) {}
+      }
+      await updateStore(store, min, max, type);
+    }
     return (response.statusCode == 200);
   }
 
@@ -216,6 +233,8 @@ class StoreRepository implements StoreRepositoryInterface {
       'extra_packaging_status': store.extraPackagingStatus! ? '1' : '0',
       'extra_packaging_amount': store.extraPackagingAmount!.toString(),
       'minimum_stock_for_warning': store.minimumStockForWarning.toString(),
+      'defalut_banner': (store.defaultBanner ?? 0).toString(),
+      'default_banner': (store.defaultBanner ?? 0).toString(),
     });
     if (store.paymentMethods != null && store.paymentMethods!.isNotEmpty) {
       fields['methods'] = store.paymentMethods!.map(

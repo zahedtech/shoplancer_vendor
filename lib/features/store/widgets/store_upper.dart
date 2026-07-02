@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
@@ -171,149 +176,6 @@ class _StoreUpperState extends State<StoreUpper> {
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Get.dialog(
-                            AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  Dimensions.radiusExtraLarge,
-                                ),
-                              ),
-                              contentPadding: EdgeInsets.zero,
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical:
-                                          Dimensions.paddingSizeExtraLarge,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(
-                                        context,
-                                      ).primaryColor.withOpacity(0.05),
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(
-                                          Dimensions.radiusExtraLarge,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            height: 100,
-                                            width: 100,
-                                            decoration: BoxDecoration(
-                                              color: Colors.green.withOpacity(
-                                                0.1,
-                                              ),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          Image.asset(
-                                            Images.whatsapp,
-                                            height: 60,
-                                            width: 60,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(
-                                      Dimensions.paddingSizeLarge,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          'add_missing_store_item_title'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: robotoBold.copyWith(
-                                            fontSize:
-                                                Dimensions.fontSizeExtraLarge,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeSmall,
-                                        ),
-                                        Text(
-                                          'contact_to_add_item'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: robotoRegular.copyWith(
-                                            fontSize: Dimensions.fontSizeLarge,
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeDefault,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: CustomButtonWidget(
-                                                buttonText: 'cancel'.tr,
-                                                icon: Icons.cancel_outlined,
-                                                iconColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                color: Theme.of(context)
-                                                    .primaryColor
-                                                    .withValues(alpha: 0.2),
-                                                textColor: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-
-                                                onPressed: () => Get.back(),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-                                            Expanded(
-                                              child: CustomButtonWidget(
-                                                buttonText: 'whatsapp'.tr,
-                                                icon: Icons.chat_bubble_outline,
-                                                color: Colors.green,
-                                                onPressed: () async {
-                                                  var url =
-                                                      "https://wa.me/972598765425";
-                                                  if (await canLaunchUrl(
-                                                    Uri.parse(url),
-                                                  )) {
-                                                    await launchUrl(
-                                                      Uri.parse(url),
-                                                      mode: LaunchMode
-                                                          .externalApplication,
-                                                    );
-                                                  } else {
-                                                    showCustomSnackBar(
-                                                      'can_not_launch_url'.tr,
-                                                    );
-                                                  }
-                                                  Get.back();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.add_circle_outline_rounded,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        visualDensity: VisualDensity.compact,
-                      ),
                     ],
                   ),
                 ],
@@ -328,12 +190,11 @@ class _StoreUpperState extends State<StoreUpper> {
                 children: [
                   InkWell(
                     onTap: () {
-                      if (widget.store?.slug != null) {
-                        final String slug = Uri.encodeComponent(
-                          widget.store!.slug!.trim(),
-                        );
-                        String storeUrl = 'https://store.shoplanser.com/$slug';
-                        Share.share(storeUrl);
+                      if (widget.store != null) {
+                        String storeUrl = _buildStoreUrl(widget.store!);
+                        if (storeUrl.isNotEmpty) {
+                          _showShareBottomSheet(context, storeUrl, widget.store!.name ?? '');
+                        }
                       }
                     },
                     child: _buildStatItem(
@@ -468,6 +329,157 @@ class _StoreUpperState extends State<StoreUpper> {
           ),
         ),
       ],
+    );
+  }
+
+  String _buildStoreUrl(Store store) {
+    final String? rawSlug = (store.slug?.trim().isNotEmpty ?? false)
+        ? store.slug
+        : store.name;
+    if (rawSlug == null || rawSlug.trim().isEmpty) {
+      return '';
+    }
+    final String slug = Uri.encodeComponent(rawSlug.trim());
+    return 'https://store.shoplanser.com/$slug';
+  }
+
+  void _showShareBottomSheet(BuildContext context, String storeUrl, String storeName) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 4, width: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).disabledColor.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
+            
+            Text(
+              'share_store'.tr,
+              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+            ),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
+
+            ListTile(
+              leading: Icon(Icons.link, color: Theme.of(context).primaryColor),
+              title: Text('share_link'.tr, style: robotoMedium),
+              subtitle: Text(storeUrl, maxLines: 1, overflow: TextOverflow.ellipsis),
+              onTap: () {
+                Get.back();
+                Share.share(storeUrl);
+              },
+            ),
+            
+            ListTile(
+              leading: Icon(Icons.qr_code, color: Theme.of(context).primaryColor),
+              title: Text('share_as_qr'.tr, style: robotoMedium),
+              onTap: () {
+                Get.back();
+                _showQrDialog(context, storeUrl, storeName);
+              },
+            ),
+            const SizedBox(height: Dimensions.paddingSizeDefault),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showQrDialog(BuildContext context, String storeUrl, String storeName) {
+    ScreenshotController screenshotController = ScreenshotController();
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                storeName,
+                style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: Dimensions.paddingSizeDefault),
+
+              Screenshot(
+                controller: screenshotController,
+                child: Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      QrImageView(
+                        data: storeUrl,
+                        size: 200,
+                        backgroundColor: Colors.white,
+                      ),
+                      const SizedBox(height: Dimensions.paddingSizeSmall),
+                      Text(
+                        'store.shoplanser.com',
+                        style: robotoMedium.copyWith(color: Colors.black, fontSize: Dimensions.fontSizeSmall),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: Dimensions.paddingSizeDefault),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text('cancel'.tr, style: robotoMedium.copyWith(color: Theme.of(context).disabledColor)),
+                  ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: () async {
+                      Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+                      try {
+                        final Uint8List? imageBytes = await screenshotController.capture();
+                        Get.back(); // close progress loader
+                        if (imageBytes != null) {
+                          final directory = await getTemporaryDirectory();
+                          final String path = '${directory.path}/store_qr_${DateTime.now().millisecondsSinceEpoch}.png';
+                          final File file = await File(path).create();
+                          await file.writeAsBytes(imageBytes);
+                          
+                          Get.back(); // close QR dialog
+                          await Share.shareXFiles(
+                            [XFile(file.path)],
+                            text: '${'share_store'.tr}: $storeName',
+                          );
+                        }
+                      } catch (e) {
+                        Get.back(); // close progress loader if open
+                        showCustomSnackBar('failed_to_save_qr'.tr, isError: true);
+                      }
+                    },
+                    icon: const Icon(Icons.share, size: 18),
+                    label: Text('share'.tr, style: robotoBold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

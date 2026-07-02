@@ -13,6 +13,7 @@ abstract class OrderServiceInterface {
   Future<List<OrderDetailsModel>?> getOrderDetails(int orderID);
   Future<OrderModel?> getOrderWithId(int orderId);
   Future<ResponseModel> updateOrderAmount(Map<String, String> body);
+  Future<ResponseModel> updateOrderItems(Map<String, dynamic> body);
   Future<OrderCancellationBodyModel?> getCancelReasons();
   Future<bool> sendDeliveredNotification(int? orderID);
   List<MultipartBody> processMultipartData(List<XFile> pickedPrescriptions);

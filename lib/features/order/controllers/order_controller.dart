@@ -12,6 +12,7 @@ import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/features/order/domain/services/order_service_interface.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class OrderController extends GetxController implements GetxService {
   final OrderServiceInterface orderServiceInterface;
@@ -99,7 +100,8 @@ class OrderController extends GetxController implements GetxService {
   }
 
   bool isItemChecked(int orderId, int orderDetailsId) {
-    return _checklistMap.containsKey(orderId) && _checklistMap[orderId]!.contains(orderDetailsId);
+    return _checklistMap.containsKey(orderId) &&
+        _checklistMap[orderId]!.contains(orderDetailsId);
   }
 
   bool isOrderChecklistComplete(int orderId) {
@@ -282,6 +284,20 @@ class OrderController extends GetxController implements GetxService {
     bool fromNotification = false,
     String? externalDeliveryManName,
   }) async {
+    if (status != 'canceled' && status != 'failed' && status != 'refunded') {
+      if (_orderDetailsModel != null &&
+          _orderDetailsModel!.isNotEmpty &&
+          _orderDetailsModel!.first.orderId == orderID) {
+        if (!isOrderChecklistComplete(orderID ?? 0)) {
+          showCustomSnackBar(
+            'check_all_items_before_updating_status'.tr,
+            isError: true,
+          );
+          return false;
+        }
+      }
+    }
+
     _isLoading = true;
     update();
     List<MultipartBody> pickedPrescriptions = orderServiceInterface
@@ -303,10 +319,17 @@ class OrderController extends GetxController implements GetxService {
       Get.back(result: responseModel.isSuccess);
     }
     if (responseModel.isSuccess) {
-      if (back && fromNotification) {
+      if (status == 'picked_up' || status == AppConstants.pickedUp) {
         Get.offAllNamed(RouteHelper.getInitialRoute());
-      } else if (back && !fromNotification) {
-        Get.back();
+      } else {
+        if (back && fromNotification) {
+          Get.offAllNamed(RouteHelper.getInitialRoute());
+        } else if (back && !fromNotification) {
+          Get.back();
+        }
+        if (orderID != null && !back) {
+          await getOrderDetails(orderID);
+        }
       }
       getCurrentOrders();
       Get.find<ProfileController>().getProfile();
@@ -346,6 +369,27 @@ class OrderController extends GetxController implements GetxService {
     } else {
       showCustomSnackBar(responseModel.message, isError: true);
     }
+    _isLoading = false;
+    update();
+    return responseModel.isSuccess;
+  }
+
+  Future<bool> updateOrderItems(Map<String, dynamic> body) async {
+    _isLoading = true;
+    update();
+
+    ResponseModel responseModel = await orderServiceInterface.updateOrderItems(
+      body,
+    );
+
+    if (responseModel.isSuccess) {
+      await getOrderDetails(body['order_id']);
+      await getOrderItemsDetails(body['order_id']);
+      showCustomSnackBar(responseModel.message, isError: false);
+    } else {
+      showCustomSnackBar(responseModel.message, isError: true);
+    }
+
     _isLoading = false;
     update();
     return responseModel.isSuccess;

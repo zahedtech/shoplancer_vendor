@@ -43,6 +43,11 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
+  Future<ResponseModel> updateOrderItems(Map<String, dynamic> body) async {
+    return await orderRepositoryInterface.updateOrderItems(body);
+  }
+
+  @override
   Future<OrderCancellationBodyModel?> getCancelReasons() async {
     return await orderRepositoryInterface.getCancelReasons();
   }

@@ -25,6 +25,11 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
+  Future<ResponseModel> checkSlug(String slug) async {
+    return await authRepositoryInterface.checkSlug(slug);
+  }
+
+  @override
   Future<Response> updateToken() async {
     return await authRepositoryInterface.updateToken();
   }

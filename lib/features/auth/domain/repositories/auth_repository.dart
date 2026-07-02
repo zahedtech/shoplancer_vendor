@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -36,6 +37,22 @@ class AuthRepository implements AuthRepositoryInterface {
       [MultipartBody('logo', logo), MultipartBody('cover_photo', cover)],
       multipartDocument: tinFiles,
     );
+  }
+
+  @override
+  Future<ResponseModel> checkSlug(String slug) async {
+    Response response = await apiClient.getData('${AppConstants.checkSlugUri}$slug');
+    if (response.statusCode == 200) {
+      bool exist = response.body['exist'] == true || response.body['exist']?.toString() == 'true';
+      if (exist) {
+        String msg = (response.body['message'] ?? '').toString().trim();
+        return ResponseModel(false, msg.isNotEmpty ? msg : 'slug_already_exists');
+      } else {
+        return ResponseModel(true, 'slug_is_available');
+      }
+    } else {
+      return ResponseModel(false, 'failed_to_validate_slug');
+    }
   }
 
   @override

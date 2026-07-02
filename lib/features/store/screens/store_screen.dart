@@ -76,6 +76,13 @@ class _StoreScreenState extends State<StoreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.toNamed(
+          RouteHelper.getAddItemRoute(null, isSimple: true),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       body: GetBuilder<ProfileController>(
         builder: (profileController) {
           Store? store = profileController.profileModel?.stores?[0];

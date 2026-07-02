@@ -47,6 +47,8 @@ class AppConstants {
   static const String vendorBasicInfoUpdateUri =
       '/api/v1/vendor/update-basic-info';
   static const String vendorUpdateUri = '/api/v1/vendor/update-business-setup';
+  static const String updateOrderItemsUri =
+      '/api/v1/customer/order/update-items';
   static const String itemStockUpdateUri = '/api/v1/vendor/item/stock-update';
   static const String addItemUri = '/api/v1/vendor/item/store';
   static const String updateItemUri = '/api/v1/vendor/item/update';
@@ -79,6 +81,7 @@ class AppConstants {
   static const String placeDetailsUri = '/api/v1/config/place-api-details';
   static const String zoneUri = '/api/v1/config/get-zone-id';
   static const String restaurantRegisterUri = '/api/v1/auth/vendor/register';
+  static const String checkSlugUri = '/api/v1/store/check-slug/';
   static const String currentOrderDetailsUri = '/api/v1/vendor/order?order_id=';
   static const String modulesUri = '/api/v1/module';
   static const String updateOrderUri = '/api/v1/vendor/update-order-amount';

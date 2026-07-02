@@ -10,4 +10,5 @@ abstract class OrderRepositoryInterface implements RepositoryInterface {
   Future<dynamic> sendDeliveredNotification(int? orderID);
   Future<void> setBluetoothAddress(String? address);
   String? getBluetoothAddress();
+  Future<dynamic> updateOrderItems(Map<String, dynamic> body);
 }

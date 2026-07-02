@@ -77,6 +77,17 @@ class _ChangeSubscriptionPlanBottomSheetState
         bool isRentalModule =
             Get.find<AuthController>().getModuleType() == 'rental';
 
+        bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+            (subscriptionController.packageList != null 
+                ? subscriptionController.packageList!.where((p) => p.id != -1).isNotEmpty
+                : (Get.find<AuthController>().packageModel?.packages != null && Get.find<AuthController>().packageModel!.packages!.isNotEmpty));
+        bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
+        bool showToggle = isSubscriptionAvailable && isCommissionAvailable;
+
+        if (!isSubscriptionAvailable && subscriptionController.isSelect) {
+          Future.microtask(() => subscriptionController.isSelectChange(false));
+        }
+
         if (subscriptionController.packageList != null) {
           for (var element in subscriptionController.packageList!) {
             if (subscriptionController.profileModel!.subscription != null) {
@@ -161,87 +172,89 @@ class _ChangeSubscriptionPlanBottomSheetState
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
                     // Primary Toggle: Commission vs Subscription
-                    Container(
-                      height: 45,
-                      padding: const EdgeInsets.all(2),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(
-                          Dimensions.radiusDefault,
+                    if (showToggle)
+                      Container(
+                        height: 45,
+                        padding: const EdgeInsets.all(2),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault,
                         ),
-                        border: Border.all(
-                          color: Theme.of(context).primaryColor,
-                          width: 0.5,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusDefault,
+                          ),
+                          border: Border.all(
+                            color: Theme.of(context).primaryColor,
+                            width: 0.5,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                subscriptionController.isSelectChange(
-                                  false,
-                                ); // Mode 0: Commission
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: !subscriptionController.isSelect
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusDefault - 2,
-                                  ),
-                                ),
-                                child: Text(
-                                  'commission'.tr,
-                                  style: robotoMedium.copyWith(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  subscriptionController.isSelectChange(
+                                    false,
+                                  ); // Mode 0: Commission
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                     color: !subscriptionController.isSelect
-                                        ? Colors.white
-                                        : Theme.of(context).primaryColor,
-                                    fontSize: Dimensions.fontSizeSmall,
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault - 2,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'commission'.tr,
+                                    style: robotoMedium.copyWith(
+                                      color: !subscriptionController.isSelect
+                                          ? Colors.white
+                                          : Theme.of(context).primaryColor,
+                                      fontSize: Dimensions.fontSizeSmall,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                subscriptionController.isSelectChange(
-                                  true,
-                                ); // Mode 1: Subscription
-                              },
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: subscriptionController.isSelect
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusDefault - 2,
-                                  ),
-                                ),
-                                child: Text(
-                                  'subscription'.tr,
-                                  style: robotoMedium.copyWith(
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  subscriptionController.isSelectChange(
+                                    true,
+                                  ); // Mode 1: Subscription
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                     color: subscriptionController.isSelect
-                                        ? Colors.white
-                                        : Theme.of(context).primaryColor,
-                                    fontSize: Dimensions.fontSizeSmall,
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault - 2,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'subscription'.tr,
+                                    style: robotoMedium.copyWith(
+                                      color: subscriptionController.isSelect
+                                          ? Colors.white
+                                          : Theme.of(context).primaryColor,
+                                      fontSize: Dimensions.fontSizeSmall,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
+                    if (showToggle)
+                      const SizedBox(height: Dimensions.paddingSizeLarge),
 
                     if (subscriptionController.isSelect) ...[
                       Container(
@@ -741,40 +754,76 @@ class _ChangeSubscriptionPlanBottomSheetState
                                                 ),
                                               )
                                             : Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  _buildFeatureItem(
-                                                    context,
-                                                    '${isRentalModule ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
-                                                  ),
-                                                  _buildFeatureItem(
-                                                    context,
-                                                    '${isRentalModule ? 'max_vehicle'.tr : 'max_product'.tr} (${package.maxProduct?.tr})',
-                                                  ),
-                                                  if (package.pos != 0)
+                                                  // Custom features from API
+                                                  if (package.customFeatures != null && package.customFeatures!.isNotEmpty)
+                                                    ...package.customFeatures!
+                                                        .where((f) => f.enabled == 1)
+                                                        .map((feature) => _buildFeatureItem(
+                                                              context,
+                                                              feature.description ?? feature.title ?? '',
+                                                            )),
+
+                                                  // Fallback: show standard features if no custom features
+                                                  if (package.customFeatures == null || package.customFeatures!.isEmpty) ...[
                                                     _buildFeatureItem(
                                                       context,
-                                                      'pos'.tr,
+                                                      '${isRentalModule ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
                                                     ),
-                                                  if (package.mobileApp != 0)
                                                     _buildFeatureItem(
                                                       context,
-                                                      'mobile_app'.tr,
+                                                      '${isRentalModule ? 'max_vehicle'.tr : 'max_product'.tr} (${package.maxProduct?.tr})',
                                                     ),
-                                                  if (package.chat != 0)
-                                                    _buildFeatureItem(
-                                                      context,
-                                                      'chat'.tr,
+                                                    if (package.pos != 0)
+                                                      _buildFeatureItem(
+                                                        context,
+                                                        'pos'.tr,
+                                                      ),
+                                                    if (package.mobileApp != 0)
+                                                      _buildFeatureItem(
+                                                        context,
+                                                        'mobile_app'.tr,
+                                                      ),
+                                                    if (package.chat != 0)
+                                                      _buildFeatureItem(
+                                                        context,
+                                                        'chat'.tr,
+                                                      ),
+                                                    if (package.review != 0)
+                                                      _buildFeatureItem(
+                                                        context,
+                                                        'review'.tr,
+                                                      ),
+                                                    if (package.selfDelivery != 0)
+                                                      _buildFeatureItem(
+                                                        context,
+                                                        'self_delivery'.tr,
+                                                      ),
+                                                  ],
+
+                                                  // Text note (e.g. pricing promo)
+                                                  if (package.text != null && package.text!.isNotEmpty) ...[
+                                                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: Dimensions.paddingSizeSmall,
+                                                        vertical: Dimensions.paddingSizeExtraSmall,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+                                                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                      ),
+                                                      child: Text(
+                                                        package.text!,
+                                                        style: robotoMedium.copyWith(
+                                                          fontSize: Dimensions.fontSizeSmall,
+                                                          color: Theme.of(context).primaryColor,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  if (package.review != 0)
-                                                    _buildFeatureItem(
-                                                      context,
-                                                      'review'.tr,
-                                                    ),
-                                                  if (package.selfDelivery != 0)
-                                                    _buildFeatureItem(
-                                                      context,
-                                                      'self_delivery'.tr,
-                                                    ),
+                                                  ],
                                                 ],
                                               ),
                                       ),

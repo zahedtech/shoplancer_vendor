@@ -1,31 +1,37 @@
 import 'package:flutter/cupertino.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
-import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
-import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
-import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
-import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
-import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
-import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
-import 'package:shoplancer_vendor/helper/route_helper.dart';
-import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/styles.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
-import 'package:shoplancer_vendor/features/store/widgets/item_view_widget.dart';
-import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/discount_tag_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/not_available_widget.dart';
+import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
-import '../widgets/filter_popup_widget.dart';
+import '../../store/widgets/filter_popup_widget.dart';
 
-class AllItemsScreen extends StatefulWidget {
-  const AllItemsScreen({super.key});
+class AlternativeItemSelectionScreen extends StatefulWidget {
+  final int orderId;
+  const AlternativeItemSelectionScreen({super.key, required this.orderId});
 
   @override
-  State<AllItemsScreen> createState() => _AllItemsScreenState();
+  State<AlternativeItemSelectionScreen> createState() =>
+      _AlternativeItemSelectionScreenState();
 }
 
-class _AllItemsScreenState extends State<AllItemsScreen> {
+class _AlternativeItemSelectionScreenState
+    extends State<AlternativeItemSelectionScreen> {
   final ScrollController _scrollController = ScrollController();
   final ScrollController _categoryScrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -36,15 +42,13 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
 
     final StoreController storeController = Get.find<StoreController>();
     Get.find<ProfileController>().getProfile();
-    int? moduleId =
-        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
+
     storeController.getItemList(
       offset: '1',
       type: 'all',
       search: '',
       categoryId: 0,
       willUpdate: false,
-      moduleId: moduleId,
     );
     storeController.getStoreCategories();
 
@@ -64,7 +68,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
             type: storeController.type,
             search: _searchController.text.trim(),
             categoryId: storeController.categoryId,
-            moduleId: moduleId,
           );
         }
       }
@@ -80,20 +83,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
             Store? store = profileController.profileModel != null
                 ? profileController.profileModel!.stores![0]
                 : null;
-            bool isShowingTrialContent =
-                profileController.profileModel != null &&
-                profileController.profileModel!.subscription != null &&
-                profileController.profileModel!.subscription!.isTrial == 1 &&
-                DateConverterHelper.differenceInDaysIgnoringTime(
-                      DateTime.parse(
-                        profileController
-                            .profileModel!
-                            .subscription!
-                            .expiryDate!,
-                      ),
-                      null,
-                    ) >
-                    0;
 
             return PopScope(
               canPop: true,
@@ -104,221 +93,12 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                 }
               },
               child: Scaffold(
-                appBar: CustomAppBarWidget(
-                  title: storeController.isSelectionMode
-                      ? '${storeController.selectedItemList.length} ${'selected'.tr}'
-                      : 'all_items'.tr,
-                  leadingWidget: storeController.isSelectionMode
-                      ? IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => storeController.clearSelection(),
-                        )
-                      : null,
-                  menuWidget: storeController.isSelectionMode
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.select_all),
-                              onPressed: () => storeController.selectAllItems(),
-                              tooltip: 'select_all'.tr,
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.edit_note, size: 30),
-                              onPressed: () {
-                                final List<Item> selectedItems = storeController
-                                    .itemList!
-                                    .where(
-                                      (item) => storeController.selectedItemList
-                                          .contains(item.id),
-                                    )
-                                    .toList();
-
-                                final Map<int, TextEditingController>
-                                priceControllers = {};
-                                final Map<int, TextEditingController>
-                                stockControllers = {};
-
-                                for (var item in selectedItems) {
-                                  priceControllers[item.id!] =
-                                      TextEditingController(
-                                        text: item.price.toString(),
-                                      );
-                                  stockControllers[item.id!] =
-                                      TextEditingController(
-                                        text: item.stock.toString(),
-                                      );
-                                }
-
-                                Get.dialog(
-                                  AlertDialog(
-                                    title: Text('bulk_update'.tr),
-                                    content: SizedBox(
-                                      width: double.maxFinite,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: selectedItems.length,
-                                        itemBuilder: (context, index) {
-                                          final item = selectedItems[index];
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom:
-                                                  Dimensions.paddingSizeDefault,
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  item.name ?? '',
-                                                  style: robotoMedium,
-                                                ),
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeExtraSmall,
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: TextField(
-                                                        controller:
-                                                            priceControllers[item
-                                                                .id!],
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'price'.tr,
-                                                          isDense: true,
-                                                          border:
-                                                              const OutlineInputBorder(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-                                                    Expanded(
-                                                      child: TextField(
-                                                        controller:
-                                                            stockControllers[item
-                                                                .id!],
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'stock'.tr,
-                                                          isDense: true,
-                                                          border:
-                                                              const OutlineInputBorder(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const Divider(),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Get.back(),
-                                        child: Text('cancel'.tr),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          List<Map<String, String>> updates =
-                                              [];
-                                          for (var item in selectedItems) {
-                                            double? newPrice = double.tryParse(
-                                              priceControllers[item.id!]!.text,
-                                            );
-                                            int? newStock = int.tryParse(
-                                              stockControllers[item.id!]!.text,
-                                            );
-
-                                            if (newPrice != null ||
-                                                newStock != null) {
-                                              updates.add(
-                                                storeController
-                                                    .buildStockUpdateData(
-                                                      item,
-                                                      price: newPrice,
-                                                      stock: newStock,
-                                                    ),
-                                              );
-                                            }
-                                          }
-                                          if (updates.isNotEmpty) {
-                                            Get.back();
-                                            storeController.bulkItemsUpdate(
-                                              updates,
-                                            );
-                                          }
-                                        },
-                                        child: Text('update'.tr),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              tooltip: 'bulk_update'.tr,
-                            ),
-                          ],
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              icon: Icon(
-                                Icons.add_circle_outline,
-                                color: Theme.of(context).primaryColor,
-                                size: 27,
-                              ),
-                              onPressed: () => Get.toNamed(
-                                RouteHelper.getAddItemRoute(
-                                  null,
-                                  isSimple: true,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-
+                appBar: CustomAppBarWidget(title: 'select_alternative_item'.tr),
                 body: store != null
                     ? CustomScrollView(
                         controller: _scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),
                         slivers: [
-                          // Top Header Text
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                Dimensions.paddingSizeDefault,
-                                Dimensions.paddingSizeDefault,
-                                Dimensions.paddingSizeDefault,
-                                0,
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: Text(
-                                    'add_missing_store_item_title'.tr,
-                                    textAlign: TextAlign.right,
-                                    style: robotoMedium,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
                           // Sticky Category Header
                           SliverPersistentHeader(
                             pinned: true,
@@ -367,14 +147,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                                     storeController.setType(
                                                       val,
                                                     );
-                                                    int? moduleId =
-                                                        Get.find<
-                                                              ProfileController
-                                                            >()
-                                                            .profileModel
-                                                            ?.stores?[0]
-                                                            .module
-                                                            ?.id;
                                                     storeController.getItemList(
                                                       offset: '1',
                                                       type: val,
@@ -382,7 +154,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                                       categoryId:
                                                           storeController
                                                               .categoryId,
-                                                      moduleId: moduleId,
                                                     );
                                                   },
                                                 );
@@ -448,19 +219,12 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                                     ),
                                                     curve: Curves.easeIn,
                                                   );
-                                              int? moduleId =
-                                                  Get.find<ProfileController>()
-                                                      .profileModel
-                                                      ?.stores?[0]
-                                                      .module
-                                                      ?.id;
                                               storeController.getItemList(
                                                 offset: '1',
                                                 type: 'all',
                                                 search: _searchController.text
                                                     .trim(),
                                                 categoryId: 0,
-                                                moduleId: moduleId,
                                               );
                                             } else {
                                               showCustomSnackBar(
@@ -478,18 +242,11 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                               ),
                                               curve: Curves.easeIn,
                                             );
-                                            int? moduleId =
-                                                Get.find<ProfileController>()
-                                                    .profileModel
-                                                    ?.stores?[0]
-                                                    .module
-                                                    ?.id;
                                             storeController.getItemList(
                                               offset: '1',
                                               type: 'all',
                                               search: '',
                                               categoryId: 0,
-                                              moduleId: moduleId,
                                             );
                                           }
                                         },
@@ -506,19 +263,12 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                               ),
                                               curve: Curves.easeIn,
                                             );
-                                            int? moduleId =
-                                                Get.find<ProfileController>()
-                                                    .profileModel
-                                                    ?.stores?[0]
-                                                    .module
-                                                    ?.id;
                                             storeController.getItemList(
                                               offset: '1',
                                               type: 'all',
                                               search: _searchController.text
                                                   .trim(),
                                               categoryId: 0,
-                                              moduleId: moduleId,
                                             );
                                           } else {
                                             showCustomSnackBar(
@@ -537,19 +287,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                   Get.find<ProfileController>()
                                           .modulePermission!
                                           .item!
-                                      ? storeController.isLoading ||
-                                                storeController.itemList != null
-                                            ? ItemViewWidget(
-                                                scrollController:
-                                                    _scrollController,
-                                                fromAllItems: true,
-                                                type: storeController.type,
-                                                search: _searchController.text,
-                                              )
-                                            : ItemShimmerWidget(
-                                                isEnabled: true,
-                                                hasDivider: false,
-                                              )
+                                      ? _buildItemListView(storeController)
                                       : Center(
                                           child: Padding(
                                             padding: const EdgeInsets.only(
@@ -580,8 +318,6 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
   }
 
   Widget _buildCategory(StoreController storeController) {
-    int? moduleId =
-        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
     if (storeController.categoryNameList != null) {
       return ListView.builder(
         controller: _categoryScrollController,
@@ -589,11 +325,8 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         itemCount: storeController.categoryNameList!.length,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: () => storeController.setCategory(
-              index: index,
-              foodType: 'all',
-              moduleId: moduleId,
-            ),
+            onTap: () =>
+                storeController.setCategory(index: index, foodType: 'all'),
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Row(
@@ -652,6 +385,396 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
           color: Theme.of(context).hintColor.withValues(alpha: 0.2),
         ),
       ),
+    );
+  }
+
+  Widget _buildItemListView(StoreController storeController) {
+    return Column(
+      children: [
+        storeController.itemList != null
+            ? storeController.itemList!.isNotEmpty
+                  ? GridView.builder(
+                      key: UniqueKey(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: Dimensions.paddingSizeLarge,
+                            mainAxisSpacing: 0.01,
+                            crossAxisCount: 1,
+                            mainAxisExtent: 104,
+                          ),
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: storeController.itemList!.length,
+                      padding: const EdgeInsets.all(0),
+                      itemBuilder: (context, index) {
+                        Item item = storeController.itemList![index];
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            bottom: Dimensions.paddingSizeSmall,
+                          ),
+                          child: _buildSelectableItemWidget(
+                            context,
+                            item,
+                            index,
+                            storeController,
+                          ),
+                        );
+                      },
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 200),
+                      child: Center(child: Text('no_item_available'.tr)),
+                    )
+            : GridView.builder(
+                key: UniqueKey(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisSpacing: Dimensions.paddingSizeLarge,
+                  mainAxisSpacing: 0.01,
+                  crossAxisCount: 1,
+                  mainAxisExtent: 120,
+                ),
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: 20,
+                padding: const EdgeInsets.all(0),
+                itemBuilder: (context, index) {
+                  return ItemShimmerWidget(
+                    isEnabled: storeController.itemList == null,
+                    hasDivider: index != 19,
+                  );
+                },
+              ),
+        storeController.isLoading
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox(),
+      ],
+    );
+  }
+
+  Widget _buildSelectableItemWidget(
+    BuildContext context,
+    Item item,
+    int index,
+    StoreController storeController,
+  ) {
+    double discount;
+    String discountType;
+    bool isAvailable;
+    final double resolvedStoreDiscount = item.storeDiscount ?? 0;
+    discount = resolvedStoreDiscount == 0
+        ? (item.discount ?? 0)
+        : resolvedStoreDiscount;
+    discountType = resolvedStoreDiscount == 0
+        ? (item.discountType ?? 'percent')
+        : 'percent';
+    isAvailable = DateConverterHelper.isAvailable(
+      item.availableTimeStarts,
+      item.availableTimeEnds,
+    );
+
+    double width = MediaQuery.of(context).size.width;
+
+    return InkWell(
+      onTap: () {
+        _showQuantityDialog(context, item);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Dimensions.paddingSizeSmall,
+        ),
+        margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              offset: const Offset(0, 3),
+              color: Colors.grey[Get.isDarkMode ? 700 : 200]!,
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            /// Image section
+            item.imageFullUrl != null
+                ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusDefault,
+                        ),
+                        child: CustomImageWidget(
+                          image: '${item.imageFullUrl}',
+                          height: 60,
+                          width: 69,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      DiscountTagWidget(
+                        discount: discount,
+                        discountType: discountType,
+                        freeDelivery: false,
+                      ),
+                      isAvailable
+                          ? const SizedBox()
+                          : const NotAvailableWidget(isStore: false),
+                    ],
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.radiusDefault,
+                    ),
+                    child: CustomImageWidget(
+                      image: Images.image,
+                      height: 60,
+                      width: 69,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+            const SizedBox(width: Dimensions.paddingSizeSmall),
+
+            /// Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  /// Name
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        item.name ?? '',
+                        textAlign: TextAlign.start,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                      SizedBox(
+                        width: item.imageFullUrl == null
+                            ? Dimensions.paddingSizeExtraSmall
+                            : 0,
+                      ),
+                      item.imageFullUrl == null
+                          ? discount > 0
+                                ? Text(
+                                    '(${discount > 0 ? '$discount${discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol} ${'off'.tr}' : 'free_delivery'.tr})',
+                                    style: robotoMedium.copyWith(
+                                      color: Colors.green,
+                                      fontSize: Dimensions.fontSizeExtraSmall,
+                                    ),
+                                  )
+                                : const SizedBox()
+                          : const SizedBox(),
+                    ],
+                  ),
+                  SizedBox(
+                    height: item.imageFullUrl != null
+                        ? Dimensions.paddingSizeExtraSmall
+                        : 0,
+                  ),
+
+                  /// Rating bar
+                  Row(
+                    children: [
+                      if (item.avgRating != null && item.avgRating != 0.0)
+                        Row(
+                          children: [
+                            Image.asset(Images.starIcon, width: 10),
+                            Text(
+                              ' ${item.avgRating!.toStringAsFixed(2)} ',
+                              style: robotoRegular.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                              ),
+                            ),
+                            Text(
+                              ' (${item.ratingCount})',
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeExtraSmall,
+                                color: Theme.of(context).hintColor,
+                                decoration: TextDecoration.underline,
+                                decorationColor: Theme.of(context).hintColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      item.imageFullUrl == null && !isAvailable
+                          ? Padding(
+                              padding: const EdgeInsets.only(left: 5.0),
+                              child: Text(
+                                '(${'not_available_now'.tr})',
+                                textAlign: TextAlign.center,
+                                style: robotoRegular.copyWith(
+                                  color: Colors.red,
+                                  fontSize: Dimensions.fontSizeExtraSmall,
+                                ),
+                              ),
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+
+                  /// Price
+                  Row(
+                    children: [
+                      discount > 0
+                          ? Text(
+                              PriceConverterHelper.convertPrice(item.price),
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeExtraSmall,
+                                color: Theme.of(context).disabledColor,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            )
+                          : const SizedBox(),
+                      SizedBox(
+                        width: discount > 0
+                            ? Dimensions.paddingSizeExtraSmall
+                            : 0,
+                      ),
+                      Text(
+                        PriceConverterHelper.convertPrice(
+                          item.price,
+                          discount: discount,
+                          discountType: discountType,
+                        ),
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            width > 320
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => _showQuantityDialog(context, item),
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radiusSmall,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
+                        ),
+                        tooltip: 'select'.tr,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: Dimensions.paddingSizeSmall,
+                          bottom: Dimensions.paddingSizeSmall,
+                        ),
+                        child: item.stock != 0 && item.stock != null
+                            ? Text(
+                                'Stock : ${item.stock}',
+                                style: robotoRegular.copyWith(
+                                  fontSize: Dimensions.fontSizeSmall,
+                                  color: Theme.of(context).disabledColor,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  )
+                : GestureDetector(
+                    onTap: () => _showQuantityDialog(context, item),
+                    child: Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: 25,
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showQuantityDialog(BuildContext context, Item item) {
+    int quantity = 1;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('select_quantity'.tr),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (quantity > 1) {
+                        setState(() {
+                          quantity--;
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.remove_circle_outline),
+                  ),
+                  Text(
+                    quantity.toString(),
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeLarge,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        quantity++;
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: Text('cancel'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                    Get.back(result: {'item': item, 'quantity': quantity});
+                  },
+                  child: Text('confirm'.tr),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

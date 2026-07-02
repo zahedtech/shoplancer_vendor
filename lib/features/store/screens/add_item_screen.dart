@@ -42,7 +42,8 @@ import '../../profile/domain/models/profile_model.dart' hide Module;
 
 class AddItemScreen extends StatefulWidget {
   final Item? item;
-  const AddItemScreen({super.key, required this.item});
+  final bool isSimple;
+  const AddItemScreen({super.key, required this.item, this.isSimple = false});
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -212,6 +213,7 @@ class _AddItemScreenState extends State<AddItemScreen>
     } else {
       _item = Item(imagesFullUrl: []);
       _discountController.text = '0';
+      _stockController.text = '100';
       storeController.setTag('', isUpdate: false, isClear: true);
       storeController.setEmptyVariationList();
       storeController.pickImage(false, true);
@@ -253,8 +255,22 @@ class _AddItemScreenState extends State<AddItemScreen>
     _priceController.dispose();
     _discountController.dispose();
     _stockController.dispose();
+    _tagController.dispose();
     _maxOrderQuantityController.dispose();
+    _c.dispose();
+    _genericNameSuggestionController.dispose();
     _maxVideoPreviewController.dispose();
+    _nutritionSuggestionController.dispose();
+    _allergicIngredientsSuggestionController.dispose();
+    _priceNode.dispose();
+    _discountNode.dispose();
+    _genericNameNode.dispose();
+    for (var focusNode in _nameFocusList) {
+      focusNode.dispose();
+    }
+    for (var focusNode in _descriptionFocusList) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -373,7 +389,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                       ) {
                         brandList.add(
                           DropdownItem<int>(
-                            value: i,
+                            value: storeController.brandList![i].id,
                             child: SizedBox(
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -524,28 +540,32 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               capitalization:
                                                   TextCapitalization.words,
                                               focusNode: _nameFocusList[0],
-                                              nextFocus:
-                                                  _descriptionFocusList[0],
+                                              nextFocus: widget.isSimple
+                                                  ? null
+                                                  : _descriptionFocusList[0],
                                               showTitle: false,
                                             ),
-                                            const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraLarge,
-                                            ),
-
-                                            CustomTextFieldWidget(
-                                              hintText: 'description'.tr,
-                                              labelText: 'description'.tr,
-                                              controller:
-                                                  _descriptionControllerList[0],
-                                              focusNode:
-                                                  _descriptionFocusList[0],
-                                              capitalization:
-                                                  TextCapitalization.sentences,
-                                              maxLines: 3,
-                                              inputAction: TextInputAction.done,
-                                              showTitle: false,
-                                            ),
+                                            if (!widget.isSimple) ...[
+                                              const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeExtraLarge,
+                                              ),
+                                              CustomTextFieldWidget(
+                                                hintText: 'description'.tr,
+                                                labelText: 'description'.tr,
+                                                controller:
+                                                    _descriptionControllerList[0],
+                                                focusNode:
+                                                    _descriptionFocusList[0],
+                                                capitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                                maxLines: 3,
+                                                inputAction:
+                                                    TextInputAction.done,
+                                                showTitle: false,
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
@@ -666,7 +686,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 : const SizedBox.shrink(),
                                             SizedBox(
                                               height:
-                                                  categoryController
+                                                  !widget.isSimple &&
+                                                      categoryController
                                                               .selectedSubCategoryID !=
                                                           null &&
                                                       categoryController
@@ -680,7 +701,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   : 0,
                                             ),
 
-                                            isPharmacy &&
+                                            !widget.isSimple &&
+                                                    isPharmacy &&
                                                     (!_update ||
                                                         (widget.item?.conditionId !=
                                                                 null &&
@@ -725,17 +747,16 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 : const SizedBox(),
                                             SizedBox(
                                               height:
-                                                  isPharmacy &&
-                                                          (!_update ||
-                                                              (widget.item?.conditionId !=
-                                                                      null &&
-                                                                  widget
-                                                                          .item!
-                                                                          .conditionId !=
-                                                                      0)) &&
-                                                          suitableTagList
-                                                              .isNotEmpty ||
-                                                      brandList.isNotEmpty
+                                                  !widget.isSimple &&
+                                                      (isPharmacy &&
+                                                              (!_update ||
+                                                                  (widget.item?.conditionId !=
+                                                                          null &&
+                                                                      widget.item!.conditionId !=
+                                                                          0)) &&
+                                                              suitableTagList
+                                                                  .isNotEmpty ||
+                                                          brandList.isNotEmpty)
                                                   ? Dimensions
                                                         .paddingSizeExtraLarge
                                                   : 0,
@@ -1175,19 +1196,135 @@ class _AddItemScreenState extends State<AddItemScreen>
                                             aiController.otherDataLoading,
                                         child: Column(
                                           children: [
-                                            CustomTextFieldWidget(
-                                              hintText: 'price'.tr,
-                                              labelText: 'price'.tr,
-                                              controller: _priceController,
-                                              focusNode: _priceNode,
-                                              isAmount: true,
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: CustomTextFieldWidget(
+                                                    hintText: 'price'.tr,
+                                                    labelText: 'price'.tr,
+                                                    controller:
+                                                        _priceController,
+                                                    focusNode: _priceNode,
+                                                    isAmount: true,
+                                                  ),
+                                                ),
+
+                                                if (_module.unit! &&
+                                                    unitList.isNotEmpty) ...[
+                                                  const SizedBox(
+                                                    width: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
+
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                  .radiusDefault,
+                                                            ),
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).cardColor,
+                                                        border: Border.all(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .disabledColor
+                                                                  .withValues(
+                                                                    alpha: 0.5,
+                                                                  ),
+                                                        ),
+                                                      ),
+                                                      child: CustomDropdown(
+                                                        onChange:
+                                                            (
+                                                              int? value,
+                                                              int index,
+                                                            ) {
+                                                              storeController
+                                                                  .setUnitIndex(
+                                                                    value!,
+                                                                    true,
+                                                                  );
+                                                            },
+                                                        dropdownButtonStyle: DropdownButtonStyle(
+                                                          height: 45,
+                                                          padding: const EdgeInsets.symmetric(
+                                                            vertical: Dimensions
+                                                                .paddingSizeExtraSmall,
+                                                            horizontal: Dimensions
+                                                                .paddingSizeExtraSmall,
+                                                          ),
+                                                          primaryColor:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyLarge!
+                                                                  .color,
+                                                        ),
+                                                        iconColor: Theme.of(
+                                                          context,
+                                                        ).disabledColor,
+                                                        dropdownStyle: DropdownStyle(
+                                                          elevation: 10,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                Dimensions
+                                                                    .radiusDefault,
+                                                              ),
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                Dimensions
+                                                                    .paddingSizeExtraSmall,
+                                                              ),
+                                                        ),
+                                                        items: unitList,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets.only(
+                                                                left: 8,
+                                                              ),
+                                                          child: Text(
+                                                            widget.item !=
+                                                                        null &&
+                                                                    storeController
+                                                                            .unitList !=
+                                                                        null &&
+                                                                    storeController
+                                                                        .unitList!
+                                                                        .isNotEmpty
+                                                                ? storeController
+                                                                      .unitList![storeController
+                                                                          .unitIndex!]
+                                                                      .unit!
+                                                                      .tr
+                                                                : 'unit'.tr,
+                                                            style: robotoRegular.copyWith(
+                                                              color: Theme.of(
+                                                                context,
+                                                              ).disabledColor,
+                                                              fontSize: Dimensions
+                                                                  .fontSizeLarge,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
                                             ),
                                             SizedBox(
                                               height: !isGrocery
-                                                  ? Dimensions.paddingSizeExtraLarge
-                                                  : ((_module.unit! && unitList.isNotEmpty)
-                                                      ? Dimensions.paddingSizeExtraLarge
-                                                      : 0),
+                                                  ? Dimensions
+                                                        .paddingSizeExtraLarge
+                                                  : ((_module.unit! &&
+                                                            unitList.isNotEmpty)
+                                                        ? Dimensions
+                                                              .paddingSizeExtraLarge
+                                                        : 0),
                                             ),
 
                                             if (!isGrocery) ...[
@@ -1209,120 +1346,6 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                     : 0,
                                               ),
                                             ],
-
-                                            (_module.unit! &&
-                                                    unitList.isNotEmpty)
-                                                ? Row(
-                                                    children: [
-                                                      const SizedBox(),
-                                                      SizedBox(
-                                                        width: _module.stock!
-                                                            ? Dimensions
-                                                                  .paddingSizeSmall
-                                                            : 0,
-                                                      ),
-
-                                                      _module.unit! &&
-                                                              unitList
-                                                                  .isNotEmpty
-                                                          ? Expanded(
-                                                              child: Container(
-                                                                decoration: BoxDecoration(
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        Dimensions
-                                                                            .radiusDefault,
-                                                                      ),
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).cardColor,
-                                                                  border: Border.all(
-                                                                    color:
-                                                                        Theme.of(
-                                                                          context,
-                                                                        ).disabledColor.withValues(
-                                                                          alpha:
-                                                                              0.5,
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                                child: CustomDropdown(
-                                                                  onChange:
-                                                                      (
-                                                                        int?
-                                                                        value,
-                                                                        int
-                                                                        index,
-                                                                      ) {
-                                                                        storeController.setUnitIndex(
-                                                                          value!,
-                                                                          true,
-                                                                        );
-                                                                      },
-                                                                  dropdownButtonStyle: DropdownButtonStyle(
-                                                                    height: 45,
-                                                                    padding: const EdgeInsets.symmetric(
-                                                                      vertical:
-                                                                          Dimensions
-                                                                              .paddingSizeExtraSmall,
-                                                                      horizontal:
-                                                                          Dimensions
-                                                                              .paddingSizeExtraSmall,
-                                                                    ),
-                                                                    primaryColor: Theme.of(context)
-                                                                        .textTheme
-                                                                        .bodyLarge!
-                                                                        .color,
-                                                                  ),
-                                                                  iconColor:
-                                                                      Theme.of(
-                                                                        context,
-                                                                      ).disabledColor,
-                                                                  dropdownStyle: DropdownStyle(
-                                                                    elevation:
-                                                                        10,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          Dimensions
-                                                                              .radiusDefault,
-                                                                        ),
-                                                                    padding: const EdgeInsets.all(
-                                                                      Dimensions
-                                                                          .paddingSizeExtraSmall,
-                                                                    ),
-                                                                  ),
-                                                                  items:
-                                                                      unitList,
-                                                                  child: Padding(
-                                                                    padding:
-                                                                        const EdgeInsets.only(
-                                                                          left:
-                                                                              8,
-                                                                        ),
-                                                                    child: Text(
-                                                                      widget.item !=
-                                                                                  null &&
-                                                                              storeController.unitList !=
-                                                                                  null &&
-                                                                              storeController.unitList!.isNotEmpty
-                                                                          ? storeController.unitList![storeController.unitIndex!].unit!.tr
-                                                                          : 'unit'.tr,
-                                                                      style: robotoRegular.copyWith(
-                                                                        color: Theme.of(
-                                                                          context,
-                                                                        ).disabledColor,
-                                                                        fontSize:
-                                                                            Dimensions.fontSizeLarge,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            )
-                                                          : const SizedBox(),
-                                                    ],
-                                                  )
-                                                : const SizedBox(),
                                           ],
                                         ),
                                       ),
@@ -1700,15 +1723,15 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                     child: CustomTextFieldWidget(
                                                       hintText: 'tag'.tr,
                                                       labelText: 'tag'.tr,
-                                                      controller: _tagController,
+                                                      controller:
+                                                          _tagController,
                                                       inputAction:
                                                           TextInputAction.done,
                                                       onSubmit: (name) {
                                                         if (name != null &&
                                                             name.isNotEmpty) {
-                                                          storeController.setTag(
-                                                            name,
-                                                          );
+                                                          storeController
+                                                              .setTag(name);
                                                           _tagController.text =
                                                               '';
                                                         }
@@ -1725,15 +1748,18 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                     child: CustomButtonWidget(
                                                       buttonText: 'add'.tr,
                                                       onPressed: () {
-                                                        if (_tagController.text !=
+                                                        if (_tagController
+                                                                    .text !=
                                                                 '' &&
                                                             _tagController
                                                                 .text
                                                                 .isNotEmpty) {
-                                                          storeController.setTag(
-                                                            _tagController.text
-                                                                .trim(),
-                                                          );
+                                                          storeController
+                                                              .setTag(
+                                                                _tagController
+                                                                    .text
+                                                                    .trim(),
+                                                              );
                                                           _tagController.text =
                                                               '';
                                                         }
@@ -1743,8 +1769,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 ],
                                               ),
                                               const SizedBox(
-                                                height:
-                                                    Dimensions.paddingSizeDefault,
+                                                height: Dimensions
+                                                    .paddingSizeDefault,
                                               ),
 
                                               storeController.tagList.isNotEmpty
@@ -1754,19 +1780,22 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                         shrinkWrap: true,
                                                         scrollDirection:
                                                             Axis.horizontal,
-                                                        itemCount: storeController
-                                                            .tagList
-                                                            .length,
+                                                        itemCount:
+                                                            storeController
+                                                                .tagList
+                                                                .length,
                                                         itemBuilder: (context, index) {
                                                           return Container(
                                                             margin: const EdgeInsets.symmetric(
                                                               horizontal: Dimensions
                                                                   .paddingSizeExtraSmall,
                                                             ),
-                                                            padding: const EdgeInsets.symmetric(
-                                                              horizontal: Dimensions
-                                                                  .paddingSizeSmall,
-                                                            ),
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      Dimensions
+                                                                          .paddingSizeSmall,
+                                                                ),
                                                             decoration: BoxDecoration(
                                                               color:
                                                                   Theme.of(
@@ -1790,10 +1819,9 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                                     storeController
                                                                         .tagList[index]!,
                                                                     style: robotoRegular.copyWith(
-                                                                      color:
-                                                                          Theme.of(
-                                                                            context,
-                                                                          ).disabledColor.withValues(
+                                                                      color: Theme.of(context)
+                                                                          .disabledColor
+                                                                          .withValues(
                                                                             alpha:
                                                                                 0.7,
                                                                           ),
@@ -1806,17 +1834,16 @@ class _AddItemScreenState extends State<AddItemScreen>
 
                                                                   InkWell(
                                                                     onTap: () =>
-                                                                        storeController
-                                                                            .removeTag(
-                                                                              index,
-                                                                            ),
+                                                                        storeController.removeTag(
+                                                                          index,
+                                                                        ),
                                                                     child: Icon(
-                                                                      Icons.clear,
+                                                                      Icons
+                                                                          .clear,
                                                                       size: 18,
-                                                                      color:
-                                                                          Theme.of(
-                                                                            context,
-                                                                          ).disabledColor.withValues(
+                                                                      color: Theme.of(context)
+                                                                          .disabledColor
+                                                                          .withValues(
                                                                             alpha:
                                                                                 0.7,
                                                                           ),
@@ -2340,8 +2367,8 @@ class _AddItemScreenState extends State<AddItemScreen>
 
                                     bool defaultDataNull = false;
                                     if (_nameControllerList[0].text
-                                            .trim()
-                                            .isEmpty) {
+                                        .trim()
+                                        .isEmpty) {
                                       defaultDataNull = true;
                                     }
 

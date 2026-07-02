@@ -266,8 +266,10 @@ class SubscriptionController extends GetxController implements GetxService {
         ),
       );
     }
-    for (var package in Get.find<AuthController>().packageModel!.packages!) {
-      _packageList!.add(package);
+    if (Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0) {
+      for (var package in Get.find<AuthController>().packageModel!.packages!) {
+        _packageList!.add(package);
+      }
     }
 
     Future.delayed(const Duration(milliseconds: 800), () => update());

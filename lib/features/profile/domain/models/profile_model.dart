@@ -297,9 +297,11 @@ class Store {
   double? minimumStockForWarning;
   Map<int, StorePaymentMethod>? paymentMethods;
   MetaSeoData? metaData;
-  String? facebook;
-  String? instagram;
   String? tiktok;
+  String? instagram;
+  String? facebook;
+  String? whatsapp;
+  int? defaultBanner;
 
   Store({
     this.id,
@@ -360,6 +362,8 @@ class Store {
     this.facebook,
     this.instagram,
     this.tiktok,
+    this.whatsapp,
+    this.defaultBanner,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
@@ -431,6 +435,7 @@ class Store {
     facebook = json['facebook'];
     instagram = json['instagram'];
     tiktok = json['tiktok'];
+    whatsapp = json['whatsapp'];
     if (json['methods'] != null) {
       paymentMethods = {};
       (json['methods'] as Map).forEach((key, value) {
@@ -466,6 +471,11 @@ class Store {
     metaData = json['meta_data'] != null
         ? MetaSeoData.fromJson(json['meta_data'])
         : null;
+    defaultBanner = json['default_banner'] != null
+        ? int.tryParse(json['default_banner'].toString())
+        : (json['defalut_banner'] != null
+              ? int.tryParse(json['defalut_banner'].toString())
+              : null);
   }
 
   Map<String, dynamic> toJson() {
@@ -533,6 +543,7 @@ class Store {
     data['facebook'] = facebook;
     data['instagram'] = instagram;
     data['tiktok'] = tiktok;
+    data['whatsapp'] = whatsapp;
     if (paymentMethods != null) {
       data['methods'] = paymentMethods!.map(
         (key, value) => MapEntry(key.toString(), value.toJson()),
@@ -541,6 +552,7 @@ class Store {
     if (metaData != null) {
       data['meta_data'] = metaData!.toJson();
     }
+    data['default_banner'] = defaultBanner;
     return data;
   }
 }

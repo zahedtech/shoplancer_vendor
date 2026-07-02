@@ -33,8 +33,10 @@ class _ProductStatusScreenState extends State<ProductStatusScreen> {
 
     final StoreController storeController = Get.find<StoreController>();
     // Reset filters to ensure the screen starts in a clean state
-    storeController.resetFilters();
-    storeController.getStoreCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      storeController.resetFilters();
+      storeController.getStoreCategories();
+    });
 
     // Setup scroll listener for pagination
     _scrollController.addListener(() {
@@ -308,107 +310,124 @@ class _ProductStatusScreenState extends State<ProductStatusScreen> {
     StoreController storeController,
   ) {
     bool isActive = item.status == 1;
+    bool isLoading = storeController.loadingItemsList.contains(item.id);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(Dimensions.radiusDefault),
-              ),
-              child: Stack(
-                children: [
-                  CustomImageWidget(
-                    image: item.imageFullUrl ?? '',
-                    height: double.maxFinite,
-                    width: double.maxFinite,
-                    fit: BoxFit.cover,
-                  ),
-                  if (item.discount != null && item.discount! > 0)
-                    DiscountTagWidget(
-                      discount: item.discount ?? 0,
-                      discountType: item.discountType ?? 'percent',
-                      freeDelivery: false,
+    return InkWell(
+      onTap: isLoading
+          ? null
+          : () {
+              storeController.updateItemStatusForProduct(
+                item.id,
+                !isActive,
+              );
+            },
+      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(Dimensions.radiusDefault),
+                ),
+                child: Stack(
+                  children: [
+                    CustomImageWidget(
+                      image: item.imageFullUrl ?? '',
+                      height: double.maxFinite,
+                      width: double.maxFinite,
+                      fit: BoxFit.cover,
                     ),
+                    if (item.discount != null && item.discount! > 0)
+                      DiscountTagWidget(
+                        discount: item.discount ?? 0,
+                        discountType: item.discountType ?? 'percent',
+                        freeDelivery: false,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Details Section
+            Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name
+                  Text(
+                    item.name ?? '',
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeDefault,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Price
+                  Text(
+                    PriceConverterHelper.convertPrice(item.price),
+                    style: robotoBold.copyWith(
+                      fontSize: Dimensions.fontSizeSmall,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                  // Toggle Switch
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isActive ? 'active'.tr : 'inactive'.tr,
+                        style: robotoRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: isActive
+                              ? Colors.green
+                              : Theme.of(context).disabledColor,
+                        ),
+                      ),
+                      isLoading
+                          ? const SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: Center(
+                                child: CupertinoActivityIndicator(),
+                              ),
+                            )
+                          : IgnorePointer(
+                              child: Transform.scale(
+                                scale: 0.8,
+                                child: CupertinoSwitch(
+                                  value: isActive,
+                                  activeColor: Theme.of(context).primaryColor,
+                                  onChanged: (bool value) {},
+                                ),
+                              ),
+                            ),
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-
-          // Details Section
-          Padding(
-            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Name
-                Text(
-                  item.name ?? '',
-                  style: robotoMedium.copyWith(
-                    fontSize: Dimensions.fontSizeDefault,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-
-                // Price
-                Text(
-                  PriceConverterHelper.convertPrice(item.price),
-                  style: robotoBold.copyWith(
-                    fontSize: Dimensions.fontSizeSmall,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                // Toggle Switch
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isActive ? 'active'.tr : 'inactive'.tr,
-                      style: robotoRegular.copyWith(
-                        fontSize: Dimensions.fontSizeSmall,
-                        color: isActive
-                            ? Colors.green
-                            : Theme.of(context).disabledColor,
-                      ),
-                    ),
-                    Transform.scale(
-                      scale: 0.8,
-                      child: CupertinoSwitch(
-                        value: isActive,
-                        activeColor: Theme.of(context).primaryColor,
-                        onChanged: (bool value) {
-                          storeController.updateItemStatusForProduct(
-                            item.id,
-                            value,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

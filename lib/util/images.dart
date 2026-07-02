@@ -191,4 +191,6 @@ class Images {
   static const String logoen = 'assets/image/logo_en.jpeg';
   static const String logoar = 'assets/image/logo_ar.jpeg';
   static const String whatsapp = 'assets/image/whatsapp.png';
+  static const String instagram = 'assets/image/instagram.svg';
+  static const String tiktok = 'assets/image/tiktok.svg';
 }

@@ -39,6 +39,8 @@ class Packages {
   String? updatedAt;
   String? color;
   String? description;
+  String? text;
+  List<CustomFeature>? customFeatures;
 
   Packages({
     this.id,
@@ -58,6 +60,8 @@ class Packages {
     this.updatedAt,
     this.color,
     this.description,
+    this.text,
+    this.customFeatures,
   });
 
   Packages.fromJson(Map<String, dynamic> json) {
@@ -78,6 +82,13 @@ class Packages {
     updatedAt = json['updated_at'];
     color = json['colour'];
     description = json['description'];
+    text = json['text'];
+    if (json['custom_features'] != null) {
+      customFeatures = <CustomFeature>[];
+      json['custom_features'].forEach((v) {
+        customFeatures!.add(CustomFeature.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -99,6 +110,33 @@ class Packages {
     data['updated_at'] = updatedAt;
     data['colour'] = color;
     data['description'] = description;
+    data['text'] = text;
+    if (customFeatures != null) {
+      data['custom_features'] =
+          customFeatures!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class CustomFeature {
+  String? title;
+  String? description;
+  int? enabled;
+
+  CustomFeature({this.title, this.description, this.enabled});
+
+  CustomFeature.fromJson(Map<String, dynamic> json) {
+    title = json['title'];
+    description = json['description'];
+    enabled = json['enabled'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['title'] = title;
+    data['description'] = description;
+    data['enabled'] = enabled;
     return data;
   }
 }
