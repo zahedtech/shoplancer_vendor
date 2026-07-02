@@ -106,29 +106,63 @@ class SubscriptionCardWidget extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            PackageWidget(title: '${'max_order'.tr} (${package.maxOrder})'),
+            // Custom features from API
+            if (package.customFeatures != null && package.customFeatures!.isNotEmpty)
+              ...package.customFeatures!
+                  .where((f) => f.enabled == 1)
+                  .map((feature) => PackageWidget(
+                        title: feature.description ?? feature.title ?? '',
+                      )),
 
-            PackageWidget(title: '${'max_product'.tr} (${package.maxProduct})'),
+            // Fallback: show standard features if no custom features
+            if (package.customFeatures == null || package.customFeatures!.isEmpty) ...[
+              PackageWidget(title: '${'max_order'.tr} (${package.maxOrder})'),
+              PackageWidget(title: '${'max_product'.tr} (${package.maxProduct})'),
+              package.pos != 0
+                  ? PackageWidget(title: 'pos'.tr)
+                  : const SizedBox(),
+              package.mobileApp != 0
+                  ? PackageWidget(title: 'mobile_app'.tr)
+                  : const SizedBox(),
+              package.chat != 0
+                  ? PackageWidget(title: 'chat'.tr)
+                  : const SizedBox(),
+              package.review != 0
+                  ? PackageWidget(title: 'review'.tr)
+                  : const SizedBox(),
+              package.selfDelivery != 0
+                  ? PackageWidget(title: 'self_delivery'.tr)
+                  : const SizedBox(),
+            ],
 
-            package.pos != 0
-                ? PackageWidget(title: 'pos'.tr)
-                : const SizedBox(),
-
-            package.mobileApp != 0
-                ? PackageWidget(title: 'mobile_app'.tr)
-                : const SizedBox(),
-
-            package.chat != 0
-                ? PackageWidget(title: 'chat'.tr)
-                : const SizedBox(),
-
-            package.review != 0
-                ? PackageWidget(title: 'review'.tr)
-                : const SizedBox(),
-
-            package.selfDelivery != 0
-                ? PackageWidget(title: 'self_delivery'.tr)
-                : const SizedBox(),
+            // Text note (e.g. pricing promo)
+            if (package.text != null && package.text!.isNotEmpty) ...[
+              const SizedBox(height: Dimensions.paddingSizeSmall),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeLarge,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeSmall,
+                    vertical: Dimensions.paddingSizeExtraSmall,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                  ),
+                  child: Text(
+                    package.text!,
+                    textAlign: TextAlign.center,
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeSmall,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ],

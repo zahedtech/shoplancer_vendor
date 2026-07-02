@@ -87,6 +87,8 @@ class OrderModel {
   double? extraPackagingAmount;
   double? referrerBonusAmount;
   double? bringChangeAmount;
+  String? paymentReference;
+  List<String>? paymentReceiptFullUrl;
 
   OrderModel({
     this.id,
@@ -145,6 +147,8 @@ class OrderModel {
     this.extraPackagingAmount,
     this.referrerBonusAmount,
     this.bringChangeAmount,
+    this.paymentReference,
+    this.paymentReceiptFullUrl,
   });
 
   OrderModel.fromJson(Map<String, dynamic> json) {
@@ -223,6 +227,15 @@ class OrderModel {
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     referrerBonusAmount = json['ref_bonus_amount']?.toDouble();
     bringChangeAmount = json['bring_change_amount']?.toDouble();
+    paymentReference = json['payment_reference'];
+    if (json['payment_receipt_full_url'] != null) {
+      paymentReceiptFullUrl = [];
+      json['payment_receipt_full_url'].forEach((v) {
+        if (v != null) {
+          paymentReceiptFullUrl!.add(v);
+        }
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -288,6 +301,8 @@ class OrderModel {
     data['extra_packaging_amount'] = extraPackagingAmount;
     data['ref_bonus_amount'] = referrerBonusAmount;
     data['bring_change_amount'] = bringChangeAmount;
+    data['payment_reference'] = paymentReference;
+    data['payment_receipt_full_url'] = paymentReceiptFullUrl;
     return data;
   }
 }

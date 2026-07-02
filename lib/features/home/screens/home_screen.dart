@@ -147,8 +147,27 @@ class _HomeScreenState extends State<HomeScreen> {
         shadowColor: Theme.of(context).disabledColor.withValues(alpha: 0.5),
         elevation: 2,
         title: Padding(
-          padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault),
-          child: Image.asset(Images.logo, height: 50),
+          padding: const EdgeInsetsDirectional.only(
+            start: Dimensions.paddingSizeDefault,
+          ),
+          child: GetBuilder<ProfileController>(
+            builder: (profileController) {
+              String storeName = '';
+              if (profileController.profileModel != null &&
+                  profileController.profileModel!.stores != null &&
+                  profileController.profileModel!.stores!.isNotEmpty) {
+                storeName =
+                    profileController.profileModel!.stores![0].name ?? '';
+              }
+              return Text(
+                storeName,
+                style: robotoBold.copyWith(
+                  fontSize: Dimensions.fontSizeLarge,
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                ),
+              );
+            },
+          ),
         ),
         actions: [
           IconButton(

@@ -260,11 +260,9 @@ class _PendingItemScreenState extends State<PendingItemScreen>
                                                               ),
                                                         ),
                                                         Text(
-                                                          storeController
-                                                              .pendingItem![index]
-                                                              .categoryIds![index]
-                                                              .name
-                                                              .toString(),
+                                                          (storeController.pendingItem![index].categoryIds != null && storeController.pendingItem![index].categoryIds!.isNotEmpty)
+                                                              ? storeController.pendingItem![index].categoryIds![0].name.toString()
+                                                              : '',
                                                           style: robotoMedium.copyWith(
                                                             fontSize: Dimensions
                                                                 .fontSizeSmall,

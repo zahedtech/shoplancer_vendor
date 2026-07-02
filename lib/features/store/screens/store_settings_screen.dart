@@ -157,8 +157,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
         .toString();
     _walletAccountNameController.text =
         (walletMethod?.configData?['account_name'] ?? '').toString();
-    _instaPayPhoneController.text =
-        (instaPayMethod?.configData?['phone'] ?? '').toString();
+    _instaPayPhoneController.text = (instaPayMethod?.configData?['phone'] ?? '')
+        .toString();
     _instaPayAccountNameController.text =
         (instaPayMethod?.configData?['account_name'] ?? '').toString();
     print("hala tag :: ${_store.isHalalActive}");
@@ -305,19 +305,19 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'restaurant_availability'.tr,
+                                      'store_availability'.tr,
                                       style: robotoMedium,
                                     ),
                                     const SizedBox(
                                       height: Dimensions.paddingSizeExtraSmall,
                                     ),
-                                    Text(
-                                      'restaurant_availability_status_notice'
-                                          .tr,
-                                      style: robotoRegular.copyWith(
-                                        color: Theme.of(context).hintColor,
-                                      ),
-                                    ),
+                                    // Text(
+                                    //   'store_will_close_temporary'
+                                    //       .tr,
+                                    //   style: robotoRegular.copyWith(
+                                    //     color: Theme.of(context).hintColor,
+                                    //   ),
+                                    // ),
                                     const SizedBox(
                                       height: Dimensions.paddingSizeExtraSmall,
                                     ),
@@ -363,79 +363,89 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                   profileController
                                                               .profileModel !=
                                                           null
-                                                      ? Transform.scale(
-                                                          scale: 0.8,
-                                                          child: CupertinoSwitch(
-                                                            value: !profileController
-                                                                .isStoreActive,
-                                                            activeTrackColor:
-                                                                Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                            inactiveTrackColor:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .primaryColor
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.5,
+                                                      ? GetBuilder<
+                                                          AuthController
+                                                        >(
+                                                          builder: (authController) {
+                                                            return authController
+                                                                    .storeClosedStatusLoading
+                                                                ? const SizedBox(
+                                                                    width: 40,
+                                                                    height: 40,
+                                                                    child: Center(
+                                                                      child:
+                                                                          CupertinoActivityIndicator(),
                                                                     ),
-                                                            onChanged: (bool isActive) {
-                                                              bool?
-                                                              showRestaurantText =
-                                                                  Get.find<
-                                                                        SplashController
-                                                                      >()
-                                                                      .configModel!
-                                                                      .moduleConfig!
-                                                                      .module!
-                                                                      .showRestaurantText;
-                                                              isEnableTemporarilyClosed
-                                                                  ? Get.dialog(
-                                                                      ConfirmationDialogWidget(
-                                                                        icon: Images
-                                                                            .warning,
-                                                                        isOnNoPressedShow:
-                                                                            false,
-                                                                        onYesButtonText:
-                                                                            'ok'.tr,
-                                                                        description:
-                                                                            showRestaurantText!
-                                                                            ? 'you_can_not_close_the_store_because_you_already_have_running_orders'.tr
-                                                                            : 'you_can_not_close_the_store_because_you_already_have_running_orders'.tr,
-                                                                        onYesPressed:
-                                                                            () {
-                                                                              Get.back();
-                                                                            },
-                                                                      ),
-                                                                    )
-                                                                  : Get.dialog(
-                                                                      ConfirmationDialogWidget(
-                                                                        icon: Images
-                                                                            .warning,
-                                                                        description:
-                                                                            isActive
-                                                                            ? showRestaurantText!
-                                                                                  ? 'are_you_sure_to_close_restaurant'.tr
-                                                                                  : 'are_you_sure_to_close_store'.tr
-                                                                            : showRestaurantText!
-                                                                            ? 'are_you_sure_to_open_restaurant'.tr
-                                                                            : 'are_you_sure_to_open_store'.tr,
-                                                                        onYesPressed: () {
-                                                                          Get.back();
-                                                                          profileController.setStoreStatus(
-                                                                            !isActive,
-                                                                          );
-                                                                          Get.find<
-                                                                                AuthController
-                                                                              >()
-                                                                              .toggleStoreClosedStatus();
-                                                                        },
-                                                                      ),
-                                                                    );
-                                                            },
-                                                          ),
+                                                                  )
+                                                                : Transform.scale(
+                                                                    scale: 0.8,
+                                                                    child: CupertinoSwitch(
+                                                                      value: !profileController
+                                                                          .isStoreActive,
+                                                                      activeTrackColor: Theme.of(
+                                                                        context,
+                                                                      ).primaryColor,
+                                                                      inactiveTrackColor:
+                                                                          Theme.of(
+                                                                            context,
+                                                                          ).primaryColor.withValues(
+                                                                            alpha:
+                                                                                0.5,
+                                                                          ),
+                                                                      onChanged:
+                                                                          (
+                                                                            bool
+                                                                            isActive,
+                                                                          ) {
+                                                                            bool?
+                                                                            showRestaurantText =
+                                                                                Get.find<
+                                                                                      SplashController
+                                                                                    >()
+                                                                                    .configModel!
+                                                                                    .moduleConfig!
+                                                                                    .module!
+                                                                                    .showRestaurantText;
+                                                                            isEnableTemporarilyClosed
+                                                                                ? Get.dialog(
+                                                                                    ConfirmationDialogWidget(
+                                                                                      icon: Images.warning,
+                                                                                      isOnNoPressedShow: false,
+                                                                                      onYesButtonText: 'ok'.tr,
+                                                                                      description: showRestaurantText!
+                                                                                          ? 'you_can_not_close_the_store_because_you_already_have_running_orders'.tr
+                                                                                          : 'you_can_not_close_the_store_because_you_already_have_running_orders'.tr,
+                                                                                      onYesPressed: () {
+                                                                                        Get.back();
+                                                                                      },
+                                                                                    ),
+                                                                                  )
+                                                                                : Get.dialog(
+                                                                                    ConfirmationDialogWidget(
+                                                                                      icon: Images.warning,
+                                                                                      description: isActive
+                                                                                          ? showRestaurantText!
+                                                                                                ? 'are_you_sure_to_close_restaurant'.tr
+                                                                                                : 'are_you_sure_to_close_store'.tr
+                                                                                          : showRestaurantText!
+                                                                                          ? 'are_you_sure_to_open_restaurant'.tr
+                                                                                          : 'are_you_sure_to_open_store'.tr,
+                                                                                      onYesPressed: () {
+                                                                                        Get.back();
+                                                                                        profileController.setStoreStatus(
+                                                                                          !isActive,
+                                                                                        );
+                                                                                        Get.find<
+                                                                                              AuthController
+                                                                                            >()
+                                                                                            .toggleStoreClosedStatus();
+                                                                                      },
+                                                                                    ),
+                                                                                  );
+                                                                          },
+                                                                    ),
+                                                                  );
+                                                          },
                                                         )
                                                       : Shimmer(
                                                           duration:
@@ -464,6 +474,15 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                   .storeSetup!
                                           ? Dimensions.paddingSizeDefault
                                           : 0,
+                                    ),
+                                    SwitchButtonWidget(
+                                      title: 'default_banner'.tr,
+                                      isButtonActive: _store.defaultBanner == 1,
+                                      onTap: () {
+                                        _store.defaultBanner =
+                                            (_store.defaultBanner == 1) ? 0 : 1;
+                                        setState(() {});
+                                      },
                                     ),
                                   ],
                                 ),
@@ -498,7 +517,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                     ),
 
                                     SwitchButtonWidget(
-                                      title: 'wallet'.tr,
+                                      title: 'digital_wallet'.tr,
                                       isButtonActive: _isWalletMethodEnabled,
                                       onTap: () {
                                         setState(() {
@@ -1131,7 +1150,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                   String instaPayPhone =
                                       _instaPayPhoneController.text.trim();
                                   String instaPayAccountName =
-                                      _instaPayAccountNameController.text.trim();
+                                      _instaPayAccountNameController.text
+                                          .trim();
 
                                   if (minimumOrder.isEmpty) {
                                     showCustomSnackBar(

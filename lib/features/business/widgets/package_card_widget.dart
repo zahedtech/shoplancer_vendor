@@ -110,27 +110,68 @@ class PackageCardWidget extends StatelessWidget {
               )
             else
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildFeatureItem(
-                    context,
-                    '${isRental ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
-                    isSelected,
-                  ),
-                  _buildFeatureItem(
-                    context,
-                    '${isRental ? 'max_vehicle'.tr : 'max_product'.tr} (${package.maxProduct?.tr})',
-                    isSelected,
-                  ),
-                  if (package.pos != 0)
-                    _buildFeatureItem(context, 'pos'.tr, isSelected),
-                  if (package.mobileApp != 0)
-                    _buildFeatureItem(context, 'mobile_app'.tr, isSelected),
-                  if (package.chat != 0)
-                    _buildFeatureItem(context, 'chat'.tr, isSelected),
-                  if (package.review != 0)
-                    _buildFeatureItem(context, 'review'.tr, isSelected),
-                  if (package.selfDelivery != 0)
-                    _buildFeatureItem(context, 'self_delivery'.tr, isSelected),
+                  // Custom features from API
+                  if (package.customFeatures != null && package.customFeatures!.isNotEmpty)
+                    ...package.customFeatures!
+                        .where((f) => f.enabled == 1)
+                        .map((feature) => _buildFeatureItem(
+                              context,
+                              feature.description ?? feature.title ?? '',
+                              isSelected,
+                            )),
+
+                  // Fallback: show standard features if no custom features
+                  if (package.customFeatures == null || package.customFeatures!.isEmpty) ...[
+                    _buildFeatureItem(
+                      context,
+                      '${isRental ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
+                      isSelected,
+                    ),
+                    _buildFeatureItem(
+                      context,
+                      '${isRental ? 'max_vehicle'.tr : 'max_product'.tr} (${package.maxProduct?.tr})',
+                      isSelected,
+                    ),
+                    if (package.pos != 0)
+                      _buildFeatureItem(context, 'pos'.tr, isSelected),
+                    if (package.mobileApp != 0)
+                      _buildFeatureItem(context, 'mobile_app'.tr, isSelected),
+                    if (package.chat != 0)
+                      _buildFeatureItem(context, 'chat'.tr, isSelected),
+                    if (package.review != 0)
+                      _buildFeatureItem(context, 'review'.tr, isSelected),
+                    if (package.selfDelivery != 0)
+                      _buildFeatureItem(context, 'self_delivery'.tr, isSelected),
+                  ],
+
+                  // Text note (e.g. pricing promo)
+                  if (package.text != null && package.text!.isNotEmpty) ...[
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                        vertical: Dimensions.paddingSizeExtraSmall,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Theme.of(context).cardColor.withValues(alpha: 0.15)
+                            : Theme.of(context).primaryColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                      ),
+                      child: Text(
+                        package.text!,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: isSelected
+                              ? Theme.of(context).cardColor
+                              : Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
           ],

@@ -22,6 +22,7 @@ class BannerListScreen extends StatefulWidget {
 class _BannerListScreenState extends State<BannerListScreen> {
   final tooltipController = JustTheController();
   bool _isCatalogSelected = false;
+  int? _loadingCatalogBannerId;
 
   @override
   void initState() {
@@ -303,21 +304,34 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                             if (showCatalog) ...[
                                               if (!isAdded)
                                                 InkWell(
-                                                  onTap: () async {
-                                                    bool success = await bannerController.addCatalogBanner(banner.id);
-                                                    if (success) {
-                                                      setState(() {
-                                                        _isCatalogSelected = false;
-                                                      });
-                                                    }
-                                                  },
+                                                  onTap: bannerController.isLoading
+                                                      ? null
+                                                      : () async {
+                                                          setState(() {
+                                                            _loadingCatalogBannerId = banner.id;
+                                                          });
+                                                          try {
+                                                            bool success = await bannerController.addCatalogBanner(banner.id);
+                                                            if (success) {
+                                                              setState(() {
+                                                                _isCatalogSelected = false;
+                                                              });
+                                                            }
+                                                          } finally {
+                                                            setState(() {
+                                                              _loadingCatalogBannerId = null;
+                                                            });
+                                                          }
+                                                        },
                                                   child: Container(
                                                     padding: const EdgeInsets.symmetric(
                                                       horizontal: Dimensions.paddingSizeDefault,
                                                       vertical: Dimensions.paddingSizeExtraSmall,
                                                     ),
                                                     decoration: BoxDecoration(
-                                                      color: Theme.of(context).primaryColor,
+                                                      color: bannerController.isLoading
+                                                          ? Theme.of(context).disabledColor
+                                                          : Theme.of(context).primaryColor,
                                                       borderRadius: BorderRadius.circular(
                                                         Dimensions.radiusSmall,
                                                       ),
@@ -325,14 +339,25 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                                     child: Row(
                                                       mainAxisSize: MainAxisSize.min,
                                                       children: [
-                                                        const Icon(
-                                                          Icons.add,
-                                                          color: Colors.white,
-                                                          size: 15,
-                                                        ),
+                                                        _loadingCatalogBannerId == banner.id
+                                                            ? const SizedBox(
+                                                                height: 15,
+                                                                width: 15,
+                                                                child: CircularProgressIndicator(
+                                                                  color: Colors.white,
+                                                                  strokeWidth: 2,
+                                                                ),
+                                                              )
+                                                            : const Icon(
+                                                                Icons.add,
+                                                                color: Colors.white,
+                                                                size: 15,
+                                                              ),
                                                         const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                                                         Text(
-                                                          'add_to_my_store'.tr,
+                                                          _loadingCatalogBannerId == banner.id
+                                                              ? 'adding...'.tr
+                                                              : 'add_to_my_store'.tr,
                                                           style: robotoMedium.copyWith(
                                                             color: Colors.white,
                                                             fontSize: Dimensions.fontSizeSmall,
@@ -345,27 +370,33 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                             ] else ...[
                                               if (banner.bannerCatalogId == null) ...[
                                                 InkWell(
-                                                  onTap: () {
-                                                    banner.type = isImage ? 'image' : 'text';
-                                                    Get.toNamed(
-                                                      RouteHelper.getAddBannerRoute(
-                                                        storeBannerListModel: banner,
-                                                      ),
-                                                    );
-                                                  },
+                                                  onTap: bannerController.isLoading
+                                                      ? null
+                                                      : () {
+                                                          banner.type = isImage ? 'image' : 'text';
+                                                          Get.toNamed(
+                                                            RouteHelper.getAddBannerRoute(
+                                                              storeBannerListModel: banner,
+                                                            ),
+                                                          );
+                                                        },
                                                   child: Container(
                                                     padding: const EdgeInsets.all(
                                                       Dimensions.paddingSizeExtraSmall,
                                                     ),
                                                     decoration: BoxDecoration(
                                                       border: Border.all(
-                                                        color: Colors.blue,
+                                                        color: bannerController.isLoading
+                                                            ? Theme.of(context).disabledColor
+                                                            : Colors.blue,
                                                       ),
                                                       shape: BoxShape.circle,
                                                     ),
-                                                    child: const Icon(
+                                                    child: Icon(
                                                       Icons.edit,
-                                                      color: Colors.blue,
+                                                      color: bannerController.isLoading
+                                                          ? Theme.of(context).disabledColor
+                                                          : Colors.blue,
                                                       size: 15,
                                                     ),
                                                   ),
@@ -375,42 +406,44 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                                 ),
                                               ],
                                               InkWell(
-                                                onTap: () {
-                                                  Get.dialog(
-                                                    ConfirmationDialogWidget(
-                                                      icon: Images.support,
-                                                      description:
-                                                          'are_you_sure_to_delete_this_banner'
-                                                              .tr,
-                                                      onYesPressed: () {
-                                                        if (banner.id != null) {
-                                                          bannerController.deleteBanner(
-                                                            banner.id,
-                                                            catalogId: banner.bannerCatalogId,
-                                                          );
-                                                        }
+                                                onTap: bannerController.isLoading
+                                                    ? null
+                                                    : () {
+                                                        Get.dialog(
+                                                          ConfirmationDialogWidget(
+                                                            icon: Images.support,
+                                                            description:
+                                                                'are_you_sure_to_delete_this_banner'
+                                                                    .tr,
+                                                            onYesPressed: () {
+                                                              if (banner.id != null) {
+                                                                bannerController.deleteBanner(
+                                                                  banner.id,
+                                                                  catalogId: banner.bannerCatalogId,
+                                                                );
+                                                              }
+                                                            },
+                                                          ),
+                                                          useSafeArea: false,
+                                                        );
                                                       },
-                                                    ),
-                                                    useSafeArea: false,
-                                                  );
-                                                },
                                                 child: Container(
                                                   padding: const EdgeInsets.all(
                                                     Dimensions.paddingSizeExtraSmall,
                                                   ),
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.error,
+                                                      color: bannerController.isLoading
+                                                          ? Theme.of(context).disabledColor
+                                                          : Theme.of(context).colorScheme.error,
                                                     ),
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: Icon(
                                                     Icons.delete_outline,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.error,
+                                                    color: bannerController.isLoading
+                                                        ? Theme.of(context).disabledColor
+                                                        : Theme.of(context).colorScheme.error,
                                                     size: 15,
                                                   ),
                                                 ),
@@ -437,9 +470,11 @@ class _BannerListScreenState extends State<BannerListScreen> {
                 child: GetBuilder<BannerController>(
                   builder: (bannerController) {
                     return CustomButtonWidget(
-                      onPressed: () => Get.toNamed(
-                        RouteHelper.getAddBannerRoute(storeBannerListModel: null),
-                      ),
+                      onPressed: bannerController.isLoading
+                          ? null
+                          : () => Get.toNamed(
+                                RouteHelper.getAddBannerRoute(storeBannerListModel: null),
+                              ),
                       buttonText: 'add_new_banner'.tr,
                     );
                   },

@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -30,6 +32,8 @@ import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/features/auth/widgets/custom_time_picker_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_time_picker_widget.dart'
+    as common_time;
 import 'package:shoplancer_vendor/features/auth/widgets/pass_view_widget.dart';
 import 'package:shoplancer_vendor/features/address/widgets/select_location_module_view_widget.dart';
 
@@ -63,6 +67,22 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
+
+  final TextEditingController _deliveryPriceController = TextEditingController(
+    text: '20',
+  );
+  final FocusNode _deliveryPriceFocus = FocusNode();
+  final TextEditingController _slugController = TextEditingController();
+  final FocusNode _slugFocus = FocusNode();
+  final TextEditingController _websiteColorController = TextEditingController(
+    text: '#1E88E5',
+  );
+  final FocusNode _websiteColorFocus = FocusNode();
+  Color? _selectedColor = const Color(0xFF1E88E5);
+  String? _openingTime;
+  String? _closingTime;
+  bool _isOpen24Hours = false;
+  Timer? _slugDebounce;
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
 
@@ -110,6 +130,129 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     _formKeySecond = GlobalKey<FormState>();
   }
 
+  void _openColorPicker() {
+    final List<Color> presetColors = [
+      const Color(0xFFE53935), // Red
+      const Color(0xFFD81B60), // Pink
+      const Color(0xFF8E24AA), // Purple
+      const Color(0xFF5E35B1), // Deep Purple
+      const Color(0xFF3949AB), // Indigo
+      const Color(0xFF1E88E5), // Blue
+      const Color(0xFF039BE5), // Light Blue
+      const Color(0xFF00ACC1), // Cyan
+      const Color(0xFF00897B), // Teal
+      const Color(0xFF43A047), // Green
+      const Color(0xFF7CB342), // Light Green
+      const Color(0xFFFDD835), // Yellow
+      const Color(0xFFFFB300), // Amber
+      const Color(0xFFF4511E), // Orange
+      const Color(0xFF6D4C41), // Brown
+      const Color(0xFF757575), // Grey
+      const Color(0xFF000000), // Black
+    ];
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(Dimensions.radiusExtraLarge),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'website_color'.tr,
+              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+            ),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
+            Flexible(
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: presetColors.length,
+                itemBuilder: (context, index) {
+                  final color = presetColors[index];
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedColor = color;
+                        String hexString =
+                            '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+                        _websiteColorController.text = hexString;
+                      });
+                      Get.back();
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _selectedColor == color
+                              ? Theme.of(context).primaryColor
+                              : Colors.transparent,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _checkSlugAndProceed(AuthController authController) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    ResponseModel responseModel = await authController.checkSlug(_slugController.text.trim());
+    Get.back();
+
+    if (responseModel.isSuccess) {
+      // Slug is available, proceed
+    } else {
+      showCustomSnackBar(
+        (responseModel.message != null && responseModel.message!.isNotEmpty)
+            ? responseModel.message!.tr
+            : 'slug_already_exists'.tr,
+      );
+      return;
+    }
+
+    _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+    authController.storeStatusChange(0.6);
+    firstTime = true;
+  }
+
+  void _onSlugChanged(String text) {
+    if (_slugDebounce?.isActive ?? false) _slugDebounce!.cancel();
+
+    _slugDebounce = Timer(const Duration(milliseconds: 500), () async {
+      await Get.find<AuthController>().checkSlug(text.trim());
+    });
+  }
+
+  @override
+  void dispose() {
+    _slugDebounce?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<AuthController>(
@@ -121,6 +264,12 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
               _addressController[0].text = addressController.storeAddress
                   .toString();
             }
+
+            bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+                authController.packageModel?.packages != null &&
+                authController.packageModel!.packages!.isNotEmpty;
+            bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
+            bool showToggle = isSubscriptionAvailable && isCommissionAvailable;
 
             return PopScope(
               canPop: false,
@@ -261,473 +410,164 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                 .paddingSizeExtremeLarge,
                                           ),
 
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 4,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          'vendor_logo'.tr,
-                                                          style: robotoRegular.copyWith(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color
-                                                                    ?.withValues(
-                                                                      alpha:
-                                                                          0.7,
-                                                                    ),
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          ' (${'1:1'})',
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).hintColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                              ),
-                                                        ),
-                                                        Text(
-                                                          ' *'.tr,
-                                                          style: robotoRegular.copyWith(
-                                                            color: Colors.red,
-                                                            fontSize: Dimensions
-                                                                .fontSizeDefault,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(
-                                                      height: Dimensions
-                                                          .paddingSizeDefault,
-                                                    ),
-
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      child: Stack(
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  5.0,
-                                                                ),
-                                                            child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    Dimensions
-                                                                        .radiusSmall,
-                                                                  ),
-                                                              child:
-                                                                  authController
-                                                                          .pickedLogo !=
-                                                                      null
-                                                                  ? GetPlatform
-                                                                            .isWeb
-                                                                        ? Image.network(
-                                                                            authController.pickedLogo!.path,
-                                                                            width:
-                                                                                150,
-                                                                            height:
-                                                                                120,
-                                                                            fit:
-                                                                                BoxFit.cover,
-                                                                          )
-                                                                        : Image.file(
-                                                                            File(
-                                                                              authController.pickedLogo!.path,
-                                                                            ),
-                                                                            width:
-                                                                                150,
-                                                                            height:
-                                                                                120,
-                                                                            fit:
-                                                                                BoxFit.cover,
-                                                                          )
-                                                                  : SizedBox(
-                                                                      width:
-                                                                          150,
-                                                                      height:
-                                                                          120,
-                                                                      child: Column(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.center,
-                                                                        children: [
-                                                                          Icon(
-                                                                            CupertinoIcons.photo_camera_solid,
-                                                                            size:
-                                                                                30,
-                                                                            color:
-                                                                                Theme.of(
-                                                                                  context,
-                                                                                ).disabledColor.withValues(
-                                                                                  alpha: 0.6,
-                                                                                ),
-                                                                          ),
-
-                                                                          Padding(
-                                                                            padding: const EdgeInsets.symmetric(
-                                                                              horizontal: Dimensions.paddingSizeSmall,
-                                                                            ),
-                                                                            child: Text(
-                                                                              'upload_vendor_logo'.tr,
-                                                                              style: robotoRegular.copyWith(
-                                                                                color:
-                                                                                    Theme.of(
-                                                                                      context,
-                                                                                    ).textTheme.bodyLarge?.color?.withValues(
-                                                                                      alpha: 0.7,
-                                                                                    ),
-                                                                                fontSize: Dimensions.fontSizeSmall,
-                                                                              ),
-                                                                              textAlign: TextAlign.center,
-                                                                            ),
-                                                                          ),
-                                                                          Padding(
-                                                                            padding: const EdgeInsets.symmetric(
-                                                                              horizontal: Dimensions.paddingSizeSmall,
-                                                                            ),
-                                                                            child: Text(
-                                                                              'thumbnail_image_format'.tr,
-                                                                              style: robotoRegular.copyWith(
-                                                                                color:
-                                                                                    Theme.of(
-                                                                                      context,
-                                                                                    ).disabledColor.withValues(
-                                                                                      alpha: 0.6,
-                                                                                    ),
-                                                                                fontSize: Dimensions.fontSizeSmall,
-                                                                              ),
-                                                                              textAlign: TextAlign.center,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                            ),
-                                                          ),
-                                                          Positioned(
-                                                            bottom: 0,
-                                                            right: 0,
-                                                            top: 0,
-                                                            left: 0,
-                                                            child: InkWell(
-                                                              onTap: () =>
-                                                                  authController
-                                                                      .pickImageForReg(
-                                                                        true,
-                                                                        false,
-                                                                      ),
-                                                              child: DottedBorder(
-                                                                options: RoundedRectDottedBorderOptions(
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).primaryColor,
-                                                                  strokeWidth:
-                                                                      1,
-                                                                  strokeCap:
-                                                                      StrokeCap
-                                                                          .butt,
-                                                                  dashPattern:
-                                                                      const [
-                                                                        5,
-                                                                        5,
-                                                                      ],
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        0,
-                                                                      ),
-                                                                  radius: const Radius.circular(
-                                                                    Dimensions
-                                                                        .radiusDefault,
-                                                                  ),
-                                                                ),
-                                                                child: Center(
-                                                                  child: Visibility(
-                                                                    visible:
-                                                                        authController
-                                                                            .pickedLogo !=
-                                                                        null,
-                                                                    child: Container(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                            25,
-                                                                          ),
-                                                                      decoration: BoxDecoration(
-                                                                        border: Border.all(
-                                                                          width:
-                                                                              2,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                        shape: BoxShape
-                                                                            .circle,
-                                                                      ),
-                                                                      child: const Icon(
-                                                                        CupertinoIcons
-                                                                            .photo_camera_solid,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
+                                          CustomTextFieldWidget(
+                                            hintText: 'enter_delivery_fee'.tr,
+                                            labelText: 'delivery_fee'.tr,
+                                            controller:
+                                                _deliveryPriceController,
+                                            focusNode: _deliveryPriceFocus,
+                                            inputType: TextInputType.number,
+                                            prefixImage: Images.money,
+                                            required: true,
+                                            validator: (value) =>
+                                                ValidateCheck.validateEmptyText(
+                                                  value,
+                                                  "enter_delivery_fee".tr,
+                                                ),
+                                          ),
+                                          const SizedBox(
+                                            height:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          CustomTextFieldWidget(
+                                            hintText: 'enter_slug'.tr,
+                                            labelText: 'slug'.tr,
+                                            controller: _slugController,
+                                            focusNode: _slugFocus,
+                                            inputType: TextInputType.text,
+                                            required: true,
+                                            onChanged: (text) => _onSlugChanged(text),
+                                            validator: (value) =>
+                                                ValidateCheck.validateEmptyText(
+                                                  value,
+                                                  "enter_slug".tr,
+                                                ),
+                                          ),
+                                          if (authController.isSlugAvailable != null && _slugController.text.trim().isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    authController.isSlugAvailable! ? Icons.check_circle : Icons.cancel,
+                                                    color: authController.isSlugAvailable! ? Colors.green : Colors.red,
+                                                    size: 16,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Expanded(
+                                                    child: Text(
+                                                      authController.slugValidationMessage.tr,
+                                                      style: robotoRegular.copyWith(
+                                                        color: authController.isSlugAvailable! ? Colors.green : Colors.red,
+                                                        fontSize: Dimensions.fontSizeSmall,
                                                       ),
                                                     ),
-                                                  ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          const SizedBox(
+                                            height:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          CustomTextFieldWidget(
+                                            hintText: 'enter_website_color'.tr,
+                                            labelText: 'website_color'.tr,
+                                            controller: _websiteColorController,
+                                            focusNode: _websiteColorFocus,
+                                            inputType: TextInputType.text,
+                                            required: true,
+                                            validator: (value) =>
+                                                ValidateCheck.validateEmptyText(
+                                                  value,
+                                                  "enter_website_color".tr,
+                                                ),
+                                            suffixChild: InkWell(
+                                              onTap: _openColorPicker,
+                                              child: Container(
+                                                width: 30,
+                                                height: 30,
+                                                margin: const EdgeInsets.only(
+                                                  right: 10,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color:
+                                                      _selectedColor ??
+                                                      Colors.blue,
+                                                  border: Border.all(
+                                                    color: Colors.grey,
+                                                  ),
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                width: Dimensions
-                                                    .paddingSizeDefault,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          CheckboxListTile(
+                                            title: Text(
+                                              'open_24_hours'.tr,
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeDefault,
+                                                color: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge?.color,
                                               ),
-
-                                              Expanded(
-                                                flex: 6,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          'vendor_cover'.tr,
-                                                          style: robotoRegular.copyWith(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color
-                                                                    ?.withValues(
-                                                                      alpha:
-                                                                          0.7,
-                                                                    ),
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          ' (${'3:1'})',
-                                                          style: robotoRegular
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).hintColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                              ),
-                                                        ),
-                                                        Text(
-                                                          ' *'.tr,
-                                                          style: robotoRegular.copyWith(
-                                                            color: Colors.red,
-                                                            fontSize: Dimensions
-                                                                .fontSizeDefault,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(
-                                                      height: Dimensions
-                                                          .paddingSizeDefault,
-                                                    ),
-
-                                                    Stack(
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                5.0,
-                                                              ),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusSmall,
-                                                                ),
-                                                            child:
-                                                                authController
-                                                                        .pickedCover !=
-                                                                    null
-                                                                ? GetPlatform
-                                                                          .isWeb
-                                                                      ? Image.network(
-                                                                          authController
-                                                                              .pickedCover!
-                                                                              .path,
-                                                                          width:
-                                                                              context.width,
-                                                                          height:
-                                                                              120,
-                                                                          fit: BoxFit
-                                                                              .cover,
-                                                                        )
-                                                                      : Image.file(
-                                                                          File(
-                                                                            authController.pickedCover!.path,
-                                                                          ),
-                                                                          width:
-                                                                              context.width,
-                                                                          height:
-                                                                              120,
-                                                                          fit: BoxFit
-                                                                              .cover,
-                                                                        )
-                                                                : SizedBox(
-                                                                    width: context
-                                                                        .width,
-                                                                    height: 120,
-                                                                    child: Column(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .center,
-                                                                      children: [
-                                                                        Icon(
-                                                                          CupertinoIcons
-                                                                              .photo_camera_solid,
-                                                                          size:
-                                                                              30,
-                                                                          color:
-                                                                              Theme.of(
-                                                                                context,
-                                                                              ).disabledColor.withValues(
-                                                                                alpha: 0.6,
-                                                                              ),
-                                                                        ),
-
-                                                                        Text(
-                                                                          'upload_vendor_cover'
-                                                                              .tr,
-                                                                          style: robotoRegular.copyWith(
-                                                                            color:
-                                                                                Theme.of(
-                                                                                  context,
-                                                                                ).textTheme.bodyLarge?.color?.withValues(
-                                                                                  alpha: 0.7,
-                                                                                ),
-                                                                            fontSize:
-                                                                                Dimensions.fontSizeSmall,
-                                                                          ),
-                                                                          textAlign:
-                                                                              TextAlign.center,
-                                                                        ),
-
-                                                                        Padding(
-                                                                          padding: const EdgeInsets.symmetric(
-                                                                            horizontal:
-                                                                                Dimensions.paddingSizeSmall,
-                                                                          ),
-                                                                          child: Text(
-                                                                            'upload_jpg_png_gif_maximum_2_mb'.tr,
-                                                                            style: robotoRegular.copyWith(
-                                                                              color:
-                                                                                  Theme.of(
-                                                                                    context,
-                                                                                  ).disabledColor.withValues(
-                                                                                    alpha: 0.6,
-                                                                                  ),
-                                                                              fontSize: Dimensions.fontSizeSmall,
-                                                                            ),
-                                                                            textAlign:
-                                                                                TextAlign.center,
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                          ),
-                                                        ),
-
-                                                        Positioned(
-                                                          bottom: 0,
-                                                          right: 0,
-                                                          top: 0,
-                                                          left: 0,
-                                                          child: InkWell(
-                                                            onTap: () =>
-                                                                authController
-                                                                    .pickImageForReg(
-                                                                      false,
-                                                                      false,
-                                                                    ),
-                                                            child: DottedBorder(
-                                                              options: RoundedRectDottedBorderOptions(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                                strokeWidth: 1,
-                                                                strokeCap:
-                                                                    StrokeCap
-                                                                        .butt,
-                                                                dashPattern:
-                                                                    const [
-                                                                      5,
-                                                                      5,
-                                                                    ],
-                                                                padding:
-                                                                    const EdgeInsets.all(
-                                                                      0,
-                                                                    ),
-                                                                radius: const Radius.circular(
-                                                                  Dimensions
-                                                                      .radiusDefault,
-                                                                ),
-                                                              ),
-                                                              child: Center(
-                                                                child: Visibility(
-                                                                  visible:
-                                                                      authController
-                                                                          .pickedCover !=
-                                                                      null,
-                                                                  child: Container(
-                                                                    padding:
-                                                                        const EdgeInsets.all(
-                                                                          25,
-                                                                        ),
-                                                                    decoration: BoxDecoration(
-                                                                      border: Border.all(
-                                                                        width:
-                                                                            3,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                      shape: BoxShape
-                                                                          .circle,
-                                                                    ),
-                                                                    child: const Icon(
-                                                                      CupertinoIcons
-                                                                          .photo_camera_solid,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      size: 50,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                            ),
+                                            value: _isOpen24Hours,
+                                            activeColor: Theme.of(
+                                              context,
+                                            ).primaryColor,
+                                            onChanged: (bool? val) {
+                                              setState(() {
+                                                _isOpen24Hours = val ?? false;
+                                              });
+                                            },
+                                            controlAffinity:
+                                                ListTileControlAffinity.leading,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
+                                          const SizedBox(
+                                            height:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          Visibility(
+                                            visible: !_isOpen24Hours,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child:
+                                                      common_time.CustomTimePickerWidget(
+                                                        title: 'open_time'.tr,
+                                                        time: _openingTime,
+                                                        onTimeChanged: (time) {
+                                                          setState(() {
+                                                            _openingTime = time;
+                                                          });
+                                                        },
+                                                      ),
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(
+                                                  width: Dimensions
+                                                      .paddingSizeDefault,
+                                                ),
+                                                Expanded(
+                                                  child:
+                                                      common_time.CustomTimePickerWidget(
+                                                        title: 'close_time'.tr,
+                                                        time: _closingTime,
+                                                        onTimeChanged: (time) {
+                                                          setState(() {
+                                                            _closingTime = time;
+                                                          });
+                                                        },
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1807,130 +1647,132 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     child: Column(
                                       children: [
                                         // Commission/Subscription Toggle
-                                        Container(
-                                          height: 45,
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusDefault,
+                                        if (showToggle)
+                                          Container(
+                                            height: 45,
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).cardColor,
+                                              borderRadius: BorderRadius.circular(
+                                                Dimensions.radiusDefault,
+                                              ),
+                                              border: Border.all(
+                                                color: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                                width: 0.5,
+                                              ),
                                             ),
-                                            border: Border.all(
-                                              color: Theme.of(
-                                                context,
-                                              ).primaryColor,
-                                              width: 0.5,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: InkWell(
-                                                  onTap: () => authController.setBusiness(
-                                                    0,
-                                                    moduleId:
-                                                        addressController
-                                                                .selectedModuleIndex !=
-                                                            -1
-                                                        ? addressController
-                                                              .moduleList![addressController
-                                                                  .selectedModuleIndex!]
-                                                              .id
-                                                        : null,
-                                                  ),
-                                                  child: Container(
-                                                    alignment: Alignment.center,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          authController
-                                                                  .businessIndex ==
-                                                              0
-                                                          ? Theme.of(
-                                                              context,
-                                                            ).primaryColor
-                                                          : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            Dimensions
-                                                                    .radiusDefault -
-                                                                2,
-                                                          ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: () => authController.setBusiness(
+                                                      0,
+                                                      moduleId:
+                                                          addressController
+                                                                  .selectedModuleIndex !=
+                                                              -1
+                                                          ? addressController
+                                                                .moduleList![addressController
+                                                                    .selectedModuleIndex!]
+                                                                .id
+                                                          : null,
                                                     ),
-                                                    child: Text(
-                                                      'commission'.tr,
-                                                      style: robotoMedium.copyWith(
+                                                    child: Container(
+                                                      alignment: Alignment.center,
+                                                      decoration: BoxDecoration(
                                                         color:
                                                             authController
                                                                     .businessIndex ==
                                                                 0
-                                                            ? Colors.white
-                                                            : Theme.of(
+                                                            ? Theme.of(
                                                                 context,
-                                                              ).primaryColor,
-                                                        fontSize: Dimensions
-                                                            .fontSizeSmall,
+                                                              ).primaryColor
+                                                            : Colors.transparent,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                      .radiusDefault -
+                                                                  2,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        'commission'.tr,
+                                                        style: robotoMedium.copyWith(
+                                                          color:
+                                                              authController
+                                                                      .businessIndex ==
+                                                                  0
+                                                              ? Colors.white
+                                                              : Theme.of(
+                                                                  context,
+                                                                ).primaryColor,
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              const SizedBox(width: 2),
-                                              Expanded(
-                                                child: InkWell(
-                                                  onTap: () => authController.setBusiness(
-                                                    1,
-                                                    moduleId:
-                                                        addressController
-                                                                .selectedModuleIndex !=
-                                                            -1
-                                                        ? addressController
-                                                              .moduleList![addressController
-                                                                  .selectedModuleIndex!]
-                                                              .id
-                                                        : null,
-                                                  ),
-                                                  child: Container(
-                                                    alignment: Alignment.center,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          authController
-                                                                  .businessIndex ==
-                                                              1
-                                                          ? Theme.of(
-                                                              context,
-                                                            ).primaryColor
-                                                          : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            Dimensions
-                                                                    .radiusDefault -
-                                                                2,
-                                                          ),
+                                                const SizedBox(width: 2),
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: () => authController.setBusiness(
+                                                      1,
+                                                      moduleId:
+                                                          addressController
+                                                                  .selectedModuleIndex !=
+                                                              -1
+                                                          ? addressController
+                                                                .moduleList![addressController
+                                                                    .selectedModuleIndex!]
+                                                                .id
+                                                          : null,
                                                     ),
-                                                    child: Text(
-                                                      'subscription'.tr,
-                                                      style: robotoMedium.copyWith(
+                                                    child: Container(
+                                                      alignment: Alignment.center,
+                                                      decoration: BoxDecoration(
                                                         color:
                                                             authController
                                                                     .businessIndex ==
                                                                 1
-                                                            ? Colors.white
-                                                            : Theme.of(
+                                                            ? Theme.of(
                                                                 context,
-                                                              ).primaryColor,
-                                                        fontSize: Dimensions
-                                                            .fontSizeSmall,
+                                                              ).primaryColor
+                                                            : Colors.transparent,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                      .radiusDefault -
+                                                                  2,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        'subscription'.tr,
+                                                        style: robotoMedium.copyWith(
+                                                          color:
+                                                              authController
+                                                                      .businessIndex ==
+                                                                  1
+                                                              ? Colors.white
+                                                              : Theme.of(
+                                                                  context,
+                                                                ).primaryColor,
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeLarge,
-                                        ),
+                                        if (showToggle)
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeLarge,
+                                          ),
 
                                         if (authController.businessIndex == 0)
                                           PackageCardWidget(
@@ -2188,14 +2030,26 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                 if (_formKeyLogin!.currentState!.validate()) {
                                   if (defaultNameNull) {
                                     showCustomSnackBar('enter_vendor_name'.tr);
-                                  } else if (authController.pickedLogo ==
-                                      null) {
-                                    showCustomSnackBar('select_vendor_logo'.tr);
-                                  } else if (authController.pickedCover ==
-                                      null) {
+                                  } else if (_deliveryPriceController.text
+                                      .trim()
+                                      .isEmpty) {
+                                    showCustomSnackBar('enter_delivery_fee'.tr);
+                                  } else if (_slugController.text
+                                      .trim()
+                                      .isEmpty) {
+                                    showCustomSnackBar('enter_slug'.tr);
+                                  } else if (_websiteColorController.text
+                                      .trim()
+                                      .isEmpty) {
                                     showCustomSnackBar(
-                                      'select_vendor_cover_photo'.tr,
+                                      'enter_website_color'.tr,
                                     );
+                                  } else if (!_isOpen24Hours &&
+                                      _openingTime == null) {
+                                    showCustomSnackBar('pick_start_time'.tr);
+                                  } else if (!_isOpen24Hours &&
+                                      _closingTime == null) {
+                                    showCustomSnackBar('pick_end_time'.tr);
                                   } else if (addressController
                                           .selectedModuleIndex ==
                                       -1) {
@@ -2246,13 +2100,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       'set_vendor_location'.tr,
                                     );
                                   } else {
-                                    _scrollController.jumpTo(
-                                      _scrollController
-                                          .position
-                                          .minScrollExtent,
-                                    );
-                                    authController.storeStatusChange(0.6);
-                                    firstTime = true;
+                                    _checkSlugAndProceed(authController);
                                   }
                                 }
                               } else if (authController.storeStatus == 0.6) {
@@ -2359,6 +2207,18 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       .add(const Duration(days: 365))
                                       .toString()
                                       .substring(0, 10),
+                                  deliveryPrice: _deliveryPriceController.text
+                                      .trim(),
+                                  openingTime: _isOpen24Hours
+                                      ? ''
+                                      : (_openingTime ?? ''),
+                                  closingTime: _isOpen24Hours
+                                      ? ''
+                                      : (_closingTime ?? ''),
+                                  isOpen24Hours: _isOpen24Hours ? '1' : '0',
+                                  slug: _slugController.text.trim(),
+                                  websiteColor: _websiteColorController.text
+                                      .trim(),
                                 ).toJson(),
                               );
 

@@ -104,6 +104,14 @@ class _StoreEditScreenState extends State<StoreEditScreen>
           _addressController[index].text = trans.value ?? '';
         }
       }
+
+      // Fallback: populate from store data if translation was empty
+      if (_nameController[index].text.isEmpty) {
+        _nameController[index].text = widget.store.name ?? '';
+      }
+      if (_addressController[index].text.isEmpty) {
+        _addressController[index].text = widget.store.address ?? '';
+      }
     }
 
     _store = widget.store;
@@ -189,6 +197,33 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text('address'.tr, style: robotoBold),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            CustomTextFieldWidget(
+                              hintText: 'enter_store_address'.tr,
+                              labelText: 'address'.tr,
+                              controller: _addressController[0],
+                              focusNode: _addressNode[0],
+                              capitalization: TextCapitalization.sentences,
+                              maxLines: 3,
+                              prefixIcon: Icons.location_on_outlined,
+                              nextFocus: _contactNode,
+                              required: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                      CustomCard(
+                        padding: const EdgeInsets.all(
+                          Dimensions.paddingSizeSmall,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('phone_number'.tr, style: robotoBold),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
                             CustomTextFieldWidget(
                               hintText: 'xxx-xxxxxxx',
                               labelText: 'phone_number'.tr,
@@ -210,19 +245,6 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                                   ).code,
                               validator: (value) =>
                                   ValidateCheck.validateEmptyText(value, null),
-                            ),
-                            const SizedBox(
-                              height: Dimensions.paddingSizeExtraLarge,
-                            ),
-                            CustomTextFieldWidget(
-                              hintText: 'address'.tr,
-                              labelText: 'address'.tr,
-                              controller: _addressController[0],
-                              focusNode: _addressNode[0],
-                              capitalization: TextCapitalization.sentences,
-                              maxLines: 3,
-                              nextFocus: _contactNode,
-                              required: true,
                             ),
                           ],
                         ),
@@ -377,6 +399,8 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                           ],
                         ),
                       ),
+                      const SizedBox(height: Dimensions.paddingSizeDefault),
+
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
                       /*CustomCard(
@@ -1314,17 +1338,19 @@ class _StoreEditScreenState extends State<StoreEditScreen>
                             ? 'enter_valid_restaurant_contact_number'.tr
                             : 'enter_valid_store_contact_number'.tr,
                       );
-                    } else if (widget.store.logoFullUrl == null &&
-                        storeController.rawLogo == null) {
-                      showCustomSnackBar('upload_business_logo'.tr);
-                      /*} else if (widget.store.coverPhotoFullUrl == null &&
-                        storeController.rawCover == null) {
-                      showCustomSnackBar('upload_cover_image'.tr);*/
-                      /*} else if (metaTitle.isEmpty) {
-                      showCustomSnackBar('enter_meta_title'.tr);
-                    } else if (metaDescription.isEmpty) {
-                      showCustomSnackBar('enter_meta_description'.tr);*/
                     } else {
+                      /* Logo, cover, and meta checks removed (optional):
+                      } else if (widget.store.logoFullUrl == null &&
+                          storeController.rawLogo == null) {
+                        showCustomSnackBar('upload_business_logo'.tr);
+                      } else if (widget.store.coverPhotoFullUrl == null &&
+                          storeController.rawCover == null) {
+                        showCustomSnackBar('upload_cover_image'.tr);
+                      } else if (metaTitle.isEmpty) {
+                        showCustomSnackBar('enter_meta_title'.tr);
+                      } else if (metaDescription.isEmpty) {
+                        showCustomSnackBar('enter_meta_description'.tr);
+                      */
                       List<Translation> translation = [];
 
                       for (

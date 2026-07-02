@@ -67,20 +67,28 @@ class CouponCardDialogueWidget extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
                                 child: Row(children: [
                                   Text('status'.tr, style: robotoMedium),
-                                  Transform.scale(
-                                    scale: 0.7,
-                                    child: CupertinoSwitch(
-                                      activeTrackColor: Colors.teal,
-                                      value: couponController.coupons![index].status == 1 ? true : false,
-                                      onChanged: (bool status){
-                                        couponController.changeStatus(couponController.coupons![index].id, status).then((success) {
-                                          if(success){
-                                            couponController.getCouponList();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                  couponController.loadingCouponList.contains(couponController.coupons![index].id)
+                                      ? const SizedBox(
+                                          width: 40,
+                                          height: 40,
+                                          child: Center(
+                                            child: CupertinoActivityIndicator(),
+                                          ),
+                                        )
+                                      : Transform.scale(
+                                          scale: 0.7,
+                                          child: CupertinoSwitch(
+                                            activeTrackColor: Colors.teal,
+                                            value: couponController.coupons![index].status == 1 ? true : false,
+                                            onChanged: (bool status){
+                                              couponController.changeStatus(couponController.coupons![index].id, status).then((success) {
+                                                if(success){
+                                                  couponController.getCouponList();
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
                                 ]),
                               ),
                               const SizedBox(width: Dimensions.paddingSizeSmall),

@@ -23,6 +23,15 @@ class AuthController extends GetxController implements GetxService {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _storeClosedStatusLoading = false;
+  bool get storeClosedStatusLoading => _storeClosedStatusLoading;
+
+  bool? _isSlugAvailable;
+  bool? get isSlugAvailable => _isSlugAvailable;
+
+  String _slugValidationMessage = '';
+  String get slugValidationMessage => _slugValidationMessage;
+
   bool _notification = true;
   bool get notification => _notification;
 
@@ -209,14 +218,17 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> toggleStoreClosedStatus() async {
+    _storeClosedStatusLoading = true;
+    update();
     bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
     if (isSuccess) {
       if (getModuleType() == 'rental') {
         await Get.find<TaxiProfileController>().getProfile();
       } else {
-        Get.find<ProfileController>().getProfile();
+        await Get.find<ProfileController>().getProfile();
       }
     }
+    _storeClosedStatusLoading = false;
     update();
   }
 
@@ -263,6 +275,26 @@ class AuthController extends GetxController implements GetxService {
 
     _isLoading = false;
     update();
+  }
+
+  Future<ResponseModel> checkSlug(String slug) async {
+    if (slug.trim().isEmpty) {
+      _isSlugAvailable = null;
+      _slugValidationMessage = '';
+      update();
+      return ResponseModel(false, '');
+    }
+
+    _isLoading = true;
+    update();
+
+    ResponseModel responseModel = await authServiceInterface.checkSlug(slug);
+    _isSlugAvailable = responseModel.isSuccess;
+    _slugValidationMessage = responseModel.message ?? '';
+
+    _isLoading = false;
+    update();
+    return responseModel;
   }
 
   void setDeliveryTimeTypeIndex(String? type, bool notify) {
@@ -340,15 +372,21 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void resetBusiness() {
-    _businessIndex =
-        (Get.find<SplashController>().configModel!.commissionBusinessModel == 0)
-        ? 1
-        : 0;
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0;
+    bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
+
+    if (!isSubscriptionAvailable) {
+      _businessIndex = 0;
+    } else if (!isCommissionAvailable) {
+      _businessIndex = 1;
+    } else {
+      _businessIndex = 0;
+    }
     _activeSubscriptionIndex = 0;
     _businessPlanStatus = 'business';
     _isFirstTime = true;
     _paymentIndex =
-        Get.find<SplashController>().configModel!.subscriptionFreeTrialStatus!
+        Get.find<SplashController>().configModel?.subscriptionFreeTrialStatus == true
         ? 0
         : 1;
   }
@@ -357,6 +395,12 @@ class AuthController extends GetxController implements GetxService {
     _packageModel = await authServiceInterface.getPackageList(
       moduleId: moduleId,
     );
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+        _packageModel?.packages != null &&
+        _packageModel!.packages!.isNotEmpty;
+    if (!isSubscriptionAvailable) {
+      _businessIndex = 0;
+    }
     if (isUpdate) {
       update();
     }
@@ -429,5 +473,7 @@ class AuthController extends GetxController implements GetxService {
     _storeMinTime = '20';
     _storeMaxTime = '60';
     _storeTimeUnit = 'minute';
+    _isSlugAvailable = null;
+    _slugValidationMessage = '';
   }
 }

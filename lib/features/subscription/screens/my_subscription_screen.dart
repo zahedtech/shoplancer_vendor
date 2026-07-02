@@ -274,26 +274,27 @@ class _MySubscriptionScreenState extends State<MySubscriptionScreen>
                               ),
                             ),
 
-                            SafeArea(
-                              child: Container(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeDefault,
-                                ),
-                                child: CustomButtonWidget(
-                                  buttonText: 'change_business_plan'.tr,
-                                  radius: Dimensions.radiusDefault,
-                                  height: 55,
-                                  onPressed: () {
-                                    showCustomBottomSheet(
-                                      child: ChangeSubscriptionPlanBottomSheet(
-                                        businessIsCommission:
-                                            businessIsCommission,
-                                      ),
-                                    );
-                                  },
+                            if (Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0)
+                              SafeArea(
+                                child: Container(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  child: CustomButtonWidget(
+                                    buttonText: 'change_business_plan'.tr,
+                                    radius: Dimensions.radiusDefault,
+                                    height: 55,
+                                    onPressed: () {
+                                      showCustomBottomSheet(
+                                        child: ChangeSubscriptionPlanBottomSheet(
+                                          businessIsCommission:
+                                              businessIsCommission,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         )
                       : (businessIsNone ||

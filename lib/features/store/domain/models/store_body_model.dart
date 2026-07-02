@@ -19,6 +19,12 @@ class StoreBodyModel {
   List<String>? pickUpZoneIds;
   String? tin;
   String? tinExpireDate;
+  String? deliveryPrice;
+  String? openingTime;
+  String? closingTime;
+  String? isOpen24Hours;
+  String? slug;
+  String? websiteColor;
 
   StoreBodyModel({
     this.translation,
@@ -39,6 +45,12 @@ class StoreBodyModel {
     this.pickUpZoneIds,
     this.tin,
     this.tinExpireDate,
+    this.deliveryPrice,
+    this.openingTime,
+    this.closingTime,
+    this.isOpen24Hours,
+    this.slug,
+    this.websiteColor,
   });
 
   StoreBodyModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +74,12 @@ class StoreBodyModel {
     }
     tin = json['tin'];
     tinExpireDate = json['tin_expire_date'];
+    deliveryPrice = json['delivery_price'];
+    openingTime = json['opening_time'];
+    closingTime = json['closing_time'];
+    isOpen24Hours = json['is_open_24_hours'];
+    slug = json['slug'];
+    websiteColor = json['website_color'];
   }
 
   Map<String, String> toJson() {
@@ -86,6 +104,12 @@ class StoreBodyModel {
     }
     data['tin'] = tin ?? '';
     data['tin_expire_date'] = tinExpireDate ?? '';
+    data['delivery_price'] = deliveryPrice ?? '';
+    data['opening_time'] = openingTime ?? '';
+    data['closing_time'] = closingTime ?? '';
+    data['is_open_24_hours'] = isOpen24Hours ?? '0';
+    data['slug'] = slug ?? '';
+    data['website_color'] = websiteColor ?? '';
     return data;
   }
 }

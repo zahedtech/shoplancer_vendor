@@ -58,6 +58,15 @@ class StoreController extends GetxController implements GetxService {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  int? _currentModuleId;
+  int? get currentModuleId => _currentModuleId;
+
+  final List<int> _loadingItemsList = [];
+  List<int> get loadingItemsList => _loadingItemsList;
+
+  final List<int> _loadingRecommendedList = [];
+  List<int> get loadingRecommendedList => _loadingRecommendedList;
+
   int? _pageSize;
   int? get pageSize => _pageSize;
 
@@ -379,7 +388,7 @@ class StoreController extends GetxController implements GetxService {
     );
     _selectedItemList = [];
     _isSelectionMode = false;
-    getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
     getLimitedStockItemList('1', willUpdate: false);
     update();
   }
@@ -530,12 +539,16 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void toggleRecommendedProduct(int? productID) async {
+    if (productID != null) {
+      _loadingRecommendedList.add(productID);
+      update();
+    }
     bool isSuccess = await storeServiceInterface.updateRecommendedProductStatus(
       productID,
       _isRecommended ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isRecommended = !_isRecommended;
       showCustomSnackBar(
         Get.find<SplashController>().moduleType == 'food'
@@ -543,6 +556,9 @@ class StoreController extends GetxController implements GetxService {
             : 'product_status_updated_successfully'.tr,
         isError: false,
       );
+    }
+    if (productID != null) {
+      _loadingRecommendedList.remove(productID);
     }
     update();
   }
@@ -553,7 +569,7 @@ class StoreController extends GetxController implements GetxService {
       _isOrganic ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isOrganic = !_isOrganic;
       showCustomSnackBar(
         Get.find<SplashController>().moduleType == 'food'
@@ -632,6 +648,8 @@ class StoreController extends GetxController implements GetxService {
     bool willUpdate = true,
     int? moduleId,
   }) async {
+    _currentModuleId = moduleId;
+
     if (search.isEmpty) {
       _isSearching = false;
     } else {
@@ -913,7 +931,7 @@ class StoreController extends GetxController implements GetxService {
     );
     if (isSuccess) {
       await Get.find<ProfileController>().getProfile();
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       Get.find<StoreController>().getStoreReviewList(
         Get.find<ProfileController>().profileModel!.stores![0].id,
         '',
@@ -1171,7 +1189,7 @@ class StoreController extends GetxController implements GetxService {
       if (pendingItem) {
         getPendingItemList(offset.toString(), type);
       } else {
-        getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+        getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
         Get.find<CategoryController>().getCategoryList();
       }
     }
@@ -1282,7 +1300,7 @@ class StoreController extends GetxController implements GetxService {
       _isAvailable ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isAvailable = !_isAvailable;
       showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
     }
@@ -1290,8 +1308,10 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<bool> updateItemStatusForProduct(int? itemId, bool isActive) async {
-    _isLoading = true;
-    update();
+    if (itemId != null) {
+      _loadingItemsList.add(itemId);
+      update();
+    }
     bool isSuccess = await storeServiceInterface.updateItemStatus(
       itemId,
       isActive ? 1 : 0,
@@ -1311,7 +1331,9 @@ class StoreController extends GetxController implements GetxService {
       }
       showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
     }
-    _isLoading = false;
+    if (itemId != null) {
+      _loadingItemsList.remove(itemId);
+    }
     update();
     return isSuccess;
   }
@@ -1961,7 +1983,7 @@ class StoreController extends GetxController implements GetxService {
     Response response = await storeServiceInterface.stockUpdate(data);
 
     if (response.statusCode == 200) {
-      getItemList(offset: '1', type: _type, search: '', categoryId: 0);
+      getItemList(offset: '1', type: _type, search: '', categoryId: 0, moduleId: _currentModuleId);
       Get.find<StoreController>().getLimitedStockItemList(
         Get.find<StoreController>().offset.toString(),
         willUpdate: false,

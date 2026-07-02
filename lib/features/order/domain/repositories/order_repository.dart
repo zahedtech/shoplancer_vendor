@@ -84,6 +84,18 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
+  Future<ResponseModel> updateOrderItems(Map<String, dynamic> body) async {
+    ResponseModel responseModel;
+    Response response = await apiClient.postData(AppConstants.updateOrderItemsUri, body, handleError: false);
+    if (response.statusCode == 200) {
+      responseModel = ResponseModel(true, response.body['message']);
+    } else {
+      responseModel = ResponseModel(false, response.statusText);
+    }
+    return responseModel;
+  }
+
+  @override
   Future<OrderCancellationBodyModel?> getCancelReasons() async {
     OrderCancellationBodyModel? orderCancellationBody;
     Response response = await apiClient.getData('${AppConstants.orderCancellationUri}?offset=1&limit=30&type=store');
