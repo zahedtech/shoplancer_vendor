@@ -31,6 +31,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
 
   final TextEditingController _urlController = TextEditingController();
   final List<TextEditingController> _titleController = [];
+  final List<TextEditingController> _subtitleController = [];
 
   final List<FocusNode> _titleFocusNode = [];
   // ignore: unused_field
@@ -56,11 +57,15 @@ class _AddBannerScreenState extends State<AddBannerScreen>
       List<Translation> translation = _storeBannerListModel?.translations ?? [];
       for (int index = 0; index < _languageList!.length; index++) {
         _titleController.add(TextEditingController());
+        _subtitleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
         if (translation.isNotEmpty) {
           for (var t in translation) {
             if (_languageList[index].key == t.locale && t.key == 'title') {
               _titleController[index].text = t.value ?? '';
+            }
+            if (_languageList[index].key == t.locale && t.key == 'subtitle') {
+              _subtitleController[index].text = t.value ?? '';
             }
           }
         }
@@ -68,10 +73,15 @@ class _AddBannerScreenState extends State<AddBannerScreen>
         if (_titleController[index].text.isEmpty && index == 0) {
           _titleController[index].text = _storeBannerListModel?.title ?? '';
         }
+        if (_subtitleController[index].text.isEmpty && index == 0) {
+          _subtitleController[index].text =
+              _storeBannerListModel?.subTitle ?? '';
+        }
       }
     } else {
       for (int index = 0; index < _languageList!.length; index++) {
         _titleController.add(TextEditingController());
+        _subtitleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
       }
       _storeBannerListModel = StoreBannerListModel();
@@ -277,11 +287,46 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                     validator: (value) {
                                       if (_bannerType == _bannerTypeText) {
-                                        if (value == null || value.trim().isEmpty) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
                                           return 'enter_title'.tr;
                                         }
                                       }
                                       return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
+                                ),
+
+                                Text('subtitle'.tr, style: robotoBold),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withValues(alpha: 0.2),
+                                    ),
+                                  ),
+                                  child: CustomTextFieldWidget(
+                                    hintText: 'enter_subtitle'.tr,
+                                    showLabelText: false,
+                                    controller: _subtitleController[0],
+                                    capitalization: TextCapitalization.words,
+                                    inputAction: TextInputAction.done,
+                                    showTitle: false,
+                                    onChanged: (value) {
+                                      setState(() {});
                                     },
                                   ),
                                 ),
@@ -294,27 +339,33 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                 const SizedBox(
                                   height: Dimensions.paddingSizeSmall,
                                 ),
-                                  Container(
-                                    height: 125,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Theme.of(context).primaryColor,
-                                          Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 5),
-                                        ),
-                                      ],
+                                Container(
+                                  height: 125,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
                                     ),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Theme.of(context).primaryColor,
+                                        Theme.of(
+                                          context,
+                                        ).primaryColor.withValues(alpha: 0.7),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(
+                                          context,
+                                        ).primaryColor.withValues(alpha: 0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
                                   child: Stack(
                                     children: [
                                       Positioned(
@@ -325,7 +376,9 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                           height: 100,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.white.withValues(alpha: 0.08),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.08,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -337,29 +390,67 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                           height: 80,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: Colors.white.withValues(alpha: 0.05),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.05,
+                                            ),
                                           ),
                                         ),
                                       ),
                                       Center(
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal:
+                                                Dimensions.paddingSizeLarge,
+                                          ),
                                           child: FittedBox(
                                             fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              _titleController[0].text.isEmpty ? 'your_banner_text_here'.tr : _titleController[0].text,
-                                              textAlign: TextAlign.center,
-                                              style: robotoBold.copyWith(
-                                                fontSize: 24,
-                                                color: Colors.white,
-                                                shadows: [
-                                                  Shadow(
-                                                    color: Colors.black.withValues(alpha: 0.25),
-                                                    offset: const Offset(0, 2),
-                                                    blurRadius: 4,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  _titleController[0]
+                                                          .text
+                                                          .isEmpty
+                                                      ? 'your_banner_text_here'
+                                                            .tr
+                                                      : _titleController[0]
+                                                            .text,
+                                                  textAlign: TextAlign.center,
+                                                  style: robotoBold.copyWith(
+                                                    fontSize: 24,
+                                                    color: Colors.white,
+                                                    shadows: [
+                                                      Shadow(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                              alpha: 0.25,
+                                                            ),
+                                                        offset: const Offset(
+                                                          0,
+                                                          2,
+                                                        ),
+                                                        blurRadius: 4,
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  _subtitleController[0]
+                                                          .text
+                                                          .isEmpty
+                                                      ? 'your_banner_subtitle_here'
+                                                            .tr
+                                                      : _subtitleController[0]
+                                                            .text,
+                                                  textAlign: TextAlign.center,
+                                                  style: robotoRegular.copyWith(
+                                                    fontSize: 14,
+                                                    color: Colors.white
+                                                        .withValues(alpha: 0.9),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -368,10 +459,17 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                         top: 8,
                                         left: 8,
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 0.2),
-                                            borderRadius: BorderRadius.circular(4),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -629,6 +727,9 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                               String titleText = isImageBanner
                                   ? 'Banner Image'
                                   : _titleController[0].text.trim();
+                              String subtitleText = isImageBanner
+                                  ? ''
+                                  : _subtitleController[0].text.trim();
                               String defaultLinkText = 'https://example.com';
 
                               for (
@@ -643,6 +744,15 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     value: titleText,
                                   ),
                                 );
+                                if (!isImageBanner) {
+                                  translations.add(
+                                    Translation(
+                                      locale: _languageList[index].key,
+                                      key: 'subtitle',
+                                      value: subtitleText,
+                                    ),
+                                  );
+                                }
                               }
                               _storeBannerListModel?.id =
                                   _storeBannerListModel?.id;
@@ -650,17 +760,22 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                               _storeBannerListModel?.translations!.addAll(
                                 translations,
                               );
-                              _storeBannerListModel?.defaultLink = defaultLinkText;
+                              _storeBannerListModel?.defaultLink =
+                                  defaultLinkText;
                               _storeBannerListModel?.type = _bannerType;
                               if (_update) {
                                 bannerController.updateBanner(
                                   banner: _storeBannerListModel,
-                                  image: isImageBanner ? storeController.rawLogo : null,
+                                  image: isImageBanner
+                                      ? storeController.rawLogo
+                                      : null,
                                 );
                               } else {
                                 bannerController.addBanner(
                                   banner: _storeBannerListModel,
-                                  image: isImageBanner ? storeController.rawLogo : null,
+                                  image: isImageBanner
+                                      ? storeController.rawLogo
+                                      : null,
                                 );
                               }
                             }

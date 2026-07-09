@@ -3,6 +3,7 @@ import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 class StoreBannerListModel {
   int? id;
   String? title;
+  String? subTitle;
   String? type;
   String? imageFullUrl;
   bool? status;
@@ -20,6 +21,7 @@ class StoreBannerListModel {
   StoreBannerListModel({
     this.id,
     this.title,
+    this.subTitle,
     this.type,
     this.imageFullUrl,
     this.status,
@@ -38,6 +40,7 @@ class StoreBannerListModel {
   StoreBannerListModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
+    subTitle = json['sub_title'];
     type = json['type'];
     imageFullUrl = json['image_full_url'];
     status = json['status'] is int ? json['status'] == 1 : json['status'];
@@ -46,14 +49,24 @@ class StoreBannerListModel {
     updatedAt = json['updated_at'];
     zoneId = json['zone_id'];
     moduleId = json['module_id'];
-    featured = json['featured'] is int ? json['featured'] == 1 : json['featured'];
+    featured = json['featured'] is int
+        ? json['featured'] == 1
+        : json['featured'];
     defaultLink = json['default_link'];
     createdBy = json['created_by'];
     bannerCatalogId = json['banner_catalog_id'];
     if (json['translations'] != null) {
       translations = [];
       json['translations'].forEach((v) {
-        translations!.add(Translation.fromJson(v));
+        final translation = Translation.fromJson(v);
+        translations!.add(translation);
+        if (translation.key == 'title' && (title == null || title!.isEmpty)) {
+          title = translation.value;
+        }
+        if (translation.key == 'subtitle' &&
+            (subTitle == null || subTitle!.isEmpty)) {
+          subTitle = translation.value;
+        }
       });
     }
   }
@@ -62,6 +75,7 @@ class StoreBannerListModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['title'] = title;
+    data['sub_title'] = subTitle;
     data['type'] = type;
     data['image_full_url'] = imageFullUrl;
     data['status'] = status;
