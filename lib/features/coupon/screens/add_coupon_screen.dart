@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/features/coupon/controllers/coupon_controller.dart';
@@ -50,6 +49,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
   void initState() {
     super.initState();
 
+    // ignore: unused_local_variable
     for (var language in _languageList!) {
       _titleController.add(TextEditingController());
       _titleNode.add(FocusNode());

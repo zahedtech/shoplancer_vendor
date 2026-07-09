@@ -1,5 +1,10 @@
 {
   "suffix_name": "Aplicación para proveedores",
+  "share": "Compartir",
+  "copy": "Copiar",
+  "store_qr_code": "Código QR de la tienda",
+  "share_store": "Compartir tienda",
+  "failed_to_save_qr": "Error al guardar el código QR",
   "sign_in": "Iniciar sesión",
   "email": "Correo electrónico",
   "password": "Contraseña",

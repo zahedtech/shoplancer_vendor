@@ -1,7 +1,6 @@
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
-import 'package:shoplancer_vendor/features/home/widgets/ads_section_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/business_analytics_widget.dart';
 import 'package:shoplancer_vendor/features/notification/controllers/notification_controller.dart';
 import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
@@ -9,11 +8,11 @@ import 'package:shoplancer_vendor/features/profile/controllers/profile_controlle
 import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/order_shimmer_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/order_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/order_button_widget.dart';
+import 'package:shoplancer_vendor/features/home/widgets/store_qr_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,7 +25,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final AppLifecycleListener _listener;
+  // ignore: unused_field
   bool _isNotificationPermissionGranted = true;
+  // ignore: unused_field
   bool _isBatteryOptimizationGranted = true;
   final JustTheController tooltipController = JustTheController();
 
@@ -215,6 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (profileController) {
             return GetBuilder<OrderController>(
               builder: (orderController) {
+                // ignore: unused_local_variable
                 bool isEnableTemporarilyClosed = false;
 
                 if (orderController.runningOrders != null) {
@@ -297,6 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                            StoreQrWidget(profileController: profileController),
 
                             profileController.modulePermission != null &&
                                     profileController.modulePermission!.wallet!

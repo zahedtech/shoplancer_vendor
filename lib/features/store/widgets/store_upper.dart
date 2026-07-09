@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
@@ -14,9 +13,7 @@ import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.d
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class StoreUpper extends StatefulWidget {
   final List<StoreBannerListModel>? banners;

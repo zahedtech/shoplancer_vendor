@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shoplancer_vendor/features/order/widgets/invoice_dialog_widget.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -154,6 +157,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     Share.share(invoiceText);
   }
 
+  void _shareInvoiceAsImage(OrderController controller) async {
+    Get.dialog(
+      InvoiceShareDialog(
+        order: controller.orderModel,
+        orderDetails: controller.orderDetailsModel,
+        isPrescriptionOrder: controller.orderModel?.prescriptionOrder,
+        dmTips: controller.orderModel!.dmTips!,
+      ),
+      barrierDismissible: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool? cancelPermission =
@@ -198,11 +213,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     ),
                   ),
                   Text(
-                    "${"order_is".tr}  ${controller.orderModel!.orderStatus! == 'picked_up'
+                    controller.orderModel!.orderStatus! == 'picked_up'
                         ? 'on_the_way'.tr
-                        : (controller.orderModel!.moduleType == 'grocery' && (controller.orderModel!.orderStatus == 'confirmed' || controller.orderModel!.orderStatus == 'processing' || controller.orderModel!.orderStatus == 'cooking'))
+                        : (controller.orderModel!.moduleType == 'grocery' &&
+                              (controller.orderModel!.orderStatus ==
+                                      'confirmed' ||
+                                  controller.orderModel!.orderStatus ==
+                                      'processing' ||
+                                  controller.orderModel!.orderStatus ==
+                                      'cooking'))
                         ? 'pending'.tr
-                        : controller.orderModel!.orderStatus!.tr}",
+                        : controller.orderModel!.orderStatus!.tr,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -232,33 +253,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  if (Platform.isAndroid)
-                    GestureDetector(
-                      onTap: () {
-                        _allowPermission().then((access) {
-                          Get.dialog(
-                            Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  Dimensions.radiusSmall,
-                                ),
-                              ),
-                              child: InVoicePrintScreen(
-                                order: controller.orderModel,
-                                orderDetails: controller.orderDetailsModel,
-                                isPrescriptionOrder:
-                                    controller.orderModel?.prescriptionOrder,
-                                dmTips: controller.orderModel!.dmTips!,
-                              ),
-                            ),
-                          );
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(Images.downloadIcon),
+                  GestureDetector(
+                    onTap: () {
+                      if (controller.orderModel != null &&
+                          controller.orderDetailsModel != null) {
+                        _shareInvoiceAsImage(controller);
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(
+                        Images.downloadIcon,
+                        height: 30,
+                        width: 30,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
+                  ),
                 ],
               );
             },
@@ -411,6 +422,51 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                         ],
                                       ),
                                     ),
+
+                                    if (order.paymentMethod ==
+                                            'cash_on_delivery' ||
+                                        order.paymentMethod == 'cash') ...[
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                              Dimensions.paddingSizeDefault,
+                                          vertical:
+                                              Dimensions.paddingSizeExtraSmall,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              '${'payment_method'.tr}:',
+                                              style: robotoRegular.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).hintColor,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Icon(
+                                              Icons.monetization_on_outlined,
+                                              size: 18,
+                                              color: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'cash'.tr,
+                                              style: robotoBold.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).primaryColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: Dimensions.paddingSizeSmall,
+                                      ),
+                                    ],
 
                                     /// Item info
                                     Container(
@@ -1946,291 +2002,307 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                     // Total
 
                                     /// Payment Details
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            Dimensions.paddingSizeDefault,
-                                        vertical: Dimensions.paddingSizeSmall,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).cardColor,
-                                        borderRadius: BorderRadius.circular(
-                                          Dimensions.radiusSmall,
+                                    if (!(order.paymentMethod ==
+                                            'cash_on_delivery' ||
+                                        order.paymentMethod == 'cash'))
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal:
+                                              Dimensions.paddingSizeDefault,
+                                          vertical: Dimensions.paddingSizeSmall,
                                         ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            offset: Offset(0, 3),
-                                            color:
-                                                Colors.grey[Get.isDarkMode
-                                                    ? 700
-                                                    : 200]!,
-                                            blurRadius: 8,
-                                            spreadRadius: 0,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(
+                                            Dimensions.radiusSmall,
                                           ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'payment_details'.tr,
-                                                style: robotoBold,
-                                              ),
-                                              Spacer(),
-                                              Text(
-                                                (order!.paymentStatus != null &&
-                                                        order
-                                                            .paymentStatus!
-                                                            .isNotEmpty)
-                                                    ? order.paymentStatus!.tr
-                                                    : (((order.paymentMethod ==
-                                                                  'partial_payment') &&
-                                                              (order
-                                                                      .payments?[0]
-                                                                      .amount !=
-                                                                  null))
-                                                          ? 'paid'.tr
-                                                          : 'unpaid'.tr),
-                                                style: robotoRegular.copyWith(
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Divider(
-                                            thickness: 1,
-                                            color: Theme.of(
-                                              context,
-                                            ).hintColor.withOpacity(0.1),
-                                          ),
-
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Image.asset(
-                                                Images.mdiCashIcon,
-                                                width: 24,
-                                                height: 24,
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              Text(
-                                                (order.paymentMethod ==
-                                                        'partial_payment')
-                                                    ? 'wallet'.tr
-                                                    : (order.paymentMethod ==
-                                                              'cash_on_delivery' ||
-                                                          order.paymentMethod ==
-                                                              'cash')
-                                                    ? 'cash'.tr
-                                                    : (order.paymentMethod !=
-                                                              null &&
-                                                          order
-                                                              .paymentMethod!
-                                                              .isNotEmpty)
-                                                    ? order.paymentMethod!
-                                                          .replaceAll('_', ' ')
-                                                          .capitalizeFirst!
-                                                          .tr
-                                                    : 'cash'.tr,
-                                                style: restConfModel
-                                                    ? robotoMedium
-                                                    : robotoRegular,
-                                              ),
-                                              order.paymentMethod ==
-                                                      'partial_payment'
-                                                  ? Text(
-                                                      '(${'partial_payment'.tr})',
-                                                      style: robotoRegular
-                                                          .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).hintColor,
-                                                          ),
-                                                    )
-                                                  : SizedBox.shrink(),
-                                              Spacer(),
-                                              Text(
-                                                (order.paymentMethod ==
-                                                        'partial_payment')
-                                                    ? PriceConverterHelper.convertPrice(
-                                                        order
-                                                            .payments![0]
-                                                            .amount,
-                                                      )
-                                                    : PriceConverterHelper.convertPrice(
-                                                        total,
-                                                      ),
-                                                style: restConfModel
-                                                    ? robotoMedium
-                                                    : robotoRegular,
-                                              ),
-                                            ],
-                                          ),
-                                          if (order.paymentReference != null &&
-                                              order
-                                                  .paymentReference!
-                                                  .isNotEmpty) ...[
-                                            const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeSmall,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              offset: Offset(0, 3),
+                                              color:
+                                                  Colors.grey[Get.isDarkMode
+                                                      ? 700
+                                                      : 200]!,
+                                              blurRadius: 8,
+                                              spreadRadius: 0,
                                             ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
                                             Row(
                                               children: [
-                                                const Icon(
-                                                  Icons
-                                                      .confirmation_number_outlined,
-                                                  size: 20,
-                                                  color: Colors.grey,
-                                                ),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
                                                 Text(
-                                                  '${'payment_reference'.tr}: ${order.paymentReference}',
+                                                  'payment_details'.tr,
+                                                  style: robotoBold,
+                                                ),
+                                                Spacer(),
+                                                Text(
+                                                  (order!.paymentStatus !=
+                                                              null &&
+                                                          order
+                                                              .paymentStatus!
+                                                              .isNotEmpty)
+                                                      ? order.paymentStatus!.tr
+                                                      : (((order.paymentMethod ==
+                                                                    'partial_payment') &&
+                                                                (order
+                                                                        .payments?[0]
+                                                                        .amount !=
+                                                                    null))
+                                                            ? 'paid'.tr
+                                                            : 'unpaid'.tr),
                                                   style: robotoRegular.copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeSmall,
                                                     color: Theme.of(
                                                       context,
-                                                    ).hintColor,
+                                                    ).primaryColor,
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          ],
-                                          if (order.paymentReceiptFullUrl !=
-                                                  null &&
-                                              order
-                                                  .paymentReceiptFullUrl!
-                                                  .isNotEmpty) ...[
-                                            const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeSmall,
+                                            Divider(
+                                              thickness: 1,
+                                              color: Theme.of(
+                                                context,
+                                              ).hintColor.withOpacity(0.1),
                                             ),
-                                            Text(
-                                              'payment_receipt'.tr,
-                                              style: robotoMedium.copyWith(
-                                                fontSize:
-                                                    Dimensions.fontSizeSmall,
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraSmall,
-                                            ),
-                                            SizedBox(
-                                              height: 80,
-                                              child: ListView.builder(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: order
-                                                    .paymentReceiptFullUrl!
-                                                    .length,
-                                                itemBuilder: (context, index) {
-                                                  final String url = order
-                                                      .paymentReceiptFullUrl![index];
-                                                  return GestureDetector(
-                                                    onTap: () {
-                                                      Get.dialog(
-                                                        Dialog(
-                                                          backgroundColor:
-                                                              Colors
-                                                                  .transparent,
-                                                          insetPadding:
-                                                              EdgeInsets.zero,
-                                                          child: Stack(
-                                                            alignment: Alignment
-                                                                .topRight,
-                                                            children: [
-                                                              InteractiveViewer(
-                                                                child: Center(
-                                                                  child: Image.network(
-                                                                    url,
-                                                                    fit: BoxFit
-                                                                        .contain,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Positioned(
-                                                                top: 40,
-                                                                right: 20,
-                                                                child: IconButton(
-                                                                  icon: const Icon(
-                                                                    Icons.close,
-                                                                    color: Colors
-                                                                        .white,
-                                                                    size: 30,
-                                                                  ),
-                                                                  onPressed: () =>
-                                                                      Get.back(),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Container(
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                            right: Dimensions
-                                                                .paddingSizeSmall,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusSmall,
-                                                            ),
-                                                        border: Border.all(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .primaryColor
-                                                                  .withOpacity(
-                                                                    0.3,
-                                                                  ),
-                                                        ),
-                                                      ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusSmall,
-                                                            ),
-                                                        child:
-                                                            CustomImageWidget(
-                                                              image: url,
-                                                              height: 80,
-                                                              width: 80,
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                          const SizedBox(height: 10),
-                                        ],
-                                      ),
-                                    ),
 
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeSmall,
-                                    ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Image.asset(
+                                                  Images.mdiCashIcon,
+                                                  width: 24,
+                                                  height: 24,
+                                                ),
+                                                SizedBox(
+                                                  width: Dimensions
+                                                      .paddingSizeSmall,
+                                                ),
+                                                Text(
+                                                  (order.paymentMethod ==
+                                                          'partial_payment')
+                                                      ? 'wallet'.tr
+                                                      : (order.paymentMethod ==
+                                                                'cash_on_delivery' ||
+                                                            order.paymentMethod ==
+                                                                'cash')
+                                                      ? 'cash'.tr
+                                                      : (order.paymentMethod !=
+                                                                null &&
+                                                            order
+                                                                .paymentMethod!
+                                                                .isNotEmpty)
+                                                      ? order.paymentMethod!
+                                                            .replaceAll(
+                                                              '_',
+                                                              ' ',
+                                                            )
+                                                            .capitalizeFirst!
+                                                            .tr
+                                                      : 'cash'.tr,
+                                                  style: restConfModel
+                                                      ? robotoMedium
+                                                      : robotoRegular,
+                                                ),
+                                                order.paymentMethod ==
+                                                        'partial_payment'
+                                                    ? Text(
+                                                        '(${'partial_payment'.tr})',
+                                                        style: robotoRegular
+                                                            .copyWith(
+                                                              fontSize: Dimensions
+                                                                  .fontSizeSmall,
+                                                              color: Theme.of(
+                                                                context,
+                                                              ).hintColor,
+                                                            ),
+                                                      )
+                                                    : SizedBox.shrink(),
+                                                Spacer(),
+                                                Text(
+                                                  (order.paymentMethod ==
+                                                          'partial_payment')
+                                                      ? PriceConverterHelper.convertPrice(
+                                                          order
+                                                              .payments![0]
+                                                              .amount,
+                                                        )
+                                                      : PriceConverterHelper.convertPrice(
+                                                          total,
+                                                        ),
+                                                  style: restConfModel
+                                                      ? robotoMedium
+                                                      : robotoRegular,
+                                                ),
+                                              ],
+                                            ),
+                                            if (order.paymentReference !=
+                                                    null &&
+                                                order
+                                                    .paymentReference!
+                                                    .isNotEmpty) ...[
+                                              const SizedBox(
+                                                height:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons
+                                                        .confirmation_number_outlined,
+                                                    size: 20,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  const SizedBox(
+                                                    width: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
+                                                  Text(
+                                                    '${'payment_reference'.tr}: ${order.paymentReference}',
+                                                    style: robotoRegular
+                                                        .copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).hintColor,
+                                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                            if (order.paymentReceiptFullUrl !=
+                                                    null &&
+                                                order
+                                                    .paymentReceiptFullUrl!
+                                                    .isNotEmpty) ...[
+                                              const SizedBox(
+                                                height:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
+                                              Text(
+                                                'payment_receipt'.tr,
+                                                style: robotoMedium.copyWith(
+                                                  fontSize:
+                                                      Dimensions.fontSizeSmall,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeExtraSmall,
+                                              ),
+                                              SizedBox(
+                                                height: 80,
+                                                child: ListView.builder(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemCount: order
+                                                      .paymentReceiptFullUrl!
+                                                      .length,
+                                                  itemBuilder: (context, index) {
+                                                    final String url = order
+                                                        .paymentReceiptFullUrl![index];
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        Get.dialog(
+                                                          Dialog(
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            insetPadding:
+                                                                EdgeInsets.zero,
+                                                            child: Stack(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topRight,
+                                                              children: [
+                                                                InteractiveViewer(
+                                                                  child: Center(
+                                                                    child: Image.network(
+                                                                      url,
+                                                                      fit: BoxFit
+                                                                          .contain,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Positioned(
+                                                                  top: 40,
+                                                                  right: 20,
+                                                                  child: IconButton(
+                                                                    icon: const Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                      color: Colors
+                                                                          .white,
+                                                                      size: 30,
+                                                                    ),
+                                                                    onPressed: () =>
+                                                                        Get.back(),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                        margin: const EdgeInsets.only(
+                                                          right: Dimensions
+                                                              .paddingSizeSmall,
+                                                        ),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                Dimensions
+                                                                    .radiusSmall,
+                                                              ),
+                                                          border: Border.all(
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .primaryColor
+                                                                    .withOpacity(
+                                                                      0.3,
+                                                                    ),
+                                                          ),
+                                                        ),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                Dimensions
+                                                                    .radiusSmall,
+                                                              ),
+                                                          child:
+                                                              CustomImageWidget(
+                                                                image: url,
+                                                                height: 80,
+                                                                width: 80,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                            const SizedBox(height: 10),
+                                          ],
+                                        ),
+                                      ),
+
+                                    if (!(order.paymentMethod ==
+                                            'cash_on_delivery' ||
+                                        order.paymentMethod == 'cash'))
+                                      const SizedBox(
+                                        height: Dimensions.paddingSizeSmall,
+                                      ),
 
                                     /// Billing Summary
                                     Container(
@@ -4003,6 +4075,116 @@ class _DriverNameInputDialogWidgetState
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class InvoiceShareDialog extends StatefulWidget {
+  final OrderModel? order;
+  final List<OrderDetailsModel>? orderDetails;
+  final bool? isPrescriptionOrder;
+  final double dmTips;
+  const InvoiceShareDialog({
+    super.key,
+    required this.order,
+    required this.orderDetails,
+    this.isPrescriptionOrder = false,
+    required this.dmTips,
+  });
+
+  @override
+  State<InvoiceShareDialog> createState() => _InvoiceShareDialogState();
+}
+
+class _InvoiceShareDialogState extends State<InvoiceShareDialog> {
+  final ScreenshotController screenshotController = ScreenshotController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _captureAndShare();
+    });
+  }
+
+  void _captureAndShare() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final Uint8List? imageBytes = await screenshotController.capture();
+      if (imageBytes != null) {
+        final directory = await getTemporaryDirectory();
+        final String path =
+            '${directory.path}/invoice_${widget.order!.id}_${DateTime.now().millisecondsSinceEpoch}.png';
+        final File file = await File(path).create();
+        await file.writeAsBytes(imageBytes);
+
+        if (mounted) {
+          Get.back();
+        }
+        await Share.shareXFiles([
+          XFile(file.path),
+        ], text: '${'order_id'.tr}: ${widget.order!.id}');
+      } else {
+        if (mounted) {
+          Get.back();
+        }
+        showCustomSnackBar('failed_to_save_qr'.tr, isError: true);
+      }
+    } catch (e) {
+      if (mounted) {
+        Get.back();
+      }
+      showCustomSnackBar('failed_to_save_qr'.tr, isError: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: Dimensions.paddingSizeDefault),
+                Text(
+                  'preparing_invoice'.tr.isNotEmpty
+                      ? 'preparing_invoice'.tr
+                      : 'Preparing Invoice...',
+                  style: robotoMedium,
+                ),
+              ],
+            ),
+            const Divider(height: Dimensions.paddingSizeLarge),
+
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.4,
+              ),
+              child: SingleChildScrollView(
+                child: InvoiceDialogWidget(
+                  order: widget.order,
+                  orderDetails: widget.orderDetails,
+                  isPrescriptionOrder: widget.isPrescriptionOrder,
+                  paper80MM: true,
+                  dmTips: widget.dmTips,
+                  screenshotController: screenshotController,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

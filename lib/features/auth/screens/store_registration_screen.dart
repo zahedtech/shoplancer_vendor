@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
 import 'package:shoplancer_vendor/common/models/response_model.dart';
-import 'package:card_swiper/card_swiper.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +13,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/address/controllers/address_controller.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
-import 'package:shoplancer_vendor/features/business/widgets/base_card_widget.dart';
 import 'package:shoplancer_vendor/features/business/widgets/package_card_widget.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
@@ -34,7 +31,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/features/auth/widgets/custom_time_picker_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_time_picker_widget.dart'
     as common_time;
-import 'package:shoplancer_vendor/features/auth/widgets/pass_view_widget.dart';
 import 'package:shoplancer_vendor/features/address/widgets/select_location_module_view_widget.dart';
 
 class StoreRegistrationScreen extends StatefulWidget {
@@ -89,6 +85,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   final ScrollController _scrollController = ScrollController();
   String? _countryDialCode;
   bool firstTime = true;
+  // ignore: unused_field
   TabController? _tabController;
   final List<Tab> _tabs = [];
 
@@ -1997,6 +1994,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                               phone = phone.substring(1);
                             }
                             String password = _passwordController.text.trim();
+                            // ignore: unused_local_variable
                             String confirmPassword = _confirmPasswordController
                                 .text
                                 .trim();

@@ -102,7 +102,17 @@ class OrderItemWidget extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                      Text(
+                        PriceConverterHelper.convertPrice(orderDetails.price),
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                  Row(
+                    children: [
                       Text(
                         '${'quantity'.tr}: ',
                         style: robotoRegular.copyWith(
@@ -140,14 +150,6 @@ class OrderItemWidget extends StatelessWidget {
                         ),
                       ],
                     ],
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                  Text(
-                    PriceConverterHelper.convertPrice(orderDetails.price),
-                    style: robotoMedium.copyWith(
-                      fontSize: Dimensions.fontSizeLarge,
-                    ),
                   ),
                 ],
               ),
@@ -219,41 +221,72 @@ class OrderItemWidget extends StatelessWidget {
     );
   }
 
-  String _getFormattedQuantityString(double quantity, double? quantityUnit, String? unitType) {
-    String qtyStr = quantity % 1 == 0 ? quantity.toInt().toString() : quantity.toString();
+  String _getFormattedQuantityString(
+    double quantity,
+    double? quantityUnit,
+    String? unitType,
+  ) {
+    String qtyStr = quantity % 1 == 0
+        ? quantity.toInt().toString()
+        : quantity.toString();
     if (quantityUnit == null || quantityUnit <= 0) {
       return '$qtyStr ${unitType ?? ''}';
     }
-    String unitValStr = quantityUnit % 1 == 0 ? quantityUnit.toInt().toString() : quantityUnit.toString();
+    String unitValStr = quantityUnit % 1 == 0
+        ? quantityUnit.toInt().toString()
+        : quantityUnit.toString();
     String unit = (unitType ?? '').trim();
     if (quantityUnit == 1) {
       return '$qtyStr $unit';
     }
     double totalValue = quantity * quantityUnit;
-    String totalValStr = totalValue % 1 == 0 ? totalValue.toInt().toString() : totalValue.toStringAsFixed(2);
+    String totalValStr = totalValue % 1 == 0
+        ? totalValue.toInt().toString()
+        : totalValue.toStringAsFixed(2);
     if (totalValStr.contains('.')) {
       totalValStr = totalValStr.replaceAll(RegExp(r'\.?0+$'), '');
     }
-    bool isGram = ['gr', 'g', 'gm', 'gram', 'grams', 'جرام', 'غرام', 'جم', 'غ'].contains(unit.toLowerCase());
-    bool isMl = ['ml', 'milliliter', 'milliliters', 'مل', 'ملل', 'ملي'].contains(unit.toLowerCase());
+    bool isGram = [
+      'gr',
+      'g',
+      'gm',
+      'gram',
+      'grams',
+      'جرام',
+      'غرام',
+      'جم',
+      'غ',
+    ].contains(unit.toLowerCase());
+    bool isMl = [
+      'ml',
+      'milliliter',
+      'milliliters',
+      'مل',
+      'ملل',
+      'ملي',
+    ].contains(unit.toLowerCase());
     if (isGram && totalValue >= 1000) {
       double kgValue = totalValue / 1000;
-      String kgValStr = kgValue % 1 == 0 ? kgValue.toInt().toString() : kgValue.toStringAsFixed(2);
+      String kgValStr = kgValue % 1 == 0
+          ? kgValue.toInt().toString()
+          : kgValue.toStringAsFixed(2);
       if (kgValStr.contains('.')) {
         kgValStr = kgValStr.replaceAll(RegExp(r'\.?0+$'), '');
       }
       String targetUnit = _isArabic(unit) ? 'كغم' : 'kg';
-      return '$qtyStr * $unitValStr $unit = $kgValStr $targetUnit';
+      return '$kgValStr $targetUnit';
     } else if (isMl && totalValue >= 1000) {
       double lValue = totalValue / 1000;
-      String lValStr = lValue % 1 == 0 ? lValue.toInt().toString() : lValue.toStringAsFixed(2);
+      String lValStr = lValue % 1 == 0
+          ? lValue.toInt().toString()
+          : lValue.toStringAsFixed(2);
       if (lValStr.contains('.')) {
         lValStr = lValStr.replaceAll(RegExp(r'\.?0+$'), '');
       }
       String targetUnit = _isArabic(unit) ? 'لتر' : 'L';
-      return '$qtyStr * $unitValStr $unit = $lValStr $targetUnit';
+      return '$lValStr $targetUnit';
     } else {
-      return '$qtyStr * $unitValStr $unit = $totalValStr $unit';
+      return '$totalValStr $unit';
     }
   }
 

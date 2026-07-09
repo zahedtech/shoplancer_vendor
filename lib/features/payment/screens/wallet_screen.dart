@@ -62,174 +62,201 @@ class _WalletScreenState extends State<WalletScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // Online Payment Balance Card (Withdrawable)
-                                        Container(
-                                          padding: const EdgeInsets.all(
-                                            Dimensions.paddingSizeLarge,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusDefault,
-                                            ),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                Theme.of(context).primaryColor,
-                                                Theme.of(context).primaryColor
-                                                    .withValues(alpha: 0.85),
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Theme.of(context)
-                                                    .primaryColor
-                                                    .withValues(alpha: 0.25),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Image.asset(
-                                                    Images.wallet,
-                                                    width: 24,
-                                                    height: 24,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).cardColor,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: Dimensions
-                                                        .paddingSizeSmall,
-                                                  ),
-                                                  Text(
-                                                    'online_payment_balance'.tr,
-                                                    style: robotoRegular
-                                                        .copyWith(
-                                                          fontSize: Dimensions
-                                                              .fontSizeSmall,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .cardColor
-                                                                  .withValues(
-                                                                    alpha: 0.9,
-                                                                  ),
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(
-                                                height:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              Text(
-                                                PriceConverterHelper.convertPrice(
-                                                  profileController
-                                                      .profileModel!
-                                                      .balance,
+                                        // Balance Cards: Online Payment & COD side-by-side
+                                        Row(
+                                          children: [
+                                            // Online Payment Balance Card (Withdrawable)
+                                            Expanded(
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  Dimensions.paddingSizeDefault,
                                                 ),
-                                                style: robotoBold.copyWith(
-                                                  fontSize: 24,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).cardColor,
-                                                ),
-                                                textDirection:
-                                                    TextDirection.ltr,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeSmall,
-                                        ),
-
-                                        // Cash on Delivery Balance Card (Cash in Hand)
-                                        Container(
-                                          padding: const EdgeInsets.all(
-                                            Dimensions.paddingSizeLarge,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusDefault,
-                                            ),
-                                            color: Theme.of(context).cardColor,
-                                            border: Border.all(
-                                              color: Theme.of(context)
-                                                  .disabledColor
-                                                  .withValues(alpha: 0.15),
-                                            ),
-                                            boxShadow: Get.isDarkMode
-                                                ? null
-                                                : [
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(
+                                                    Dimensions.radiusDefault,
+                                                  ),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Theme.of(context).primaryColor,
+                                                      Theme.of(context).primaryColor
+                                                          .withValues(alpha: 0.85),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  boxShadow: [
                                                     BoxShadow(
-                                                      color: Colors.grey[200]!,
-                                                      blurRadius: 6,
-                                                      offset: const Offset(
-                                                        0,
-                                                        3,
+                                                      color: Theme.of(context)
+                                                          .primaryColor
+                                                          .withValues(alpha: 0.25),
+                                                      blurRadius: 8,
+                                                      offset: const Offset(0, 4),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Image.asset(
+                                                          Images.wallet,
+                                                          width: 20,
+                                                          height: 20,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).cardColor,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: Dimensions
+                                                              .paddingSizeExtraSmall,
+                                                        ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            'online_payment_balance'.tr,
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: robotoRegular
+                                                                .copyWith(
+                                                                  fontSize: Dimensions
+                                                                      .fontSizeExtraSmall,
+                                                                  color:
+                                                                      Theme.of(context)
+                                                                          .cardColor
+                                                                          .withValues(
+                                                                            alpha: 0.9,
+                                                                          ),
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(
+                                                      height:
+                                                          Dimensions.paddingSizeSmall,
+                                                    ),
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      alignment: Alignment.centerLeft,
+                                                      child: Text(
+                                                        PriceConverterHelper.convertPrice(
+                                                          profileController
+                                                              .profileModel!
+                                                              .balance,
+                                                        ),
+                                                        style: robotoBold.copyWith(
+                                                          fontSize: 20,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).cardColor,
+                                                        ),
+                                                        textDirection:
+                                                            TextDirection.ltr,
                                                       ),
                                                     ),
                                                   ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .monetization_on_outlined,
-                                                    size: 24,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).primaryColor,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: Dimensions.paddingSizeSmall,
+                                            ),
+
+                                            // Cash on Delivery Balance Card (Cash in Hand)
+                                            Expanded(
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  Dimensions.paddingSizeDefault,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(
+                                                    Dimensions.radiusDefault,
                                                   ),
-                                                  const SizedBox(
-                                                    width: Dimensions
-                                                        .paddingSizeSmall,
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Theme.of(context).primaryColor,
+                                                      Theme.of(context).primaryColor
+                                                          .withValues(alpha: 0.85),
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
                                                   ),
-                                                  Text(
-                                                    'cod_balance'.tr,
-                                                    style: robotoRegular
-                                                        .copyWith(
-                                                          fontSize: Dimensions
-                                                              .fontSizeSmall,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Theme.of(context)
+                                                          .primaryColor
+                                                          .withValues(alpha: 0.25),
+                                                      blurRadius: 8,
+                                                      offset: const Offset(0, 4),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.monetization_on_outlined,
+                                                          size: 20,
                                                           color: Theme.of(
                                                             context,
-                                                          ).disabledColor,
+                                                          ).cardColor,
                                                         ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(
-                                                height:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              Text(
-                                                PriceConverterHelper.convertPrice(
-                                                  profileController
-                                                      .profileModel!
-                                                      .cashInHands,
+                                                        const SizedBox(
+                                                          width: Dimensions
+                                                              .paddingSizeExtraSmall,
+                                                        ),
+                                                        Expanded(
+                                                          child: Text(
+                                                            'cod_balance'.tr,
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: robotoRegular
+                                                                .copyWith(
+                                                                  fontSize: Dimensions
+                                                                      .fontSizeExtraSmall,
+                                                                  color:
+                                                                      Theme.of(context)
+                                                                          .cardColor
+                                                                          .withValues(
+                                                                            alpha: 0.9,
+                                                                          ),
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(
+                                                      height:
+                                                          Dimensions.paddingSizeSmall,
+                                                    ),
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      alignment: Alignment.centerLeft,
+                                                      child: Text(
+                                                        PriceConverterHelper.convertPrice(
+                                                          profileController
+                                                              .profileModel!
+                                                              .cashInHands,
+                                                        ),
+                                                        style: robotoBold.copyWith(
+                                                          fontSize: 20,
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).cardColor,
+                                                        ),
+                                                        textDirection:
+                                                            TextDirection.ltr,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                style: robotoBold.copyWith(
-                                                  fontSize: 24,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).textTheme.bodyLarge?.color,
-                                                ),
-                                                textDirection:
-                                                    TextDirection.ltr,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
 
                                         // Shoplancer Commission Card
