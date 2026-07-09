@@ -1,0 +1,13 @@
+project_id = "pvzxlartfscungirgveg"
+
+[functions.cart-token-issue]
+verify_jwt = false
+
+[functions.cart-sync]
+verify_jwt = false
+
+[functions.voice-search]
+verify_jwt = false
+
+[functions.store-meta]
+verify_jwt = false

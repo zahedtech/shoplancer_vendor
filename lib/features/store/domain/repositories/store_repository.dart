@@ -219,6 +219,7 @@ class StoreRepository implements StoreRepositoryInterface {
       'gst': store.gstCode!,
       'minimum_delivery_charge': store.minimumShippingCharge.toString(),
       'per_km_delivery_charge': store.perKmShippingCharge.toString(),
+      'delivery_price': store.deliveryPrice.toString(),
       'veg': store.veg.toString(),
       'non_veg': store.nonVeg.toString(),
       'halal_tag_status': store.isHalalActive! ? '1' : '0',

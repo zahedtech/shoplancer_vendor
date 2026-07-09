@@ -45,6 +45,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   final TextEditingController _maximumController = TextEditingController();
   final TextEditingController _deliveryChargePerKmController =
       TextEditingController();
+  final TextEditingController _deliveryPriceController =
+      TextEditingController();
   final TextEditingController _extraPackagingController =
       TextEditingController();
   final TextEditingController _minimumStockController = TextEditingController();
@@ -62,6 +64,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   final FocusNode _minimumNode = FocusNode();
   final FocusNode _minimumProcessingTimeNode = FocusNode();
   final FocusNode _deliveryChargePerKmNode = FocusNode();
+  final FocusNode _deliveryPriceFocusNode = FocusNode();
   final FocusNode _minimumStockNode = FocusNode();
   late profile.Store _store;
   final Module? _module =
@@ -82,6 +85,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   late String _initialMinimumStock;
   late String _initialMinTime;
   late String _initialMaxTime;
+  late String _initialDeliveryPrice;
   late String? _initialDurationType;
   late bool _initialIsGstEnabled;
   late bool _initialIsStoreVeg;
@@ -119,6 +123,9 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
         : '';
     _deliveryChargePerKmController.text = widget.store.perKmShippingCharge
         .toString();
+    _deliveryPriceController.text = widget.store.deliveryPrice != null
+        ? widget.store.deliveryPrice.toString()
+        : '';
     _gstController.text = widget.store.gstCode!;
     _processingTimeController.text = widget.store.orderPlaceToScheduleInterval
         .toString();
@@ -168,6 +175,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _initialMinDeliveryFee = _minimumDeliveryFeeController.text;
     _initialMaxDeliveryFee = _maximumDeliveryFeeController.text;
     _initialPerKmCharge = _deliveryChargePerKmController.text;
+    _initialDeliveryPrice = _deliveryPriceController.text;
     _initialGstCode = _gstController.text;
     _initialProcessingTime = _processingTimeController.text;
     _initialExtraPackaging = _extraPackagingController.text;
@@ -211,6 +219,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     _minimumDeliveryFeeController.text = _initialMinDeliveryFee;
     _maximumDeliveryFeeController.text = _initialMaxDeliveryFee;
     _deliveryChargePerKmController.text = _initialPerKmCharge;
+    _deliveryPriceController.text = _initialDeliveryPrice;
     _gstController.text = _initialGstCode;
     _processingTimeController.text = _initialProcessingTime;
     _extraPackagingController.text = _initialExtraPackaging;
@@ -745,7 +754,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       focusNode: _orderAmountNode,
                                       nextFocus: _store.selfDeliverySystem == 1
                                           ? _deliveryChargePerKmNode
-                                          : _minimumNode,
+                                          : _deliveryPriceFocusNode,
                                       inputType: TextInputType.number,
                                       isAmount: true,
                                     ),
@@ -818,12 +827,27 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                 inputAction:
                                                     TextInputAction.done,
                                                 inputType: TextInputType.number,
-                                                nextFocus: _minimumNode,
+                                                nextFocus:
+                                                    _deliveryPriceFocusNode,
                                                 isAmount: true,
                                               ),
                                             ],
                                           )
                                         : const SizedBox(),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeExtraLarge,
+                                    ),
+                                    CustomTextFieldWidget(
+                                      hintText: 'enter_delivery_fee'.tr,
+                                      labelText:
+                                          '${'delivery_fee'.tr} (${Get.find<SplashController>().configModel!.currencySymbol})',
+                                      controller: _deliveryPriceController,
+                                      focusNode: _deliveryPriceFocusNode,
+                                      inputAction: TextInputAction.done,
+                                      inputType: TextInputType.number,
+                                      nextFocus: _minimumNode,
+                                      isAmount: true,
+                                    ),
                                     SizedBox(
                                       height:
                                           _module.orderPlaceToScheduleInterval!
@@ -1126,6 +1150,8 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       .trim();
                                   String deliveryFee =
                                       _minimumDeliveryFeeController.text.trim();
+                                  String deliveryPrice =
+                                      _deliveryPriceController.text.trim();
                                   String minimum = _minimumController.text
                                       .trim();
                                   String maximum = _maximumController.text
@@ -1170,10 +1196,13 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                     showCustomSnackBar(
                                       'select_delivery_time_type'.tr,
                                     );
-                                  } else if (deliveryChargePerKm.isEmpty) {
+                                  } else if (_store.selfDeliverySystem == 1 &&
+                                      deliveryChargePerKm.isEmpty) {
                                     showCustomSnackBar(
                                       'enter_delivery_charge_per_km'.tr,
                                     );
+                                  } else if (deliveryPrice.isEmpty) {
+                                    showCustomSnackBar('enter_delivery_fee'.tr);
                                   } else if (_store.selfDeliverySystem == 1 &&
                                       deliveryFee.isEmpty) {
                                     showCustomSnackBar(
@@ -1266,6 +1295,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                     _store.perKmShippingCharge =
                                         deliveryChargePerKm.isNotEmpty
                                         ? double.parse(deliveryChargePerKm)
+                                        : 0;
+                                    _store.deliveryPrice =
+                                        deliveryPrice.isNotEmpty
+                                        ? double.parse(deliveryPrice)
                                         : 0;
                                     _store.veg =
                                         (_module.vegNonVeg! &&

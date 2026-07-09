@@ -3,6 +3,8 @@
   "payment_reference": "Payment Reference",
   "payment_receipt": "Payment Receipt",
   "share": "Share",
+  "copy": "Copy",
+  "store_qr_code": "Store QR Code",
   "contact_to_add_item": "Contact support on WhatsApp to add a new product",
   "whatsapp": "WhatsApp",
   "suffix_name": "Vendor App",

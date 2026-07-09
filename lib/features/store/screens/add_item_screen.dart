@@ -3,17 +3,12 @@ import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shimmer_animation/shimmer_animation.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/label_widget.dart';
 import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
 import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
-import 'package:shoplancer_vendor/features/ai/widgets/ai_generator_bottom_sheet.dart';
 import 'package:shoplancer_vendor/features/ai/widgets/animated_border_container.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
@@ -24,9 +19,7 @@ import 'package:shoplancer_vendor/features/store/domain/models/variation_body_mo
 import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
 import 'package:shoplancer_vendor/common/models/config_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
-import 'package:shoplancer_vendor/helper/type_converter.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
@@ -227,6 +220,7 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
   }
 
+  // ignore: unused_element
   void _validateDiscount() {
     double price = double.tryParse(_priceController.text) ?? 0.0;
     double discount = double.tryParse(_discountController.text) ?? 0.0;

@@ -8,7 +8,6 @@ import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/banner/controllers/banner_controller.dart';
 import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
-import 'package:shoplancer_vendor/helper/url_validator.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
@@ -34,6 +33,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
   final List<TextEditingController> _titleController = [];
 
   final List<FocusNode> _titleFocusNode = [];
+  // ignore: unused_field
   final FocusNode _urlFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 

@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* سوق هاشم — Fresh grocery design system. All colors HSL. */
+
+@layer base {
+  :root {
+    --background: 60 20% 98%;
+    --foreground: 90 25% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 90 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 90 25% 12%;
+
+    /* Brand green (#466600) */
+    --primary: 78 100% 20%;
+    --primary-foreground: 60 30% 98%;
+    --primary-glow: 82 70% 38%;
+    --primary-soft: 82 50% 92%;
+
+    --secondary: 60 25% 95%;
+    --secondary-foreground: 90 25% 15%;
+
+    --muted: 60 15% 94%;
+    --muted-foreground: 90 10% 40%;
+
+    --accent: 24 90% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --discount: 0 75% 55%;
+    --discount-foreground: 0 0% 100%;
+
+    --fresh: 142 60% 42%;
+    --fresh-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 90 15% 88%;
+    --input: 90 15% 88%;
+    --ring: 78 100% 20%;
+
+    --radius: 1rem;
+
+    --gradient-hero: linear-gradient(135deg, hsl(78 100% 20%) 0%, hsl(82 70% 30%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(60 30% 99%) 0%, hsl(82 50% 96%) 100%);
+    --shadow-soft: 0 4px 20px -4px hsl(78 50% 20% / 0.08);
+    --shadow-card: 0 8px 30px -10px hsl(78 50% 20% / 0.12);
+    --shadow-glow: 0 10px 40px -10px hsl(78 100% 20% / 0.25);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    direction: rtl;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Tajawal', 'Cairo', system-ui, sans-serif;
+    overflow-x: clip;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  /* Fashion / clothing storefront hero — elegant boutique gradient
+     that reads the same on mobile and web. Uses the store's accent
+     primary color but with a deeper, runway-style backdrop. */
+  .gradient-hero-clothes {
+    background:
+      radial-gradient(120% 80% at 100% 0%, hsl(var(--primary) / 0.55) 0%, transparent 60%),
+      radial-gradient(100% 80% at 0% 100%, hsl(var(--accent) / 0.35) 0%, transparent 55%),
+      linear-gradient(135deg, hsl(260 35% 14%) 0%, hsl(260 30% 22%) 60%, hsl(var(--primary) / 0.85) 100%);
+  }
+
+  /* Hero overlay patterns — applied as an absolutely positioned div on top
+     of the hero so the underlying gradient + text remain crisp. Use
+     mix-blend-overlay + low opacity from the consumer. */
+  .hero-pattern-stripe {
+    background-image: repeating-linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.18) 0 10px,
+      transparent 10px 22px
+    );
+  }
+  .hero-pattern-flowers {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='white' stroke-opacity='0.55' stroke-width='1.2'><circle cx='40' cy='40' r='4'/><circle cx='40' cy='28' r='6'/><circle cx='40' cy='52' r='6'/><circle cx='28' cy='40' r='6'/><circle cx='52' cy='40' r='6'/></g></svg>");
+    background-size: 80px 80px;
+  }
+  .hero-pattern-denim {
+    background-image:
+      repeating-linear-gradient(45deg, hsl(220 60% 25% / 0.35) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(-45deg, hsl(220 60% 15% / 0.35) 0 2px, transparent 2px 5px);
+  }
+  .gradient-soft {
+    background: var(--gradient-soft);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/*
+ * Respect prefers-reduced-motion globally. Tailwind's `motion-reduce:` only
+ * applies when the class is added inline; this block is a safety net that
+ * neutralizes any animation/transition for users who opted out at the OS
+ * level (the marquee FeatureBar, hover transforms, etc.).
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
