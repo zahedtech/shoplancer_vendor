@@ -45,6 +45,7 @@ class SliderButton extends StatefulWidget {
 
   final bool disable;
   final bool? isLtr;
+  final bool isLoading;
   const SliderButton({
     super.key,
     required this.action,
@@ -72,6 +73,7 @@ class SliderButton extends StatefulWidget {
     this.dismissible = true,
     this.dismissThresholds = 1.0,
     this.disable = false,
+    this.isLoading = false,
   }) : assert(buttonSize <= height);
 
   @override
@@ -98,7 +100,7 @@ class SliderButtonState extends State<SliderButton> {
     height: widget.height,
     width: widget.width,
     decoration: BoxDecoration(
-      color: widget.disable ? Colors.grey.shade700 : widget.backgroundColor,
+      color: (widget.disable || widget.isLoading) ? Colors.grey.shade700 : widget.backgroundColor,
       borderRadius: BorderRadius.circular(widget.radius),
     ),
     alignment: Alignment.centerLeft,
@@ -107,19 +109,36 @@ class SliderButtonState extends State<SliderButton> {
       children: <Widget>[
         Container(
           alignment: widget.alignLabel,
-          child: widget.shimmer && !widget.disable ? Shimmer(
+          child: widget.shimmer && !widget.disable && !widget.isLoading ? Shimmer(
             color: widget.highlightedColor,
             child: widget.label!,
           ) : widget.label,
         ),
-        widget.disable ? Tooltip(
+        (widget.disable || widget.isLoading) ? Tooltip(
           verticalOffset: 50,
-          message: 'Button is disabled',
+          message: widget.isLoading ? 'Updating status...' : 'Button is disabled',
           child: Container(
             width: widget.width - (widget.height), height: widget.height,
             alignment: widget.isLtr! ? Alignment.centerLeft : Alignment.centerRight,
             padding: EdgeInsets.only(left: (widget.height - widget.buttonSize) / 2),
-            child: _child ?? Container(
+            child: widget.isLoading ? Container(
+              height: widget.buttonSize, width: widget.buttonSize,
+              decoration: BoxDecoration(
+                boxShadow: [widget.boxShadow],
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(widget.radius),
+              ),
+              child: const Center(
+                child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+              ),
+            ) : (_child ?? Container(
               height: widget.buttonSize, width: widget.buttonSize,
               decoration: BoxDecoration(
                 boxShadow: [widget.boxShadow],
@@ -127,7 +146,7 @@ class SliderButtonState extends State<SliderButton> {
                 borderRadius: BorderRadius.circular(widget.radius),
               ),
               child: Center(child: widget.icon),
-            ),
+            )),
           )) : Dismissible(
             key: const Key("cancel"),
             direction: DismissDirection.startToEnd,

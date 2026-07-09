@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/reports/domain/repositories/taxi_report_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/reports/domain/repositories/taxi_report_repository_interface.dart';
 
 class TaxiReportRepository implements TaxiReportRepositoryInterface {
   final ApiClient apiClient;
@@ -29,5 +29,4 @@ class TaxiReportRepository implements TaxiReportRepositoryInterface {
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

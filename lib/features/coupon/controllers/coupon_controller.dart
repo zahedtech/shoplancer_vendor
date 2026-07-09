@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/features/coupon/domain/models/coupon_body_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/coupon/domain/services/coupon_service_interface.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/models/coupon_body_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/services/coupon_service_interface.dart';
 
 class CouponController extends GetxController implements GetxService {
   final CouponServiceInterface couponServiceInterface;
@@ -16,6 +16,9 @@ class CouponController extends GetxController implements GetxService {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  final List<int> _loadingCouponList = [];
+  List<int> get loadingCouponList => _loadingCouponList;
 
   List<CouponBodyModel>? _coupons;
   List<CouponBodyModel>? get coupons => _coupons;
@@ -57,7 +60,15 @@ class CouponController extends GetxController implements GetxService {
   }
 
   Future<bool> changeStatus(int? couponId, bool status) async {
+    if (couponId != null) {
+      _loadingCouponList.add(couponId);
+      update();
+    }
     bool success = await couponServiceInterface.changeStatus(couponId, status ? 1 : 0);
+    if (couponId != null) {
+      _loadingCouponList.remove(couponId);
+    }
+    update();
     return success;
   }
 

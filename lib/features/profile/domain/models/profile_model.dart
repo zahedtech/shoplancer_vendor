@@ -1,4 +1,5 @@
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'dart:convert';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 class ProfileModel {
   int? id;
@@ -42,6 +43,7 @@ class ProfileModel {
   SubscriptionOtherData? subscriptionOtherData;
   bool? subscriptionTransactions;
   int? outOfStockCount;
+  double? totalCommissionCollected;
 
   ProfileModel({
     this.id,
@@ -85,6 +87,7 @@ class ProfileModel {
     this.subscriptionOtherData,
     this.subscriptionTransactions,
     this.outOfStockCount,
+    this.totalCommissionCollected,
   });
 
   ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -104,7 +107,7 @@ class ProfileModel {
     todaysOrderCount = json['todays_order_count'];
     thisWeekOrderCount = json['this_week_order_count'];
     thisMonthOrderCount = json['this_month_order_count'];
-    memberSinceDays = int.tryParse(json['member_since_days'].toString())??0;
+    memberSinceDays = int.tryParse(json['member_since_days'].toString()) ?? 0;
     cashInHands = json['cash_in_hands']?.toDouble();
     balance = json['balance']?.toDouble();
     totalEarning = json['total_earning']?.toDouble();
@@ -116,6 +119,43 @@ class ProfileModel {
       json['stores'].forEach((v) {
         stores!.add(Store.fromJson(v));
       });
+    }
+    if (stores != null && stores!.isNotEmpty) {
+      if (json['store_payment_methods'] != null) {
+        Map<int, Map<int, StorePaymentMethod>> storeMethodMap = {};
+        for (var method in json['store_payment_methods']) {
+          int? storeId = method['store_id'];
+          int? methodId = method['zone_payment_method_id'];
+          if (storeId == null || methodId == null) {
+            continue;
+          }
+          bool isActive =
+              method['is_active'] == true || method['is_active'] == 1;
+          Map<String, dynamic>? config;
+          if (method['config'] is Map) {
+            config = Map<String, dynamic>.from(method['config']);
+          } else if (method['config'] is String &&
+              (method['config'] as String).isNotEmpty) {
+            try {
+              config = Map<String, dynamic>.from(
+                jsonDecode(method['config'] as String),
+              );
+            } catch (_) {
+              config = null;
+            }
+          }
+          storeMethodMap.putIfAbsent(storeId, () => {});
+          storeMethodMap[storeId]![methodId] = StorePaymentMethod(
+            isActive: isActive,
+            configData: config,
+          );
+        }
+        for (var store in stores!) {
+          if (store.id != null && storeMethodMap[store.id] != null) {
+            store.paymentMethods = storeMethodMap[store.id];
+          }
+        }
+      }
     }
     if (json['roles'] != null) {
       roles = [];
@@ -143,9 +183,12 @@ class ProfileModel {
     if (json['subscription'] != null) {
       subscription = Subscription.fromJson(json['subscription']);
     }
-    subscriptionOtherData = json['subscription_other_data'] != null ? SubscriptionOtherData.fromJson(json['subscription_other_data']) : null;
+    subscriptionOtherData = json['subscription_other_data'] != null
+        ? SubscriptionOtherData.fromJson(json['subscription_other_data'])
+        : null;
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
+    totalCommissionCollected = json['total_commission_collected']?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
@@ -192,12 +235,14 @@ class ProfileModel {
     data['show_pay_now_button'] = showPayNowButton;
     data['subscription_transactions'] = subscriptionTransactions;
     data['out_of_stock_count'] = outOfStockCount;
+    data['total_commission_collected'] = totalCommissionCollected;
     return data;
   }
 }
 
 class Store {
   int? id;
+  String? slug;
   String? name;
   String? phone;
   String? email;
@@ -250,10 +295,17 @@ class Store {
   double? extraPackagingAmount;
   bool? isHalalActive;
   double? minimumStockForWarning;
+  Map<int, StorePaymentMethod>? paymentMethods;
   MetaSeoData? metaData;
+  String? tiktok;
+  String? instagram;
+  String? facebook;
+  String? whatsapp;
+  int? defaultBanner;
 
   Store({
     this.id,
+    this.slug,
     this.name,
     this.phone,
     this.email,
@@ -306,10 +358,17 @@ class Store {
     this.extraPackagingAmount,
     this.isHalalActive,
     this.minimumStockForWarning,
+    this.paymentMethods,
+    this.facebook,
+    this.instagram,
+    this.tiktok,
+    this.whatsapp,
+    this.defaultBanner,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    slug = json['slug'] ?? json['slug_name'];
     name = json['name'];
     phone = json['phone'];
     email = json['email'];
@@ -339,15 +398,21 @@ class Store {
     gstCode = json['gst_code'];
     selfDeliverySystem = json['self_delivery_system'];
     posSystem = json['pos_system'];
-    minimumShippingCharge = json['minimum_shipping_charge'] != null ? json['minimum_shipping_charge']?.toDouble() : 0.0;
+    minimumShippingCharge = json['minimum_shipping_charge'] != null
+        ? json['minimum_shipping_charge']?.toDouble()
+        : 0.0;
     maximumShippingCharge = json['maximum_shipping_charge']?.toDouble();
-    perKmShippingCharge = json['per_km_shipping_charge'] != null ? json['per_km_shipping_charge']?.toDouble() : 0.0;
+    perKmShippingCharge = json['per_km_shipping_charge'] != null
+        ? json['per_km_shipping_charge']?.toDouble()
+        : 0.0;
     deliveryTime = json['delivery_time'];
     veg = json['veg'];
     nonVeg = json['non_veg'];
     orderPlaceToScheduleInterval = json['order_place_to_schedule_interval'];
     module = json['module'] != null ? Module.fromJson(json['module']) : null;
-    discount = json['discount'] != null ? Discount.fromJson(json['discount']) : null;
+    discount = json['discount'] != null
+        ? Discount.fromJson(json['discount'])
+        : null;
     if (json['schedules'] != null) {
       schedules = <Schedules>[];
       json['schedules'].forEach((v) {
@@ -367,12 +432,56 @@ class Store {
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     isHalalActive = json['halal_tag_status'] ?? false;
     minimumStockForWarning = json['minimum_stock_for_warning']?.toDouble();
-    metaData = json['meta_data'] != null ? MetaSeoData.fromJson(json['meta_data']) : null;
+    facebook = json['facebook'];
+    instagram = json['instagram'];
+    tiktok = json['tiktok'];
+    whatsapp = json['whatsapp'];
+    if (json['methods'] != null) {
+      paymentMethods = {};
+      (json['methods'] as Map).forEach((key, value) {
+        int? methodId = int.tryParse(key.toString());
+        if (methodId != null) {
+          paymentMethods![methodId] = StorePaymentMethod.fromJson(value);
+        }
+      });
+    } else if (json['payment_methods'] != null) {
+      paymentMethods = {};
+      for (var method in json['payment_methods']) {
+        int? methodId = method['id'];
+        if (methodId == null) {
+          continue;
+        }
+        bool isActive =
+            method['pivot']?['is_active'] == 1 ||
+            method['pivot']?['is_active'] == true ||
+            method['is_active'] == 1 ||
+            method['is_active'] == true;
+        Map<String, dynamic>? config;
+        if (method['config_data'] is Map) {
+          config = Map<String, dynamic>.from(method['config_data']);
+        } else if (method['pivot']?['config'] is Map) {
+          config = Map<String, dynamic>.from(method['pivot']?['config']);
+        }
+        paymentMethods![methodId] = StorePaymentMethod(
+          isActive: isActive,
+          configData: config,
+        );
+      }
+    }
+    metaData = json['meta_data'] != null
+        ? MetaSeoData.fromJson(json['meta_data'])
+        : null;
+    defaultBanner = json['default_banner'] != null
+        ? int.tryParse(json['default_banner'].toString())
+        : (json['defalut_banner'] != null
+              ? int.tryParse(json['defalut_banner'].toString())
+              : null);
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['slug'] = slug;
     data['name'] = name;
     data['phone'] = phone;
     data['email'] = email;
@@ -431,10 +540,43 @@ class Store {
     data['extra_packaging_amount'] = extraPackagingAmount;
     data['halal_tag_status'] = isHalalActive;
     data['minimum_stock_for_warning'] = minimumStockForWarning;
+    data['facebook'] = facebook;
+    data['instagram'] = instagram;
+    data['tiktok'] = tiktok;
+    data['whatsapp'] = whatsapp;
+    if (paymentMethods != null) {
+      data['methods'] = paymentMethods!.map(
+        (key, value) => MapEntry(key.toString(), value.toJson()),
+      );
+    }
     if (metaData != null) {
       data['meta_data'] = metaData!.toJson();
     }
+    data['default_banner'] = defaultBanner;
     return data;
+  }
+}
+
+class StorePaymentMethod {
+  bool isActive;
+  Map<String, dynamic>? configData;
+
+  StorePaymentMethod({required this.isActive, this.configData});
+
+  factory StorePaymentMethod.fromJson(dynamic json) {
+    if (json == null) {
+      return StorePaymentMethod(isActive: false);
+    }
+    return StorePaymentMethod(
+      isActive: json['is_active'] == 1 || json['is_active'] == true,
+      configData: json['config_data'] != null
+          ? Map<String, dynamic>.from(json['config_data'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'is_active': isActive ? 1 : 0, 'config_data': configData};
   }
 }
 
@@ -462,7 +604,7 @@ class MetaSeoData {
     this.metaMaxSnippetValue,
     this.metaMaxVideoPreview,
     this.metaMaxImagePreviewValue,
-    this.metaMaxVideoPreviewValue
+    this.metaMaxVideoPreviewValue,
   });
 
   MetaSeoData.fromJson(Map<String, dynamic> json) {
@@ -495,7 +637,6 @@ class MetaSeoData {
     return data;
   }
 }
-
 
 class EmployeeInfo {
   int? id;
@@ -753,7 +894,9 @@ class Subscription {
     isCanceled = json['is_canceled'];
     canceledBy = json['canceled_by'];
     validity = json['validity'];
-    package = json['package'] != null ? Package.fromJson(json['package']) : null;
+    package = json['package'] != null
+        ? Package.fromJson(json['package'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {

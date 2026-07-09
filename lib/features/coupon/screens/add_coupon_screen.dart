@@ -2,19 +2,19 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/features/coupon/controllers/coupon_controller.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/coupon/domain/models/coupon_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/text_field_widget.dart';
+import 'package:shoplancer_vendor/features/coupon/controllers/coupon_controller.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/models/coupon_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/text_field_widget.dart';
 
 import '../../../common/widgets/custom_text_field_widget.dart';
 import '../../ai/widgets/animated_border_container.dart';
@@ -45,15 +45,15 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
   final FocusNode _discountNode = FocusNode();
   final FocusNode _maxDiscountNode = FocusNode();
   final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
-  TabController? _tabController;
-  final List<Tab> _tabs =[];
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
-    _tabs.addAll(_languageList.map((lang) => Tab(text: lang.value)));
+    for (var language in _languageList!) {
+      _titleController.add(TextEditingController());
+      _titleNode.add(FocusNode());
+    }
 
     if(widget.coupon != null){
       List<Translation> translation = widget.coupon!.translations!;
@@ -61,10 +61,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
         Translation? languageTranslation = translation.firstWhereOrNull(
           (trans) => trans.locale == _languageList[index].key,
         );
-        _titleController.add(TextEditingController(
-          text: languageTranslation?.value ?? '',
-        ));
-        _titleNode.add(FocusNode());
+        _titleController[index].text = languageTranslation?.value ?? '';
       }
       _codeController.text = widget.coupon!.code!;
       _limitController.text = widget.coupon!.limit != null ? widget.coupon!.limit.toString() : '';
@@ -75,14 +72,6 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
       _minPurchaseController.text = widget.coupon!.minPurchase.toString();
       Get.find<CouponController>().setCouponTypeIndex(widget.coupon!.couponType == 'default' ? 0 : 1 , false);
       Get.find<CouponController>().setDiscountTypeIndex(widget.coupon!.discountType == 'percent' ? 0 : 1, false);
-    }else{
-      for (var language in _languageList) {
-        if (kDebugMode) {
-          print(language);
-        }
-        _titleController.add(TextEditingController());
-        _titleNode.add(FocusNode());
-      }
     }
   }
   @override
@@ -117,45 +106,14 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
                       color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall)
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            controller: _tabController,
-                            indicatorColor: Theme.of(context).primaryColor,
-                            indicatorWeight: 3,
-                            labelColor: Theme.of(context).primaryColor,
-                            unselectedLabelColor: Theme.of(context).disabledColor,
-                            unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                            labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor),
-                            labelPadding: const EdgeInsets.only(right: Dimensions.radiusDefault),
-                            isScrollable: true,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            tabs: _tabs,
-                            onTap: (int ? value) {
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                          child: Divider(height: 0),
-                        ),
-
-                        CustomTextFieldWidget(
-                          hintText: 'coupon_name'.tr,
-                          labelText: 'coupon'.tr,
-                          controller: _titleController[_tabController!.index],
-                          capitalization: TextCapitalization.words,
-                          focusNode: _titleNode[_tabController!.index],
-                          showTitle: false,
-                          required: true,
-                        ),
-
-                      ],
+                    child: CustomTextFieldWidget(
+                      hintText: 'coupon_name'.tr,
+                      labelText: 'coupon'.tr,
+                      controller: _titleController[0],
+                      capitalization: TextCapitalization.words,
+                      focusNode: _titleNode[0],
+                      showTitle: false,
+                      required: true,
                     ),
                   ),
 
@@ -447,8 +405,7 @@ class _AddCouponScreenState extends State<AddCouponScreen> with TickerProviderSt
                       for(int index=0; index<_languageList!.length; index++) {
                         translation.add(Translation(
                           locale: _languageList[index].key, key: 'title',
-                          value: _titleController[index].text.trim().isNotEmpty ? _titleController[index].text.trim()
-                              : _titleController[0].text.trim(),
+                          value: _titleController[0].text.trim(),
                         ));
                       }
                       if(widget.coupon == null){

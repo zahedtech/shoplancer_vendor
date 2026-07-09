@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/coupon/domain/models/coupon_body_model.dart';
-import 'package:sixam_mart_store/features/coupon/domain/repositories/coupon_repository_interface.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/models/coupon_body_model.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/repositories/coupon_repository_interface.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class CouponRepository implements CouponRepositoryInterface {
   final ApiClient apiClient;

@@ -1,9 +1,9 @@
-import 'package:sixam_mart_store/features/payment/controllers/payment_controller.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/bank_info_body_model.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/payment/widgets/bank_field_widget.dart';
+import 'package:shoplancer_vendor/features/payment/controllers/payment_controller.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/bank_info_body_model.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/payment/widgets/bank_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,8 +1,8 @@
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/repositories/profile_repository_interface.dart';
-import 'package:sixam_mart_store/features/profile/domain/services/profile_service_interface.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/profile/domain/repositories/profile_repository_interface.dart';
+import 'package:shoplancer_vendor/features/profile/domain/services/profile_service_interface.dart';
 
 class ProfileService implements ProfileServiceInterface {
   final ProfileRepositoryInterface profileRepositoryInterface;

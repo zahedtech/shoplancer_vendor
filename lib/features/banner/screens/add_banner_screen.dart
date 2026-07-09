@@ -2,30 +2,34 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/banner/controllers/banner_controller.dart';
-import 'package:sixam_mart_store/features/banner/domain/models/store_banner_list_model.dart';
-import 'package:sixam_mart_store/helper/url_validator.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/banner/controllers/banner_controller.dart';
+import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
+import 'package:shoplancer_vendor/helper/url_validator.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 class AddBannerScreen extends StatefulWidget {
-final StoreBannerListModel? storeBannerListModel;
-const AddBannerScreen({super.key, this.storeBannerListModel});
+  final StoreBannerListModel? storeBannerListModel;
+  const AddBannerScreen({super.key, this.storeBannerListModel});
 
   @override
   State<AddBannerScreen> createState() => _AddBannerScreenState();
 }
 
-class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderStateMixin {
+class _AddBannerScreenState extends State<AddBannerScreen>
+    with TickerProviderStateMixin {
+  static const String _bannerTypeImage = 'image';
+  static const String _bannerTypeText = 'text';
+
   final TextEditingController _urlController = TextEditingController();
   final List<TextEditingController> _titleController = [];
 
@@ -33,12 +37,11 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
   final FocusNode _urlFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
-
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
+  final List<Language>? _languageList =
+      Get.find<SplashController>().configModel!.language;
 
   late bool _update;
+  late String _bannerType;
   StoreBannerListModel? _storeBannerListModel;
 
   @override
@@ -47,274 +50,631 @@ class _AddBannerScreenState extends State<AddBannerScreen> with TickerProviderSt
     Get.find<StoreController>().pickImage(true, true);
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
+    _bannerType = widget.storeBannerListModel?.type ?? _bannerTypeImage;
 
-    _tabController = TabController(length: _languageList!.length, vsync: this);
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
-
-    if(_update) {
-      List<Translation> translation = _storeBannerListModel!.translations!;
-      for(int index = 0; index<_languageList.length; index++) {
-        _titleController.add(TextEditingController(
-          text: translation.isNotEmpty ? translation[index].value : '',
-        ));
+    if (_update) {
+      List<Translation> translation = _storeBannerListModel?.translations ?? [];
+      for (int index = 0; index < _languageList!.length; index++) {
+        _titleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
-        for (var translation in widget.storeBannerListModel!.translations!) {
-          if(_languageList[index].key == translation.locale && translation.key == 'name') {
-            _titleController[index] = TextEditingController(text: translation.value);
+        if (translation.isNotEmpty) {
+          for (var t in translation) {
+            if (_languageList[index].key == t.locale && t.key == 'title') {
+              _titleController[index].text = t.value ?? '';
+            }
           }
         }
+
+        if (_titleController[index].text.isEmpty && index == 0) {
+          _titleController[index].text = _storeBannerListModel?.title ?? '';
+        }
       }
-      _urlController.text = widget.storeBannerListModel!.defaultLink ?? '';
-    }else{
-      for(int index = 0; index<_languageList.length; index++) {
+    } else {
+      for (int index = 0; index < _languageList!.length; index++) {
         _titleController.add(TextEditingController());
         _titleFocusNode.add(FocusNode());
       }
       _storeBannerListModel = StoreBannerListModel();
     }
+    _urlController.text = widget.storeBannerListModel?.defaultLink ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWidget(title: _update ? 'update_banner'.tr : 'add_banner'.tr),
+      appBar: CustomAppBarWidget(
+        title: _update ? 'update_banner'.tr : 'add_banner'.tr,
+      ),
 
-      body: GetBuilder<BannerController>(builder: (bannerController) {
-        return GetBuilder<StoreController>(builder: (storeController) {
-          return Column(children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      RichText(text: TextSpan(
-                        children: [
-                          TextSpan(text: 'title'.tr, style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),
-                          TextSpan(text: ' *'.tr, style: robotoMedium.copyWith(color: Colors.red)),
-                        ],
-                      )),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Container(
-                      padding: const EdgeInsets.only(
-                        left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault,
-                        top: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeDefault,
+      body: GetBuilder<BannerController>(
+        builder: (bannerController) {
+          return GetBuilder<StoreController>(
+            builder: (storeController) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        Dimensions.paddingSizeDefault,
                       ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                        border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
-                      ),
-                      child: Column(children: [
+                      child: Form(
+                        key: _formKey,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('banner'.tr, style: robotoBold),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeSmall,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeSmall,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    Dimensions.radiusDefault,
+                                  ),
+                                  border: Border.all(
+                                    color: Theme.of(
+                                      context,
+                                    ).disabledColor.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _bannerType = _bannerTypeImage;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical:
+                                                Dimensions.paddingSizeSmall,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              Dimensions.radiusDefault,
+                                            ),
+                                            color:
+                                                _bannerType == _bannerTypeImage
+                                                ? Theme.of(context).primaryColor
+                                                : Colors.transparent,
+                                            border: Border.all(
+                                              color: Theme.of(context)
+                                                  .disabledColor
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'image'.tr,
+                                              style: robotoMedium.copyWith(
+                                                color:
+                                                    _bannerType ==
+                                                        _bannerTypeImage
+                                                    ? Colors.white
+                                                    : Theme.of(context)
+                                                          .textTheme
+                                                          .bodyLarge
+                                                          ?.color,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: Dimensions.paddingSizeSmall,
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _bannerType = _bannerTypeText;
+                                            storeController.pickImage(
+                                              true,
+                                              true,
+                                            );
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical:
+                                                Dimensions.paddingSizeSmall,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              Dimensions.radiusDefault,
+                                            ),
+                                            color:
+                                                _bannerType == _bannerTypeText
+                                                ? Theme.of(context).primaryColor
+                                                : Colors.transparent,
+                                            border: Border.all(
+                                              color: Theme.of(context)
+                                                  .disabledColor
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'text'.tr,
+                                              style: robotoMedium.copyWith(
+                                                color:
+                                                    _bannerType ==
+                                                        _bannerTypeText
+                                                    ? Colors.white
+                                                    : Theme.of(context)
+                                                          .textTheme
+                                                          .bodyLarge
+                                                          ?.color,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeLarge,
+                              ),
 
-                        SizedBox(
-                          height: 40,
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            controller: _tabController,
-                            indicatorColor: Theme.of(context).textTheme.bodyLarge?.color,
-                            indicatorWeight: 3,
-                            labelColor: Theme.of(context).textTheme.bodyLarge?.color,
-                            unselectedLabelColor: Theme.of(context).disabledColor,
-                            unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                            labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                            labelPadding: const EdgeInsets.only(right: Dimensions.radiusDefault),
-                            isScrollable: true,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            tabs: _tabs,
-                            onTap: (int ? value) {
-                              setState(() {});
-                            },
+                              if (_bannerType == _bannerTypeText) ...[
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'title'.tr,
+                                        style: robotoBold.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).textTheme.bodyLarge?.color,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: ' *'.tr,
+                                        style: robotoMedium.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withValues(alpha: 0.2),
+                                    ),
+                                  ),
+                                  child: CustomTextFieldWidget(
+                                    hintText: 'enter_title'.tr,
+                                    showLabelText: false,
+                                    controller: _titleController[0],
+                                    capitalization: TextCapitalization.words,
+                                    focusNode: _titleFocusNode[0],
+                                    inputAction: TextInputAction.done,
+                                    showTitle: false,
+                                    required: true,
+                                    onChanged: (value) {
+                                      setState(() {});
+                                    },
+                                    validator: (value) {
+                                      if (_bannerType == _bannerTypeText) {
+                                        if (value == null || value.trim().isEmpty) {
+                                          return 'enter_title'.tr;
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
+                                ),
+
+                                // Real-Time Preview
+                                Text('live_preview'.tr, style: robotoBold),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+                                  Container(
+                                    height: 125,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Theme.of(context).primaryColor,
+                                          Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
+                                    ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        top: -20,
+                                        right: -20,
+                                        child: Container(
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white.withValues(alpha: 0.08),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: -30,
+                                        left: 10,
+                                        child: Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white.withValues(alpha: 0.05),
+                                          ),
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              _titleController[0].text.isEmpty ? 'your_banner_text_here'.tr : _titleController[0].text,
+                                              textAlign: TextAlign.center,
+                                              style: robotoBold.copyWith(
+                                                fontSize: 24,
+                                                color: Colors.white,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black.withValues(alpha: 0.25),
+                                                    offset: const Offset(0, 2),
+                                                    blurRadius: 4,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 6,
+                                                height: 6,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.greenAccent,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'live'.tr.toUpperCase(),
+                                                style: robotoMedium.copyWith(
+                                                  fontSize: 8,
+                                                  color: Colors.white,
+                                                  letterSpacing: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
+                                ),
+                              ],
+
+                              if (_bannerType == _bannerTypeImage) ...[
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'upload_banner'.tr,
+                                        style: robotoBold.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).textTheme.bodyLarge?.color,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: ' *'.tr,
+                                        style: robotoMedium.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+
+                                Container(
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      DottedBorder(
+                                        options: RoundedRectDottedBorderOptions(
+                                          color: Theme.of(context).disabledColor
+                                              .withValues(alpha: 0.5),
+                                          strokeWidth: 1,
+                                          radius: const Radius.circular(
+                                            Dimensions.radiusSmall,
+                                          ),
+                                        ),
+                                        child: SizedBox(
+                                          height: 125,
+                                          width: Get.width,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            child: Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        Dimensions.radiusSmall,
+                                                      ),
+                                                  child:
+                                                      storeController.rawLogo !=
+                                                          null
+                                                      ? GetPlatform.isWeb
+                                                            ? Image.network(
+                                                                storeController
+                                                                    .rawLogo!
+                                                                    .path,
+                                                                width:
+                                                                    Get.width,
+                                                                height: 125,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              )
+                                                            : Image.file(
+                                                                File(
+                                                                  storeController
+                                                                          .rawLogo
+                                                                          ?.path ??
+                                                                      '',
+                                                                ),
+                                                                width:
+                                                                    Get.width,
+                                                                height: 125,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              )
+                                                      : widget.storeBannerListModel ==
+                                                            null
+                                                      ? SizedBox(
+                                                          width: context.width,
+                                                          height: 125,
+                                                        )
+                                                      : CustomImageWidget(
+                                                          image:
+                                                              widget
+                                                                  .storeBannerListModel
+                                                                  ?.imageFullUrl ??
+                                                              '',
+                                                          height: 125,
+                                                          width: Get.width,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                ),
+
+                                                Positioned(
+                                                  right: 0,
+                                                  left: 0,
+                                                  top: 0,
+                                                  bottom: 0,
+                                                  child: InkWell(
+                                                    onTap: () => storeController
+                                                        .pickImage(true, false),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        if (storeController
+                                                                    .rawLogo ==
+                                                                null &&
+                                                            (widget
+                                                                        .storeBannerListModel
+                                                                        ?.imageFullUrl ==
+                                                                    null ||
+                                                                widget
+                                                                    .storeBannerListModel!
+                                                                    .imageFullUrl!
+                                                                    .isEmpty)) ...[
+                                                          const Icon(
+                                                            Icons.cloud_upload,
+                                                            color: Colors.teal,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: Dimensions
+                                                                .paddingSizeSmall,
+                                                          ),
+                                                          Text(
+                                                            "drag_drop_file_or_browse_file"
+                                                                .tr,
+                                                            style: robotoRegular.copyWith(
+                                                              color: Theme.of(
+                                                                context,
+                                                              ).disabledColor,
+                                                              fontSize: Dimensions
+                                                                  .fontSizeSmall,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: Dimensions.paddingSizeDefault,
+                                      ),
+
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          "banner_images_ration_3:1".tr,
+                                          style: robotoMedium.copyWith(
+                                            fontSize: Dimensions.fontSizeSmall,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraSmall,
+                                      ),
+
+                                      Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          "image_format_maximum_size_2mb".tr,
+                                          style: robotoRegular.copyWith(
+                                            fontSize: Dimensions.fontSizeSmall,
+                                            color: Theme.of(context)
+                                                .disabledColor
+                                                .withValues(alpha: 0.5),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                          child: Divider(height: 0),
-                        ),
-
-                        CustomTextFieldWidget(
-                          hintText: 'enter_title'.tr,
-                          showLabelText: false,
-                          controller: _titleController[_tabController!.index],
-                          capitalization: TextCapitalization.words,
-                          focusNode: _titleFocusNode[_tabController!.index],
-                          nextFocus: _tabController!.index == _languageList!.length-1 ? _urlFocusNode : _titleFocusNode[_tabController!.index+1],
-                          showTitle: false,
-                          required: true,
-                          validator: (value) {
-                            if (_tabController!.index == 0 && (value == null || value.trim().isEmpty)) {
-                              return 'enter_title'.tr;
-                            }
-                            return null;
-                          },
-                        ),
-
-                      ]),
-                    ),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                    RichText(text: TextSpan(
-                      children: [
-                        TextSpan(text: 'redirection_url_link'.tr, style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),
-                        TextSpan(text: ' *', style: robotoBold.copyWith(color: Colors.red)),
-                      ],
-                    )),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Container(
-                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                        border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
                       ),
-                      child: CustomTextFieldWidget(
-                        hintText: 'enter_url'.tr,
-                        showLabelText: false,
-                        controller: _urlController,
-                        focusNode: _urlFocusNode,
-                        inputType: TextInputType.url,
-                        inputAction: TextInputAction.done,
-                        required: true,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'enter_url'.tr;
-                          } else if (!UrlValidator.isValidUrl(value.trim())) {
-                            return 'enter_valid_url'.tr;
+                    ),
+                  ),
+
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        Dimensions.paddingSizeSmall,
+                      ),
+                      child: CustomButtonWidget(
+                        isLoading: bannerController.isLoading,
+                        buttonText: _update
+                            ? 'update_banner'.tr
+                            : 'add_banner'.tr,
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            bool isImageBanner =
+                                _bannerType == _bannerTypeImage;
+                            if (isImageBanner &&
+                                !_update &&
+                                storeController.rawLogo == null) {
+                              showCustomSnackBar('upload_a_banner'.tr);
+                            } else {
+                              List<Translation> translations = [];
+                              String titleText = isImageBanner
+                                  ? 'Banner Image'
+                                  : _titleController[0].text.trim();
+                              String defaultLinkText = 'https://example.com';
+
+                              for (
+                                int index = 0;
+                                index < _languageList!.length;
+                                index++
+                              ) {
+                                translations.add(
+                                  Translation(
+                                    locale: _languageList[index].key,
+                                    key: 'title',
+                                    value: titleText,
+                                  ),
+                                );
+                              }
+                              _storeBannerListModel?.id =
+                                  _storeBannerListModel?.id;
+                              _storeBannerListModel?.translations = [];
+                              _storeBannerListModel?.translations!.addAll(
+                                translations,
+                              );
+                              _storeBannerListModel?.defaultLink = defaultLinkText;
+                              _storeBannerListModel?.type = _bannerType;
+                              if (_update) {
+                                bannerController.updateBanner(
+                                  banner: _storeBannerListModel,
+                                  image: isImageBanner ? storeController.rawLogo : null,
+                                );
+                              } else {
+                                bannerController.addBanner(
+                                  banner: _storeBannerListModel,
+                                  image: isImageBanner ? storeController.rawLogo : null,
+                                );
+                              }
+                            }
                           }
-                          return null;
                         },
                       ),
                     ),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                    RichText(text: TextSpan(
-                      children: [
-                        TextSpan(text: 'upload_banner'.tr, style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),
-                        TextSpan(text: ' *'.tr, style: robotoMedium.copyWith(color: Colors.red)),
-                      ],
-                    )),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Container(
-                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                        border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
-                      ),
-                      child: Column(children: [
-
-                        DottedBorder(
-                          options: RoundedRectDottedBorderOptions(
-                            color: Theme.of(context).disabledColor.withValues(alpha: 0.5),
-                            strokeWidth: 1,
-                            radius: const Radius.circular(Dimensions.radiusSmall),
-                          ),
-                          child: SizedBox(
-                            height: 125, width: Get.width,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Stack(children: [
-
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                  child: storeController.rawLogo != null ? GetPlatform.isWeb ? Image.network(
-                                    storeController.rawLogo!.path, width: Get.width, height: 125, fit: BoxFit.cover,
-                                  ) : Image.file(
-                                    File(storeController.rawLogo?.path ?? ''), width: Get.width, height: 125, fit: BoxFit.cover,
-                                  ) : widget.storeBannerListModel == null ? SizedBox(width: context.width, height: 125) : CustomImageWidget(
-                                    image: widget.storeBannerListModel?.imageFullUrl ?? '',
-                                    height: 125, width: Get.width, fit: BoxFit.cover,
-                                  ),
-                                ),
-
-                                Positioned(
-                                  right: 0, left: 0, top: 0, bottom: 0,
-                                  child: InkWell(
-                                    onTap: () => storeController.pickImage(true, false),
-                                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                      if (storeController.rawLogo == null && (widget.storeBannerListModel?.imageFullUrl == null || widget.storeBannerListModel!.imageFullUrl!.isEmpty)) ...[
-                                        const Icon(Icons.cloud_upload, color: Colors.teal),
-                                        const SizedBox(height: Dimensions.paddingSizeSmall),
-                                        Text("drag_drop_file_or_browse_file".tr,
-                                          style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                                        ),
-                                      ],
-                                    ]),
-                                  ),
-                                ),
-
-                              ]),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            "banner_images_ration_3:1".tr,
-                            style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-                          ),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            "image_format_maximum_size_2mb".tr,
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
-                          ),
-                        ),
-
-                      ]),
-                    ),
-
-                  ]),
-                ),
-              ),
-            ),
-          ),
-
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                child: CustomButtonWidget(
-                  isLoading: bannerController.isLoading,
-                  buttonText: _update ? 'update_banner'.tr : 'add_banner'.tr,
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      if (!_update && storeController.rawLogo == null) {
-                        showCustomSnackBar('upload_a_banner'.tr);
-                      } else {
-                        List<Translation> translations = [];
-                        for(int index = 0; index < _languageList.length; index++) {
-                          translations.add(Translation(
-                            locale: _languageList[index].key, key: 'name',
-                            value: _titleController[index].text.trim().isNotEmpty ? _titleController[index].text.trim() : _titleController[0].text.trim(),
-                          ));
-                        }
-                        _storeBannerListModel?.id = _storeBannerListModel?.id;
-                        _storeBannerListModel?.translations = [];
-                        _storeBannerListModel?.translations!.addAll(translations);
-                        _storeBannerListModel?.defaultLink = _urlController.text.trim();
-                        if(_update){
-                          bannerController.updateBanner(banner: _storeBannerListModel, image: storeController.rawLogo);
-                        }else{
-                          bannerController.addBanner(banner: _storeBannerListModel, image: storeController.rawLogo!);
-                        }
-                      }
-                    }
-                  },
-                ),
-              ),
-            ),
-          ]);
-        });
-      }),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -1,18 +1,19 @@
-import 'package:sixam_mart_store/features/auth/controllers/auth_controller.dart';
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
-import 'package:sixam_mart_store/features/language/widgets/language_bottom_sheet_widget.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/menu/domain/models/menu_model.dart';
-import 'package:sixam_mart_store/features/subscription/controllers/subscription_controller.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/confirmation_dialog_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/language/widgets/language_bottom_sheet_widget.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/menu/domain/models/menu_model.dart';
+import 'package:shoplancer_vendor/features/subscription/controllers/subscription_controller.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MenuButtonWidget extends StatelessWidget {
   final MenuModel menu;
@@ -33,6 +34,11 @@ class MenuButtonWidget extends StatelessWidget {
         }else if(menu.isLanguage){
           Get.back();
           _manageLanguageFunctionality();
+        } else if(menu.isWhatsApp) {
+          Get.back();
+          if(await canLaunchUrl(Uri.parse(menu.route))) {
+            await launchUrl(Uri.parse(menu.route), mode: LaunchMode.externalApplication);
+          }
         } else {
           if (isLogout) {
             Get.back();
@@ -49,12 +55,12 @@ class MenuButtonWidget extends StatelessWidget {
             }
           } else {
             if(menu.route == RouteHelper.mySubscription) {
-              Get.offNamed(menu.route);
+              Get.toNamed(menu.route);
             } else {
               if (!Get.find<SubscriptionController>().isTrialEndModalShown) {
                 Get.find<SubscriptionController>().trialEndBottomSheet().then((trialEnd) {
                   if(trialEnd) {
-                    Get.offNamed(menu.route);
+                    Get.toNamed(menu.route);
                   }else {
                     Get.find<SubscriptionController>().setTrialEndModalShown(true);
                   }

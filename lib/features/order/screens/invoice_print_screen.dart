@@ -5,15 +5,15 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:get/get.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/language/controllers/language_controller.dart';
-import 'package:sixam_mart_store/features/order/controllers/order_controller.dart';
-import 'package:sixam_mart_store/features/order/widgets/invoice_dialog_widget.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_details_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
+import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
+import 'package:shoplancer_vendor/features/order/widgets/invoice_dialog_widget.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_details_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:image/image.dart' as img;
 
 class InVoicePrintScreen extends StatefulWidget {

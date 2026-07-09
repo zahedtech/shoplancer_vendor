@@ -1,5 +1,5 @@
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_report_model.dart' as report;
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_report_model.dart' as report;
 
 abstract class DisbursementServiceInterface {
   Future<bool> addWithdraw(Map<String?, String> data);

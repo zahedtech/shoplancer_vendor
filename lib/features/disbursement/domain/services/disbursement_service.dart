@@ -1,7 +1,7 @@
-import 'package:sixam_mart_store/features/disbursement/domain/repositories/disbursement_repository_interface.dart';
-import 'package:sixam_mart_store/features/disbursement/domain/services/disbursement_service_interface.dart';
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
-import 'package:sixam_mart_store/features/disbursement/domain/models/disbursement_report_model.dart' as report;
+import 'package:shoplancer_vendor/features/disbursement/domain/repositories/disbursement_repository_interface.dart';
+import 'package:shoplancer_vendor/features/disbursement/domain/services/disbursement_service_interface.dart';
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_method_model.dart' as disburse;
+import 'package:shoplancer_vendor/features/disbursement/domain/models/disbursement_report_model.dart' as report;
 
 class DisbursementService implements DisbursementServiceInterface {
   final DisbursementRepositoryInterface disbursementRepositoryInterface;

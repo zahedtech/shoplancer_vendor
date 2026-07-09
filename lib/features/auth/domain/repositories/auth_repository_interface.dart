@@ -1,12 +1,14 @@
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/business/domain/models/package_model.dart';
-import 'package:sixam_mart_store/interface/repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
+import 'package:shoplancer_vendor/interface/repository_interface.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 
 abstract class AuthRepositoryInterface implements RepositoryInterface {
-  Future<dynamic> login(String? email, String password, String type);
+  Future<dynamic> login(String? phone, String password, String type);
   Future<dynamic> registerRestaurant(Map<String, String> data, XFile? logo, XFile? cover, List<MultipartDocument> tinFiles);
+  Future<ResponseModel> checkSlug(String slug);
   Future<dynamic> updateToken();
   Future<bool> saveUserToken(String token, String zoneTopic, String type);
   String getUserToken();

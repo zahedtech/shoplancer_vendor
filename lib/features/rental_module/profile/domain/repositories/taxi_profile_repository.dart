@@ -1,11 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/features/rental_module/profile/domain/repositories/taxi_profile_repository_interface.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/features/rental_module/profile/domain/repositories/taxi_profile_repository_interface.dart';
 
 class TaxiProfileRepository implements TaxiProfileRepositoryInterface {
   final ApiClient apiClient;
   final SharedPreferences sharedPreferences;
-  TaxiProfileRepository({required this.apiClient, required this.sharedPreferences});
+  TaxiProfileRepository({
+    required this.apiClient,
+    required this.sharedPreferences,
+  });
 
   @override
   Future add(value) {
@@ -31,5 +34,4 @@ class TaxiProfileRepository implements TaxiProfileRepositoryInterface {
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

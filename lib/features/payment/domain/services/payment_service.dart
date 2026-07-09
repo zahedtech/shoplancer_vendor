@@ -1,9 +1,9 @@
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/wallet_payment_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/widthdrow_method_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/withdraw_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/repositories/payment_repository_interface.dart';
-import 'package:sixam_mart_store/features/payment/domain/services/payment_service_interface.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/wallet_payment_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/withdraw_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/repositories/payment_repository_interface.dart';
+import 'package:shoplancer_vendor/features/payment/domain/services/payment_service_interface.dart';
 
 class PaymentService implements PaymentServiceInterface {
   final PaymentRepositoryInterface paymentRepositoryInterface;

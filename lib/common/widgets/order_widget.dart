@@ -1,107 +1,213 @@
-import 'package:sixam_mart_store/common/widgets/custom_ink_well_widget.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/price_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:ui' as ui;
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderWidget extends StatelessWidget {
   final OrderModel orderModel;
   final bool hasDivider;
   final bool isRunning;
   final bool showStatus;
-  const OrderWidget({super.key, required this.orderModel, required this.hasDivider, required this.isRunning, this.showStatus = false});
+  const OrderWidget({
+    super.key,
+    required this.orderModel,
+    required this.hasDivider,
+    required this.isRunning,
+    this.showStatus = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        color: Theme.of(context).cardColor,
-        border: Border.all(color: Theme.of(context).hintColor.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4)),
-        ],
-      ),
-      child: CustomInkWellWidget(
-        onTap: () => Get.toNamed(RouteHelper.getOrderDetailsRoute(orderModel.id)),
-        radius: Dimensions.radiusDefault,
-        child: Padding(
-          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          child: Column(children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    bool isCommissionLimitReached = false;
+    if (Get.isRegistered<ProfileController>()) {
+      isCommissionLimitReached =
+          (Get.find<ProfileController>()
+                  .profileModel
+                  ?.totalCommissionCollected ??
+              0) >=
+          500;
+    }
+
+    Widget childWidget = Column(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(children: [
-                      Text('order'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
-                      Text(' # ${orderModel.id}', style: robotoBold),
-                      Text(' (${orderModel.detailsCount} ${orderModel.detailsCount! < 2 ? 'item'.tr : 'items'.tr})', style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
-                    ]),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-                      decoration: BoxDecoration(
-                        color: orderModel.orderStatus == 'pending' ? Colors.blueAccent.withValues(alpha: 0.1) : orderModel.orderStatus == 'confirmed' ? Colors.teal.withValues(alpha: 0.1) : orderModel.orderStatus == 'delivered' ? Colors.indigo.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        orderModel.orderStatus! == 'picked_up' ? 'item'.tr + ' ' + 'on_the_way'.tr : orderModel.orderStatus!.tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeExtraSmall,
-                          color: orderModel.orderStatus == 'pending' ? Colors.blueAccent : orderModel.orderStatus == 'confirmed' ? Colors.teal : orderModel.orderStatus == 'delivered' ? Colors.indigo : Colors.red,
-                        ),
+                    Text(
+                      'order'.tr,
+                      style: robotoRegular.copyWith(
+                        color: Theme.of(context).hintColor,
                       ),
                     ),
+                    Text(' # ${orderModel.id}', style: robotoBold),
                   ],
                 ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                 Text(
-                  DateConverterHelper.utcToDateTime(orderModel.createdAt!),
-                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.5)),
+                  DateConverterHelper.orderCardDate(orderModel.createdAt!),
+                  style: robotoRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
               ],
             ),
-            Divider(),
+            const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                Text(
-                  'order_type'.tr,
-                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                Text(
-                  orderModel.orderType == 'delivery' ? 'home_delivery'.tr : orderModel.orderType!.tr,
-                  style: robotoMedium.copyWith(
-                    fontSize: Dimensions.fontSizeSmall,
-                    color: orderModel.orderType == 'delivery' ? Colors.indigo : orderModel.orderType == 'take_away' ? Colors.orangeAccent : Theme.of(context).primaryColor,
+            //Customer name
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "customer_name".tr,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge!.color!.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                      Flexible(
+                        child: Text(
+                          orderModel.customer?.fName ??
+                              orderModel.deliveryAddress!.contactPersonName ??
+                              "Unknown",
+                          style: robotoMedium.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme.of(context).textTheme.bodyLarge!.color!
+                                .withValues(alpha: 0.5),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(width: Dimensions.paddingSizeSmall),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeSmall,
+                    vertical: Dimensions.paddingSizeExtraSmall,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        (orderModel.orderStatus == 'pending' ||
+                            (orderModel.moduleType == 'grocery' &&
+                                (orderModel.orderStatus == 'confirmed' ||
+                                    orderModel.orderStatus == 'processing' ||
+                                    orderModel.orderStatus == 'cooking')))
+                        ? Colors.blueAccent.withValues(alpha: 0.1)
+                        : (orderModel.orderStatus == 'confirmed' ||
+                              orderModel.orderStatus == 'processing' ||
+                              orderModel.orderStatus == 'cooking')
+                        ? Colors.teal.withValues(alpha: 0.1)
+                        : orderModel.orderStatus == 'delivered'
+                        ? Colors.indigo.withValues(alpha: 0.1)
+                        : Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    orderModel.orderStatus! == 'picked_up'
+                        ? 'item'.tr + ' ' + 'on_the_way'.tr
+                        : (orderModel.moduleType == 'grocery' &&
+                              (orderModel.orderStatus == 'confirmed' ||
+                                  orderModel.orderStatus == 'processing' ||
+                                  orderModel.orderStatus == 'cooking'))
+                        ? 'pending'.tr
+                        : orderModel.orderStatus!.tr,
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall,
+                      color:
+                          (orderModel.orderStatus == 'pending' ||
+                              (orderModel.moduleType == 'grocery' &&
+                                  (orderModel.orderStatus == 'confirmed' ||
+                                      orderModel.orderStatus == 'processing' ||
+                                      orderModel.orderStatus == 'cooking')))
+                          ? Colors.blueAccent
+                          : (orderModel.orderStatus == 'confirmed' ||
+                                orderModel.orderStatus == 'processing' ||
+                                orderModel.orderStatus == 'cooking')
+                          ? Colors.teal
+                          : orderModel.orderStatus == 'delivered'
+                          ? Colors.indigo
+                          : Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Divider(),
 
-              ])),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'payment_method'.tr,
+                    style: robotoRegular.copyWith(
+                      fontSize: Dimensions.fontSizeSmall,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeSmall),
 
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Text(
+                    orderModel.paymentMethod == 'cash_on_delivery'
+                        ? 'cash_on_delivery'.tr
+                        : orderModel.paymentMethod == 'wallet'
+                        ? 'wallet_payment'.tr
+                        : orderModel.paymentMethod == 'cash'
+                        ? 'cash'.tr
+                        : orderModel.paymentMethod == 'digital_payment'
+                        ? 'digital_payment'.tr
+                        : (orderModel.paymentMethod ?? '')
+                              .replaceAll('_', ' ')
+                              .tr,
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeSmall,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
                 Text(
-                  orderModel.paymentMethod == 'cash_on_delivery' ? 'amount'.tr
-                      : orderModel.paymentMethod == 'wallet' ? 'wallet_payment'.tr : orderModel.paymentMethod == 'cash' ? 'cash'.tr
-                      : orderModel.paymentMethod == 'digital_payment' ? 'digital_payment'.tr : orderModel.paymentMethod?.replaceAll('_', ' ')??'',
-                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                  'total_amount'.tr,
+                  style: robotoRegular.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -109,12 +215,80 @@ class OrderWidget extends StatelessWidget {
                   PriceConverterHelper.convertPrice(orderModel.orderAmount),
                   style: robotoBold,
                 ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
 
-              ]),
+    if (isCommissionLimitReached) {
+      childWidget = ImageFiltered(
+        imageFilter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+        child: childWidget,
+      );
+    }
 
-            ]),
-
-          ]),
+    return Container(
+      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        color: Theme.of(context).cardColor,
+        border: Border.all(
+          color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: CustomInkWellWidget(
+        onTap: () {
+          if (isCommissionLimitReached) {
+            Get.dialog(
+              ConfirmationDialogWidget(
+                icon: Images.attentionWarningIcon,
+                title: 'commission_limit_reached'.tr,
+                description: 'pay_commission_instruction'.tr,
+                onYesPressed: () async {
+                  Get.back();
+                  String whatsappUrl = 'https://wa.me/+201036860264';
+                  if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+                    await launchUrl(
+                      Uri.parse(whatsappUrl),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                },
+                onYesButtonText: 'pay_now'.tr,
+                isOnNoPressedShow: true,
+                onNoButtonText: 'cancel'.tr,
+              ),
+              barrierDismissible: false,
+            );
+          } else {
+            Get.toNamed(RouteHelper.getOrderDetailsRoute(orderModel.id));
+          }
+        },
+        radius: Dimensions.radiusDefault,
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              childWidget,
+              if (isCommissionLimitReached)
+                Icon(
+                  Icons.lock_outline,
+                  size: 32,
+                  color: Theme.of(context).primaryColor,
+                ),
+            ],
+          ),
         ),
       ),
     );

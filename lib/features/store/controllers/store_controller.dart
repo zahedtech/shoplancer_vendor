@@ -1,36 +1,37 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/common/models/vat_tax_model.dart';
-import 'package:sixam_mart_store/features/addon/controllers/addon_controller.dart';
-import 'package:sixam_mart_store/features/ai/controllers/ai_controller.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/attribute_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/other_data_model.dart';
-import 'package:sixam_mart_store/features/ai/domain/models/variation_data_model.dart';
-import 'package:sixam_mart_store/features/category/controllers/category_controller.dart';
-import 'package:sixam_mart_store/features/category/domain/models/category_model.dart';
-import 'package:sixam_mart_store/features/dashboard/screens/dashboard_screen.dart';
-import 'package:sixam_mart_store/features/profile/controllers/profile_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attr.dart';
-import 'package:sixam_mart_store/features/store/domain/models/band_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/suitable_tag_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variant_type_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/variation_body_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/attribute_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/pending_item_model.dart';
-import 'package:sixam_mart_store/features/profile/domain/models/profile_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/review_model.dart';
-import 'package:sixam_mart_store/features/store/domain/models/unit_model.dart';
-import 'package:sixam_mart_store/features/rental_module/profile/controllers/taxi_profile_controller.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
+import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
+import 'package:shoplancer_vendor/features/ai/controllers/ai_controller.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/attribute_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/other_data_model.dart';
+import 'package:shoplancer_vendor/features/ai/domain/models/variation_data_model.dart';
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
+import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
+import 'package:shoplancer_vendor/features/dashboard/screens/dashboard_screen.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attr.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/band_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/suitable_tag_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variant_type_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/variation_body_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart'
+    hide CategoryIds;
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
+import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sixam_mart_store/features/store/domain/services/store_service_interface.dart';
+import 'package:shoplancer_vendor/features/store/domain/services/store_service_interface.dart';
 
 class StoreController extends GetxController implements GetxService {
   final StoreServiceInterface storeServiceInterface;
@@ -56,6 +57,15 @@ class StoreController extends GetxController implements GetxService {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  int? _currentModuleId;
+  int? get currentModuleId => _currentModuleId;
+
+  final List<int> _loadingItemsList = [];
+  List<int> get loadingItemsList => _loadingItemsList;
+
+  final List<int> _loadingRecommendedList = [];
+  List<int> get loadingRecommendedList => _loadingRecommendedList;
 
   int? _pageSize;
   int? get pageSize => _pageSize;
@@ -91,6 +101,11 @@ class StoreController extends GetxController implements GetxService {
 
   List<Schedules>? _scheduleList;
   List<Schedules>? get scheduleList => _scheduleList;
+
+  bool _isOpen24Hours = false;
+  bool get isOpen24Hours => _isOpen24Hours;
+
+  List<Schedules>? _backupScheduleList;
 
   bool _scheduleLoading = false;
   bool get scheduleLoading => _scheduleLoading;
@@ -216,13 +231,15 @@ class StoreController extends GetxController implements GetxService {
   List<String?>? get selectedNutritionList => _selectedNutritionList;
 
   List<String?>? _allergicIngredientsSuggestionList;
-  List<String?>? get allergicIngredientsSuggestionList => _allergicIngredientsSuggestionList;
+  List<String?>? get allergicIngredientsSuggestionList =>
+      _allergicIngredientsSuggestionList;
 
   List<int>? _selectedAllergicIngredients;
   List<int>? get selectedAllergicIngredients => _selectedAllergicIngredients;
 
   List<String?>? _selectedAllergicIngredientsList = [];
-  List<String?>? get selectedAllergicIngredientsList => _selectedAllergicIngredientsList;
+  List<String?>? get selectedAllergicIngredientsList =>
+      _selectedAllergicIngredientsList;
 
   List<String?>? _genericNameSuggestionList;
   List<String?>? get genericNameSuggestionList => _genericNameSuggestionList;
@@ -314,24 +331,148 @@ class StoreController extends GetxController implements GetxService {
   List<String> get imagePreviewType => _imagePreviewType;
 
   String _imagePreviewSelectedType = 'large';
-  String get imagePreviewSelectedType => _imagePreviewSelectedType;
+  get imagePreviewSelectedType => _imagePreviewSelectedType;
 
-  void initItemData({Item? item, bool isFood = false, bool isGrocery = false, bool isPharmacy = false}) {
-    if(isFood || isGrocery) {
+  List<int> _selectedItemList = [];
+  List<int> get selectedItemList => _selectedItemList;
+
+  bool _isSelectionMode = false;
+  bool get isSelectionMode => _isSelectionMode;
+
+  void toggleSelection(int itemId) {
+    if (_selectedItemList.contains(itemId)) {
+      _selectedItemList.remove(itemId);
+    } else {
+      _selectedItemList.add(itemId);
+    }
+    if (_selectedItemList.isEmpty) {
+      _isSelectionMode = false;
+    }
+    update();
+  }
+
+  void selectAllItems() {
+    if (_itemList != null) {
+      _selectedItemList = [];
+      for (var item in _itemList!) {
+        if (item.id != null) {
+          _selectedItemList.add(item.id!);
+        }
+      }
+      update();
+    }
+  }
+
+  void clearSelection() {
+    _selectedItemList = [];
+    _isSelectionMode = false;
+    update();
+  }
+
+  void enableSelectionMode(int itemId) {
+    _isSelectionMode = true;
+    _selectedItemList = [itemId];
+    update();
+  }
+
+  Future<void> bulkItemsUpdate(List<Map<String, String>> updates) async {
+    _isLoading = true;
+    update();
+    for (var data in updates) {
+      await storeServiceInterface.stockUpdate(data);
+    }
+    _isLoading = false;
+    showCustomSnackBar(
+      'selected_items_updated_successfully'.tr,
+      isError: false,
+    );
+    _selectedItemList = [];
+    _isSelectionMode = false;
+    getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+    getLimitedStockItemList('1', willUpdate: false);
+    update();
+  }
+
+  Map<String, String> buildStockUpdateData(
+    Item item, {
+    double? price,
+    int? stock,
+  }) {
+    final Map<String, String> data = {
+      '_method': 'post',
+      'id': item.id.toString(),
+      'product_id': item.id.toString(),
+      'current_stock': stock?.toString() ?? item.stock.toString(),
+      'manage_stock': '1',
+      'price': price?.toString() ?? item.price.toString(),
+      'unit_price': price?.toString() ?? item.price.toString(),
+      'discount': item.discount?.toString() ?? '0',
+      'discount_type': item.discountType ?? 'amount',
+      'store_id':
+          Get.find<ProfileController>().profileModel?.stores?[0].id
+              .toString() ??
+          '',
+      'category_id': item.categoryId?.toString() ?? '',
+    };
+
+    final List<Variation> variations = item.variations ?? [];
+    final List<String> types = [];
+    for (int index = 0; index < variations.length; index++) {
+      Variation variation = variations[index];
+      String type = variation.type ?? '';
+      types.add(type);
+      data['price_${index}_$type'] = (variation.price ?? 0).toString();
+      data['stock_${index}_$type'] = (variation.stock ?? 0).toString();
+    }
+    if (types.isNotEmpty) {
+      data['type'] = jsonEncode(types);
+    }
+
+    return data;
+  }
+
+  void initItemData({
+    Item? item,
+    bool isFood = false,
+    bool isGrocery = false,
+    bool isPharmacy = false,
+  }) {
+    if (isFood || isGrocery) {
       _getNutritionSuggestionList();
       _getAllergicIngredientsSuggestionList();
       _selectedNutritionList = [];
       _selectedAllergicIngredientsList = [];
-      if(item != null) {
-        if(item.nutrition == null && item.nutritionsData != null) {
+      if (item != null) {
+        item.translations ??= [];
+        bool hasName = item.translations!.any((t) => t.key == 'name');
+        bool hasDescription = item.translations!.any(
+          (t) => t.key == 'description',
+        );
+
+        if (!hasName) {
+          item.translations!.add(
+            Translation(locale: 'ar', key: 'name', value: item.name ?? ''),
+          );
+        }
+        if (!hasDescription) {
+          item.translations!.add(
+            Translation(
+              locale: 'ar',
+              key: 'description',
+              value: item.description ?? '',
+            ),
+          );
+        }
+
+        if (item.nutrition == null && item.nutritionsData != null) {
           item.nutritionsData?.forEach((nutrition) {
             _selectedNutritionList!.add(nutrition.nutrition);
           });
         } else {
-          _selectedNutritionList!.addAll(item.nutrition??[]);
+          _selectedNutritionList!.addAll(item.nutrition ?? []);
         }
 
-        if(item.allergies == null && item.allergiesData != null) {
+        if (item.allergies == null && item.allergiesData != null) {
           item.allergiesData?.forEach((allergy) {
             _selectedAllergicIngredientsList!.add(allergy.allergy);
           });
@@ -339,11 +480,11 @@ class StoreController extends GetxController implements GetxService {
           _selectedAllergicIngredientsList!.addAll(item.allergies ?? []);
         }
       }
-    }else if(isPharmacy) {
+    } else if (isPharmacy) {
       _getGenericNameSuggestionList();
       _selectedGenericNameList = [];
-      if(item != null) {
-        if(item.genericName == null && item.genericNameData != null) {
+      if (item != null) {
+        if (item.genericName == null && item.genericNameData != null) {
           item.genericNameData?.forEach((gen) {
             _selectedGenericNameList!.add(gen.generic);
           });
@@ -356,14 +497,14 @@ class StoreController extends GetxController implements GetxService {
 
   void setAvailableTimeStarts({String? startTime, bool willUpdate = true}) {
     _availableTimeStarts = startTime;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   void setAvailableTimeEnds({String? endTime, bool willUpdate = true}) {
     _availableTimeEnds = endTime;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
@@ -398,42 +539,65 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void toggleRecommendedProduct(int? productID) async {
-    bool isSuccess = await storeServiceInterface.updateRecommendedProductStatus(productID, _isRecommended ? 0 : 1);
-    if(isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    if (productID != null) {
+      _loadingRecommendedList.add(productID);
+      update();
+    }
+    bool isSuccess = await storeServiceInterface.updateRecommendedProductStatus(
+      productID,
+      _isRecommended ? 0 : 1,
+    );
+    if (isSuccess) {
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isRecommended = !_isRecommended;
-      showCustomSnackBar(Get.find<SplashController>().moduleType == 'food' ? 'food_status_updated_successfully'.tr : 'product_status_updated_successfully'.tr, isError: false);
+      showCustomSnackBar(
+        Get.find<SplashController>().moduleType == 'food'
+            ? 'food_status_updated_successfully'.tr
+            : 'product_status_updated_successfully'.tr,
+        isError: false,
+      );
+    }
+    if (productID != null) {
+      _loadingRecommendedList.remove(productID);
     }
     update();
   }
 
   void toggleOrganicProduct(int? productID) async {
-    bool isSuccess = await storeServiceInterface.updateOrganicProductStatus(productID, _isOrganic ? 0 : 1);
-    if(isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    bool isSuccess = await storeServiceInterface.updateOrganicProductStatus(
+      productID,
+      _isOrganic ? 0 : 1,
+    );
+    if (isSuccess) {
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isOrganic = !_isOrganic;
-      showCustomSnackBar(Get.find<SplashController>().moduleType == 'food' ? 'food_status_updated_successfully'.tr : 'product_status_updated_successfully'.tr, isError: false);
+      showCustomSnackBar(
+        Get.find<SplashController>().moduleType == 'food'
+            ? 'food_status_updated_successfully'.tr
+            : 'product_status_updated_successfully'.tr,
+        isError: false,
+      );
     }
     update();
   }
 
-  void setTag(String? name, {bool isUpdate = true, bool isClear = false}){
-    if(isClear){
+  void setTag(String? name, {bool isUpdate = true, bool isClear = false}) {
+    if (isClear) {
       _tagList = [];
-    }else{
+    } else {
       _tagList.add(name);
-      if(isUpdate) {
+      if (isUpdate) {
         update();
       }
     }
   }
 
-  void initializeTags(String name){
+  void initializeTags(String name) {
     _tagList.add(name);
     update();
   }
 
-  void removeTag(int index){
+  void removeTag(int index) {
     _tagList.removeAt(index);
     update();
   }
@@ -443,11 +607,16 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  void applyFilters({bool isClearFilter = false}) async{
+  void applyFilters({bool isClearFilter = false}) async {
     isClearFilter ? _isFilterClearLoading = true : _isLoading = true;
     update();
 
-    await getItemList(offset: '1', type: _type, search: '', categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0);
+    await getItemList(
+      offset: '1',
+      type: _type,
+      search: '',
+      categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0,
+    );
     Get.back();
 
     isClearFilter ? _isFilterClearLoading = false : _isLoading = false;
@@ -471,8 +640,15 @@ class StoreController extends GetxController implements GetxService {
     getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
   }
 
-
-  Future<void> getItemList({required String offset, required String type, required String search, int? categoryId, bool willUpdate = true}) async {
+  Future<void> getItemList({
+    required String offset,
+    required String type,
+    required String search,
+    int? categoryId,
+    bool willUpdate = true,
+    int? moduleId,
+  }) async {
+    _currentModuleId = moduleId;
 
     if (search.isEmpty) {
       _isSearching = false;
@@ -480,47 +656,72 @@ class StoreController extends GetxController implements GetxService {
       _isSearching = true;
     }
 
-    if(offset == '1') {
+    if (offset == '1') {
       _offsetList = [];
       _offset = 1;
       _type = type;
       _itemList = null;
-      if(willUpdate) {
-        update();
+      if (willUpdate) {
+        Future.microtask(() => update());
       }
     }
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
-      ItemModel? itemModel = await storeServiceInterface.getItemList(offset: offset, type: type, search: search, categoryId: categoryId);
+      ItemModel? itemModel = await storeServiceInterface.getItemList(
+        offset: offset,
+        type: type,
+        search: search,
+        categoryId: categoryId,
+        moduleId: moduleId,
+      );
       if (itemModel != null) {
         if (offset == '1') {
           _itemList = [];
         }
-        _itemList!.addAll(itemModel.items!);
+        if (_itemList == null) {
+          _itemList = [];
+        }
+        if (itemModel.items != null) {
+          final Set<int> existingIds = _itemList!
+              .where((item) => item.id != null)
+              .map((item) => item.id!)
+              .toSet();
+          final List<Item> newItems = itemModel.items!
+              .where(
+                (item) => item.id == null || !existingIds.contains(item.id),
+              )
+              .toList();
+          _itemList!.addAll(newItems);
+        }
         _itemSize = itemModel.totalSize;
         _isLoading = false;
         update();
       }
     } else {
-      if(isLoading) {
+      if (isLoading) {
         _isLoading = false;
         update();
       }
     }
   }
 
-  Future<void> getLimitedStockItemList(String offset, {bool willUpdate = true}) async {
-    if(offset == '1') {
+  Future<void> getLimitedStockItemList(
+    String offset, {
+    bool willUpdate = true,
+  }) async {
+    if (offset == '1') {
       _offsetList = [];
       _offset = 1;
       _stockItemList = null;
-      if(willUpdate) {
+      if (willUpdate) {
         update();
       }
     }
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
-      ItemModel? itemModel = await storeServiceInterface.getStockItemList(offset);
+      ItemModel? itemModel = await storeServiceInterface.getStockItemList(
+        offset,
+      );
       if (itemModel != null) {
         if (offset == '1') {
           _stockItemList = [];
@@ -531,7 +732,7 @@ class StoreController extends GetxController implements GetxService {
         update();
       }
     } else {
-      if(isLoading) {
+      if (isLoading) {
         _isLoading = false;
         update();
       }
@@ -552,19 +753,24 @@ class StoreController extends GetxController implements GetxService {
     return _item;
   }
 
-  Future<void> getPendingItemList(String offset, String type, {bool canNotify = true}) async {
-    if(offset == '1') {
+  Future<void> getPendingItemList(
+    String offset,
+    String type, {
+    bool canNotify = true,
+  }) async {
+    if (offset == '1') {
       _offsetList = [];
       _offset = 1;
       _type = type;
       _pendingItem = null;
-      if(canNotify) {
+      if (canNotify) {
         update();
       }
     }
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
-      PendingItemModel? pendingItemModel = await storeServiceInterface.getPendingItemList(offset, type);
+      PendingItemModel? pendingItemModel = await storeServiceInterface
+          .getPendingItemList(offset, type);
       if (pendingItemModel != null) {
         if (offset == '1') {
           _pendingItem = [];
@@ -575,23 +781,27 @@ class StoreController extends GetxController implements GetxService {
         update();
       }
     } else {
-      if(isLoading) {
+      if (isLoading) {
         _isLoading = false;
         update();
       }
     }
   }
 
-
-  Future<bool> getPendingItemDetails(int itemId, {bool canUpdate = true}) async {
+  Future<bool> getPendingItemDetails(
+    int itemId, {
+    bool canUpdate = true,
+  }) async {
     _item = null;
     _languageSelectedIndex = 0;
     bool success = false;
     _isLoading = true;
-    if(canUpdate == true) {
+    if (canUpdate == true) {
       update();
     }
-    Item? pendingItem = await storeServiceInterface.getPendingItemDetails(itemId);
+    Item? pendingItem = await storeServiceInterface.getPendingItemDetails(
+      itemId,
+    );
     if (pendingItem != null) {
       _item = pendingItem;
       success = true;
@@ -619,27 +829,35 @@ class StoreController extends GetxController implements GetxService {
     _totalStock = 0;
     _rawImages = [];
     _savedImages = [];
-    if(item != null) {
+    if (item != null) {
       for (var e in item.imagesFullUrl!) {
-        if(e != null) {
+        if (e != null) {
           _savedImages.add(e);
         }
       }
     }
-    List<AttributeModel>? attributeList = await storeServiceInterface.getAttributeList(item);
-    if(attributeList != null) {
+    List<AttributeModel>? attributeList = await storeServiceInterface
+        .getAttributeList(item);
+    if (attributeList != null) {
       _attributeList = [];
       _attributeList!.addAll(attributeList);
     }
-    if(Get.find<SplashController>().configModel!.moduleConfig!.module!.addOn!) {
+    if (Get.find<SplashController>()
+        .configModel!
+        .moduleConfig!
+        .module!
+        .addOn!) {
       List<int?> addonsIds = await Get.find<AddonController>().getAddonList();
-      if(item != null && item.addOns != null) {
-        for(int index=0; index<item.addOns!.length; index++) {
-          setSelectedAddonIndex(addonsIds.indexOf(item.addOns![index].id), false);
+      if (item != null && item.addOns != null) {
+        for (int index = 0; index < item.addOns!.length; index++) {
+          setSelectedAddonIndex(
+            addonsIds.indexOf(item.addOns![index].id),
+            false,
+          );
         }
       }
     }
-    if(Get.find<SplashController>().configModel!.moduleConfig!.module!.unit!) {
+    if (Get.find<SplashController>().configModel!.moduleConfig!.module!.unit!) {
       await getUnitList(item);
     }
     generateVariantTypes(item);
@@ -647,7 +865,7 @@ class StoreController extends GetxController implements GetxService {
 
   void setDiscountTypeIndex(int index, bool notify) {
     _discountTypeIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
@@ -670,16 +888,33 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> updateStoreBasicInfo(Store store, List<Translation> translation) async {
+  Future<void> updateStoreBasicInfo(
+    Store store,
+    List<Translation> translation,
+  ) async {
     _isLoading = true;
     update();
 
-    bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(store,  _rawLogo, _rawCover, translation, _pickedMetaImage);
-    if(isSuccess) {
+    bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(
+      store,
+      _rawLogo,
+      _rawCover,
+      translation,
+      _pickedMetaImage,
+    );
+    if (isSuccess) {
       await Get.find<ProfileController>().getProfile();
       Get.back();
-      showCustomSnackBar(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!
-          ? 'restaurant_edit_updated_successfully'.tr : 'store_edit_updated_successfully'.tr, isError: false);
+      showCustomSnackBar(
+        Get.find<SplashController>()
+                .configModel!
+                .moduleConfig!
+                .module!
+                .showRestaurantText!
+            ? 'restaurant_edit_updated_successfully'.tr
+            : 'store_edit_updated_successfully'.tr,
+        isError: false,
+      );
     }
     _isLoading = false;
     update();
@@ -688,13 +923,29 @@ class StoreController extends GetxController implements GetxService {
   Future<void> updateStore(Store store, String min, String max) async {
     _isLoading = true;
     update();
-    bool isSuccess = await storeServiceInterface.updateStore(store, min, max, _selectedDuration!);
-    if(isSuccess) {
+    bool isSuccess = await storeServiceInterface.updateStore(
+      store,
+      min,
+      max,
+      _selectedDuration!,
+    );
+    if (isSuccess) {
       await Get.find<ProfileController>().getProfile();
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
-      Get.find<StoreController>().getStoreReviewList(Get.find<ProfileController>().profileModel!.stores![0].id, '');
-      showCustomSnackBar(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!
-          ? 'restaurant_settings_updated_successfully'.tr : 'store_settings_updated_successfully'.tr, isError: false);
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+      Get.find<StoreController>().getStoreReviewList(
+        Get.find<ProfileController>().profileModel!.stores![0].id,
+        '',
+      );
+      showCustomSnackBar(
+        Get.find<SplashController>()
+                .configModel!
+                .moduleConfig!
+                .module!
+                .showRestaurantText!
+            ? 'restaurant_settings_updated_successfully'.tr
+            : 'store_settings_updated_successfully'.tr,
+        isError: false,
+      );
       Get.offAllNamed(RouteHelper.getMainRoute('cart'));
     }
     _isLoading = false;
@@ -702,19 +953,26 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void pickImage(bool isLogo, bool isRemove) async {
-    if(isRemove) {
+    if (isRemove) {
       _rawLogo = null;
       _rawCover = null;
-    }else {
-      isLogo ? _rawLogo = await storeServiceInterface.pickImageFromGallery() : _rawCover = await storeServiceInterface.pickImageFromGallery();
+    } else {
+      isLogo
+          ? _rawLogo = await storeServiceInterface.pickImageFromGallery()
+          : _rawCover = await storeServiceInterface.pickImageFromGallery();
       update();
     }
   }
 
+  void setRawLogo(XFile? logo) {
+    _rawLogo = logo;
+    update();
+  }
+
   void setSelectedAddonIndex(int index, bool notify) {
-    if(!_selectedAddons!.contains(index)) {
+    if (!_selectedAddons!.contains(index)) {
       _selectedAddons!.add(index);
-      if(notify) {
+      if (notify) {
         update();
       }
     }
@@ -725,78 +983,213 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> addItem(Item item, bool isAdd, {String? genericNameData}) async {
+  Future<bool> addItem(
+    Item item,
+    bool isAdd, {
+    String? genericNameData,
+    bool willRedirect = true,
+  }) async {
     _isLoading = true;
     update();
+
+    // Safety defaults for repository's addItem
+    item.discountType ??= 'amount';
+    item.translations ??= [];
+    bool hasName = item.translations!.any((t) => t.key == 'name');
+    bool hasDescription = item.translations!.any((t) => t.key == 'description');
+
+    if (!hasName) {
+      item.translations!.add(
+        Translation(locale: 'en', key: 'name', value: item.name ?? ''),
+      );
+    }
+    if (!hasDescription) {
+      item.translations!.add(
+        Translation(
+          locale: 'en',
+          key: 'description',
+          value: item.description ?? '',
+        ),
+      );
+    }
+    item.isHalal ??= 0;
+    item.veg ??= 0;
+    item.status ??= 1;
+    item.stock ??= 0;
+    if (item.categoryIds == null || item.categoryIds!.isEmpty) {
+      item.categoryIds = [CategoryIds(id: '0')];
+    }
+
+    if (item.unitType == null && _unitList != null && _unitList!.isNotEmpty) {
+      int index = _unitIndex ?? 0;
+      item.unitType = _unitList![index].unit;
+      item.unitId = _unitList![index].id;
+    }
     Map<String, String> fields = {};
-    if(!Get.find<SplashController>().getStoreModuleConfig().newVariation! && _variantTypeList!.isNotEmpty) {
+    if (!Get.find<SplashController>().getStoreModuleConfig().newVariation! &&
+        _variantTypeList != null &&
+        _variantTypeList!.isNotEmpty) {
       List<int?> idList = [];
       List<String?> nameList = [];
-      for (var attributeModel in _attributeList!) {
-        if(attributeModel.active) {
+      for (var attributeModel in (_attributeList ?? [])) {
+        if (attributeModel.active) {
           idList.add(attributeModel.attribute.id);
           nameList.add(attributeModel.attribute.name);
           String variantString = '';
           for (var variant in attributeModel.variants) {
-            variantString = variantString + (variantString.isEmpty ? '' : ',') + variant.replaceAll(' ', '');
+            variantString =
+                variantString +
+                (variantString.isEmpty ? '' : ',') +
+                variant.replaceAll(' ', '');
           }
-          fields.addAll(<String, String>{'choice_options_${attributeModel.attribute.id}': jsonEncode([variantString])});
+          fields.addAll(<String, String>{
+            'choice_options_${attributeModel.attribute.id}': jsonEncode([
+              variantString,
+            ]),
+          });
         }
       }
-      fields.addAll(<String, String> {
-        'attribute_id': jsonEncode(idList), 'choice_no': jsonEncode(idList), 'choice': jsonEncode(nameList)
+      fields.addAll(<String, String>{
+        'attribute_id': jsonEncode(idList),
+        'choice_no': jsonEncode(idList),
+        'choice': jsonEncode(nameList),
       });
-      for(int index=0; index<_variantTypeList!.length; index++) {
-        fields.addAll(<String, String> {'price_${_variantTypeList![index].variantType.replaceAll(' ', '_')}': _variantTypeList![index].priceController.text.trim(),
-          'stock_${_variantTypeList![index].variantType.replaceAll(' ', '_')}': _variantTypeList![index].stockController.text.trim().isEmpty ? '0'
-              : _variantTypeList![index].stockController.text.trim()});
+      for (int index = 0; index < (_variantTypeList?.length ?? 0); index++) {
+        fields.addAll(<String, String>{
+          'price_${_variantTypeList![index].variantType.replaceAll(' ', '_')}':
+              _variantTypeList![index].priceController.text.trim(),
+          'stock_${_variantTypeList![index].variantType.replaceAll(' ', '_')}':
+              _variantTypeList![index].stockController.text.trim().isEmpty
+              ? '0'
+              : _variantTypeList![index].stockController.text.trim(),
+        });
       }
     }
     String tags = '';
-    for (var element in _tagList) {
-      tags = tags + (tags.isEmpty ? '' : ',') + element!.replaceAll(' ', '');
+    if (_tagList.isNotEmpty) {
+      for (var element in _tagList) {
+        tags = tags + (tags.isEmpty ? '' : ',') + element!.replaceAll(' ', '');
+      }
+    } else if (item.tags != null) {
+      for (var element in item.tags!) {
+        tags = tags + (tags.isEmpty ? '' : ',') + (element.tag ?? '');
+      }
     }
 
     String nutrition = '';
     String allergicIngredients = '';
-    if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'grocery' || Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'food') {
-      for (var index in _selectedNutritionList!) {
-        nutrition = nutrition + (nutrition.isEmpty ? '' : ',') + index!.replaceAll(' ', '');
+    if (Get.find<ProfileController>()
+                .profileModel!
+                .stores![0]
+                .module!
+                .moduleType ==
+            'grocery' ||
+        Get.find<ProfileController>()
+                .profileModel!
+                .stores![0]
+                .module!
+                .moduleType ==
+            'food') {
+      if (_selectedNutritionList != null &&
+          _selectedNutritionList!.isNotEmpty) {
+        for (var index in _selectedNutritionList!) {
+          nutrition =
+              nutrition +
+              (nutrition.isEmpty ? '' : ',') +
+              index!.replaceAll(' ', '');
+        }
+      } else if (item.nutrition != null) {
+        for (var element in item.nutrition!) {
+          nutrition =
+              nutrition + (nutrition.isEmpty ? '' : ',') + (element ?? '');
+        }
       }
 
-      for (var index in _selectedAllergicIngredientsList!) {
-        allergicIngredients = allergicIngredients + (allergicIngredients.isEmpty ? '' : ',') + index!.replaceAll(' ', '');
+      if (_selectedAllergicIngredientsList != null &&
+          _selectedAllergicIngredientsList!.isNotEmpty) {
+        for (var index in _selectedAllergicIngredientsList!) {
+          allergicIngredients =
+              allergicIngredients +
+              (allergicIngredients.isEmpty ? '' : ',') +
+              index!.replaceAll(' ', '');
+        }
+      } else if (item.allergies != null) {
+        for (var element in item.allergies!) {
+          allergicIngredients =
+              allergicIngredients +
+              (allergicIngredients.isEmpty ? '' : ',') +
+              (element ?? '');
+        }
       }
     }
 
     String genericName = '';
-    if(Get.find<ProfileController>().profileModel!.stores![0].module!.moduleType == 'pharmacy') {
+    if (Get.find<ProfileController>()
+            .profileModel!
+            .stores![0]
+            .module!
+            .moduleType ==
+        'pharmacy') {
       genericName = genericNameData ?? '';
+      if (genericName.isEmpty &&
+          item.genericName != null &&
+          item.genericName!.isNotEmpty) {
+        genericName = item.genericName!.join(',');
+      }
     }
 
-    Response response = await storeServiceInterface.addItem(item, _pickedMetaImage, _rawLogo, _rawImages, _savedImages, fields, isAdd, tags, nutrition, allergicIngredients, genericName);
-    if(response.statusCode == 200) {
-      Get.offAll(() => const DashboardScreen(pageIndex: 2));
+    Response response = await storeServiceInterface.addItem(
+      item,
+      _pickedMetaImage,
+      _rawLogo,
+      _rawImages,
+      _savedImages,
+      fields,
+      isAdd,
+      tags,
+      nutrition,
+      allergicIngredients,
+      genericName,
+    );
+    if (response.statusCode == 200) {
+      if (willRedirect) {
+        Get.offAll(() => const DashboardScreen(pageIndex: 2));
+      }
       showCustomSnackBar(response.body['message'], isError: false);
       _tagList.clear();
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, willUpdate: false);
+      if (willRedirect) {
+        getItemList(
+          offset: '1',
+          type: 'all',
+          search: '',
+          categoryId: 0,
+          willUpdate: false,
+        );
+      }
+      _isLoading = false;
+      update();
+      return true;
     }
     _isLoading = false;
     update();
+    return false;
   }
 
   Future<void> deleteItem(int? itemID, {bool pendingItem = false}) async {
     _isLoading = true;
     update();
-    bool isSuccess = await storeServiceInterface.deleteItem(itemID, pendingItem);
-    if(isSuccess) {
+    bool isSuccess = await storeServiceInterface.deleteItem(
+      itemID,
+      pendingItem,
+    );
+    if (isSuccess) {
       Get.back();
       Get.back();
       showCustomSnackBar('product_deleted_successfully'.tr, isError: false);
-      if(pendingItem) {
+      if (pendingItem) {
         getPendingItemList(offset.toString(), type);
-      }else {
-        getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+      } else {
+        getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
         Get.find<CategoryController>().getCategoryList();
       }
     }
@@ -805,7 +1198,10 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void generateVariantTypes(Item? item) {
-    _variantTypeList = storeServiceInterface.variationTypeList(_attributeList, item);
+    _variantTypeList = storeServiceInterface.variationTypeList(
+      _attributeList,
+      item,
+    );
     _totalStock = storeServiceInterface.totalStock(_attributeList, item);
   }
 
@@ -814,7 +1210,11 @@ class StoreController extends GetxController implements GetxService {
     return hasData;
   }
 
-  Future<void> getStoreReviewList(int? storeID, String? searchText, {bool willUpdate = true}) async {
+  Future<void> getStoreReviewList(
+    int? storeID,
+    String? searchText, {
+    bool willUpdate = true,
+  }) async {
     if (searchText!.isEmpty) {
       _storeReviewList = null;
       _isSearching = false;
@@ -822,11 +1222,12 @@ class StoreController extends GetxController implements GetxService {
       _searchReviewList = null;
       _isSearching = true;
     }
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
     _tabIndex = 0;
-    List<ReviewModel>? storeReviewList = await storeServiceInterface.getStoreReviewList(storeID, searchText);
+    List<ReviewModel>? storeReviewList = await storeServiceInterface
+        .getStoreReviewList(storeID, searchText);
 
     if (storeReviewList != null) {
       if (searchText.isEmpty) {
@@ -842,7 +1243,7 @@ class StoreController extends GetxController implements GetxService {
 
   Future<void> getBrandList(Item? item) async {
     List<BrandModel>? brands = await storeServiceInterface.getBrandList();
-    if(brands != null) {
+    if (brands != null) {
       _brandList = [];
       _brandList!.addAll(brands);
       _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
@@ -852,32 +1253,37 @@ class StoreController extends GetxController implements GetxService {
 
   void setBrandIndex(int index, bool notify) {
     _brandIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   Future<void> getSuitableTagList(Item? item) async {
-    List<SuitableTagModel>? suitableTagList = await storeServiceInterface.getSuitableTagList();
-    if(suitableTagList != null) {
+    List<SuitableTagModel>? suitableTagList = await storeServiceInterface
+        .getSuitableTagList();
+    if (suitableTagList != null) {
       _suitableTagList = [];
       _suitableTagList!.addAll(suitableTagList);
-      _suitableTagIndex = storeServiceInterface.setSuitableTagIndex(_suitableTagList, item);
+      _suitableTagIndex = storeServiceInterface.setSuitableTagIndex(
+        _suitableTagList,
+        item,
+      );
     }
     update();
   }
 
   void setSuitableTagIndex(int index, bool notify) {
     _suitableTagIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   Future<void> getItemReviewList(int? itemID) async {
     _itemReviewList = null;
-    List<ReviewModel>? itemReviewList = await storeServiceInterface.getItemReviewList(itemID);
-    if(itemReviewList != null) {
+    List<ReviewModel>? itemReviewList = await storeServiceInterface
+        .getItemReviewList(itemID);
+    if (itemReviewList != null) {
       _itemReviewList = [];
       _itemReviewList!.addAll(itemReviewList);
     }
@@ -889,14 +1295,49 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void toggleAvailable(int? productID) async {
-    bool isSuccess = await storeServiceInterface.updateItemStatus(productID, _isAvailable ? 0 : 1);
-    if(isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    bool isSuccess = await storeServiceInterface.updateItemStatus(
+      productID,
+      _isAvailable ? 0 : 1,
+    );
+    if (isSuccess) {
+      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
       _isAvailable = !_isAvailable;
       showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
     }
     update();
   }
+
+  Future<bool> updateItemStatusForProduct(int? itemId, bool isActive) async {
+    if (itemId != null) {
+      _loadingItemsList.add(itemId);
+      update();
+    }
+    bool isSuccess = await storeServiceInterface.updateItemStatus(
+      itemId,
+      isActive ? 1 : 0,
+    );
+    if (isSuccess) {
+      if (_itemList != null) {
+        int index = _itemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _itemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      if (_stockItemList != null) {
+        int index = _stockItemList!.indexWhere((item) => item.id == itemId);
+        if (index != -1) {
+          _stockItemList![index].status = isActive ? 1 : 0;
+        }
+      }
+      showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
+    }
+    if (itemId != null) {
+      _loadingItemsList.remove(itemId);
+    }
+    update();
+    return isSuccess;
+  }
+
 
   void initStoreBasicData() {
     _rawLogo = null;
@@ -908,6 +1349,10 @@ class StoreController extends GetxController implements GetxService {
     _isGstEnabled = store.gstStatus;
     _scheduleList = [];
     _scheduleList!.addAll(store.schedules!);
+    _isOpen24Hours = _isFullDaySchedule(_scheduleList);
+    if (!_isOpen24Hours) {
+      _backupScheduleList = List<Schedules>.from(_scheduleList!);
+    }
     _isStoreVeg = store.veg == 1;
     _isStoreNonVeg = store.nonVeg == 1;
     _isExtraPackagingEnabled = store.extraPackagingStatus;
@@ -932,18 +1377,28 @@ class StoreController extends GetxController implements GetxService {
 
   void togglePrescriptionRequired({bool willUpdate = true}) {
     _isPrescriptionRequired = !_isPrescriptionRequired;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   Future<void> addSchedule(Schedules schedule) async {
-    schedule.openingTime = '${schedule.openingTime!}:00';
-    schedule.closingTime = '${schedule.closingTime!}:00';
+    if (_isOpen24Hours) {
+      showCustomSnackBar('disable_open_24_hours_to_edit_schedule'.tr);
+      return;
+    }
+    schedule.openingTime = schedule.openingTime!.length == 5
+        ? '${schedule.openingTime!}:00'
+        : schedule.openingTime;
+    schedule.closingTime = schedule.closingTime!.length == 5
+        ? '${schedule.closingTime!}:00'
+        : schedule.closingTime;
+    schedule.storeId =
+        Get.find<ProfileController>().profileModel?.stores?[0].id;
     _scheduleLoading = true;
     update();
     int? scheduleID = await storeServiceInterface.addSchedule(schedule);
-    if(scheduleID != null) {
+    if (scheduleID != null) {
       schedule.id = scheduleID;
       _scheduleList!.add(schedule);
       Get.back();
@@ -954,10 +1409,14 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<void> deleteSchedule(int? scheduleID) async {
+    if (_isOpen24Hours) {
+      showCustomSnackBar('disable_open_24_hours_to_edit_schedule'.tr);
+      return;
+    }
     _scheduleLoading = true;
     update();
     bool isSuccess = await storeServiceInterface.deleteSchedule(scheduleID);
-    if(isSuccess) {
+    if (isSuccess) {
       _scheduleList!.removeWhere((schedule) => schedule.id == scheduleID);
       showCustomSnackBar('schedule_removed_successfully'.tr, isError: false);
     }
@@ -967,32 +1426,32 @@ class StoreController extends GetxController implements GetxService {
 
   void setTabIndex(int index) {
     bool notify = true;
-    if(_tabIndex == index) {
+    if (_tabIndex == index) {
       notify = false;
     }
     _tabIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   void setVeg(bool isVeg, bool notify) {
     _isVeg = isVeg;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   void toggleHalal({bool willUpdate = true}) {
     _isHalal = !_isHalal;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   void toggleBasicMedicine({bool willUpdate = true}) {
     _isBasicMedicine = !_isBasicMedicine;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
@@ -1009,14 +1468,14 @@ class StoreController extends GetxController implements GetxService {
 
   void setStoreVeg(bool? isVeg, bool notify) {
     _isStoreVeg = isVeg;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   void setStoreNonVeg(bool? isNonVeg, bool notify) {
     _isStoreNonVeg = isNonVeg;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
@@ -1034,6 +1493,128 @@ class StoreController extends GetxController implements GetxService {
   void setScheduleOrderEnabled(bool value) {
     _isScheduleOrderEnabled = value;
     update();
+  }
+
+  Future<void> setOpen24Hours(bool value) async {
+    if (_isOpen24Hours == value) {
+      return;
+    }
+
+    _isOpen24Hours = value;
+    update();
+
+    if (value) {
+      _backupScheduleList = _scheduleList != null
+          ? List<Schedules>.from(_scheduleList!)
+          : [];
+      await _apply24HourSchedule();
+    } else {
+      await _restoreScheduleFromBackup();
+    }
+  }
+
+  bool _isFullDaySchedule(List<Schedules>? schedules) {
+    if (schedules == null || schedules.isEmpty) {
+      return false;
+    }
+
+    final Map<int, List<Schedules>> byDay = {};
+    for (final schedule in schedules) {
+      if (schedule.day == null) {
+        continue;
+      }
+      byDay.putIfAbsent(schedule.day!, () => []);
+      byDay[schedule.day!]!.add(schedule);
+    }
+
+    for (int day = 0; day < 7; day++) {
+      final List<Schedules>? daySchedules = byDay[day];
+      if (daySchedules == null || daySchedules.length != 1) {
+        return false;
+      }
+      final String? open = daySchedules.first.openingTime;
+      final String? close = daySchedules.first.closingTime;
+      final bool isFullDay =
+          open == '00:00' && (close == '23:59' || close == '24:00');
+      if (!isFullDay) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _apply24HourSchedule() async {
+    _scheduleLoading = true;
+    update();
+
+    await _deleteSchedulesSilently();
+    _scheduleList = [];
+
+    for (int day = 0; day < 7; day++) {
+      final schedule = Schedules(
+        day: day,
+        openingTime: '00:00:00',
+        closingTime: '23:59:00',
+        storeId: Get.find<ProfileController>().profileModel?.stores?[0].id,
+      );
+
+      final int? scheduleId = await storeServiceInterface.addSchedule(schedule);
+      if (scheduleId != null) {
+        schedule.id = scheduleId;
+        _scheduleList!.add(schedule);
+      }
+    }
+
+    _scheduleLoading = false;
+    update();
+    showCustomSnackBar('schedule_updated_successfully'.tr, isError: false);
+  }
+
+  Future<void> _restoreScheduleFromBackup() async {
+    _scheduleLoading = true;
+    update();
+
+    await _deleteSchedulesSilently();
+    _scheduleList = [];
+
+    if (_backupScheduleList != null && _backupScheduleList!.isNotEmpty) {
+      for (final schedule in _backupScheduleList!) {
+        final Schedules newSchedule = Schedules(
+          day: schedule.day,
+          openingTime: schedule.openingTime!.length == 5
+              ? '${schedule.openingTime!}:00'
+              : schedule.openingTime,
+          closingTime: schedule.closingTime!.length == 5
+              ? '${schedule.closingTime!}:00'
+              : schedule.closingTime,
+          storeId: Get.find<ProfileController>().profileModel?.stores?[0].id,
+        );
+        final int? scheduleId = await storeServiceInterface.addSchedule(
+          newSchedule,
+        );
+        if (scheduleId != null) {
+          newSchedule.id = scheduleId;
+          _scheduleList!.add(newSchedule);
+        }
+      }
+    }
+
+    _scheduleLoading = false;
+    update();
+  }
+
+  Future<void> _deleteSchedulesSilently() async {
+    if (_scheduleList == null || _scheduleList!.isEmpty) {
+      return;
+    }
+    final List<Schedules> existing = List<Schedules>.from(_scheduleList!);
+    for (final schedule in existing) {
+      if (schedule.id != null) {
+        await storeServiceInterface.deleteSchedule(schedule.id);
+      }
+    }
+    _scheduleList!.clear();
   }
 
   void setDeliveryEnabled(bool value) {
@@ -1069,10 +1650,14 @@ class StoreController extends GetxController implements GetxService {
   Future<void> getUnitList(Item? item) async {
     _unitIndex = 0;
     List<UnitModel>? unitList = await storeServiceInterface.getUnitList();
-    if(unitList != null) {
+    if (unitList != null) {
       _unitList = [];
       _unitList!.addAll(unitList);
-      _unitIndex = storeServiceInterface.setUnitIndex(_unitList, item, _unitIndex!);
+      _unitIndex = storeServiceInterface.setUnitIndex(
+        _unitList,
+        item,
+        _unitIndex!,
+      );
     }
     update();
   }
@@ -1080,14 +1665,16 @@ class StoreController extends GetxController implements GetxService {
   void setTotalStock() {
     _totalStock = 0;
     for (var variant in _variantTypeList!) {
-      _totalStock = variant.stockController.text.trim().isNotEmpty ? _totalStock + int.parse(variant.stockController.text.trim()) : _totalStock;
+      _totalStock = variant.stockController.text.trim().isNotEmpty
+          ? _totalStock + int.parse(variant.stockController.text.trim())
+          : _totalStock;
     }
     update();
   }
 
   void pickImages() async {
     XFile? xFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if(xFile != null) {
+    if (xFile != null) {
       _rawImages.add(xFile);
     }
     update();
@@ -1118,19 +1705,19 @@ class StoreController extends GetxController implements GetxService {
 
   void setImageIndex(int index, bool notify) {
     _imageIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
   void setUnitIndex(int index, bool notify) {
     _unitIndex = index;
-    if(notify) {
+    if (notify) {
       update();
     }
   }
 
-  void setEmptyVariationList(){
+  void setEmptyVariationList() {
     _variationList = [];
   }
 
@@ -1149,10 +1736,21 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void addVariation() {
-    _variationList!.add(VariationModelBodyModel(
-      nameController: TextEditingController(), required: false, isSingle: true, maxController: TextEditingController(), minController: TextEditingController(),
-      options: [Option(optionNameController: TextEditingController(), optionPriceController: TextEditingController())],
-    ));
+    _variationList!.add(
+      VariationModelBodyModel(
+        nameController: TextEditingController(),
+        required: false,
+        isSingle: true,
+        maxController: TextEditingController(),
+        minController: TextEditingController(),
+        options: [
+          Option(
+            optionNameController: TextEditingController(),
+            optionPriceController: TextEditingController(),
+          ),
+        ],
+      ),
+    );
     update();
   }
 
@@ -1162,7 +1760,12 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void addOptionVariation(int index) {
-    _variationList![index].options!.add(Option(optionNameController: TextEditingController(), optionPriceController: TextEditingController()));
+    _variationList![index].options!.add(
+      Option(
+        optionNameController: TextEditingController(),
+        optionPriceController: TextEditingController(),
+      ),
+    );
     update();
   }
 
@@ -1171,13 +1774,19 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> updateAnnouncement(int status, String announcement) async{
+  Future<void> updateAnnouncement(int status, String announcement) async {
     _isLoading = true;
     update();
-    bool isSuccess = await storeServiceInterface.updateAnnouncement(status, announcement);
-    if(isSuccess){
+    bool isSuccess = await storeServiceInterface.updateAnnouncement(
+      status,
+      announcement,
+    );
+    if (isSuccess) {
       Get.back();
-      showCustomSnackBar('announcement_updated_successfully'.tr, isError: false);
+      showCustomSnackBar(
+        'announcement_updated_successfully'.tr,
+        isError: false,
+      );
       Get.find<ProfileController>().getProfile();
       Get.find<TaxiProfileController>().getProfile();
     }
@@ -1187,7 +1796,7 @@ class StoreController extends GetxController implements GetxService {
 
   void setAnnouncementStatus(bool status, {bool willUpdate = true}) {
     _announcementStatus = status;
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
@@ -1201,10 +1810,13 @@ class StoreController extends GetxController implements GetxService {
     _isLoading = true;
     update();
     bool isSuccess = await storeServiceInterface.updateReply(reviewID, reply);
-    if(isSuccess) {
+    if (isSuccess) {
       Get.back();
       showCustomSnackBar('reply_updated_successfully'.tr, isError: false);
-      getStoreReviewList(Get.find<ProfileController>().profileModel!.stores![0].id, '');
+      getStoreReviewList(
+        Get.find<ProfileController>().profileModel!.stores![0].id,
+        '',
+      );
     }
     _isLoading = false;
     update();
@@ -1250,30 +1862,31 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> _getNutritionSuggestionList() async{
+  Future<void> _getNutritionSuggestionList() async {
     _nutritionSuggestionList = [];
     _selectedNutrition = [];
-    List<String?>? suggestionList = await storeServiceInterface.getNutritionSuggestionList();
-    if(suggestionList != null) {
+    List<String?>? suggestionList = await storeServiceInterface
+        .getNutritionSuggestionList();
+    if (suggestionList != null) {
       _nutritionSuggestionList!.addAll(suggestionList);
-      for(int index=0; index<_nutritionSuggestionList!.length; index++){
+      for (int index = 0; index < _nutritionSuggestionList!.length; index++) {
         _selectedNutrition!.add(index);
       }
     }
     update();
   }
 
-  void setNutrition(String? name, {bool willUpdate = true}){
+  void setNutrition(String? name, {bool willUpdate = true}) {
     _selectedNutritionList!.add(name);
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   void setSelectedNutritionIndex(int index, bool notify) {
-    if(_selectedNutrition!.contains(index)) {
+    if (_selectedNutrition!.contains(index)) {
       _selectedNutritionList!.add(_nutritionSuggestionList![index]);
-      if(notify) {
+      if (notify) {
         update();
       }
     }
@@ -1284,30 +1897,37 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> _getAllergicIngredientsSuggestionList() async{
+  Future<void> _getAllergicIngredientsSuggestionList() async {
     _allergicIngredientsSuggestionList = [];
     _selectedAllergicIngredients = [];
-    List<String?>? suggestionList = await storeServiceInterface.getAllergicIngredientsSuggestionList();
-    if(suggestionList != null) {
+    List<String?>? suggestionList = await storeServiceInterface
+        .getAllergicIngredientsSuggestionList();
+    if (suggestionList != null) {
       _allergicIngredientsSuggestionList!.addAll(suggestionList);
-      for(int index=0; index<_allergicIngredientsSuggestionList!.length; index++){
+      for (
+        int index = 0;
+        index < _allergicIngredientsSuggestionList!.length;
+        index++
+      ) {
         _selectedAllergicIngredients!.add(index);
       }
     }
     update();
   }
 
-  void setAllergicIngredients(String? name, {bool willUpdate = true}){
+  void setAllergicIngredients(String? name, {bool willUpdate = true}) {
     _selectedAllergicIngredientsList!.add(name);
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   void setSelectedAllergicIngredientsIndex(int index, bool notify) {
-    if(_selectedAllergicIngredients!.contains(index)) {
-      _selectedAllergicIngredientsList!.add(_allergicIngredientsSuggestionList![index]);
-      if(notify) {
+    if (_selectedAllergicIngredients!.contains(index)) {
+      _selectedAllergicIngredientsList!.add(
+        _allergicIngredientsSuggestionList![index],
+      );
+      if (notify) {
         update();
       }
     }
@@ -1318,30 +1938,31 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> _getGenericNameSuggestionList() async{
+  Future<void> _getGenericNameSuggestionList() async {
     _genericNameSuggestionList = [];
     _selectedGenericName = [];
-    List<String?>? suggestionList = await storeServiceInterface.getGenericNameSuggestionList();
-    if(suggestionList != null) {
+    List<String?>? suggestionList = await storeServiceInterface
+        .getGenericNameSuggestionList();
+    if (suggestionList != null) {
       _genericNameSuggestionList!.addAll(suggestionList);
-      for(int index=0; index<_genericNameSuggestionList!.length; index++){
+      for (int index = 0; index < _genericNameSuggestionList!.length; index++) {
         _selectedGenericName!.add(index);
       }
     }
     update();
   }
 
-  void setGenericName(String? name, {bool willUpdate = true}){
+  void setGenericName(String? name, {bool willUpdate = true}) {
     _selectedGenericNameList!.add(name);
-    if(willUpdate) {
+    if (willUpdate) {
       update();
     }
   }
 
   void setSelectedGenericNameIndex(int index, bool notify) {
-    if(_selectedGenericName!.contains(index)) {
+    if (_selectedGenericName!.contains(index)) {
       _selectedGenericNameList!.add(_genericNameSuggestionList![index]);
-      if(notify) {
+      if (notify) {
         update();
       }
     }
@@ -1352,15 +1973,24 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<bool> stockUpdate(Map<String, String> data, int itemId) async{
+  Future<bool> stockUpdate(
+    Map<String, String> data,
+    int itemId, {
+    bool shouldBack = true,
+  }) async {
     _isLoading = true;
     update();
     Response response = await storeServiceInterface.stockUpdate(data);
 
-    if(response.statusCode == 200) {
-      getItemList(offset: '1', type: _type, search: '', categoryId: 0);
-      Get.find<StoreController>().getLimitedStockItemList(Get.find<StoreController>().offset.toString(), willUpdate: false);
-      Get.back();
+    if (response.statusCode == 200) {
+      getItemList(offset: '1', type: _type, search: '', categoryId: 0, moduleId: _currentModuleId);
+      Get.find<StoreController>().getLimitedStockItemList(
+        Get.find<StoreController>().offset.toString(),
+        willUpdate: false,
+      );
+      if (shouldBack) {
+        Get.back();
+      }
     }
     _isLoading = false;
     update();
@@ -1369,7 +1999,7 @@ class StoreController extends GetxController implements GetxService {
 
   Future<void> getVatTaxList() async {
     List<VatTaxModel>? vatTaxList = await storeServiceInterface.getVatTaxList();
-    if(vatTaxList != null) {
+    if (vatTaxList != null) {
       _vatTaxList = [];
       _vatTaxList!.addAll(vatTaxList);
     }
@@ -1378,7 +2008,8 @@ class StoreController extends GetxController implements GetxService {
 
   void setSelectedVatTax(String? vatTaxName, int? vatTaxId, double? taxRate) {
     if (vatTaxName != null && vatTaxId != null) {
-      if (_selectedVatTaxNameList.contains(vatTaxName) || _selectedVatTaxIdList.contains(vatTaxId)) {
+      if (_selectedVatTaxNameList.contains(vatTaxName) ||
+          _selectedVatTaxIdList.contains(vatTaxId)) {
         showCustomSnackBar('vat_tax_already_added_please_select_another'.tr);
       } else {
         _selectedVatTaxName = vatTaxName;
@@ -1410,7 +2041,9 @@ class StoreController extends GetxController implements GetxService {
     _selectedVatTaxIdList.clear();
     _selectedTaxRateList.clear();
     for (int id in vatTaxList) {
-      final VatTaxModel? vatTax = _vatTaxList?.firstWhereOrNull((vat) => vat.id == id);
+      final VatTaxModel? vatTax = _vatTaxList?.firstWhereOrNull(
+        (vat) => vat.id == id,
+      );
       if (vatTax != null) {
         _selectedVatTaxNameList.add(vatTax.name!);
         _selectedVatTaxIdList.add(vatTax.id!);
@@ -1420,29 +2053,45 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<void> getStoreCategories({bool isUpdate = true}) async {
+    _categoryNameList = null;
+    if (isUpdate) {
+      Future.microtask(() => update());
+    }
+
     await Get.find<CategoryController>().getCategoryList();
 
     _categoryNameList = [];
     _categoryIdList = [];
     _categoryNameList!.add('all');
     _categoryIdList!.add(0);
-    if(Get.find<CategoryController>().categoryList != null) {
-      for(CategoryModel categoryModel in Get.find<CategoryController>().categoryList!) {
+    if (Get.find<CategoryController>().categoryList != null) {
+      for (CategoryModel categoryModel
+          in Get.find<CategoryController>().categoryList!) {
         _categoryNameList!.add(categoryModel.name!);
         _categoryIdList!.add(categoryModel.id!);
       }
     }
 
-    if(isUpdate) {
-      update();
+    if (isUpdate) {
+      Future.microtask(() => update());
     }
   }
 
-  void setCategory({required int index, required String foodType}) {
+  void setCategory({
+    required int index,
+    required String foodType,
+    int? moduleId,
+  }) {
     _categoryIndex = index;
-    _itemList == null;
+    _itemList = null;
     _categoryId = _categoryIdList![index];
-    getItemList(offset: '1', type: _type, search: '', categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0);
+    getItemList(
+      offset: '1',
+      type: foodType,
+      search: '',
+      categoryId: _categoryIndex != 0 ? _categoryIdList![_categoryIndex!] : 0,
+      moduleId: moduleId,
+    );
     update();
   }
 
@@ -1453,7 +2102,9 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void pickMetaImage() async {
-    _pickedMetaImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+    _pickedMetaImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     update();
   }
 
@@ -1466,138 +2117,216 @@ class StoreController extends GetxController implements GetxService {
     _selectedDuration = duration;
   }
 
-  void generateAndSetOtherData({required String title, required String description, TextEditingController? priceController, TextEditingController? discountController, TextEditingController? maxOrderQuantityController}) {
+  void generateAndSetOtherData({
+    required String title,
+    required String description,
+    TextEditingController? priceController,
+    TextEditingController? discountController,
+    TextEditingController? maxOrderQuantityController,
+  }) {
     AiController aiController = Get.find<AiController>();
 
-    aiController.generateOtherData(title: title, description: description).then((value) async {
+    aiController.generateOtherData(title: title, description: description).then(
+      (value) async {
+        OtherDataModel? otherData = aiController.otherDataModel;
 
-      OtherDataModel? otherData = aiController.otherDataModel;
-
-      if(otherData != null){
-        if(otherData.generalData?.data?.isHalal ?? false) {
-          toggleHalal();
-        }
-
-        Get.find<CategoryController>().setCategoryAndSubCategoryForAiData(
-          categoryId: otherData.generalData!.data!.categoryId.toString(),
-          subCategoryId: otherData.generalData!.data!.subCategoryId?.toString(),
-        );
-
-        if(otherData.generalData?.data?.nutrition != null && otherData.generalData!.data!.nutrition!.isNotEmpty) {
-          _getNutritionSuggestionList();
-          _selectedNutritionList = [];
-          _selectedNutritionList?.addAll(otherData.generalData!.data!.nutrition!);
-        }
-
-        if(otherData.generalData?.data?.allergy != null && otherData.generalData!.data!.allergy!.isNotEmpty) {
-          _getAllergicIngredientsSuggestionList();
-          _selectedAllergicIngredientsList = [];
-          _selectedAllergicIngredientsList?.addAll(otherData.generalData!.data!.allergy!);
-        }
-
-        setVeg(otherData.generalData?.data?.productType == 'veg', true);
-
-        if(Get.find<SplashController>().configModel!.systemTaxType == 'product_wise'){
-          if(_vatTaxList != null && _vatTaxList!.isNotEmpty) {
-            int randomIndex = Random().nextInt(_vatTaxList!.length);
-            VatTaxModel randomVatTax = _vatTaxList![randomIndex];
-            setSelectedVatTax(randomVatTax.name, randomVatTax.id, randomVatTax.taxRate);
+        if (otherData != null) {
+          if (otherData.generalData?.data?.isHalal ?? false) {
+            toggleHalal();
           }
-        }
 
-        if(otherData.generalData?.data?.addonsIds != null && otherData.generalData!.data!.addonsIds!.isNotEmpty) {
-          _selectedAddons = [];
-          List<int?> addonsIds = await Get.find<AddonController>().getAddonList();
+          Get.find<CategoryController>().setCategoryAndSubCategoryForAiData(
+            categoryId: otherData.generalData!.data!.categoryId.toString(),
+            subCategoryId: otherData.generalData!.data!.subCategoryId
+                ?.toString(),
+          );
 
-          for(int index = 0; index < otherData.generalData!.data!.addonsIds!.length; index++) {
-            setSelectedAddonIndex(addonsIds.indexOf(otherData.generalData!.data!.addonsIds![index]), false);
-          }
-          update();
-        }
-
-        setAvailableTimeStarts(startTime: otherData.generalData?.data?.availableTimeStarts);
-        setAvailableTimeEnds(endTime: otherData.generalData?.data?.availableTimeEnds);
-
-        ///Price & Discount
-        priceController?.text = otherData.priceData?.unitPrice.toString() ?? '0';
-        setDiscountTypeIndex(1, true);
-        discountController?.text = otherData.priceData?.discountAmount.toString() ?? '0';
-        maxOrderQuantityController?.text = otherData.priceData?.minimumOrderQuantity.toString() ?? '0';
-
-        ///Tags
-        if(otherData.generalData?.data?.searchTags != null && otherData.generalData!.data!.searchTags!.isNotEmpty){
-          _tagList = [];
-          _tagList.addAll(otherData.generalData!.data!.searchTags!);
-        }
-      }
-
-      update();
-    });
-  }
-
-  void generateAndSetVariationData({required String title, required String description}){
-    AiController aiController = Get.find<AiController>();
-
-    aiController.generateVariationData(title: title, description: description).then((value) {
-
-      VariationDataModel? variationData = aiController.variationDataModel;
-
-      if(variationData != null && variationData.data != null && variationData.data!.isNotEmpty) {
-        _variationList = [];
-        for (var variation in variationData.data!) {
-          List<Option> options = [];
-
-          for (var option in variation.options!) {
-            options.add(Option(
-              optionNameController: TextEditingController(text: option.optionName),
-              optionPriceController: TextEditingController(text: option.optionPrice.toString()),
-            ),
+          if (otherData.generalData?.data?.nutrition != null &&
+              otherData.generalData!.data!.nutrition!.isNotEmpty) {
+            _getNutritionSuggestionList();
+            _selectedNutritionList = [];
+            _selectedNutritionList?.addAll(
+              otherData.generalData!.data!.nutrition!,
             );
           }
 
-          _variationList!.add(VariationModelBodyModel(
-            nameController: TextEditingController(text: variation.variationName),
-            isSingle: variation.selectionType == 'single' ? true : false,
-            minController: TextEditingController(text: variation.min != null ? variation.min.toString() : ''),
-            maxController: TextEditingController(text: variation.max != null ? variation.max.toString() : ''),
-            required: variation.required == true,
-            options: options,
-          ));
+          if (otherData.generalData?.data?.allergy != null &&
+              otherData.generalData!.data!.allergy!.isNotEmpty) {
+            _getAllergicIngredientsSuggestionList();
+            _selectedAllergicIngredientsList = [];
+            _selectedAllergicIngredientsList?.addAll(
+              otherData.generalData!.data!.allergy!,
+            );
+          }
+
+          setVeg(otherData.generalData?.data?.productType == 'veg', true);
+
+          if (Get.find<SplashController>().configModel!.systemTaxType ==
+              'product_wise') {
+            if (_vatTaxList != null && _vatTaxList!.isNotEmpty) {
+              int randomIndex = Random().nextInt(_vatTaxList!.length);
+              VatTaxModel randomVatTax = _vatTaxList![randomIndex];
+              setSelectedVatTax(
+                randomVatTax.name,
+                randomVatTax.id,
+                randomVatTax.taxRate,
+              );
+            }
+          }
+
+          if (otherData.generalData?.data?.addonsIds != null &&
+              otherData.generalData!.data!.addonsIds!.isNotEmpty) {
+            _selectedAddons = [];
+            List<int?> addonsIds = await Get.find<AddonController>()
+                .getAddonList();
+
+            for (
+              int index = 0;
+              index < otherData.generalData!.data!.addonsIds!.length;
+              index++
+            ) {
+              setSelectedAddonIndex(
+                addonsIds.indexOf(
+                  otherData.generalData!.data!.addonsIds![index],
+                ),
+                false,
+              );
+            }
+            update();
+          }
+
+          setAvailableTimeStarts(
+            startTime: otherData.generalData?.data?.availableTimeStarts,
+          );
+          setAvailableTimeEnds(
+            endTime: otherData.generalData?.data?.availableTimeEnds,
+          );
+
+          ///Price & Discount
+          priceController?.text =
+              otherData.priceData?.unitPrice.toString() ?? '0';
+          setDiscountTypeIndex(1, true);
+          discountController?.text =
+              otherData.priceData?.discountAmount.toString() ?? '0';
+          maxOrderQuantityController?.text =
+              otherData.priceData?.minimumOrderQuantity.toString() ?? '0';
+
+          ///Tags
+          if (otherData.generalData?.data?.searchTags != null &&
+              otherData.generalData!.data!.searchTags!.isNotEmpty) {
+            _tagList = [];
+            _tagList.addAll(otherData.generalData!.data!.searchTags!);
+          }
         }
+
         update();
-      }
-    });
+      },
+    );
   }
 
-  void generateAndSetAttributeData({required String title, required String description}){
+  void generateAndSetVariationData({
+    required String title,
+    required String description,
+  }) {
     AiController aiController = Get.find<AiController>();
 
-    aiController.generateAttributeData(title: title, description: description).then((value) {
+    aiController
+        .generateVariationData(title: title, description: description)
+        .then((value) {
+          VariationDataModel? variationData = aiController.variationDataModel;
 
-      AttributeDataModel? attributeData = aiController.attributeDataModel;
+          if (variationData != null &&
+              variationData.data != null &&
+              variationData.data!.isNotEmpty) {
+            _variationList = [];
+            for (var variation in variationData.data!) {
+              List<Option> options = [];
 
-      if(attributeData != null && attributeData.data != null && attributeData.data?.choiceAttributes != null && attributeData.data!.choiceAttributes!.isNotEmpty) {
-        _attributeList = [];
-        for (var attribute in attributeData.data!.choiceAttributes!) {
-          _attributeList!.add(AttributeModel(
-            attribute: Attr(id: attribute.id, name: attribute.name),
-            active: attribute.options != null && attribute.options!.isNotEmpty,
-            controller: TextEditingController(),
-            variants: attribute.options != null ? attribute.options!.map((e) => e).toList() : [],
-          ));
-        }
-        update();
-      }
-    });
+              for (var option in variation.options!) {
+                options.add(
+                  Option(
+                    optionNameController: TextEditingController(
+                      text: option.optionName,
+                    ),
+                    optionPriceController: TextEditingController(
+                      text: option.optionPrice.toString(),
+                    ),
+                  ),
+                );
+              }
+
+              _variationList!.add(
+                VariationModelBodyModel(
+                  nameController: TextEditingController(
+                    text: variation.variationName,
+                  ),
+                  isSingle: variation.selectionType == 'single' ? true : false,
+                  minController: TextEditingController(
+                    text: variation.min != null ? variation.min.toString() : '',
+                  ),
+                  maxController: TextEditingController(
+                    text: variation.max != null ? variation.max.toString() : '',
+                  ),
+                  required: variation.required == true,
+                  options: options,
+                ),
+              );
+            }
+            update();
+          }
+        });
   }
 
-  Future<void> generateAndSetDataFromImage({List<Language>? languageList, TabController? tabController, List<TextEditingController>? nameControllerList, List<TextEditingController>? descriptionControllerList, TextEditingController? priceController,
-    TextEditingController? discountController, TextEditingController? maxOrderQuantityController}) async {
+  void generateAndSetAttributeData({
+    required String title,
+    required String description,
+  }) {
     AiController aiController = Get.find<AiController>();
 
-    await aiController.generateFromImage(image: _rawLogo!).then((response) async {
-      if(response.statusCode == 200){
+    aiController
+        .generateAttributeData(title: title, description: description)
+        .then((value) {
+          AttributeDataModel? attributeData = aiController.attributeDataModel;
 
+          if (attributeData != null &&
+              attributeData.data != null &&
+              attributeData.data?.choiceAttributes != null &&
+              attributeData.data!.choiceAttributes!.isNotEmpty) {
+            _attributeList = [];
+            for (var attribute in attributeData.data!.choiceAttributes!) {
+              _attributeList!.add(
+                AttributeModel(
+                  attribute: Attr(id: attribute.id, name: attribute.name),
+                  active:
+                      attribute.options != null &&
+                      attribute.options!.isNotEmpty,
+                  controller: TextEditingController(),
+                  variants: attribute.options != null
+                      ? attribute.options!.map((e) => e).toList()
+                      : [],
+                ),
+              );
+            }
+            update();
+          }
+        });
+  }
+
+  Future<void> generateAndSetDataFromImage({
+    List<Language>? languageList,
+    TabController? tabController,
+    List<TextEditingController>? nameControllerList,
+    List<TextEditingController>? descriptionControllerList,
+    TextEditingController? priceController,
+    TextEditingController? discountController,
+    TextEditingController? maxOrderQuantityController,
+  }) async {
+    AiController aiController = Get.find<AiController>();
+
+    await aiController.generateFromImage(image: _rawLogo!).then((
+      response,
+    ) async {
+      if (response.statusCode == 200) {
         aiController.setRequestType('image');
 
         String title = response.body['title'] ?? '';
@@ -1610,32 +2339,43 @@ class StoreController extends GetxController implements GetxService {
           Get.back();
         }
 
-        await aiController.generateTitleAndDes(title: title, langCode: languageList![tabController!.index].key!).then((value) {
-          if(aiController.titleDesModel != null){
-            nameControllerList?[tabController.index].text = aiController.titleDesModel!.title ?? '';
-            descriptionControllerList?[tabController.index].text = aiController.titleDesModel!.description ?? '';
-          }
-        }).then((value) {
-          generateAndSetOtherData(
-            title: aiController.titleDesModel?.title ?? '',
-            description: aiController.titleDesModel?.description ?? '',
-            priceController: priceController,
-            discountController: discountController,
-            maxOrderQuantityController: maxOrderQuantityController,
-          );
-        }).then((value) {
-          if(Get.find<SplashController>().getStoreModuleConfig().newVariation!){
-            generateAndSetVariationData(
-              title: aiController.titleDesModel?.title ?? '',
-              description: aiController.titleDesModel?.description ?? '',
-            );
-          }else{
-            generateAndSetAttributeData(
-              title: aiController.titleDesModel?.title ?? '',
-              description: aiController.titleDesModel?.description ?? '',
-            );
-          }
-        });
+        await aiController
+            .generateTitleAndDes(
+              title: title,
+              langCode: languageList![tabController!.index].key!,
+            )
+            .then((value) {
+              if (aiController.titleDesModel != null) {
+                nameControllerList?[tabController.index].text =
+                    aiController.titleDesModel!.title ?? '';
+                descriptionControllerList?[tabController.index].text =
+                    aiController.titleDesModel!.description ?? '';
+              }
+            })
+            .then((value) {
+              generateAndSetOtherData(
+                title: aiController.titleDesModel?.title ?? '',
+                description: aiController.titleDesModel?.description ?? '',
+                priceController: priceController,
+                discountController: discountController,
+                maxOrderQuantityController: maxOrderQuantityController,
+              );
+            })
+            .then((value) {
+              if (Get.find<SplashController>()
+                  .getStoreModuleConfig()
+                  .newVariation!) {
+                generateAndSetVariationData(
+                  title: aiController.titleDesModel?.title ?? '',
+                  description: aiController.titleDesModel?.description ?? '',
+                );
+              } else {
+                generateAndSetAttributeData(
+                  title: aiController.titleDesModel?.title ?? '',
+                  description: aiController.titleDesModel?.description ?? '',
+                );
+              }
+            });
       }
     });
     update();

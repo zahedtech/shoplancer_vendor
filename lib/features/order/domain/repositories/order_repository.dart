@@ -1,13 +1,13 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_cancellation_body_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_details_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart_store/features/order/domain/models/update_status_body_model.dart';
-import 'package:sixam_mart_store/features/order/domain/repositories/order_repository_interface.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_cancellation_body_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_details_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/models/update_status_body_model.dart';
+import 'package:shoplancer_vendor/features/order/domain/repositories/order_repository_interface.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 class OrderRepository implements OrderRepositoryInterface {
   final ApiClient apiClient;
@@ -75,6 +75,18 @@ class OrderRepository implements OrderRepositoryInterface {
   Future<ResponseModel> update(Map<String, dynamic> body) async {
     ResponseModel responseModel;
     Response response = await apiClient.postData(AppConstants.updateOrderUri, body, handleError: false);
+    if (response.statusCode == 200) {
+      responseModel = ResponseModel(true, response.body['message']);
+    } else {
+      responseModel = ResponseModel(false, response.statusText);
+    }
+    return responseModel;
+  }
+
+  @override
+  Future<ResponseModel> updateOrderItems(Map<String, dynamic> body) async {
+    ResponseModel responseModel;
+    Response response = await apiClient.postData(AppConstants.updateOrderItemsUri, body, handleError: false);
     if (response.statusCode == 200) {
       responseModel = ResponseModel(true, response.body['message']);
     } else {

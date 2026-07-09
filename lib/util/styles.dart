@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 
 const robotoRegular = TextStyle(
   fontFamily: AppConstants.fontFamily,

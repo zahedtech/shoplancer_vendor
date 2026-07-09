@@ -1,14 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sixam_mart_store/api/api_client.dart';
+import 'package:shoplancer_vendor/api/api_client.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/models/response_model.dart';
-import 'package:sixam_mart_store/features/auth/controllers/auth_controller.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/wallet_payment_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/widthdrow_method_model.dart';
-import 'package:sixam_mart_store/features/payment/domain/models/withdraw_model.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/util/app_constants.dart';
-import 'package:sixam_mart_store/features/payment/domain/repositories/payment_repository_interface.dart';
+import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/wallet_payment_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/withdraw_model.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/features/payment/domain/repositories/payment_repository_interface.dart';
 
 class PaymentRepository implements PaymentRepositoryInterface {
   final ApiClient apiClient;

@@ -58,7 +58,7 @@ class Cart {
   List<String>? variant;
   List<Variation>? variation;
   double? discountAmount;
-  int? quantity;
+  double? quantity;
   double? taxAmount;
   List<int>? addOnIds;
   List<int>? addOnQtys;
@@ -88,7 +88,7 @@ class Cart {
       });
     }
     discountAmount = json['discount_amount']?.toDouble();
-    quantity = json['quantity'];
+    quantity = json['quantity'] != null ? double.tryParse(json['quantity'].toString()) : null;
     taxAmount = json['tax_amount']?.toDouble();
     addOnIds = json['add_on_ids'].cast<int>();
     addOnQtys = json['add_on_qtys'].cast<int>();

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class PendingItemModel {
   int? totalSize;
   int? limit;
@@ -58,9 +60,23 @@ class Items {
     itemId = json['item_id'];
     if (json['category_ids'] != null) {
       categoryIds = <CategoryIds>[];
-      json['category_ids'].forEach((v) {
-        categoryIds!.add(CategoryIds.fromJson(v));
-      });
+      dynamic categories = json['category_ids'];
+      if (categories is String) {
+        if (categories.isNotEmpty) {
+          try {
+            categories = jsonDecode(categories);
+          } catch (e) {
+            categories = [];
+          }
+        } else {
+          categories = [];
+        }
+      }
+      if (categories is List) {
+        categories.forEach((v) {
+          categoryIds!.add(CategoryIds.fromJson(v));
+        });
+      }
     }
   }
 

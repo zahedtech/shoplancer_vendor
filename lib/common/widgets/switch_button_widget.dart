@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:sixam_mart_store/common/widgets/details_custom_card.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/details_custom_card.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:flutter/material.dart';
 
 class SwitchButtonWidget extends StatelessWidget {
@@ -11,12 +11,13 @@ class SwitchButtonWidget extends StatelessWidget {
   final Function onTap;
   final String? description;
   final String? languageName;
-  const SwitchButtonWidget({super.key, this.icon, required this.title, required this.onTap, this.isButtonActive, this.description, this.languageName});
+  final bool isLoading;
+  const SwitchButtonWidget({super.key, this.icon, required this.title, required this.onTap, this.isButtonActive, this.description, this.languageName, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap as void Function()?,
+      onTap: isLoading ? null : onTap as void Function()?,
       child: DetailsCustomCard(
         padding: EdgeInsets.only(
           left: Dimensions.paddingSizeDefault,
@@ -41,14 +42,22 @@ class SwitchButtonWidget extends StatelessWidget {
             ]),
           ),
 
-          isButtonActive != null ? Transform.scale(
-            scale: 0.7,
-            child: CupertinoSwitch(
-              activeTrackColor: Theme.of(context).primaryColor,
-              inactiveTrackColor: Theme.of(context).hintColor.withValues(alpha: 0.5),
-              value: isButtonActive!,
-              onChanged: (bool? value) => onTap(),
-            ),
+          isButtonActive != null ? (
+            isLoading ? const SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(
+                child: CupertinoActivityIndicator(),
+              ),
+            ) : Transform.scale(
+              scale: 0.7,
+              child: CupertinoSwitch(
+                activeTrackColor: Theme.of(context).primaryColor,
+                inactiveTrackColor: Theme.of(context).hintColor.withValues(alpha: 0.5),
+                value: isButtonActive!,
+                onChanged: isLoading ? null : (bool? value) => onTap(),
+              ),
+            )
           ) : languageName != null ? Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Dimensions.radiusSmall),

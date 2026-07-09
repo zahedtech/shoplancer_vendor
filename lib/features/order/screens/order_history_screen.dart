@@ -1,45 +1,81 @@
-import 'package:sixam_mart_store/features/order/controllers/order_controller.dart';
-import 'package:sixam_mart_store/features/order/widgets/running_order_body_widget.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
+import 'package:shoplancer_vendor/features/order/widgets/running_order_body_widget.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../widgets/order_history_body_widget.dart';
 
-class OrderHistoryScreen extends StatelessWidget {
+class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Get.find<OrderController>().getPaginatedOrders(1, true);
+  State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
+}
 
+class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<OrderController>().getPaginatedOrders(1, true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: CustomAppBarWidget(title: 'my_orders'.tr, isBackButtonExist: false, bottom: _orderTabBar(context)),
-        body: TabBarView(children: [
-          RunningOrderBodyWidget() , OrderHistoryBodyWidget()
-        ]),
+        appBar: CustomAppBarWidget(
+          title: 'my_orders'.tr,
+          isBackButtonExist: false,
+        ),
+        body: Column(
+          children: [
+            _orderTabBar(context),
+            Expanded(
+              child: TabBarView(
+                children: [RunningOrderBodyWidget(), OrderHistoryBodyWidget()],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-
 TabBar _orderTabBar(BuildContext context) {
+  final theme = Theme.of(context);
+
   return TabBar(
-    indicator: BoxDecoration(color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(30)),
+    indicator: BoxDecoration(
+      borderRadius: BorderRadius.circular(999),
+      color: Theme.of(context).primaryColor,
+    ),
     indicatorSize: TabBarIndicatorSize.tab,
-    labelColor: Theme.of(context).cardColor,
-    unselectedLabelColor: Theme.of(context).hintColor,
-    labelStyle: robotoMedium.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+    labelColor: theme.cardColor,
+    unselectedLabelColor: theme.textTheme.bodyLarge?.color?.withValues(
+      alpha: 0.7,
+    ),
+    labelStyle: robotoBold.copyWith(fontSize: 14),
     unselectedLabelStyle: robotoMedium.copyWith(fontSize: 14),
     dividerColor: Colors.transparent,
     overlayColor: WidgetStateProperty.all(Colors.transparent),
-    padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, top: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeDefault, right: 96),
-    tabs: [Tab(text: 'running_order'.tr), Tab(text: 'order_history'.tr)],
+    padding: const EdgeInsets.symmetric(
+      horizontal: Dimensions.paddingSizeDefault,
+      vertical: Dimensions.paddingSizeSmall,
+    ),
+    labelPadding: const EdgeInsets.symmetric(
+      horizontal: Dimensions.paddingSizeSmall,
+    ),
+    tabs: [
+      Tab(text: 'running_order'.tr),
+      Tab(text: 'order_history'.tr),
+    ],
   );
 }

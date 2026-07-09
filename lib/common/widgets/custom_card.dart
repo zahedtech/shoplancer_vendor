@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget? child;

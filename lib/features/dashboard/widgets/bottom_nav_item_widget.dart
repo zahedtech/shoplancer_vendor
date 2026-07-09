@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class BottomNavItemWidget extends StatelessWidget {
   final String selectedIcon;
@@ -8,28 +8,49 @@ class BottomNavItemWidget extends StatelessWidget {
   final String title;
   final Function? onTap;
   final bool isSelected;
-  const BottomNavItemWidget({super.key, this.onTap, this.isSelected = false, required this.title, required this.selectedIcon, required this.unSelectedIcon});
+  const BottomNavItemWidget({
+    super.key,
+    this.onTap,
+    this.isSelected = false,
+    required this.title,
+    required this.selectedIcon,
+    required this.unSelectedIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: InkWell(
         onTap: onTap as void Function()?,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              isSelected ? selectedIcon : unSelectedIcon,
+              height: 25,
+              width: 25,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).textTheme.bodyMedium!.color!,
+            ),
 
-          Image.asset(
-            isSelected ? selectedIcon : unSelectedIcon, height: 25, width: 25,
-            color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyMedium!.color!,
-          ),
+            SizedBox(
+              height: isSelected
+                  ? Dimensions.paddingSizeExtraSmall
+                  : Dimensions.paddingSizeSmall,
+            ),
 
-          SizedBox(height: isSelected ? Dimensions.paddingSizeExtraSmall : Dimensions.paddingSizeSmall),
-
-          Text(
-            title,
-            style: robotoRegular.copyWith(color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyMedium!.color!, fontSize: 12),
-          ),
-
-        ]),
+            Text(
+              title,
+              style: robotoRegular.copyWith(
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).textTheme.bodyMedium!.color!,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:sixam_mart_store/features/advertisement/controllers/advertisement_controller.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_bottom_sheet_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_image_widget.dart';
-import 'package:sixam_mart_store/features/advertisement/enums/ads_type.dart';
-import 'package:sixam_mart_store/features/advertisement/screens/create_advertisement_screen.dart';
-import 'package:sixam_mart_store/features/advertisement/widgets/ads_item.dart';
-import 'package:sixam_mart_store/features/advertisement/widgets/confirmation_bottom_sheet.dart';
-import 'package:sixam_mart_store/features/advertisement/widgets/network_video_preview_widget.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/route_helper.dart';
-import 'package:sixam_mart_store/helper/string_extensions.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/features/advertisement/controllers/advertisement_controller.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_bottom_sheet_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/features/advertisement/enums/ads_type.dart';
+import 'package:shoplancer_vendor/features/advertisement/screens/create_advertisement_screen.dart';
+import 'package:shoplancer_vendor/features/advertisement/widgets/ads_item.dart';
+import 'package:shoplancer_vendor/features/advertisement/widgets/confirmation_bottom_sheet.dart';
+import 'package:shoplancer_vendor/features/advertisement/widgets/network_video_preview_widget.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/helper/string_extensions.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class AdvertisementDetailsScreen extends StatefulWidget {
   final int id;

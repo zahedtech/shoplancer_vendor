@@ -1,4 +1,4 @@
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 
 class CouponBodyModel {
   int? id;

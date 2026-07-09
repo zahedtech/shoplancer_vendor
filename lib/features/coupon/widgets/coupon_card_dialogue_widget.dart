@@ -2,19 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_ink_well_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
-import 'package:sixam_mart_store/features/coupon/controllers/coupon_controller.dart';
-import 'package:sixam_mart_store/features/coupon/domain/models/coupon_body_model.dart';
-import 'package:sixam_mart_store/helper/date_converter_helper.dart';
-import 'package:sixam_mart_store/helper/price_converter_helper.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/util/images.dart';
-import 'package:sixam_mart_store/util/styles.dart';
-import 'package:sixam_mart_store/common/widgets/confirmation_dialog_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_loader_widget.dart';
-import 'package:sixam_mart_store/features/coupon/screens/add_coupon_screen.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/coupon/controllers/coupon_controller.dart';
+import 'package:shoplancer_vendor/features/coupon/domain/models/coupon_body_model.dart';
+import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_loader_widget.dart';
+import 'package:shoplancer_vendor/features/coupon/screens/add_coupon_screen.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class CouponCardDialogueWidget extends StatelessWidget {
@@ -67,20 +67,28 @@ class CouponCardDialogueWidget extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
                                 child: Row(children: [
                                   Text('status'.tr, style: robotoMedium),
-                                  Transform.scale(
-                                    scale: 0.7,
-                                    child: CupertinoSwitch(
-                                      activeTrackColor: Colors.teal,
-                                      value: couponController.coupons![index].status == 1 ? true : false,
-                                      onChanged: (bool status){
-                                        couponController.changeStatus(couponController.coupons![index].id, status).then((success) {
-                                          if(success){
-                                            couponController.getCouponList();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                  couponController.loadingCouponList.contains(couponController.coupons![index].id)
+                                      ? const SizedBox(
+                                          width: 40,
+                                          height: 40,
+                                          child: Center(
+                                            child: CupertinoActivityIndicator(),
+                                          ),
+                                        )
+                                      : Transform.scale(
+                                          scale: 0.7,
+                                          child: CupertinoSwitch(
+                                            activeTrackColor: Colors.teal,
+                                            value: couponController.coupons![index].status == 1 ? true : false,
+                                            onChanged: (bool status){
+                                              couponController.changeStatus(couponController.coupons![index].id, status).then((success) {
+                                                if(success){
+                                                  couponController.getCouponList();
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
                                 ]),
                               ),
                               const SizedBox(width: Dimensions.paddingSizeSmall),

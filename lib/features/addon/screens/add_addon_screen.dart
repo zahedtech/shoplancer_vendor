@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
-import 'package:sixam_mart_store/common/widgets/custom_app_bar_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_card.dart';
-import 'package:sixam_mart_store/common/widgets/custom_drop_down_button.dart.dart';
-import 'package:sixam_mart_store/common/widgets/custom_text_field_widget.dart';
-import 'package:sixam_mart_store/features/addon/controllers/addon_controller.dart';
-import 'package:sixam_mart_store/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart_store/common/models/config_model.dart';
-import 'package:sixam_mart_store/features/store/controllers/store_controller.dart';
-import 'package:sixam_mart_store/features/store/domain/models/item_model.dart';
-import 'package:sixam_mart_store/util/dimensions.dart';
-import 'package:sixam_mart_store/common/widgets/custom_button_widget.dart';
-import 'package:sixam_mart_store/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_card.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
+import 'package:shoplancer_vendor/features/addon/controllers/addon_controller.dart';
+import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+import 'package:shoplancer_vendor/common/models/config_model.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/util/dimensions.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart_store/util/styles.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 
 class AddAddonScreen extends StatefulWidget {
   final AddOns? addon;
@@ -30,18 +30,13 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
   final List<FocusNode> _nameNodes = [];
   final FocusNode _priceNode = FocusNode();
   final List<Language>? _languageList = Get.find<SplashController>().configModel!.language;
-  TabController? _tabController;
-  final List<Tab> _tabs = [];
   late bool _update;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _languageList!.length, initialIndex: 0, vsync: this);
-    for (var language in _languageList) {
-      if (kDebugMode) {
-        print(language);
-      }
+
+    for (var language in _languageList!) {
       _nameControllers.add(TextEditingController());
       _nameNodes.add(FocusNode());
     }
@@ -59,36 +54,17 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
       if (Get.find<StoreController>().vatTaxList != null && Get.find<StoreController>().selectedVatTaxIdList.isEmpty && widget.addon!.taxVatIds != null && widget.addon!.taxVatIds!.isNotEmpty) {
         Get.find<StoreController>().preloadVatTax(vatTaxList: widget.addon!.taxVatIds!);
       }
-    }
 
-    if(widget.addon != null) {
       for(int index = 0; index < _languageList.length; index++) {
-        if(widget.addon!.translations!.isNotEmpty){
-          _nameControllers.add(TextEditingController(text: widget.addon?.translations?[widget.addon!.translations!.length-1].value ?? ''));
-        }
-        _nameNodes.add(FocusNode());
         for(Translation translation in widget.addon!.translations!) {
           if(_languageList[index].key == translation.locale && translation.key == 'name') {
-            _nameControllers[index] = TextEditingController(text: translation.value);
+            _nameControllers[index].text = translation.value ?? '';
             break;
           }
         }
       }
       _priceController.text = widget.addon!.price.toString();
-    }else {
-      for (var language in _languageList) {
-        _nameControllers.add(TextEditingController());
-        _nameNodes.add(FocusNode());
-        if (kDebugMode) {
-          print(language);
-        }
-      }
     }
-
-    for (var language in _languageList) {
-      _tabs.add(Tab(text: language.value));
-    }
-
   }
 
   @override
@@ -123,39 +99,12 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
                           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                           child: Column(children: [
 
-                            SizedBox(
-                              height: 40,
-                              child: TabBar(
-                                tabAlignment: TabAlignment.start,
-                                controller: _tabController,
-                                indicatorColor: Theme.of(context).textTheme.bodyLarge?.color,
-                                indicatorWeight: 3,
-                                labelColor: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.6),
-                                unselectedLabelColor: Theme.of(context).disabledColor,
-                                unselectedLabelStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor),
-                                labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                labelPadding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                                indicatorPadding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                                isScrollable: true,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                dividerColor: Colors.transparent,
-                                tabs: _tabs,
-                                onTap: (int ? value) {
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                              child: Divider(height: 0),
-                            ),
-
                             CustomTextFieldWidget(
-                              hintText: '${'name'.tr} (${_languageList?[_tabController!.index].value}) *',
+                              hintText: 'name'.tr,
                               labelText: 'name'.tr,
-                              controller: _nameControllers[_tabController!.index],
-                              focusNode: _nameNodes[_tabController!.index],
-                              nextFocus: _tabController!.index != _languageList!.length-1 ? _priceNode : _priceNode,
+                              controller: _nameControllers[0],
+                              focusNode: _nameNodes[0],
+                              nextFocus: _priceNode,
                               inputType: TextInputType.name,
                               capitalization: TextCapitalization.words,
                               showTitle: false,
@@ -302,10 +251,10 @@ class _AddAddonScreenState extends State<AddAddonScreen> with TickerProviderStat
                     showCustomSnackBar('select_vat_tax'.tr);
                   }else {
                     List<Translation> nameList = [];
-                    for(int index = 0; index < _languageList.length; index++) {
+                    for(int index = 0; index < _languageList!.length; index++) {
                       nameList.add(Translation(
                         locale: _languageList[index].key, key: 'name',
-                        value: _nameControllers[index].text.trim().isNotEmpty ? _nameControllers[index].text.trim() : _nameControllers[0].text.trim(),
+                        value: _nameControllers[0].text.trim(),
                       ));
                     }
 
