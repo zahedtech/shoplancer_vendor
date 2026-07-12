@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
+import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
@@ -164,45 +165,98 @@ class MinimalProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (hasDiscount)
-                                Text(
-                                  PriceConverterHelper.convertPrice(
-                                    originalPrice,
+                          child: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'increase') {
+                                double currentPrice = item.price ?? 0;
+                                double newPrice = currentPrice * 2;
+                                Map<String, String> data = Get.find<StoreController>().buildStockUpdateData(item, price: newPrice);
+                                await Get.find<StoreController>().bulkItemsUpdate([data]);
+                              } else if (value == 'decrease') {
+                                double currentPrice = item.price ?? 0;
+                                double newPrice = currentPrice / 2;
+                                Map<String, String> data = Get.find<StoreController>().buildStockUpdateData(item, price: newPrice);
+                                await Get.find<StoreController>().bulkItemsUpdate([data]);
+                              }
+                            },
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (hasDiscount)
+                                  Text(
+                                    PriceConverterHelper.convertPrice(originalPrice),
+                                    style: robotoRegular.copyWith(
+                                      fontSize: 11,
+                                      color: Theme.of(context).disabledColor,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
                                   ),
-                                  style: robotoRegular.copyWith(
-                                    fontSize: 11,
-                                    color: Theme.of(context).disabledColor,
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        PriceConverterHelper.convertPrice(
+                                          hasDiscount ? discountedPrice : originalPrice,
+                                        ),
+                                        style: robotoBold.copyWith(
+                                          fontSize: 17,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 20,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ],
                                 ),
-                              Text(
-                                PriceConverterHelper.convertPrice(
-                                  hasDiscount ? discountedPrice : originalPrice,
+                              ],
+                            ),
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                              PopupMenuItem<String>(
+                                value: 'increase',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.trending_up, size: 18, color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    Text('${'increase_price'.tr} (x2)'),
+                                  ],
                                 ),
-                                style: robotoBold.copyWith(
-                                  fontSize: 17,
-                                  color: Theme.of(context).primaryColor,
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'decrease',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.trending_down, size: 18, color: Colors.red),
+                                    const SizedBox(width: 8),
+                                    Text('${'decrease_price'.tr} (/2)'),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Container(
-                          height: 36,
-                          width: 36,
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.edit_rounded,
-                            color: Theme.of(context).primaryColor,
-                            size: 20,
+                        InkWell(
+                          onTap: () {
+                            Get.toNamed(RouteHelper.getItemDetailsRoute(item));
+                          },
+                          child: Container(
+                            height: 36,
+                            width: 36,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.edit_rounded,
+                              color: Theme.of(context).primaryColor,
+                              size: 20,
+                            ),
                           ),
                         ),
                       ],

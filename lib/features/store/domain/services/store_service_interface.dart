@@ -19,6 +19,7 @@ abstract class StoreServiceInterface {
     required String search,
     int? categoryId,
     int? moduleId,
+    String? barcode,
   });
   Future<ItemModel?> getStockItemList(String offset);
   Future<PendingItemModel?> getPendingItemList(String offset, String type);

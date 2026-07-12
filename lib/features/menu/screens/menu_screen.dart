@@ -42,22 +42,12 @@ class MenuScreen extends StatelessWidget {
           isBlocked: !store!.itemSection!,
         ),
       );
-
       menuList.add(
         MenuModel(
           icon: Images.disbursementIcon,
-          title: 'product_price_update'.tr,
-          route: RouteHelper.getProductPriceUpdateRoute(),
-          isBlocked: !store.itemSection!,
-        ),
-      );
-
-      menuList.add(
-        MenuModel(
-          icon: Images.active,
-          title: 'product_status_update'.tr,
-          route: RouteHelper.getProductStatusRoute(),
-          isBlocked: !store.itemSection!,
+          title: 'إدارة المنتجات',
+          route: RouteHelper.getProductManagementRoute(),
+          isBlocked: !(store?.itemSection ?? false),
         ),
       );
     }
@@ -266,6 +256,17 @@ class MenuScreen extends StatelessWidget {
     //     );
     //   }
     // }
+    if (modulePermission.storeSetup!) {
+      menuList.add(
+        MenuModel(
+          icon: Images.wallet,
+          title: 'payment_method'.tr,
+          route: '',
+          isPaymentMethods: true,
+        ),
+      );
+    }
+
     menuList.add(
       MenuModel(
         icon: Images.settingIcon,
@@ -273,22 +274,6 @@ class MenuScreen extends StatelessWidget {
         route: RouteHelper.getSettingRoute(),
       ),
     );
-
-    menuList.add(
-      MenuModel(
-        icon: Images.policy,
-        title: 'privacy_policy'.tr,
-        route: RouteHelper.getPrivacyRoute(),
-      ),
-    );
-    menuList.add(
-      MenuModel(
-        icon: Images.terms,
-        title: 'terms_condition'.tr,
-        route: RouteHelper.getTermsRoute(),
-      ),
-    );
-    menuList.add(MenuModel(icon: Images.logOut, title: 'logout'.tr, route: ''));
 
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
@@ -309,7 +294,7 @@ class MenuScreen extends StatelessWidget {
             return MenuButtonWidget(
               menu: menuList[index],
               isProfile: index == 0,
-              isLogout: index == menuList.length - 1,
+              isLogout: false,
             );
           },
         ),

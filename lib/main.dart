@@ -28,7 +28,9 @@ Future<void> main() async {
   Map<String, Map<String, String>> languages = await di.init();
 
   try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     if (!e.toString().contains('duplicate-app')) rethrow;
   }

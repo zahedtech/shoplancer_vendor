@@ -54,120 +54,128 @@ class RunningOrderBodyWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: Dimensions.paddingSizeSmall,
               ),
-              child: CustomScrollView(
-                slivers: [
-                  // SliverToBoxAdapter(
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.symmetric(
-                  //       horizontal: Dimensions.paddingSizeDefault,
-                  //     ),
-                  //     child:
-                  //         (profileController.modulePermission?.order ?? false)
-                  //         ? Padding(
-                  //             padding: const EdgeInsets.only(
-                  //               top: Dimensions.paddingSizeDefault,
-                  //               bottom: Dimensions.paddingSizeSmall,
-                  //             ),
-                  //             child: InkWell(
-                  //               onTap: () =>
-                  //                   orderController.toggleCampaignOnly(),
-                  //               child: Row(
-                  //                 children: [
-                  //                   SizedBox(
-                  //                     height: 24,
-                  //                     width: 24,
-                  //                     child: Checkbox(
-                  //                       side: BorderSide(
-                  //                         color: Theme.of(
-                  //                           context,
-                  //                         ).disabledColor,
-                  //                         width: 1,
-                  //                       ),
-                  //                       activeColor: Theme.of(
-                  //                         context,
-                  //                       ).primaryColor,
-                  //                       value: orderController.campaignOnly,
-                  //                       onChanged: (isActive) => orderController
-                  //                           .toggleCampaignOnly(),
-                  //                     ),
-                  //                   ),
-                  //                   const SizedBox(
-                  //                     width: Dimensions.paddingSizeSmall,
-                  //                   ),
-                  //                   Text(
-                  //                     'campaign_orders_only'.tr,
-                  //                     style: robotoRegular.copyWith(
-                  //                       fontSize: Dimensions.fontSizeSmall,
-                  //                       color: Theme.of(context).disabledColor,
-                  //                     ),
-                  //                   ),
-                  //                 ],
-                  //               ),
-                  //             ),
-                  //           )
-                  //         : SizedBox.shrink(),
-                  //   ),
-                  // ),
-                  if (orderController.runningOrders != null)
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: SliverDelegate(
-                        height: 50,
-                        child: Container(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await orderController.getCurrentOrders();
+                  await profileController.getProfile();
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    // SliverToBoxAdapter(
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: Dimensions.paddingSizeDefault,
+                    //     ),
+                    //     child:
+                    //         (profileController.modulePermission?.order ?? false)
+                    //         ? Padding(
+                    //             padding: const EdgeInsets.only(
+                    //               top: Dimensions.paddingSizeDefault,
+                    //               bottom: Dimensions.paddingSizeSmall,
+                    //             ),
+                    //             child: InkWell(
+                    //               onTap: () =>
+                    //                   orderController.toggleCampaignOnly(),
+                    //               child: Row(
+                    //                 children: [
+                    //                   SizedBox(
+                    //                     height: 24,
+                    //                     width: 24,
+                    //                     child: Checkbox(
+                    //                       side: BorderSide(
+                    //                         color: Theme.of(
+                    //                           context,
+                    //                         ).disabledColor,
+                    //                         width: 1,
+                    //                       ),
+                    //                       activeColor: Theme.of(
+                    //                         context,
+                    //                       ).primaryColor,
+                    //                       value: orderController.campaignOnly,
+                    //                       onChanged: (isActive) => orderController
+                    //                           .toggleCampaignOnly(),
+                    //                     ),
+                    //                   ),
+                    //                   const SizedBox(
+                    //                     width: Dimensions.paddingSizeSmall,
+                    //                   ),
+                    //                   Text(
+                    //                     'campaign_orders_only'.tr,
+                    //                     style: robotoRegular.copyWith(
+                    //                       fontSize: Dimensions.fontSizeSmall,
+                    //                       color: Theme.of(context).disabledColor,
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             ),
+                    //           )
+                    //         : SizedBox.shrink(),
+                    //   ),
+                    // ),
+                    if (orderController.runningOrders != null)
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: SliverDelegate(
                           height: 50,
-                          color: Theme.of(context).cardColor,
-                          child: ListView.builder(
-                            padding: EdgeInsets.only(
-                              bottom: Dimensions.paddingSizeSmall,
-                            ),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: orderController.runningOrders!.length,
-                            itemBuilder: (context, index) => OrderButtonWidget(
-                              title: orderController
-                                  .runningOrders![index]
-                                  .status
-                                  .tr,
-                              index: index,
-                              orderController: orderController,
-                              fromHistory: false,
+                          child: Container(
+                            height: 50,
+                            color: Theme.of(context).cardColor,
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(
+                                bottom: Dimensions.paddingSizeSmall,
+                              ),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: orderController.runningOrders!.length,
+                              itemBuilder: (context, index) =>
+                                  OrderButtonWidget(
+                                    title: orderController
+                                        .runningOrders![index]
+                                        .status
+                                        .tr,
+                                    index: index,
+                                    orderController: orderController,
+                                    fromHistory: false,
+                                  ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                  if (orderController.runningOrders != null)
-                    orderList.isNotEmpty
-                        ? SliverList(
-                            delegate: SliverChildBuilderDelegate((
-                              context,
-                              index,
-                            ) {
-                              return OrderWidget(
-                                orderModel: orderList[index],
-                                hasDivider: index != orderList.length - 1,
-                                isRunning: true,
-                              );
-                            }, childCount: orderList.length),
-                          )
-                        : SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 50,
-                                bottom: 100,
+                    if (orderController.runningOrders != null)
+                      orderList.isNotEmpty
+                          ? SliverList(
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                return OrderWidget(
+                                  orderModel: orderList[index],
+                                  hasDivider: index != orderList.length - 1,
+                                  isRunning: true,
+                                );
+                              }, childCount: orderList.length),
+                            )
+                          : SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 50,
+                                  bottom: 100,
+                                ),
+                                child: Center(child: Text('no_order_found'.tr)),
                               ),
-                              child: Center(child: Text('no_order_found'.tr)),
-                            ),
-                          )
-                  else
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return OrderShimmerWidget(
-                          isEnabled: orderController.runningOrders == null,
-                        );
-                      }, childCount: 10),
-                    ),
-                ],
+                            )
+                    else
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          return OrderShimmerWidget(
+                            isEnabled: orderController.runningOrders == null,
+                          );
+                        }, childCount: 10),
+                      ),
+                  ],
+                ),
               ),
             );
           },

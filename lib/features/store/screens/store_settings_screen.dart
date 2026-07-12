@@ -474,135 +474,25 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                           )
                                         : const SizedBox(),
 
-                                    SizedBox(
-                                      height:
-                                          profileController.modulePermission !=
-                                                  null &&
-                                              profileController
-                                                  .modulePermission!
-                                                  .storeSetup!
-                                          ? Dimensions.paddingSizeDefault
-                                          : 0,
-                                    ),
-                                    SwitchButtonWidget(
-                                      title: 'default_banner'.tr,
-                                      isButtonActive: _store.defaultBanner == 1,
-                                      onTap: () {
-                                        _store.defaultBanner =
-                                            (_store.defaultBanner == 1) ? 0 : 1;
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeDefault,
-                              ),
-
-                              /// Payment Methods
-                              Text('payment_method'.tr, style: robotoBold),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeSmall,
-                              ),
-                              CustomCard(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeDefault,
-                                ),
-                                child: Column(
-                                  children: [
-                                    SwitchButtonWidget(
-                                      title: 'cash'.tr,
-                                      isButtonActive: _isCashMethodEnabled,
-                                      onTap: () {
-                                        setState(() {
-                                          _isCashMethodEnabled =
-                                              !_isCashMethodEnabled;
-                                        });
-                                      },
-                                    ),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeDefault,
-                                    ),
-
-                                    SwitchButtonWidget(
-                                      title: 'digital_wallet'.tr,
-                                      isButtonActive: _isWalletMethodEnabled,
-                                      onTap: () {
-                                        setState(() {
-                                          _isWalletMethodEnabled =
-                                              !_isWalletMethodEnabled;
-                                        });
-                                      },
-                                    ),
-                                    if (_isWalletMethodEnabled) ...[
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraLarge,
-                                      ),
-                                      CustomTextFieldWidget(
-                                        hintText: 'phone_number'.tr,
-                                        labelText: 'phone_number'.tr,
-                                        controller: _walletPhoneController,
-                                        inputType: TextInputType.phone,
-                                        isEnabled: _isWalletMethodEnabled,
-                                        hideEnableText: true,
-                                      ),
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraLarge,
-                                      ),
-                                      CustomTextFieldWidget(
-                                        hintText: 'holder_name'.tr,
-                                        labelText: 'holder_name'.tr,
-                                        controller:
-                                            _walletAccountNameController,
-                                        inputType: TextInputType.text,
-                                        isEnabled: _isWalletMethodEnabled,
-                                        hideEnableText: true,
-                                      ),
-                                    ],
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeDefault,
-                                    ),
-
-                                    SwitchButtonWidget(
-                                      title: 'InstaPay',
-                                      isButtonActive: _isInstaPayMethodEnabled,
-                                      onTap: () {
-                                        setState(() {
-                                          _isInstaPayMethodEnabled =
-                                              !_isInstaPayMethodEnabled;
-                                        });
-                                      },
-                                    ),
-                                    if (_isInstaPayMethodEnabled) ...[
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraLarge,
-                                      ),
-                                      CustomTextFieldWidget(
-                                        hintText: 'phone_number'.tr,
-                                        labelText: 'phone_number'.tr,
-                                        controller: _instaPayPhoneController,
-                                        inputType: TextInputType.phone,
-                                        isEnabled: _isInstaPayMethodEnabled,
-                                        hideEnableText: true,
-                                      ),
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraLarge,
-                                      ),
-                                      CustomTextFieldWidget(
-                                        hintText: 'holder_name'.tr,
-                                        labelText: 'holder_name'.tr,
-                                        controller:
-                                            _instaPayAccountNameController,
-                                        inputType: TextInputType.text,
-                                        isEnabled: _isInstaPayMethodEnabled,
-                                        hideEnableText: true,
-                                      ),
-                                    ],
+                                    // SizedBox(
+                                    //   height:
+                                    //       profileController.modulePermission !=
+                                    //               null &&
+                                    //           profileController
+                                    //               .modulePermission!
+                                    //               .storeSetup!
+                                    //       ? Dimensions.paddingSizeDefault
+                                    //       : 0,
+                                    // ),
+                                    // SwitchButtonWidget(
+                                    //   title: 'default_banner'.tr,
+                                    //   isButtonActive: _store.defaultBanner == 1,
+                                    //   onTap: () {
+                                    //     _store.defaultBanner =
+                                    //         (_store.defaultBanner == 1) ? 0 : 1;
+                                    //     setState(() {});
+                                    //   },
+                                    // ),
                                   ],
                                 ),
                               ),

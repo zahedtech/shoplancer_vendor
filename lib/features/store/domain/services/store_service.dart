@@ -27,6 +27,7 @@ class StoreService implements StoreServiceInterface {
     required String search,
     int? categoryId,
     int? moduleId,
+    String? barcode,
   }) async {
     return await storeRepositoryInterface.getItemList(
       offset: offset,
@@ -34,6 +35,7 @@ class StoreService implements StoreServiceInterface {
       search: search,
       categoryId: categoryId,
       moduleId: moduleId,
+      barcode: barcode,
     );
   }
 

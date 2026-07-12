@@ -322,34 +322,65 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                                           child: FittedBox(
                                                             fit: BoxFit
                                                                 .scaleDown,
-                                                            child: Text(
-                                                              banner.title
-                                                                  .toString(),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: robotoBold.copyWith(
-                                                                fontSize: 20,
-                                                                color: Colors
-                                                                    .white,
-                                                                shadows: [
-                                                                  Shadow(
+                                                            child: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                Text(
+                                                                  banner.title
+                                                                      .toString(),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  style: robotoBold.copyWith(
+                                                                    fontSize:
+                                                                        20,
                                                                     color: Colors
-                                                                        .black
-                                                                        .withValues(
-                                                                          alpha:
-                                                                              0.25,
-                                                                        ),
-                                                                    offset:
-                                                                        const Offset(
-                                                                          0,
-                                                                          2,
-                                                                        ),
-                                                                    blurRadius:
-                                                                        4,
+                                                                        .white,
+                                                                    shadows: [
+                                                                      Shadow(
+                                                                        color: Colors
+                                                                            .black
+                                                                            .withValues(
+                                                                              alpha: 0.25,
+                                                                            ),
+                                                                        offset:
+                                                                            const Offset(
+                                                                              0,
+                                                                              2,
+                                                                            ),
+                                                                        blurRadius:
+                                                                            4,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                if ((banner.subTitle ??
+                                                                        '')
+                                                                    .isNotEmpty) ...[
+                                                                  const SizedBox(
+                                                                    height: 4,
+                                                                  ),
+                                                                  Text(
+                                                                    banner
+                                                                        .subTitle!,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style: robotoRegular.copyWith(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Colors
+                                                                          .white
+                                                                          .withValues(
+                                                                            alpha:
+                                                                                0.9,
+                                                                          ),
+                                                                    ),
                                                                   ),
                                                                 ],
-                                                              ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ),

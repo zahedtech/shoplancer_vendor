@@ -31,16 +31,21 @@ class StoreRepository implements StoreRepositoryInterface {
     required String search,
     int? categoryId,
     int? moduleId,
+    String? barcode,
   }) async {
     ItemModel? itemModel;
     String url = '';
+    final String encodedSearch = Uri.encodeQueryComponent(search);
+    final String barcodeQuery = barcode != null && barcode.trim().isNotEmpty
+        ? '&barcode=${Uri.encodeQueryComponent(barcode.trim())}'
+        : '';
     if (moduleId != null) {
       int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       url =
-          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     } else {
       url =
-          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     }
     Response response = await apiClient.getData(url);
     if (response.statusCode == 200) {

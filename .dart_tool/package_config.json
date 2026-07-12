@@ -800,6 +800,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "mobile_scanner",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/mobile_scanner-7.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "native_toolchain_c",
       "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/native_toolchain_c-0.17.4",
       "packageUri": "lib/",
@@ -1098,6 +1104,12 @@
       "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/shimmer_animation-2.2.2+1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "showcaseview",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/showcaseview-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "sky_engine",

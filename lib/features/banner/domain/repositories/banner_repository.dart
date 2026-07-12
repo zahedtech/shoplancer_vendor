@@ -21,6 +21,7 @@ class BannerRepository implements BannerRepositoryInterface {
       'translations': jsonEncode(banner?.translations),
       'default_link': banner?.defaultLink ?? '',
       'type': banner?.type ?? 'image',
+      'background_color': banner?.backgroundColor ?? '',
     });
     List<MultipartBody> multipart = [];
     if (image != null) {
@@ -107,6 +108,7 @@ class BannerRepository implements BannerRepositoryInterface {
       'id': banner!.id!.toString(),
       '_method': 'put',
       'type': banner.type ?? 'image',
+      'background_color': banner.backgroundColor ?? '',
     });
     Response response = await apiClient.postMultipartData(
       AppConstants.updateStoreBannerUri,

@@ -15,6 +15,9 @@ import 'package:shoplancer_vendor/features/profile/widgets/notification_status_c
 import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -131,7 +134,95 @@ class _SettingScreenState extends State<SettingScreen> {
                       )
                     : const SizedBox(),
 
-                SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                InkWell(
+                  onTap: () => Get.toNamed(RouteHelper.getPrivacyRoute()),
+                  child: DetailsCustomCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.privacy_tip_outlined, size: 24, color: Theme.of(context).primaryColor),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Expanded(
+                          child: Text(
+                            'privacy_policy'.tr,
+                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).disabledColor),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                InkWell(
+                  onTap: () => Get.toNamed(RouteHelper.getTermsRoute()),
+                  child: DetailsCustomCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.description_outlined, size: 24, color: Theme.of(context).primaryColor),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Expanded(
+                          child: Text(
+                            'terms_condition'.tr,
+                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).disabledColor),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                InkWell(
+                  onTap: () {
+                    Get.dialog(
+                      ConfirmationDialogWidget(
+                        icon: Images.support,
+                        description: 'are_you_sure_to_logout'.tr,
+                        isLogOut: true,
+                        onYesPressed: () async {
+                          Get.find<AuthController>().clearSharedData();
+                          Get.offAllNamed(RouteHelper.getSignInRoute());
+                        },
+                      ),
+                    );
+                  },
+                  child: DetailsCustomCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.logout_rounded, size: 24, color: Colors.red),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Expanded(
+                          child: Text(
+                            'logout'.tr,
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
