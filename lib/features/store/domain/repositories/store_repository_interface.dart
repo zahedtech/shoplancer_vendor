@@ -16,6 +16,7 @@ abstract class StoreRepositoryInterface<T>
     required String search,
     int? categoryId,
     int? moduleId,
+    String? barcode,
   });
   Future<dynamic> getStockItemList(String offset);
   Future<dynamic> getPendingItemList(String offset, String type);

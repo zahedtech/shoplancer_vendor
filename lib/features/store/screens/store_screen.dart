@@ -19,6 +19,8 @@ class StoreScreen extends StatefulWidget {
 
 class _StoreScreenState extends State<StoreScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _showSearch = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _StoreScreenState extends State<StoreScreen> {
           Get.find<StoreController>().getItemList(
             offset: Get.find<StoreController>().offset.toString(),
             type: Get.find<StoreController>().type,
-            search: '',
+            search: _searchController.text,
             categoryId: Get.find<StoreController>().categoryId,
           );
         }
@@ -51,6 +53,7 @@ class _StoreScreenState extends State<StoreScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -117,39 +120,137 @@ class _StoreScreenState extends State<StoreScreen> {
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    storeController.isSearching
-                                        ? 'search_results'.tr
-                                        : (storeController.categoryIndex != 0 &&
-                                                  storeController
-                                                          .categoryNameList !=
-                                                      null
-                                              ? storeController
-                                                    .categoryNameList![storeController
-                                                        .categoryIndex!]
-                                                    .tr
-                                              : 'all_products'.tr),
-                                    style: robotoBold.copyWith(
-                                      fontSize: 18,
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
-                                    ),
-                                  ),
-                                  if (storeController.itemList != null)
-                                    Text(
-                                      '${store.totalItems ?? 0} ${'items'.tr}',
-                                      style: robotoRegular.copyWith(
-                                        fontSize: 14,
-                                        color: Theme.of(context).disabledColor,
+                              child: _showSearch
+                                  ? Container(
+                                      height: 48,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Theme.of(context).disabledColor.withOpacity(0.15),
+                                          width: 1,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.02),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          )
+                                        ],
                                       ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.search,
+                                            color: Theme.of(context).disabledColor,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: TextField(
+                                              controller: _searchController,
+                                              decoration: InputDecoration(
+                                                hintText: 'search_products'.tr,
+                                                hintStyle: robotoRegular.copyWith(
+                                                  color: Theme.of(context).disabledColor,
+                                                  fontSize: 14,
+                                                ),
+                                                border: InputBorder.none,
+                                                isDense: true,
+                                              ),
+                                              style: robotoRegular.copyWith(
+                                                fontSize: 14,
+                                                color: Theme.of(context).textTheme.bodyLarge?.color,
+                                              ),
+                                              textInputAction: TextInputAction.search,
+                                              onSubmitted: (query) {
+                                                storeController.getItemList(
+                                                  offset: '1',
+                                                  type: storeController.type,
+                                                  search: query,
+                                                  categoryId: storeController.categoryId,
+                                                  willUpdate: true,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Theme.of(context).disabledColor,
+                                              size: 20,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _showSearch = false;
+                                                _searchController.clear();
+                                              });
+                                              storeController.getItemList(
+                                                offset: '1',
+                                                type: storeController.type,
+                                                search: '',
+                                                categoryId: storeController.categoryId,
+                                                willUpdate: true,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              storeController.isSearching
+                                                  ? 'search_results'.tr
+                                                  : (storeController.categoryIndex != 0 &&
+                                                            storeController
+                                                                    .categoryNameList !=
+                                                                null
+                                                        ? storeController
+                                                              .categoryNameList![storeController
+                                                                  .categoryIndex!]
+                                                              .tr
+                                                        : 'all_products'.tr),
+                                              style: robotoBold.copyWith(
+                                                fontSize: 18,
+                                                color: Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge?.color,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                              icon: Icon(
+                                                Icons.search,
+                                                color: Theme.of(context).primaryColor,
+                                                size: 22,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _showSearch = true;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        if (storeController.itemList != null)
+                                          Text(
+                                            '${store.totalItems ?? 0} ${'items'.tr}',
+                                            style: robotoRegular.copyWith(
+                                              fontSize: 14,
+                                              color: Theme.of(context).disabledColor,
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                                ],
-                              ),
                             ),
                           ),
 

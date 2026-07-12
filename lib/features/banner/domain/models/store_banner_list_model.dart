@@ -15,6 +15,7 @@ class StoreBannerListModel {
   bool? featured;
   String? defaultLink;
   String? createdBy;
+  String? backgroundColor;
   List<Translation>? translations;
   int? bannerCatalogId;
 
@@ -33,6 +34,7 @@ class StoreBannerListModel {
     this.featured,
     this.defaultLink,
     this.createdBy,
+    this.backgroundColor,
     this.translations,
     this.bannerCatalogId,
   });
@@ -54,6 +56,7 @@ class StoreBannerListModel {
         : json['featured'];
     defaultLink = json['default_link'];
     createdBy = json['created_by'];
+    backgroundColor = json['background_color'];
     bannerCatalogId = json['banner_catalog_id'];
     if (json['translations'] != null) {
       translations = [];
@@ -87,6 +90,7 @@ class StoreBannerListModel {
     data['featured'] = featured;
     data['default_link'] = defaultLink;
     data['created_by'] = createdBy;
+    data['background_color'] = backgroundColor;
     data['banner_catalog_id'] = bannerCatalogId;
     if (translations != null) {
       data['translations'] = translations!.map((v) => v.toJson()).toList();

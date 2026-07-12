@@ -345,13 +345,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                           children: [
                                             Row(
                                               children: [
-                                                Text(
-                                                  'ongoing_orders'.tr,
-                                                  style: robotoBold.copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeLarge,
+                                                Expanded(
+                                                  child: Text(
+                                                    'ongoing_orders'.tr,
+                                                    style: robotoBold.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeLarge,
+                                                    ),
                                                   ),
                                                 ),
+                                                if (orderController
+                                                        .runningOrders !=
+                                                    null)
+                                                  _runningOrderSortDropdown(
+                                                    context,
+                                                    orderController,
+                                                  ),
                                                 // const Spacer(),
 
                                                 // orderController.runningOrders !=
@@ -609,6 +618,50 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _runningOrderSortDropdown(
+    BuildContext context,
+    OrderController orderController,
+  ) {
+    return Container(
+      height: 36,
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.paddingSizeSmall,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+        border: Border.all(
+          color: Theme.of(context).disabledColor.withValues(alpha: 0.25),
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: orderController.runningOrderSort,
+          isDense: true,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 18,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+          style: robotoMedium.copyWith(
+            fontSize: Dimensions.fontSizeSmall,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          items: [
+            DropdownMenuItem(value: 'latest', child: Text('latest_orders'.tr)),
+            DropdownMenuItem(value: 'oldest', child: Text('oldest_orders'.tr)),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              orderController.setRunningOrderSort(value);
+            }
+          },
         ),
       ),
     );

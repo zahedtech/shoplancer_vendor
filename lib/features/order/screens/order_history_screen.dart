@@ -20,6 +20,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<OrderController>().getCurrentOrders();
       Get.find<OrderController>().getPaginatedOrders(1, true);
     });
   }

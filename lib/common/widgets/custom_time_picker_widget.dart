@@ -17,12 +17,42 @@ class CustomTimePickerWidget extends StatefulWidget {
 
 class _CustomTimePickerWidgetState extends State<CustomTimePickerWidget> {
   String? _myTime;
+  int? _selectedHour;
+  int? _selectedMinute;
+  String? _selectedPeriod;
+
+  final List<int> _hours = List.generate(12, (index) => index + 1);
+  final List<int> _minutes = List.generate(60, (index) => index);
+  final List<String> _periods = ['am', 'pm'];
 
   @override
   void initState() {
     super.initState();
+    _parseTime();
+  }
 
+  @override
+  void didUpdateWidget(covariant CustomTimePickerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.time != oldWidget.time) {
+      _parseTime();
+    }
+  }
+
+  void _parseTime() {
     _myTime = widget.time;
+    int hour24 = 9;
+    int min = 0;
+    if (_myTime != null && _myTime!.contains(':')) {
+      List<String> parts = _myTime!.split(':');
+      hour24 = int.tryParse(parts[0]) ?? 9;
+      min = int.tryParse(parts[1]) ?? 0;
+    }
+    int hour12 = hour24 % 12;
+    if (hour12 == 0) hour12 = 12;
+    _selectedHour = hour12;
+    _selectedMinute = min;
+    _selectedPeriod = hour24 >= 12 ? 'pm' : 'am';
   }
 
   @override
@@ -31,23 +61,129 @@ class _CustomTimePickerWidgetState extends State<CustomTimePickerWidget> {
 
       InkWell(
         onTap: () async {
-          TimeOfDay? time = await showTimePicker(
-            context: context, initialTime: TimeOfDay(hour: DateTime.now().hour, minute: DateTime.now().minute),
-            builder: (BuildContext context, Widget? child) {
-              return MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  alwaysUse24HourFormat: Get.find<SplashController>().configModel!.timeformat == '24',
+          showDialog(
+            context: context,
+            builder: (context) {
+              int tempHour = _selectedHour ?? 9;
+              int tempMinute = _selectedMinute ?? 0;
+              String tempPeriod = _selectedPeriod ?? 'am';
+              return AlertDialog(
+                title: Text(widget.title, style: robotoBold),
+                content: StatefulBuilder(
+                  builder: (context, setStateDialog) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Hour Dropdown
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: tempHour,
+                              items: _hours.map((int value) {
+                                return DropdownMenuItem<int>(
+                                  value: value,
+                                  child: Text(value.toString().padLeft(2, '0'), style: robotoMedium),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setStateDialog(() {
+                                    tempHour = val;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        const Text(':', style: robotoBold),
+                        // Minute Dropdown
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<int>(
+                              value: tempMinute,
+                              items: _minutes.map((int value) {
+                                return DropdownMenuItem<int>(
+                                  value: value,
+                                  child: Text(value.toString().padLeft(2, '0'), style: robotoMedium),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setStateDialog(() {
+                                    tempMinute = val;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        // Period Dropdown
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: tempPeriod,
+                              items: _periods.map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value.tr, style: robotoMedium),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setStateDialog(() {
+                                    tempPeriod = val;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                child: child!,
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('cancel'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedHour = tempHour;
+                        _selectedMinute = tempMinute;
+                        _selectedPeriod = tempPeriod;
+
+                        int hour24 = tempHour;
+                        if (tempPeriod == 'pm' && tempHour < 12) hour24 += 12;
+                        if (tempPeriod == 'am' && tempHour == 12) hour24 = 0;
+
+                        _myTime = '${hour24.toString().padLeft(2, '0')}:${tempMinute.toString().padLeft(2, '0')}';
+                      });
+                      widget.onTimeChanged(_myTime);
+                      Navigator.pop(context);
+                    },
+                    child: Text('ok'.tr, style: robotoBold.copyWith(color: Theme.of(context).primaryColor)),
+                  ),
+                ],
               );
             },
           );
-          if(time != null) {
-            setState(() {
-              _myTime = DateConverterHelper.convertTimeToTime(DateTime(DateTime.now().year, 1, 1, time.hour, time.minute));
-            });
-            widget.onTimeChanged(_myTime);
-          }
         },
         child: Stack(clipBehavior: Clip.none, children: [
 

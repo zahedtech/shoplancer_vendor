@@ -28,6 +28,15 @@ class _AddBannerScreenState extends State<AddBannerScreen>
     with TickerProviderStateMixin {
   static const String _bannerTypeImage = 'image';
   static const String _bannerTypeText = 'text';
+  static const String _defaultBackgroundColor = '#00A082';
+  static const List<String> _backgroundColorOptions = [
+    '#00A082',
+    '#FF8A00',
+    '#EF4444',
+    '#2563EB',
+    '#7C3AED',
+    '#111827',
+  ];
 
   final TextEditingController _urlController = TextEditingController();
   final List<TextEditingController> _titleController = [];
@@ -43,6 +52,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
 
   late bool _update;
   late String _bannerType;
+  late String _backgroundColorHex;
   StoreBannerListModel? _storeBannerListModel;
 
   @override
@@ -52,6 +62,8 @@ class _AddBannerScreenState extends State<AddBannerScreen>
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
     _bannerType = widget.storeBannerListModel?.type ?? _bannerTypeImage;
+    _backgroundColorHex =
+        widget.storeBannerListModel?.backgroundColor ?? _defaultBackgroundColor;
 
     if (_update) {
       List<Translation> translation = _storeBannerListModel?.translations ?? [];
@@ -334,6 +346,87 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                   height: Dimensions.paddingSizeLarge,
                                 ),
 
+                                Text(
+                                  'banner_background_color'.tr,
+                                  style: robotoBold,
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(
+                                    Dimensions.paddingSizeDefault,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusDefault,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withValues(alpha: 0.2),
+                                    ),
+                                  ),
+                                  child: Wrap(
+                                    spacing: Dimensions.paddingSizeSmall,
+                                    runSpacing: Dimensions.paddingSizeSmall,
+                                    children: _backgroundColorOptions.map((
+                                      colorHex,
+                                    ) {
+                                      final bool isSelected =
+                                          _backgroundColorHex == colorHex;
+                                      final Color color = _colorFromHex(
+                                        colorHex,
+                                      );
+
+                                      return InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            _backgroundColorHex = colorHex;
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(
+                                          Dimensions.radiusDefault,
+                                        ),
+                                        child: Container(
+                                          height: 42,
+                                          width: 42,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius:
+                                                BorderRadius.circular(
+                                                  Dimensions.radiusDefault,
+                                                ),
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).textTheme.bodyLarge!
+                                                        .color!
+                                                  : Colors.white.withValues(
+                                                      alpha: 0.5,
+                                                    ),
+                                              width: isSelected ? 2 : 1,
+                                            ),
+                                          ),
+                                          child: isSelected
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                )
+                                              : null,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeLarge,
+                                ),
+
                                 // Real-Time Preview
                                 Text('live_preview'.tr, style: robotoBold),
                                 const SizedBox(
@@ -348,19 +441,19 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     ),
                                     gradient: LinearGradient(
                                       colors: [
-                                        Theme.of(context).primaryColor,
-                                        Theme.of(
-                                          context,
-                                        ).primaryColor.withValues(alpha: 0.7),
+                                        _colorFromHex(_backgroundColorHex),
+                                        _colorFromHex(
+                                          _backgroundColorHex,
+                                        ).withValues(alpha: 0.72),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Theme.of(
-                                          context,
-                                        ).primaryColor.withValues(alpha: 0.3),
+                                        color: _colorFromHex(
+                                          _backgroundColorHex,
+                                        ).withValues(alpha: 0.3),
                                         blurRadius: 10,
                                         offset: const Offset(0, 5),
                                       ),
@@ -763,6 +856,8 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                               _storeBannerListModel?.defaultLink =
                                   defaultLinkText;
                               _storeBannerListModel?.type = _bannerType;
+                              _storeBannerListModel?.backgroundColor =
+                                  isImageBanner ? null : _backgroundColorHex;
                               if (_update) {
                                 bannerController.updateBanner(
                                   banner: _storeBannerListModel,
@@ -791,5 +886,10 @@ class _AddBannerScreenState extends State<AddBannerScreen>
         },
       ),
     );
+  }
+
+  Color _colorFromHex(String hexColor) {
+    final String normalized = hexColor.replaceAll('#', '');
+    return Color(int.parse('FF$normalized', radix: 16));
   }
 }

@@ -10,17 +10,42 @@ import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/auth/widgets/min_max_time_picker_widget.dart';
 
-class CustomTimePickerWidget extends StatelessWidget {
+class CustomTimePickerWidget extends StatefulWidget {
   const CustomTimePickerWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    List<String> time = [];
-    for(int i = 1; i <= 60 ; i++){
-      time.add(i.toString());
-    }
-    List<String> unit = ['minute'.tr, 'hours'.tr, 'days'.tr];
+  State<CustomTimePickerWidget> createState() => _CustomTimePickerWidgetState();
+}
 
+class _CustomTimePickerWidgetState extends State<CustomTimePickerWidget> {
+  late TextEditingController _minTimeController;
+  late TextEditingController _maxTimeController;
+  final List<String> _unitKeys = ['minute', 'hours', 'days'];
+
+  @override
+  void initState() {
+    super.initState();
+    final authController = Get.find<AuthController>();
+    _minTimeController = TextEditingController(text: authController.storeMinTime);
+    _maxTimeController = TextEditingController(text: authController.storeMaxTime);
+
+    _minTimeController.addListener(() {
+      authController.minTimeChange(_minTimeController.text);
+    });
+    _maxTimeController.addListener(() {
+      authController.maxTimeChange(_maxTimeController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _minTimeController.dispose();
+    _maxTimeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     AddressController addressController = Get.find<AddressController>();
 
     bool isRental = addressController.moduleList != null && addressController.selectedModuleIndex != -1 &&
@@ -88,21 +113,77 @@ class CustomTimePickerWidget extends StatelessWidget {
 
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
 
-              MinMaxTimePickerWidget(
-                times: time, onChanged: (int index)=> authController.minTimeChange(time[index]),
-                initialPosition: 10,
+              Expanded(
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                  ),
+                  child: TextField(
+                    controller: _minTimeController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: robotoMedium,
+                    decoration: InputDecoration(
+                      hintText: 'minimum'.tr,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(width: 10),
 
-              const Text(':', style: robotoBold),
+              const Text('-', style: robotoBold),
+              const SizedBox(width: 10),
 
-              MinMaxTimePickerWidget(
-                times: time, onChanged: (int index)=> authController.maxTimeChange(time[index]),
-                initialPosition: 10,
+              Expanded(
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                  ),
+                  child: TextField(
+                    controller: _maxTimeController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: robotoMedium,
+                    decoration: InputDecoration(
+                      hintText: 'maximum'.tr,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(width: 10),
 
-              MinMaxTimePickerWidget(
-                times: unit, onChanged: (int index) => authController.timeUnitChange(unit[index]),
-                initialPosition: 1,
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.5), width: 0.5),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _unitKeys.contains(authController.storeTimeUnit) ? authController.storeTimeUnit : _unitKeys[0],
+                    items: _unitKeys.map((String key) {
+                      return DropdownMenuItem<String>(
+                        value: key,
+                        child: Text(key.tr, style: robotoMedium),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        authController.timeUnitChange(value);
+                        authController.setDeliveryTimeTypeIndex(value, false);
+                      }
+                    },
+                  ),
+                ),
               ),
 
             ]),
@@ -110,7 +191,7 @@ class CustomTimePickerWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge),
               child: Text(
-                '${authController.storeMinTime} - ${authController.storeMaxTime} ${authController.storeTimeUnit}',
+                '${authController.storeMinTime} - ${authController.storeMaxTime} ${authController.storeTimeUnit.tr}',
                 style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
               ),
             ),

@@ -8,7 +8,8 @@ class MenuModel {
   bool isNotSubscribe;
   bool isLanguage;
   bool isWhatsApp;
+  bool isPaymentMethods;
   Color? iconColor;
 
-  MenuModel({required this.icon, required this.title, required this.route, this.isBlocked = false, this.isNotSubscribe = false, this.iconColor, this.isLanguage = false, this.isWhatsApp = false});
+  MenuModel({required this.icon, required this.title, required this.route, this.isBlocked = false, this.isNotSubscribe = false, this.iconColor, this.isLanguage = false, this.isWhatsApp = false, this.isPaymentMethods = false});
 }

@@ -64,8 +64,7 @@ import 'package:shoplancer_vendor/features/store/screens/store_edit_screen.dart'
 import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
-import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
-import 'package:shoplancer_vendor/features/store/screens/product_status_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
 
@@ -147,6 +146,7 @@ class RouteHelper {
   static const String setting = '/setting';
   static const String productPriceUpdate = '/product-price-update';
   static const String productStatus = '/product-status';
+  static const String productManagement = '/product-management';
   static const String socialMedia = '/social-media';
   static const String alternativeItemSelection = '/alternative-item-selection';
 
@@ -362,8 +362,10 @@ class RouteHelper {
   static String getSettingRoute() => setting;
   static String getProductPriceUpdateRoute() => productPriceUpdate;
   static String getProductStatusRoute() => productStatus;
+  static String getProductManagementRoute() => productManagement;
   static String getSocialMediaRoute() => socialMedia;
-  static String getAlternativeItemSelectionRoute(int orderId) => '$alternativeItemSelection?order_id=$orderId';
+  static String getAlternativeItemSelectionRoute(int orderId) =>
+      '$alternativeItemSelection?order_id=$orderId';
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => const DashboardScreen(pageIndex: 0)),
@@ -761,11 +763,12 @@ class RouteHelper {
     GetPage(name: setting, page: () => const SettingScreen()),
     GetPage(
       name: productPriceUpdate,
-      page: () => const ProductPriceManagementScreen(),
+      page: () => const ProductManagementScreen(),
     ),
+    GetPage(name: productStatus, page: () => const ProductManagementScreen()),
     GetPage(
-      name: productStatus,
-      page: () => const ProductStatusScreen(),
+      name: productManagement,
+      page: () => const ProductManagementScreen(),
     ),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
     GetPage(

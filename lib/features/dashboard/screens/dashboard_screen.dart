@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/dashboard/widgets/out_of_stock_warning_bottom_sheet.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
@@ -32,6 +35,59 @@ class DashboardScreen extends StatefulWidget {
 
 class DashboardScreenState extends State<DashboardScreen> {
   PageController? _pageController;
+  final GlobalKey _homeKey = GlobalKey();
+  final GlobalKey _ordersKey = GlobalKey();
+  final GlobalKey _storeKey = GlobalKey();
+  final GlobalKey _walletKey = GlobalKey();
+  final GlobalKey _menuKey = GlobalKey();
+  bool _showcaseInitiated = false;
+
+  Future<void> _checkAndShowcase(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isShowcaseShown = prefs.getBool('showcase_shown') ?? false;
+    if (!isShowcaseShown) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          ShowCaseWidget.of(context).startShowCase([
+            _homeKey,
+            _ordersKey,
+            _storeKey,
+            _walletKey,
+            _menuKey,
+          ]);
+          prefs.setBool('showcase_shown', true);
+        }
+      });
+    }
+  }
+
+  Widget _buildShowcaseItem({
+    required GlobalKey key,
+    required String title,
+    required String description,
+    required Widget child,
+    bool isCircle = false,
+  }) {
+    return Showcase(
+      key: key,
+      title: title,
+      description: description,
+      targetShapeBorder: isCircle
+          ? const CircleBorder()
+          : const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+      tooltipBackgroundColor: Theme.of(context).primaryColor,
+      textColor: Colors.white,
+      titleTextStyle: robotoBold.copyWith(color: Colors.white, fontSize: 16),
+      descTextStyle: robotoRegular.copyWith(
+        color: Colors.white.withOpacity(0.9),
+        fontSize: 13,
+      ),
+      child: child,
+    );
+  }
+
   int _pageIndex = 0;
   late List<Widget> _screens;
   FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
@@ -92,115 +148,142 @@ class DashboardScreenState extends State<DashboardScreen> {
 
     bool keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async{
-        if(_pageIndex != 0) {
-          _setPage(0);
-        }else {
-          if(_canExit) {
-            if (GetPlatform.isAndroid) {
-              SystemNavigator.pop();
-            } else if (GetPlatform.isIOS) {
-              exit(0);
-            }
-          }
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-            margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          ));
-          _canExit = true;
-
-          Timer(const Duration(seconds: 2), () {
-            _canExit = false;
-          });
+    return ShowCaseWidget(
+      builder: (showcaseCtx) {
+        if (!_showcaseInitiated) {
+          _showcaseInitiated = true;
+          _checkAndShowcase(showcaseCtx);
         }
-      },
-      child: SafeArea(
-        top: false,
-        child: Scaffold(
 
-          floatingActionButton: !GetPlatform.isMobile || keyboardVisible ? null : Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).cardColor, width: 5),
-              shape: BoxShape.circle,
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
-            ),
-            child: FloatingActionButton(
-              backgroundColor:Theme.of(context).primaryColor,
-              onPressed: () {
-                _setPage(2);
-              },
-              child: Image.asset(
-                Get.find<AuthController>().getModuleType() == 'rental' ? Images.taxiHome : Images.restaurant,
-                height: 20, width: 20,
-                color: Theme.of(context).cardColor,
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async{
+            if(_pageIndex != 0) {
+              _setPage(0);
+            }else {
+              if(_canExit) {
+                if (GetPlatform.isAndroid) {
+                  SystemNavigator.pop();
+                } else if (GetPlatform.isIOS) {
+                  exit(0);
+                }
+              }
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+                margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+              ));
+              _canExit = true;
+
+              Timer(const Duration(seconds: 2), () {
+                _canExit = false;
+              });
+            }
+          },
+          child: SafeArea(
+            top: false,
+            child: Scaffold(
+
+              floatingActionButton: !GetPlatform.isMobile || keyboardVisible ? null : _buildShowcaseItem(
+                key: _storeKey,
+                title: 'showcase_store_title'.tr,
+                description: 'showcase_store_desc'.tr,
+                isCircle: true,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).cardColor, width: 5),
+                    shape: BoxShape.circle,
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
+                  ),
+                  child: FloatingActionButton(
+                    backgroundColor:Theme.of(context).primaryColor,
+                    onPressed: () {
+                      _setPage(2);
+                    },
+                    child: Image.asset(
+                      Get.find<AuthController>().getModuleType() == 'rental' ? Images.taxiHome : Images.restaurant,
+                      height: 20, width: 20,
+                      color: Theme.of(context).cardColor,
+                    ),
+                  ),
+                ),
+              ),
+              floatingActionButtonLocation: !GetPlatform.isMobile ? null : FloatingActionButtonLocation.centerDocked,
+
+              bottomNavigationBar: !GetPlatform.isMobile ? const SizedBox() : Container(
+                height: 65,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(Dimensions.radiusLarge)),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                  child: Row(children: [
+                    BottomNavItemWidget(
+                      title: 'home'.tr,
+                      selectedIcon: Images.homeSelect,
+                      unSelectedIcon: Images.homeUnselect,
+                      isSelected: _pageIndex == 0,
+                      onTap: () => _setPage(0),
+                      showcaseKey: _homeKey,
+                      showcaseTitle: 'showcase_home_title'.tr,
+                      showcaseDescription: 'showcase_home_desc'.tr,
+                    ),
+                    BottomNavItemWidget(
+                      title: Get.find<AuthController>().getModuleType() == 'rental' ? 'trips'.tr : 'orders'.tr,
+                      selectedIcon: Images.orderSelect,
+                      unSelectedIcon: Images.orderUnselect,
+                      isSelected: _pageIndex == 1,
+                      onTap: () => _setPage(1),
+                      showcaseKey: _ordersKey,
+                      showcaseTitle: 'showcase_orders_title'.tr,
+                      showcaseDescription: 'showcase_orders_desc'.tr,
+                    ),
+                    const Expanded(child: SizedBox()),
+                    BottomNavItemWidget(
+                      title: 'wallet'.tr,
+                      selectedIcon: Images.walletSelect,
+                      unSelectedIcon: Images.walletUnSelect,
+                      isSelected: _pageIndex == 3,
+                      onTap: () => _setPage(3),
+                      showcaseKey: _walletKey,
+                      showcaseTitle: 'showcase_wallet_title'.tr,
+                      showcaseDescription: 'showcase_wallet_desc'.tr,
+                    ),
+                    BottomNavItemWidget(
+                      title: 'menu'.tr,
+                      selectedIcon: Images.menu,
+                      unSelectedIcon: Images.menu,
+                      isSelected: _pageIndex == 4,
+                      onTap: () {
+                        Get.to(
+                          () => Get.find<AuthController>().getModuleType() == 'rental'
+                              ? const TaxiMenuScreen()
+                              : const MenuScreen(),
+                        );
+                      },
+                      showcaseKey: _menuKey,
+                      showcaseTitle: 'showcase_menu_title'.tr,
+                      showcaseDescription: 'showcase_menu_desc'.tr,
+                    ),
+                  ]),
+                ),
+              ),
+              body: PageView.builder(
+                controller: _pageController,
+                itemCount: _screens.length,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return _screens[index];
+                },
               ),
             ),
           ),
-          floatingActionButtonLocation: !GetPlatform.isMobile ? null : FloatingActionButtonLocation.centerDocked,
-
-          bottomNavigationBar: !GetPlatform.isMobile ? const SizedBox() : Container(
-            height: 65,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(Dimensions.radiusLarge)),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-              child: Row(children: [
-                BottomNavItemWidget(
-                  title: 'home'.tr,
-                  selectedIcon: Images.homeSelect,
-                  unSelectedIcon: Images.homeUnselect,
-                  isSelected: _pageIndex == 0,
-                  onTap: () => _setPage(0),
-                ),
-                BottomNavItemWidget(
-                  title: Get.find<AuthController>().getModuleType() == 'rental' ? 'trips'.tr : 'orders'.tr,
-                  selectedIcon: Images.orderSelect,
-                  unSelectedIcon: Images.orderUnselect,
-                  isSelected: _pageIndex == 1,
-                  onTap: () => _setPage(1),
-                ),
-                const Expanded(child: SizedBox()),
-                BottomNavItemWidget(
-                  title: 'wallet'.tr,
-                  selectedIcon: Images.walletSelect,
-                  unSelectedIcon: Images.walletUnSelect,
-                  isSelected: _pageIndex == 3,
-                  onTap: () => _setPage(3),
-                ),
-                BottomNavItemWidget(
-                  title: 'menu'.tr,
-                  selectedIcon: Images.menu,
-                  unSelectedIcon: Images.menu,
-                  isSelected: _pageIndex == 4,
-                  onTap: () {
-                    Get.to(
-                      () => Get.find<AuthController>().getModuleType() == 'rental'
-                          ? const TaxiMenuScreen()
-                          : const MenuScreen(),
-                    );
-                  }
-                ),
-              ]),
-            ),
-          ),
-          body: PageView.builder(
-            controller: _pageController,
-            itemCount: _screens.length,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return _screens[index];
-            },
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
