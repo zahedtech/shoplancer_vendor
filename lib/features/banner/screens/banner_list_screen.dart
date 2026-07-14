@@ -259,18 +259,15 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                                         ),
                                                     gradient: LinearGradient(
                                                       colors: [
-                                                        Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                        Theme.of(context)
-                                                            .primaryColor
-                                                            .withValues(
-                                                              alpha: 0.7,
-                                                            ),
+                                                        banner.backgroundColor != null && banner.backgroundColor!.isNotEmpty
+                                                            ? _colorFromHex(banner.backgroundColor!)
+                                                            : Theme.of(context).primaryColor,
+                                                        banner.backgroundColor != null && banner.backgroundColor!.isNotEmpty
+                                                            ? _colorFromHex(banner.backgroundColor!).withValues(alpha: 0.7)
+                                                            : Theme.of(context).primaryColor.withValues(alpha: 0.7),
                                                       ],
                                                       begin: Alignment.topLeft,
-                                                      end:
-                                                          Alignment.bottomRight,
+                                                      end: Alignment.bottomRight,
                                                     ),
                                                   ),
                                                   child: Stack(
@@ -651,6 +648,15 @@ class _BannerListScreenState extends State<BannerListScreen> {
       await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  Color _colorFromHex(String hexColor) {
+    final String normalized = hexColor.replaceAll('#', '');
+    try {
+      return Color(int.parse('FF$normalized', radix: 16));
+    } catch (e) {
+      return const Color(0xFF00A082);
     }
   }
 }

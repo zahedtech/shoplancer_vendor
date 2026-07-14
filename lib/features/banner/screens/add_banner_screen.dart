@@ -41,6 +41,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
   final TextEditingController _urlController = TextEditingController();
   final List<TextEditingController> _titleController = [];
   final List<TextEditingController> _subtitleController = [];
+  final TextEditingController _customColorController = TextEditingController();
 
   final List<FocusNode> _titleFocusNode = [];
   // ignore: unused_field
@@ -61,7 +62,13 @@ class _AddBannerScreenState extends State<AddBannerScreen>
     Get.find<StoreController>().pickImage(true, true);
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
-    _bannerType = widget.storeBannerListModel?.type ?? _bannerTypeImage;
+    if (widget.storeBannerListModel != null) {
+      bool isImage = widget.storeBannerListModel!.type == 'image' ||
+          (widget.storeBannerListModel!.imageFullUrl ?? '').isNotEmpty;
+      _bannerType = isImage ? _bannerTypeImage : _bannerTypeText;
+    } else {
+      _bannerType = _bannerTypeImage;
+    }
     _backgroundColorHex =
         widget.storeBannerListModel?.backgroundColor ?? _defaultBackgroundColor;
 
@@ -99,6 +106,23 @@ class _AddBannerScreenState extends State<AddBannerScreen>
       _storeBannerListModel = StoreBannerListModel();
     }
     _urlController.text = widget.storeBannerListModel?.defaultLink ?? '';
+    _customColorController.text = _backgroundColorHex;
+  }
+
+  @override
+  void dispose() {
+    _customColorController.dispose();
+    _urlController.dispose();
+    for (var controller in _titleController) {
+      controller.dispose();
+    }
+    for (var controller in _subtitleController) {
+      controller.dispose();
+    }
+    for (var node in _titleFocusNode) {
+      node.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -368,59 +392,109 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                       ).disabledColor.withValues(alpha: 0.2),
                                     ),
                                   ),
-                                  child: Wrap(
-                                    spacing: Dimensions.paddingSizeSmall,
-                                    runSpacing: Dimensions.paddingSizeSmall,
-                                    children: _backgroundColorOptions.map((
-                                      colorHex,
-                                    ) {
-                                      final bool isSelected =
-                                          _backgroundColorHex == colorHex;
-                                      final Color color = _colorFromHex(
-                                        colorHex,
-                                      );
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Wrap(
+                                        spacing: Dimensions.paddingSizeSmall,
+                                        runSpacing: Dimensions.paddingSizeSmall,
+                                        children: _backgroundColorOptions.map((
+                                          colorHex,
+                                        ) {
+                                          final bool isSelected =
+                                              _backgroundColorHex == colorHex;
+                                          final Color color = _colorFromHex(
+                                            colorHex,
+                                          );
 
-                                      return InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            _backgroundColorHex = colorHex;
-                                          });
-                                        },
-                                        borderRadius: BorderRadius.circular(
-                                          Dimensions.radiusDefault,
-                                        ),
-                                        child: Container(
-                                          height: 42,
-                                          width: 42,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: color,
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                  Dimensions.radiusDefault,
-                                                ),
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).textTheme.bodyLarge!
-                                                        .color!
-                                                  : Colors.white.withValues(
-                                                      alpha: 0.5,
+                                          return InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                _backgroundColorHex = colorHex;
+                                                _customColorController.text = colorHex;
+                                              });
+                                            },
+                                            borderRadius: BorderRadius.circular(
+                                              Dimensions.radiusDefault,
+                                            ),
+                                            child: Container(
+                                              height: 42,
+                                              width: 42,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                color: color,
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      Dimensions.radiusDefault,
                                                     ),
-                                              width: isSelected ? 2 : 1,
+                                                border: Border.all(
+                                                  color: isSelected
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).textTheme.bodyLarge!
+                                                            .color!
+                                                      : Colors.white.withValues(
+                                                          alpha: 0.5,
+                                                        ),
+                                                  width: isSelected ? 2 : 1,
+                                                ),
+                                              ),
+                                              child: isSelected
+                                                  ? const Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    )
+                                                  : null,
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                      const SizedBox(height: Dimensions.paddingSizeDefault),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: CustomTextFieldWidget(
+                                              hintText: '#00A082',
+                                              labelText: 'custom_color_hex'.tr,
+                                              controller: _customColorController,
+                                              inputType: TextInputType.text,
+                                              showLabelText: true,
+                                              onChanged: (text) {
+                                                if (text.startsWith('#') && text.length == 7) {
+                                                  setState(() {
+                                                    _backgroundColorHex = text;
+                                                  });
+                                                } else if (!text.startsWith('#') && text.length == 6) {
+                                                  setState(() {
+                                                    _backgroundColorHex = '#$text';
+                                                  });
+                                                }
+                                              },
                                             ),
                                           ),
-                                          child: isSelected
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 20,
-                                                )
-                                              : null,
-                                        ),
-                                      );
-                                    }).toList(),
+                                          const SizedBox(width: Dimensions.paddingSizeSmall),
+                                          InkWell(
+                                            onTap: () {
+                                              _openColorPickerDialog();
+                                            },
+                                            child: Container(
+                                              height: 50,
+                                              width: 50,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                                color: _colorFromHex(_backgroundColorHex),
+                                                border: Border.all(
+                                                  color: Theme.of(context).primaryColor,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: const Icon(Icons.colorize, color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(
@@ -890,6 +964,69 @@ class _AddBannerScreenState extends State<AddBannerScreen>
 
   Color _colorFromHex(String hexColor) {
     final String normalized = hexColor.replaceAll('#', '');
-    return Color(int.parse('FF$normalized', radix: 16));
+    try {
+      return Color(int.parse('FF$normalized', radix: 16));
+    } catch (e) {
+      return const Color(0xFF00A082);
+    }
+  }
+
+  void _openColorPickerDialog() {
+    final List<String> pickerColors = [
+      '#FF1744', '#F50057', '#D500F9', '#651FFF', '#3D5AFE', '#2979FF', '#00E5FF', '#1DE9B6',
+      '#00E676', '#76FF03', '#C6FF00', '#FFEA00', '#FFC400', '#FF9100', '#FF3D00', '#3E2723',
+      '#9E9E9E', '#607D8B', '#000000', '#111827', '#00A082', '#FF8A00', '#EF4444', '#2563EB',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('select_color'.tr, style: robotoBold),
+          content: SizedBox(
+            width: 300,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: pickerColors.length,
+              itemBuilder: (context, index) {
+                final colorHex = pickerColors[index];
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      _backgroundColorHex = colorHex;
+                      _customColorController.text = colorHex;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _colorFromHex(colorHex),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _backgroundColorHex == colorHex
+                            ? Colors.black
+                            : Colors.grey.withValues(alpha: 0.3),
+                        width: _backgroundColorHex == colorHex ? 2 : 1,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('close'.tr, style: robotoMedium),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
