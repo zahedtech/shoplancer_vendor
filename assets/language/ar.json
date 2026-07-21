@@ -807,6 +807,7 @@
   "continue_to_home_page": "المتابعة إلى الصفحة الرئيسية",
   "sorry_your_transaction_can_not_be_completed_please_choose_another_payment_method_or_try_again": "عذرًا، لا يمكن إكمال معاملتك. الرجاء اختيار طريقة دفع أخرى أو المحاولة مرة أخرى.",
   "try_again": "حاول ثانية",
+  "try_another_search_or_category": "حاول بحثًا آخر أو فئة",
   "you_are_one_step_away_choose_your_business_plan": "أنت على بعد خطوة واحدة! اختر خطة عملك",
   "choose_your_business_plan": "اختر خطة عملك",
   "commission_base": "العمولة الأساسية",
@@ -1660,5 +1661,12 @@
   "stock_updated_successfully": "تم تحديث المخزون بنجاح",
   "price_cannot_be_zero_or_less": "لا يمكن أن يكون السعر صفرًا أو أقل",
   "are_you_sure_to_update_price": "هل أنت متأكد من رغبتك في تحديث السعر؟",
-  "are_you_sure_to_update_stock": "هل أنت متأكد من رغبتك في تحديث المخزون؟"
+  "are_you_sure_to_update_stock": "هل أنت متأكد من رغبتك في تحديث المخزون؟",
+  "product_addition_options": "خيارات إضافة المنتجات",
+  "add_basic_products": "اضافة المنتجات الاساسيه",
+  "add_basic_products_desc": "سيتم تحميل المنتجات الأساسية للمتجر تلقائياً",
+  "add_additional_products": "اضافة المنتجات الاساسية + الاضافيه",
+  "add_additional_products_desc": "إضافة منتجات إضافية ومتنوعة للمتجر",
+  "no_products_added": "عدم اضافه منتجات",
+  "no_products_added_desc": "إنشاء متجر فارغ وإضافة المنتجات لاحقاً يدوياً"
 }

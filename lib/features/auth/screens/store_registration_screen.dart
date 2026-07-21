@@ -77,6 +77,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   String? _openingTime;
   String? _closingTime;
   bool _isOpen24Hours = false;
+  int _selectedProductLevel = 1;
   Timer? _slugDebounce;
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
@@ -2229,6 +2230,36 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                   );
                                                 },
                                               ),
+
+                                        const SizedBox(height: Dimensions.paddingSizeLarge),
+                                        Text(
+                                          'product_addition_options'.tr,
+                                          style: robotoBold,
+                                        ),
+                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                        _buildProductLevelOption(
+                                          level: 1,
+                                          title: 'add_basic_products'.tr,
+                                          subtitle: 'add_basic_products_desc'.tr,
+                                          icon: Icons.star_border,
+                                        ),
+                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                        _buildProductLevelOption(
+                                          level: 2,
+                                          title: 'add_additional_products'.tr,
+                                          subtitle: 'add_additional_products_desc'.tr,
+                                          icon: Icons.add_circle_outline,
+                                        ),
+                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                        _buildProductLevelOption(
+                                          level: 3,
+                                          title: 'no_products_added'.tr,
+                                          subtitle: 'no_products_added_desc'.tr,
+                                          icon: Icons.block,
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -2875,6 +2906,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     .toString();
                               }
 
+                              data['level'] = _selectedProductLevel.toString();
+
                               authController.registerStore(data);
                             }
                           },
@@ -2921,6 +2954,84 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
               fontSize: 11,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductLevelOption({
+    required int level,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    bool isSelected = _selectedProductLevel == level;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedProductLevel = level;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor.withOpacity(0.2),
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withOpacity(0.08),
+              blurRadius: 4,
+              spreadRadius: 1,
+            )
+          ] : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Theme.of(context).disabledColor.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: Dimensions.paddingSizeSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeDefault,
+                      color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: robotoRegular.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+              size: 20,
+            ),
+          ],
         ),
       ),
     );

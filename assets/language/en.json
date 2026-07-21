@@ -797,6 +797,7 @@
   "continue_to_home_page": "Continue to Home Page",
   "sorry_your_transaction_can_not_be_completed_please_choose_another_payment_method_or_try_again": "Sorry, Your Transaction can't be completed. Please choose another payment method or try again.",
   "try_again": "Try Again",
+  "try_another_search_or_category": "Try another search or category",
   "you_are_one_step_away_choose_your_business_plan": "You are one step away! Choose your business plan",
   "choose_your_business_plan": "Choose your business plan",
   "commission_base": "Commission Base",
@@ -1700,5 +1701,12 @@
   "stock_updated_successfully": "Stock updated successfully",
   "price_cannot_be_zero_or_less": "Price cannot be zero or less",
   "are_you_sure_to_update_price": "Are you sure you want to update the price?",
-  "are_you_sure_to_update_stock": "Are you sure you want to update the stock?"
+  "are_you_sure_to_update_stock": "Are you sure you want to update the stock?",
+  "product_addition_options": "Product addition options",
+  "add_basic_products": "Add basic products",
+  "add_basic_products_desc": "Basic products will be automatically loaded for the store",
+  "add_additional_products": "Add basic + additional products",
+  "add_additional_products_desc": "Add additional and diverse products to the store",
+  "no_products_added": "Do not add products",
+  "no_products_added_desc": "Create an empty store and add products manually later"
 }

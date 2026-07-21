@@ -561,6 +561,7 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
                                                 ),
 
                                                 FloatingActionButton.small(
+                                                  heroTag: null,
                                                   backgroundColor: Colors.grey,
                                                   onPressed: () {
                                                     setState(() {
@@ -1022,6 +1023,7 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 80),
             child: FloatingActionButton(
+              heroTag: null,
               backgroundColor: Colors.transparent,
               child: Stack(
                 clipBehavior: Clip.none,
