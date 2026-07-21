@@ -14,6 +14,21 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Verify Secrets
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT is missing or empty! Please add it to GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.FIREBASE_APP_ID }}" ]; then
+            echo "::error::FIREBASE_APP_ID is missing or empty! Please add it to GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ]; then
+            echo "::error::One or more Android keystore secrets (ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS) are missing or empty! Please add them to GitHub Secrets."
+            exit 1
+          fi
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -30,8 +45,10 @@ jobs:
         run: flutter pub get
 
       - name: Create Firebase Service Account
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > firebase-service-account.json
+          echo "$FIREBASE_SERVICE_ACCOUNT" > firebase-service-account.json
 
       - name: Set Firebase Group
         run: |
