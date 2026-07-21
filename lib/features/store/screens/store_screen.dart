@@ -80,6 +80,7 @@ class _StoreScreenState extends State<StoreScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => Get.toNamed(
           RouteHelper.getAddItemRoute(null, isSimple: true),
         ),

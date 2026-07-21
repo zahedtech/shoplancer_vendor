@@ -2,22 +2,25 @@ default_platform(:android)
 
 platform :android do
 
-  desc "Firebase Beta Distribution"
+  desc "Build and upload to Firebase App Distribution"
 
   lane :beta do
-
-    sh "flutter clean"
-    sh "flutter pub get"
-    sh "flutter build apk --release"
+    sh("flutter clean")
+    sh("flutter pub get")
+    sh("flutter build apk --release")
 
     firebase_app_distribution(
-      app: "1:780732592304:android:b5c95c7a731f570db28b75",
-      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      app: ENV["FIREBASE_APP_ID"],
+      service_credentials_file: "../firebase-service-account.json",
       android_artifact_type: "APK",
       android_artifact_path: "../build/app/outputs/flutter-apk/app-release.apk",
-      release_notes: "New beta build"
+      groups: ENV["FIREBASE_GROUP"],
+      release_notes: <<~NOTES
+        Branch: #{ENV["GITHUB_REF_NAME"]}
+        Build: ##{ENV["GITHUB_RUN_NUMBER"]}
+        Commit: #{ENV["GITHUB_SHA"]}
+      NOTES
     )
-
   end
 
   desc "Deploy to Google Play"

@@ -198,6 +198,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
                   ),
                   child: FloatingActionButton(
+                    heroTag: null,
                     backgroundColor:Theme.of(context).primaryColor,
                     onPressed: () {
                       _setPage(2);

@@ -33,15 +33,19 @@ class MenuScreen extends StatelessWidget {
       ),
     );
 
+    bool isEcommerce = store?.module?.moduleType == 'ecommerce';
+
     if (modulePermission!.item!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.addFood,
-          title: 'all_items'.tr,
-          route: RouteHelper.getAllItemsRoute(),
-          isBlocked: !store!.itemSection!,
-        ),
-      );
+      if (!isEcommerce) {
+        menuList.add(
+          MenuModel(
+            icon: Images.addFood,
+            title: 'all_items'.tr,
+            route: RouteHelper.getAllItemsRoute(),
+            isBlocked: !store!.itemSection!,
+          ),
+        );
+      }
       menuList.add(
         MenuModel(
           icon: Images.disbursementIcon,
@@ -53,13 +57,15 @@ class MenuScreen extends StatelessWidget {
     }
 
     if (modulePermission.item!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.pendingItemIcon,
-          title: 'pending_item'.tr,
-          route: RouteHelper.getPendingItemRoute(),
-        ),
-      );
+      if (!isEcommerce) {
+        menuList.add(
+          MenuModel(
+            icon: Images.pendingItemIcon,
+            title: 'pending_item'.tr,
+            route: RouteHelper.getPendingItemRoute(),
+          ),
+        );
+      }
     }
 
     if (modulePermission.storeSetup!) {
