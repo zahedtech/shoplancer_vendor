@@ -291,7 +291,7 @@ class StoreRepository implements StoreRepositoryInterface {
       'price': item.price.toString(),
       'discount': item.discount.toString(),
       'veg': item.veg.toString(),
-      'discount_type': item.discountType ?? '',
+      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? ''),
       'category_id': item.categoryIds![0].id!,
       'translations': jsonEncode(item.translations),
       'tags': tags,

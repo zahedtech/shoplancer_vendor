@@ -44,7 +44,8 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   final TextEditingController _priceController = TextEditingController();
   List<TextEditingController> _variationStockControllers = [];
   List<TextEditingController> _variationPriceControllers = [];
-  bool _isStockPriceLoading = false;
+  bool _isPriceLoading = false;
+  bool _isStockLoading = false;
 
   void _initStockPriceControllers() {
     _stockController.text = (item.stock ?? 0).toString();
@@ -104,7 +105,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"price": item.price.toString()});
     data.addAll({"unit_price": item.price.toString()});
     data.addAll({"discount": discountValue.toString()});
-    data.addAll({"discount_type": discountType});
+    data.addAll({"discount_type": discountType == 'flat' ? 'amount' : discountType});
 
     if (item.variations != null && item.variations!.isNotEmpty) {
       for (var variation in item.variations!) {
@@ -206,7 +207,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
       data.addAll({"price": _priceController.text.trim()});
       data.addAll({"unit_price": _priceController.text.trim()});
       data.addAll({"discount": item.discount?.toString() ?? '0'});
-      data.addAll({"discount_type": item.discountType ?? 'amount'});
+      data.addAll({"discount_type": item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount')});
     } else {
       for (var variation in item.variations!) {
         int index = item.variations!.indexOf(variation);
@@ -229,7 +230,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"type": jsonEncode(types)});
 
     setState(() {
-      _isStockPriceLoading = true;
+      if (updateType == 'price') {
+        _isPriceLoading = true;
+      } else {
+        _isStockLoading = true;
+      }
     });
 
     storeController.stockUpdate(data, item.id!, shouldBack: false).then((isSuccess) async {
@@ -250,7 +255,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         }
       }
       setState(() {
-        _isStockPriceLoading = false;
+        if (updateType == 'price') {
+          _isPriceLoading = false;
+        } else {
+          _isStockLoading = false;
+        }
       });
     });
   }
@@ -568,7 +577,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    _isStockPriceLoading
+                                    _isPriceLoading
                                         ? const SizedBox(
                                             height: 35,
                                             width: 35,
@@ -664,7 +673,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    _isStockPriceLoading
+                                    _isStockLoading
                                         ? const SizedBox(
                                             height: 35,
                                             width: 35,
