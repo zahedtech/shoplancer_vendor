@@ -328,7 +328,7 @@ class Item {
     price = json['price']?.toDouble();
     tax = json['tax']?.toDouble();
     discount = json['discount']?.toDouble();
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     availableTimeStarts = json['available_time_starts'];
     availableTimeEnds = json['available_time_ends'];
     setMenu = json['set_menu'];

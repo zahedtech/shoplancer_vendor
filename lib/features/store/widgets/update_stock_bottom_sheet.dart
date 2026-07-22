@@ -365,7 +365,7 @@ class _UpdateStockBottomSheetState extends State<UpdateStockBottomSheet> {
       data.addAll({"price": mainPriceController.text.trim()});
       data.addAll({"unit_price": mainPriceController.text.trim()});
       data.addAll({"discount": widget.item.discount?.toString() ?? '0'});
-      data.addAll({"discount_type": widget.item.discountType ?? 'amount'});
+      data.addAll({"discount_type": widget.item.discountType == 'flat' ? 'amount' : (widget.item.discountType ?? 'amount')});
     }
     for (var variation in widget.item.variations!) {
       data.addAll({

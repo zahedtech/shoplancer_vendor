@@ -728,7 +728,7 @@ class Discount {
     minPurchase = json['min_purchase']?.toDouble();
     maxDiscount = json['max_discount']?.toDouble();
     discount = json['discount']?.toDouble();
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     storeId = json['store_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];

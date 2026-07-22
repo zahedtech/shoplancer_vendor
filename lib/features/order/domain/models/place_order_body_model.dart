@@ -29,7 +29,7 @@ class PlaceOrderBodyModel {
     orderNote = json['order_note'];
     storeId = json['store_id'];
     discount = json['discount'].toDouble();
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     tax = json['tax'].toDouble();
     paidAmount = json['paid_amount'].toDouble();
     paymentMethod = json['payment_method'];

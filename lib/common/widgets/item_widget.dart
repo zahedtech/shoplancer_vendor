@@ -396,7 +396,7 @@ class ItemWidget extends StatelessWidget {
                           'price': priceText,
                           'unit_price': priceText,
                           'discount': item.discount?.toString() ?? '0',
-                          'discount_type': item.discountType ?? 'amount',
+                          'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
                           'store_id':
                               Get.find<ProfileController>()
                                   .profileModel

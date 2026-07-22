@@ -56,7 +56,7 @@ class CouponBodyModel {
     minPurchase = json['min_purchase'];
     maxDiscount = json['max_discount'];
     discount = json['discount'];
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     couponType = json['coupon_type'];
     limit = json['limit'];
     status = json['status'];

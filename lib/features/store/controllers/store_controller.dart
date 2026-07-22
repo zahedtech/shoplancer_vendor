@@ -413,7 +413,7 @@ class StoreController extends GetxController implements GetxService {
       'price': price?.toString() ?? item.price.toString(),
       'unit_price': price?.toString() ?? item.price.toString(),
       'discount': item.discount?.toString() ?? '0',
-      'discount_type': item.discountType ?? 'amount',
+      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
       'store_id':
           Get.find<ProfileController>().profileModel?.stores?[0].id
               .toString() ??
