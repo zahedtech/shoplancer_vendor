@@ -8,19 +8,22 @@ class PriceConverterHelper {
     String? discountType,
     int? asFixed,
   }) {
+    double finalPrice = price ?? 0.0;
     if (discount != null && discountType != null) {
       if (discountType == 'amount') {
-        price = price! - discount;
+        finalPrice = finalPrice - discount;
       } else if (discountType == 'percent') {
-        price = price! - ((discount / 100) * price);
+        finalPrice = finalPrice - ((discount / 100) * finalPrice);
       }
     }
-    bool isRightSide =
-        Get.find<SplashController>().configModel!.currencySymbolDirection ==
-        'right';
-    return '${isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} '}'
-        '${price!.toStringAsFixed(asFixed ?? Get.find<SplashController>().configModel!.digitAfterDecimalPoint!).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-        '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
+    final config = Get.find<SplashController>().configModel;
+    bool isRightSide = config?.currencySymbolDirection == 'right';
+    final currencySymbol = config?.currencySymbol ?? '';
+    final digitAfterDecimalPoint = config?.digitAfterDecimalPoint ?? 2;
+
+    return '${isRightSide ? '' : '$currencySymbol '}'
+        '${finalPrice.toStringAsFixed(asFixed ?? digitAfterDecimalPoint).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
+        '${isRightSide ? ' $currencySymbol' : ''}';
   }
 
   static double? convertWithDiscount(
@@ -28,12 +31,14 @@ class PriceConverterHelper {
     double? discount,
     String? discountType,
   ) {
+    if (price == null) return null;
+    double finalPrice = price;
     if (discountType == 'amount') {
-      price = price! - discount!;
+      finalPrice = finalPrice - (discount ?? 0.0);
     } else if (discountType == 'percent') {
-      price = price! - ((discount! / 100) * price);
+      finalPrice = finalPrice - (((discount ?? 0.0) / 100) * finalPrice);
     }
-    return price;
+    return finalPrice;
   }
 
   static double calculation(
@@ -43,10 +48,11 @@ class PriceConverterHelper {
     int quantity,
   ) {
     double calculatedAmount = 0;
+    double finalDiscount = discount ?? 0.0;
     if (type == 'amount') {
-      calculatedAmount = discount! * quantity;
+      calculatedAmount = finalDiscount * quantity;
     } else if (type == 'percent') {
-      calculatedAmount = (discount! / 100) * (amount * quantity);
+      calculatedAmount = (finalDiscount / 100) * (amount * quantity);
     }
     return calculatedAmount;
   }
@@ -56,6 +62,7 @@ class PriceConverterHelper {
     String discount,
     String discountType,
   ) {
-    return '$discount${discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol} OFF';
+    final currencySymbol = Get.find<SplashController>().configModel?.currencySymbol ?? '';
+    return '$discount${discountType == 'percent' ? '%' : currencySymbol} OFF';
   }
 }

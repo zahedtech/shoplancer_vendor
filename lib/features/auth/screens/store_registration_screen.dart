@@ -77,7 +77,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   String? _openingTime;
   String? _closingTime;
   bool _isOpen24Hours = false;
-  int _selectedProductLevel = 1;
+  final Map<int, int> _categoryProductLevels = {};
   Timer? _slugDebounce;
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
@@ -2231,35 +2231,75 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                 },
                                               ),
 
-                                        const SizedBox(height: Dimensions.paddingSizeLarge),
-                                        Text(
-                                          'product_addition_options'.tr,
-                                          style: robotoBold,
-                                        ),
-                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                                        if (authController.selectedCategoryIds.isNotEmpty) ...[
+                                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                                          Text(
+                                            'product_addition_options'.tr,
+                                            style: robotoBold,
+                                          ),
+                                          const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                                        _buildProductLevelOption(
-                                          level: 1,
-                                          title: 'add_basic_products'.tr,
-                                          subtitle: 'add_basic_products_desc'.tr,
-                                          icon: Icons.star_border,
-                                        ),
-                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemCount: authController.selectedCategoryIds.length,
+                                            itemBuilder: (context, catIdx) {
+                                              int catId = authController.selectedCategoryIds[catIdx];
+                                              String catName = '';
+                                              if (authController.registrationCategories != null) {
+                                                for (var cat in authController.registrationCategories!) {
+                                                  if (cat.id == catId) {
+                                                    catName = cat.name ?? '';
+                                                    break;
+                                                  }
+                                                }
+                                              }
 
-                                        _buildProductLevelOption(
-                                          level: 2,
-                                          title: 'add_additional_products'.tr,
-                                          subtitle: 'add_additional_products_desc'.tr,
-                                          icon: Icons.add_circle_outline,
-                                        ),
-                                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                                              return Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                                                    child: Text(
+                                                      catName,
+                                                      style: robotoBold.copyWith(
+                                                        color: Theme.of(context).primaryColor,
+                                                        fontSize: Dimensions.fontSizeDefault,
+                                                      ),
+                                                    ),
+                                                  ),
 
-                                        _buildProductLevelOption(
-                                          level: 3,
-                                          title: 'no_products_added'.tr,
-                                          subtitle: 'no_products_added_desc'.tr,
-                                          icon: Icons.block,
-                                        ),
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 1,
+                                                    title: 'add_basic_products'.tr,
+                                                    subtitle: 'add_basic_products_desc'.tr,
+                                                    icon: Icons.star_border,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 2,
+                                                    title: 'add_additional_products'.tr,
+                                                    subtitle: 'add_additional_products_desc'.tr,
+                                                    icon: Icons.add_circle_outline,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 3,
+                                                    title: 'no_products_added'.tr,
+                                                    subtitle: 'no_products_added_desc'.tr,
+                                                    icon: Icons.block,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),
@@ -2906,7 +2946,16 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     .toString();
                               }
 
-                              data['level'] = _selectedProductLevel.toString();
+                              Map<String, Map<String, bool>> categoryLevelsMap = {};
+                              for (int catId in authController.selectedCategoryIds) {
+                                int chosenLevel = _categoryProductLevels[catId] ?? 1;
+                                categoryLevelsMap[catId.toString()] = {
+                                  "additional": chosenLevel == 1,
+                                  "optional": chosenLevel == 2,
+                                  "dontAdd": chosenLevel == 3,
+                                };
+                              }
+                              data['category_levels'] = jsonEncode(categoryLevelsMap);
 
                               authController.registerStore(data);
                             }
@@ -2960,16 +3009,20 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   }
 
   Widget _buildProductLevelOption({
+    required int categoryId,
     required int level,
     required String title,
     required String subtitle,
     required IconData icon,
   }) {
-    bool isSelected = _selectedProductLevel == level;
+    if (!_categoryProductLevels.containsKey(categoryId)) {
+      _categoryProductLevels[categoryId] = 1;
+    }
+    bool isSelected = _categoryProductLevels[categoryId] == level;
     return InkWell(
       onTap: () {
         setState(() {
-          _selectedProductLevel = level;
+          _categoryProductLevels[categoryId] = level;
         });
       },
       child: Container(

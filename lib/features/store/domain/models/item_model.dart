@@ -189,7 +189,14 @@ class Item {
   });
 
   Item.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    int? parseInt(dynamic value) {
+      if (value == null) return null;
+      if (value is bool) return value ? 1 : 0;
+      if (value is num) return value.toInt();
+      return int.tryParse(value.toString());
+    }
+
+    id = parseInt(json['id']);
     name = json['name'];
     description = json['description'];
     imageFullUrl = json['image_full_url'];
@@ -201,7 +208,7 @@ class Item {
         }
       });
     }
-    categoryId = json['category_id'];
+    categoryId = parseInt(json['category_id']);
     if (json['category_ids'] != null) {
       categoryIds = [];
       dynamic categories = json['category_ids'];
@@ -331,9 +338,9 @@ class Item {
     discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     availableTimeStarts = json['available_time_starts'];
     availableTimeEnds = json['available_time_ends'];
-    setMenu = json['set_menu'];
-    status = json['status'];
-    storeId = json['store_id'];
+    setMenu = parseInt(json['set_menu']);
+    status = parseInt(json['status']);
+    storeId = parseInt(json['store_id']);
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     storeName = json['store_name'];
@@ -341,7 +348,7 @@ class Item {
     scheduleOrder = json['schedule_order'];
     avgRating = json['avg_rating']?.toDouble();
     ratingCount = json['rating_count'];
-    veg = json['veg'];
+    veg = parseInt(json['veg']);
     unitType = json['unit_type'];
     quantityUnit = json['quantity_unit'] != null ? double.tryParse(json['quantity_unit'].toString()) : null;
     if (unitType == null && json['unit'] != null) {
@@ -387,6 +394,44 @@ class Item {
         ),
       );
     }
+    if (name == null || name!.isEmpty) {
+      if (translations != null && translations!.isNotEmpty) {
+        String currentLocale = Get.locale?.languageCode ?? 'ar';
+        for (var t in translations!) {
+          if (t.key == 'name' && t.locale == currentLocale) {
+            name = t.value;
+            break;
+          }
+        }
+        if (name == null || name!.isEmpty) {
+          for (var t in translations!) {
+            if (t.key == 'name') {
+              name = t.value;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (description == null || description!.isEmpty) {
+      if (translations != null && translations!.isNotEmpty) {
+        String currentLocale = Get.locale?.languageCode ?? 'ar';
+        for (var t in translations!) {
+          if (t.key == 'description' && t.locale == currentLocale) {
+            description = t.value;
+            break;
+          }
+        }
+        if (description == null || description!.isEmpty) {
+          for (var t in translations!) {
+            if (t.key == 'description') {
+              description = t.value;
+              break;
+            }
+          }
+        }
+      }
+    }
     if (json['tags'] != null) {
       tags = [];
       json['tags'].forEach((v) {
@@ -396,7 +441,7 @@ class Item {
     recommendedStatus = json['recommended'] != null
         ? int.parse(json['recommended'].toString())
         : 0;
-    organicStatus = json['organic'];
+    organicStatus = parseInt(json['organic']);
     maxOrderQuantity = json['maximum_cart_quantity'] != null
         ? int.parse(json['maximum_cart_quantity'].toString())
         : 0;
@@ -406,9 +451,9 @@ class Item {
     isPrescriptionRequired = json['is_prescription_required'] != null
         ? int.parse(json['is_prescription_required'].toString())
         : 0;
-    brandId = json['brand_id'];
-    isHalal = json['is_halal'];
-    halalTagStatus = json['halal_tag_status'];
+    brandId = parseInt(json['brand_id']);
+    isHalal = parseInt(json['is_halal']);
+    halalTagStatus = parseInt(json['halal_tag_status']);
     if (json['nutritions_name'] != null) {
       nutrition = [];
       for (String v in json['nutritions_name']) {
@@ -427,8 +472,8 @@ class Item {
         genericName!.add(v);
       }
     }
-    isBasicMedicine = json['is_basic'];
-    conditionId = json['common_condition_id'];
+    isBasicMedicine = parseInt(json['is_basic']);
+    conditionId = parseInt(json['common_condition_id']);
     if (json['nutritions_data'] != null) {
       nutritionsData = <NutritionsData>[];
       json['nutritions_data'].forEach((v) {

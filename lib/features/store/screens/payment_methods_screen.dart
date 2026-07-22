@@ -261,9 +261,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
 
                             storeController.updateStore(
                               updateStore,
-                              updateStore.minimumOrder?.toString() ?? '0',
-                              updateStore.maximumShippingCharge?.toString() ??
-                                  '0',
+                              null,
+                              null,
                             );
                           }
                         },
