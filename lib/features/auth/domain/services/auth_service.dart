@@ -15,8 +15,8 @@ class AuthService implements AuthServiceInterface {
   AuthService({required this.authRepositoryInterface});
 
   @override
-  Future<Response> login(String? phone, String password, String type) async {
-    return await authRepositoryInterface.login(phone, password, type);
+  Future<Response> login(String? phone, String? countryCode, String password, String type) async {
+    return await authRepositoryInterface.login(phone, countryCode, password, type);
   }
 
   @override

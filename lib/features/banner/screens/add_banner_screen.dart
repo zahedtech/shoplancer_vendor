@@ -332,7 +332,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                const SizedBox(
+                                if (false) const SizedBox(
                                   height: Dimensions.paddingSizeLarge,
                                 ),
 
@@ -366,18 +366,18 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                const SizedBox(
+                                if (false) const SizedBox(
                                   height: Dimensions.paddingSizeLarge,
                                 ),
 
-                                Text(
+                                if (false) Text(
                                   'banner_background_color'.tr,
                                   style: robotoBold,
                                 ),
-                                const SizedBox(
+                                if (false) const SizedBox(
                                   height: Dimensions.paddingSizeSmall,
                                 ),
-                                Container(
+                                if (false) Container(
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(
                                     Dimensions.paddingSizeDefault,
@@ -497,7 +497,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
+                                if (false) const SizedBox(
                                   height: Dimensions.paddingSizeLarge,
                                 ),
 
@@ -665,7 +665,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
+                                if (false) const SizedBox(
                                   height: Dimensions.paddingSizeLarge,
                                 ),
                               ],

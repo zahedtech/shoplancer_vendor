@@ -29,9 +29,16 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status) async {
+  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to}) async {
     PaginatedOrderModel? historyOrderModel;
-    Response response = await apiClient.getData('${AppConstants.completedOrdersUri}?status=$status&offset=$offset&limit=10');
+    String url = '${AppConstants.completedOrdersUri}?status=$status&offset=$offset&limit=10';
+    if (from != null && from.isNotEmpty) {
+      url += '&from=$from';
+    }
+    if (to != null && to.isNotEmpty) {
+      url += '&to=$to';
+    }
+    Response response = await apiClient.getData(url);
     if (response.statusCode == 200) {
       historyOrderModel = PaginatedOrderModel.fromJson(response.body);
     }

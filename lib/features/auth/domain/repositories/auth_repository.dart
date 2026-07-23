@@ -16,9 +16,10 @@ class AuthRepository implements AuthRepositoryInterface {
   AuthRepository({required this.apiClient, required this.sharedPreferences});
 
   @override
-  Future<Response> login(String? phone, String password, String type) async {
+  Future<Response> login(String? phone, String? countryCode, String password, String type) async {
     return await apiClient.postData(AppConstants.loginUri, {
       "phone": phone,
+      "country_code": countryCode,
       "password": password,
       'vendor_type': type,
     }, handleError: false);

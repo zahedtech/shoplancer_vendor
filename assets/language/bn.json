@@ -1,4 +1,5 @@
 {
+  "go_to_control_panel": "নিয়ন্ত্রণ প্যানেলে যান",
   "suffix_name": "ভেন্ডর অ্যাপ",
   "share": "শেয়ার",
   "copy": "কপি করুন",
@@ -90,6 +91,9 @@
   "select_a_language": "একটি ল্যাঙ্গুয়েজ সিলেক্ট করুন",
   "you_can_change_language": "*আপনি পরে মেনু বার থেকে ল্যাঙ্গুয়েজ পরিবর্তন করতে পারবেন",
   "today": "আজ",
+  "yesterday": "গতকাল",
+  "custom_date": "কাস্টম তারিখ",
+  "all_dates": "সব তারিখ",
   "this_week": "এই সপ্তাহ",
   "this_month": "এই মাস",
   "cooking": "কুকিং",
