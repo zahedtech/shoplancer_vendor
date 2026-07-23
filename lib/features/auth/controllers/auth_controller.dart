@@ -106,12 +106,13 @@ class AuthController extends GetxController implements GetxService {
 
   Future<ResponseModel?> login(
     String? phone,
+    String? countryCode,
     String password,
     String type,
   ) async {
     _isLoading = true;
     update();
-    Response response = await authServiceInterface.login(phone, password, type);
+    Response response = await authServiceInterface.login(phone, countryCode, password, type);
     ResponseModel? responseModel = await authServiceInterface.manageLogin(
       response,
       type,

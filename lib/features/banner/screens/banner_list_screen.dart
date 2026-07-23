@@ -488,8 +488,7 @@ class _BannerListScreenState extends State<BannerListScreen> {
                                                   ),
                                                 ),
                                             ] else ...[
-                                              if (banner.bannerCatalogId ==
-                                                  null) ...[
+                                              if (banner.bannerCatalogId == null || banner.bannerCatalogId == 0) ...[
                                                 InkWell(
                                                   onTap:
                                                       bannerController.isLoading

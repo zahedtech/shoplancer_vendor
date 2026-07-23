@@ -51,8 +51,15 @@ class OrderController extends GetxController implements GetxService {
   int _historyIndex = 0;
   int get historyIndex => _historyIndex;
 
-  final List<String> _statusList = ['all', 'delivered', 'refunded'];
+  final List<String> _statusList = ['all', 'delivered', 'canceled'];
   List<String> get statusList => _statusList;
+
+  String? _fromDate;
+  String? get fromDate => _fromDate;
+  String? _toDate;
+  String? get toDate => _toDate;
+  int _selectedDateIndex = 0;
+  int get selectedDateIndex => _selectedDateIndex;
 
   bool _paginate = false;
   bool get paginate => _paginate;
@@ -246,7 +253,7 @@ class OrderController extends GetxController implements GetxService {
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
       PaginatedOrderModel? historyOrderModel = await orderServiceInterface
-          .getPaginatedOrderList(offset, _statusList[_historyIndex]);
+          .getPaginatedOrderList(offset, _statusList[_historyIndex], from: _fromDate, to: _toDate);
       if (historyOrderModel != null) {
         if (offset == 1) {
           _historyOrderList = [];
@@ -523,7 +530,15 @@ class OrderController extends GetxController implements GetxService {
 
   void setHistoryIndex(int index) {
     _historyIndex = index;
-    getPaginatedOrders(offset, true);
+    getPaginatedOrders(1, true);
+    update();
+  }
+
+  void setDateFilter(String? from, String? to, int index) {
+    _fromDate = from;
+    _toDate = to;
+    _selectedDateIndex = index;
+    getPaginatedOrders(1, true);
     update();
   }
 

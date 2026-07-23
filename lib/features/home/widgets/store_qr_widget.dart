@@ -119,6 +119,37 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                 const SizedBox(height: 4),
                 InkWell(
                   onTap: () async {
+                    const String dashboardUrl = 'https://dashboard.shoplanser.com/login/vendor';
+                    if (await canLaunchUrl(Uri.parse(dashboardUrl))) {
+                      await launchUrl(
+                        Uri.parse(dashboardUrl),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'go_to_control_panel'.tr,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.open_in_new,
+                        size: 14,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                InkWell(
+                  onTap: () async {
                     if (await canLaunchUrl(Uri.parse(storeUrl))) {
                       await launchUrl(
                         Uri.parse(storeUrl),

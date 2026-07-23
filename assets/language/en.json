@@ -1,4 +1,5 @@
 {
+  "go_to_control_panel": "Go to control panel",
   "check_all_items_before_updating_status": "Please check all items before updating status",
   "payment_reference": "Payment Reference",
   "payment_receipt": "Payment Receipt",
@@ -96,6 +97,9 @@
   "select_a_language": "Select a language",
   "you_can_change_language": "*You can change language later from menu bar",
   "today": "Today",
+  "yesterday": "Yesterday",
+  "custom_date": "Custom Date",
+  "all_dates": "All Dates",
   "this_week": "This Week",
   "this_month": "This Month",
   "cooking": "Cooking",
