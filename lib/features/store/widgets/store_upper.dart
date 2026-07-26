@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/banner/domain/models/store_banner_list_model.dart';
@@ -14,9 +13,7 @@ import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.d
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class StoreUpper extends StatefulWidget {
   final List<StoreBannerListModel>? banners;
@@ -107,22 +104,47 @@ class _StoreUpperState extends State<StoreUpper> {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFF2C7A46).withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: CustomImageWidget(
-                        image: widget.store?.logoFullUrl ?? '',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  Builder(
+                    builder: (context) {
+                      bool hasLogo = widget.store?.logoFullUrl != null &&
+                          widget.store!.logoFullUrl!.isNotEmpty &&
+                          !widget.store!.logoFullUrl!.contains('default') &&
+                          !widget.store!.logoFullUrl!.contains('placeholder');
+
+                      String firstLetter = (widget.store?.name != null && widget.store!.name!.isNotEmpty)
+                          ? widget.store!.name![0].toUpperCase()
+                          : 'S';
+
+                      return Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(context).primaryColor.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: hasLogo
+                              ? CustomImageWidget(
+                                  image: widget.store?.logoFullUrl ?? '',
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  color: Theme.of(context).primaryColor,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    firstLetter,
+                                    style: robotoBold.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 32,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      );
+                    }
                   ),
                   const SizedBox(width: 16),
                   Expanded(

@@ -18,8 +18,8 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status) async {
-    return await orderRepositoryInterface.getPaginatedOrderList(offset, status);
+  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to}) async {
+    return await orderRepositoryInterface.getPaginatedOrderList(offset, status, from: from, to: to);
   }
 
   @override

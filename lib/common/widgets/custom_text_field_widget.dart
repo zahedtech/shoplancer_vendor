@@ -41,6 +41,7 @@ class CustomTextFieldWidget extends StatefulWidget {
   final int? maxLength;
   final bool hideEnableText;
   final Function? onEditingComplete;
+  final String? prefixText;
 
   const CustomTextFieldWidget({
     super.key,
@@ -78,6 +79,7 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.maxLength,
     this.hideEnableText = false,
     this.onEditingComplete,
+    this.prefixText,
   });
 
   @override
@@ -165,7 +167,33 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
 
             ])) : null,
 
-            prefixIcon: widget.isPhone ? SizedBox(width: 95, child: Row(children: [
+             prefixIcon: widget.prefixText != null
+                ? ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(Dimensions.radiusDefault),
+                      bottomLeft: Radius.circular(Dimensions.radiusDefault),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).disabledColor.withOpacity(0.08),
+                        border: Border(
+                          right: BorderSide(
+                            color: Theme.of(context).disabledColor.withOpacity(0.25),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        widget.prefixText!,
+                        style: robotoMedium.copyWith(
+                          color: Theme.of(context).disabledColor.withOpacity(0.8),
+                          fontSize: Dimensions.fontSizeDefault,
+                        ),
+                      ),
+                    ),
+                  )
+                : widget.isPhone ? SizedBox(width: 95, child: Row(children: [
               Container(
                 width: 85,height: 50,
                 decoration: const BoxDecoration(
@@ -201,6 +229,9 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
               padding: EdgeInsets.symmetric(horizontal: widget.prefixSize),
               child: CustomAssetImageWidget(widget.prefixImage!, height: 25, width: 25, fit: BoxFit.scaleDown),
             ) : widget.prefixImage == null && widget.prefixIcon != null ? Icon(widget.prefixIcon, size: widget.iconSize, color: Theme.of(context).disabledColor.withValues(alpha: 0.4)) : null,
+            prefixIconConstraints: widget.prefixText != null
+                ? const BoxConstraints(minWidth: 0, minHeight: 0)
+                : null,
             suffixIcon: widget.isPassword ? IconButton(
               icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility, color: Theme.of(context).disabledColor.withValues(alpha: 0.3)),
               onPressed: _toggle,

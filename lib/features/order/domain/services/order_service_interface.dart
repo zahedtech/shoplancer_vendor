@@ -8,7 +8,7 @@ import 'package:shoplancer_vendor/features/order/domain/models/update_status_bod
 
 abstract class OrderServiceInterface {
   Future<List<OrderModel>?> getCurrentOrders();
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status);
+  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to});
   Future<ResponseModel> updateOrderStatus(UpdateStatusBodyModel updateStatusBody, List<MultipartBody> proofAttachment);
   Future<List<OrderDetailsModel>?> getOrderDetails(int orderID);
   Future<OrderModel?> getOrderWithId(int orderId);

@@ -12,6 +12,7 @@ import 'package:shoplancer_vendor/features/profile/controllers/profile_controlle
 import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 
 class OrderWidget extends StatelessWidget {
   final OrderModel orderModel;
@@ -216,6 +217,27 @@ class OrderWidget extends StatelessWidget {
                   style: robotoBold,
                 ),
               ],
+            ),
+          ],
+        ),
+        const Divider(height: Dimensions.paddingSizeSmall),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              'view_details'.tr,
+              style: robotoMedium.copyWith(
+                fontSize: Dimensions.fontSizeSmall,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+            Icon(
+              Get.find<LocalizationController>().isLtr
+                  ? Icons.arrow_back_ios
+                  : Icons.arrow_forward_ios,
+              size: 13,
+              color: Theme.of(context).primaryColor,
             ),
           ],
         ),

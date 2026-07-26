@@ -118,6 +118,7 @@ class _AdvertisementListScreenState extends State<AdvertisementListScreen>{
           ),
 
           floatingActionButton: advertisementController.advertisementList != null && advertisementController.advertisementList!.isNotEmpty ? FloatingActionButton(
+            heroTag: null,
             elevation: 0,
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: () {

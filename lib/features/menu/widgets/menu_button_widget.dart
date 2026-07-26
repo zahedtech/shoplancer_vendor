@@ -13,6 +13,8 @@ import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/screens/payment_methods_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MenuButtonWidget extends StatelessWidget {
@@ -38,6 +40,15 @@ class MenuButtonWidget extends StatelessWidget {
           Get.back();
           if(await canLaunchUrl(Uri.parse(menu.route))) {
             await launchUrl(Uri.parse(menu.route), mode: LaunchMode.externalApplication);
+          }
+        } else if(menu.isPaymentMethods) {
+          Store? store = Get.find<ProfileController>().profileModel != null
+              ? Get.find<ProfileController>().profileModel!.stores![0]
+              : null;
+          if (store != null) {
+            Get.to(() => PaymentMethodsScreen(store: store));
+          } else {
+            showCustomSnackBar('store_data_not_loaded'.tr);
           }
         } else {
           if (isLogout) {

@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:shoplancer_vendor/api/api_client.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/business/controllers/business_controller.dart';
@@ -13,6 +14,8 @@ import 'package:shoplancer_vendor/features/auth/domain/services/auth_service_int
 import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 
 class AuthController extends GetxController implements GetxService {
   final AuthServiceInterface authServiceInterface;
@@ -103,12 +106,13 @@ class AuthController extends GetxController implements GetxService {
 
   Future<ResponseModel?> login(
     String? phone,
+    String? countryCode,
     String password,
     String type,
   ) async {
     _isLoading = true;
     update();
-    Response response = await authServiceInterface.login(phone, password, type);
+    Response response = await authServiceInterface.login(phone, countryCode, password, type);
     ResponseModel? responseModel = await authServiceInterface.manageLogin(
       response,
       type,
@@ -467,6 +471,68 @@ class AuthController extends GetxController implements GetxService {
     update();
   }
 
+  List<CategoryModel>? _registrationCategories;
+  List<CategoryModel>? get registrationCategories => _registrationCategories;
+
+  List<int> _selectedCategoryIds = [];
+  List<int> get selectedCategoryIds => _selectedCategoryIds;
+
+  bool _categoriesLoading = false;
+  bool get categoriesLoading => _categoriesLoading;
+
+  void toggleCategorySelection(int categoryId) {
+    if (_selectedCategoryIds.contains(categoryId)) {
+      _selectedCategoryIds.remove(categoryId);
+    } else {
+      _selectedCategoryIds.add(categoryId);
+    }
+    update();
+  }
+
+  Future<void> getRegistrationCategories({
+    required String zoneId,
+    required String moduleId,
+    required String latitude,
+    required String longitude,
+  }) async {
+    _categoriesLoading = true;
+    _registrationCategories = null;
+    _selectedCategoryIds.clear();
+    update();
+
+    try {
+      Map<String, String> customHeaders = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-localization': Get.find<LocalizationController>().locale.languageCode,
+        'zoneId': '[$zoneId]',
+        'moduleId': moduleId,
+        'latitude': latitude,
+        'longitude': longitude,
+        'Accept': 'application/json',
+      };
+
+      Response response = await Get.find<ApiClient>().getData(
+        '/api/v1/categories',
+        headers: customHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        _registrationCategories = [];
+        response.body.forEach((category) {
+          _registrationCategories!.add(CategoryModel.fromJson(category));
+        });
+      } else {
+        _registrationCategories = [];
+      }
+    } catch (e) {
+      _registrationCategories = [];
+      debugPrint('Error fetching registration categories: $e');
+    }
+
+    _categoriesLoading = false;
+    update();
+  }
+
   void resetData() {
     _tinExpireDate = null;
     _tinFiles.clear();
@@ -475,5 +541,7 @@ class AuthController extends GetxController implements GetxService {
     _storeTimeUnit = 'minute';
     _isSlugAvailable = null;
     _slugValidationMessage = '';
+    _selectedCategoryIds.clear();
+    _registrationCategories = null;
   }
 }

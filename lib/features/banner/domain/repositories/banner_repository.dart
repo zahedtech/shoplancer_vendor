@@ -21,6 +21,7 @@ class BannerRepository implements BannerRepositoryInterface {
       'translations': jsonEncode(banner?.translations),
       'default_link': banner?.defaultLink ?? '',
       'type': banner?.type ?? 'image',
+      'background_color': banner?.backgroundColor ?? '',
     });
     List<MultipartBody> multipart = [];
     if (image != null) {
@@ -40,13 +41,37 @@ class BannerRepository implements BannerRepositoryInterface {
     Response response = await apiClient.getData(AppConstants.storeBannerUri);
     if (response.statusCode == 200) {
       storeBannerList = [];
-      Map<int, StoreBannerListModel> uniqueBanners = {};
+      Map<String, StoreBannerListModel> uniqueBanners = {};
+      
+      Map<int, String> catalogImages = {};
+      if (response.body is Map && response.body['catalog_banners'] != null) {
+        response.body['catalog_banners'].forEach((item) {
+          int? catId = item['id'];
+          String? imageUrl = item['image_full_url'];
+          if (catId != null && imageUrl != null) {
+            catalogImages[catId] = imageUrl;
+          }
+        });
+      }
+
       if (response.body is Map) {
         if (response.body['banners'] != null) {
           response.body['banners'].forEach((item) {
             StoreBannerListModel banner = StoreBannerListModel.fromJson(item);
             if (banner.id != null) {
-              uniqueBanners[banner.id!] = banner;
+              bool isCustom = banner.bannerCatalogId == null || 
+                              banner.bannerCatalogId == 0 || 
+                              (banner.title != null && banner.title!.isNotEmpty && banner.title != 'null');
+              if (isCustom) {
+                banner.bannerCatalogId = null;
+                uniqueBanners['store_${banner.id}'] = banner;
+              } else {
+                if (banner.bannerCatalogId != null && banner.bannerCatalogId != 0) {
+                  banner.imageFullUrl = banner.imageFullUrl ?? catalogImages[banner.bannerCatalogId];
+                }
+                String key = 'catalog_${banner.bannerCatalogId}';
+                uniqueBanners[key] = banner;
+              }
             } else {
               storeBannerList!.add(banner);
             }
@@ -57,7 +82,14 @@ class BannerRepository implements BannerRepositoryInterface {
             StoreBannerListModel banner = StoreBannerListModel.fromJson(item);
             banner.bannerCatalogId = banner.bannerCatalogId ?? banner.id;
             if (banner.id != null) {
-              uniqueBanners[banner.id!] = banner;
+              String key = (banner.bannerCatalogId != null && banner.bannerCatalogId != 0)
+                  ? 'catalog_${banner.bannerCatalogId}'
+                  : 'catalog_${banner.id}';
+              if (uniqueBanners.containsKey(key)) {
+                uniqueBanners[key]!.imageFullUrl = uniqueBanners[key]!.imageFullUrl ?? banner.imageFullUrl;
+              } else {
+                uniqueBanners[key] = banner;
+              }
             } else {
               storeBannerList!.add(banner);
             }
@@ -67,7 +99,19 @@ class BannerRepository implements BannerRepositoryInterface {
         response.body.forEach((item) {
           StoreBannerListModel banner = StoreBannerListModel.fromJson(item);
           if (banner.id != null) {
-            uniqueBanners[banner.id!] = banner;
+            bool isCustom = banner.bannerCatalogId == null || 
+                            banner.bannerCatalogId == 0 || 
+                            (banner.title != null && banner.title!.isNotEmpty && banner.title != 'null');
+            if (isCustom) {
+              banner.bannerCatalogId = null;
+              uniqueBanners['store_${banner.id}'] = banner;
+            } else {
+              if (banner.bannerCatalogId != null && banner.bannerCatalogId != 0) {
+                banner.imageFullUrl = banner.imageFullUrl ?? catalogImages[banner.bannerCatalogId];
+              }
+              String key = 'catalog_${banner.bannerCatalogId}';
+              uniqueBanners[key] = banner;
+            }
           } else {
             storeBannerList!.add(banner);
           }
@@ -81,7 +125,7 @@ class BannerRepository implements BannerRepositoryInterface {
   @override
   Future<bool> delete(int? id, {int? catalogId}) async {
     Response response;
-    if (catalogId != null) {
+    if (catalogId != null && catalogId != 0) {
       int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       response = await apiClient.deleteData(
         '/api/v1/stores/$storeId/banner-catalog/unassign',
@@ -107,6 +151,7 @@ class BannerRepository implements BannerRepositoryInterface {
       'id': banner!.id!.toString(),
       '_method': 'put',
       'type': banner.type ?? 'image',
+      'background_color': banner.backgroundColor ?? '',
     });
     Response response = await apiClient.postMultipartData(
       AppConstants.updateStoreBannerUri,

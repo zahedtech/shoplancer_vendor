@@ -12,6 +12,8 @@ import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:shoplancer_vendor/util/images.dart';
+import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
@@ -42,7 +44,8 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   final TextEditingController _priceController = TextEditingController();
   List<TextEditingController> _variationStockControllers = [];
   List<TextEditingController> _variationPriceControllers = [];
-  bool _isStockPriceLoading = false;
+  bool _isPriceLoading = false;
+  bool _isStockLoading = false;
 
   void _initStockPriceControllers() {
     _stockController.text = (item.stock ?? 0).toString();
@@ -102,7 +105,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"price": item.price.toString()});
     data.addAll({"unit_price": item.price.toString()});
     data.addAll({"discount": discountValue.toString()});
-    data.addAll({"discount_type": discountType});
+    data.addAll({"discount_type": discountType == 'flat' ? 'amount' : discountType});
 
     if (item.variations != null && item.variations!.isNotEmpty) {
       for (var variation in item.variations!) {
@@ -147,16 +150,32 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     });
   }
 
-  void _updateStockAndPrice(StoreController storeController) {
-    if (_variationStockControllers.isNotEmpty) {
-      if (_variationStockControllers.any((element) => element.text == '0')) {
-        showCustomSnackBar('stock_cannot_be_zero'.tr);
-        return;
+  void _updateStockAndPrice(StoreController storeController, {required String updateType}) {
+    if (updateType == 'stock') {
+      if (_variationStockControllers.isNotEmpty) {
+        if (_variationStockControllers.any((element) => element.text.trim().isEmpty || element.text.trim() == '0')) {
+          showCustomSnackBar('stock_cannot_be_zero'.tr);
+          return;
+        }
+      } else {
+        if (_stockController.text.trim().isEmpty || _stockController.text.trim() == '0') {
+          showCustomSnackBar('stock_cannot_be_zero'.tr);
+          return;
+        }
       }
-    } else {
-      if (_stockController.text == '0') {
-        showCustomSnackBar('stock_cannot_be_zero'.tr);
-        return;
+    }
+
+    if (updateType == 'price') {
+      if (_variationPriceControllers.isNotEmpty) {
+        if (_variationPriceControllers.any((element) => element.text.trim().isEmpty || double.tryParse(element.text.trim()) == null || double.parse(element.text.trim()) <= 0)) {
+          showCustomSnackBar('price_cannot_be_zero_or_less'.tr);
+          return;
+        }
+      } else {
+        if (_priceController.text.trim().isEmpty || double.tryParse(_priceController.text.trim()) == null || double.parse(_priceController.text.trim()) <= 0) {
+          showCustomSnackBar('price_cannot_be_zero_or_less'.tr);
+          return;
+        }
       }
     }
 
@@ -188,7 +207,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
       data.addAll({"price": _priceController.text.trim()});
       data.addAll({"unit_price": _priceController.text.trim()});
       data.addAll({"discount": item.discount?.toString() ?? '0'});
-      data.addAll({"discount_type": item.discountType ?? 'amount'});
+      data.addAll({"discount_type": item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount')});
     } else {
       for (var variation in item.variations!) {
         int index = item.variations!.indexOf(variation);
@@ -211,12 +230,19 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"type": jsonEncode(types)});
 
     setState(() {
-      _isStockPriceLoading = true;
+      if (updateType == 'price') {
+        _isPriceLoading = true;
+      } else {
+        _isStockLoading = true;
+      }
     });
 
     storeController.stockUpdate(data, item.id!, shouldBack: false).then((isSuccess) async {
       if (isSuccess) {
-        showCustomSnackBar('stock_and_price_updated_successfully'.tr, isError: false);
+        showCustomSnackBar(
+          updateType == 'price' ? 'price_updated_successfully'.tr : 'stock_updated_successfully'.tr,
+          isError: false,
+        );
         Item? updatedItem = await storeController.getItemDetails(item.id!);
         if (updatedItem != null) {
           setState(() {
@@ -229,7 +255,11 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         }
       }
       setState(() {
-        _isStockPriceLoading = false;
+        if (updateType == 'price') {
+          _isPriceLoading = false;
+        } else {
+          _isStockLoading = false;
+        }
       });
     });
   }
@@ -334,6 +364,18 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
+                                        if (item.description != null && item.description!.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            item.description!,
+                                            style: robotoRegular.copyWith(
+                                              fontSize: Dimensions.fontSizeSmall,
+                                              color: Theme.of(context).disabledColor,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
 
                                         module != null && module.stock != null
                                             ? Row(
@@ -369,14 +411,17 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
                                         Row(
                                           children: [
-                                            Expanded(
-                                              child: Text(
-                                                '${'discount'.tr}: ${item.discount} ${item.discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol}',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: robotoRegular,
-                                              ),
-                                            ),
+                                            if (item.discount != null && item.discount! > 0)
+                                              Expanded(
+                                                child: Text(
+                                                  '${'discount'.tr}: ${item.discount} ${item.discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol}',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: robotoRegular,
+                                                ),
+                                              )
+                                            else
+                                              const Expanded(child: SizedBox()),
 
                                             (module!.unit! ||
                                                     Get.find<SplashController>()
@@ -466,20 +511,115 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
                         if (!isFood) ...[
+                          // SECTION 1: UPDATE PRICE
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(cardRadius),
                               color: Theme.of(context).cardColor,
                               boxShadow: [boxShadow],
                             ),
-                            padding: const EdgeInsets.all(
-                              Dimensions.paddingSizeSmall,
-                            ),
+                            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'update_stock_and_price'.tr,
+                                  'update_price'.tr,
+                                  style: robotoMedium.copyWith(
+                                    fontSize: Dimensions.fontSizeLarge,
+                                  ),
+                                ),
+                                const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                if (_variationPriceControllers.isEmpty) ...[
+                                  CustomTextFieldWidget(
+                                    hintText: 'enter_price'.tr,
+                                    labelText: 'price'.tr,
+                                    controller: _priceController,
+                                    inputType: TextInputType.number,
+                                    isAmount: true,
+                                  ),
+                                ] else ...[
+                                  ListView.builder(
+                                    itemCount: _variationPriceControllers.length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Expanded(
+                                              flex: 3,
+                                              child: Text(
+                                                item.variations![index].type ?? '',
+                                                style: robotoRegular,
+                                              ),
+                                            ),
+                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                            Expanded(
+                                              flex: 5,
+                                              child: CustomTextFieldWidget(
+                                                hintText: 'enter_price'.tr,
+                                                labelText: 'price'.tr,
+                                                controller: _variationPriceControllers[index],
+                                                inputType: TextInputType.number,
+                                                isAmount: true,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                                const SizedBox(height: Dimensions.paddingSizeDefault),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    _isPriceLoading
+                                        ? const SizedBox(
+                                            height: 35,
+                                            width: 35,
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : CustomButtonWidget(
+                                            width: 100,
+                                            height: 35,
+                                            buttonText: 'update'.tr,
+                                            onPressed: () {
+                                              Get.dialog(
+                                                ConfirmationDialogWidget(
+                                                  icon: Images.warning,
+                                                  description: 'are_you_sure_to_update_price'.tr,
+                                                  onYesPressed: () {
+                                                    Get.back();
+                                                    _updateStockAndPrice(storeController, updateType: 'price');
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                          // SECTION 2: UPDATE STOCK
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(cardRadius),
+                              color: Theme.of(context).cardColor,
+                              boxShadow: [boxShadow],
+                            ),
+                            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'update_stock'.tr,
                                   style: robotoMedium.copyWith(
                                     fontSize: Dimensions.fontSizeLarge,
                                   ),
@@ -487,28 +627,12 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 const SizedBox(height: Dimensions.paddingSizeSmall),
 
                                 if (_variationStockControllers.isEmpty) ...[
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: CustomTextFieldWidget(
-                                          hintText: 'enter_stock'.tr,
-                                          labelText: 'total_quantity'.tr,
-                                          controller: _stockController,
-                                          inputType: TextInputType.number,
-                                          isNumber: true,
-                                        ),
-                                      ),
-                                      const SizedBox(width: Dimensions.paddingSizeSmall),
-                                      Expanded(
-                                        child: CustomTextFieldWidget(
-                                          hintText: 'enter_price'.tr,
-                                          labelText: 'price'.tr,
-                                          controller: _priceController,
-                                          inputType: TextInputType.number,
-                                          isAmount: true,
-                                        ),
-                                      ),
-                                    ],
+                                  CustomTextFieldWidget(
+                                    hintText: 'enter_stock'.tr,
+                                    labelText: 'total_quantity'.tr,
+                                    controller: _stockController,
+                                    inputType: TextInputType.number,
+                                    isNumber: true,
                                   ),
                                 ] else ...[
                                   ListView.builder(
@@ -522,7 +646,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
                                             Expanded(
-                                              flex: 2,
+                                              flex: 3,
                                               child: Text(
                                                 item.variations![index].type ?? '',
                                                 style: robotoRegular,
@@ -530,18 +654,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                             ),
                                             const SizedBox(width: Dimensions.paddingSizeSmall),
                                             Expanded(
-                                              flex: 3,
-                                              child: CustomTextFieldWidget(
-                                                hintText: 'enter_price'.tr,
-                                                labelText: 'price'.tr,
-                                                controller: _variationPriceControllers[index],
-                                                inputType: TextInputType.number,
-                                                isAmount: true,
-                                              ),
-                                            ),
-                                            const SizedBox(width: Dimensions.paddingSizeSmall),
-                                            Expanded(
-                                              flex: 3,
+                                              flex: 5,
                                               child: CustomTextFieldWidget(
                                                 hintText: 'enter_stock'.tr,
                                                 labelText: 'stock'.tr,
@@ -560,7 +673,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    _isStockPriceLoading
+                                    _isStockLoading
                                         ? const SizedBox(
                                             height: 35,
                                             width: 35,
@@ -570,7 +683,18 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                             width: 100,
                                             height: 35,
                                             buttonText: 'update'.tr,
-                                            onPressed: () => _updateStockAndPrice(storeController),
+                                            onPressed: () {
+                                              Get.dialog(
+                                                ConfirmationDialogWidget(
+                                                  icon: Images.warning,
+                                                  description: 'are_you_sure_to_update_stock'.tr,
+                                                  onYesPressed: () {
+                                                    Get.back();
+                                                    _updateStockAndPrice(storeController, updateType: 'stock');
+                                                  },
+                                                ),
+                                              );
+                                            },
                                           ),
                                   ],
                                 ),
@@ -942,42 +1066,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               : 0,
                         ),
 
-                        (item.description != null &&
-                                item.description!.isNotEmpty)
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    cardRadius,
-                                  ),
-                                  color: Theme.of(context).cardColor,
-                                  boxShadow: [boxShadow],
-                                ),
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeSmall,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('description'.tr, style: robotoMedium),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeExtraSmall,
-                                    ),
-                                    Text(
-                                      item.description ?? '',
-                                      style: robotoRegular,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox(),
-                        SizedBox(
-                          height:
-                              (item.description != null &&
-                                  item.description!.isNotEmpty)
-                              ? Dimensions.paddingSizeDefault
-                              : 0,
-                        ),
+
 
                         (item.taxData != null && item.taxData!.isNotEmpty)
                             ? Container(
@@ -1144,29 +1233,31 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                   ),
                 ),
 
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [boxShadow],
-                  ),
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  child: CustomButtonWidget(
-                    onPressed: () {
-                      if (Get.find<ProfileController>()
-                          .profileModel!
-                          .stores![0]
-                          .itemSection!) {
-                        Get.toNamed(RouteHelper.getAddItemRoute(item));
-                      } else {
-                        showCustomSnackBar(
-                          'this_feature_is_blocked_by_admin'.tr,
-                        );
-                      }
-                    },
-                    radius: Dimensions.radiusDefault,
-                    buttonText: 'update_item'.tr,
-                  ),
-                ),
+                !isGrocery
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          boxShadow: [boxShadow],
+                        ),
+                        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                        child: CustomButtonWidget(
+                          onPressed: () {
+                            if (Get.find<ProfileController>()
+                                .profileModel!
+                                .stores![0]
+                                .itemSection!) {
+                              Get.toNamed(RouteHelper.getAddItemRoute(item));
+                            } else {
+                              showCustomSnackBar(
+                                'this_feature_is_blocked_by_admin'.tr,
+                              );
+                            }
+                          },
+                          radius: Dimensions.radiusDefault,
+                          buttonText: 'update_item'.tr,
+                        ),
+                      )
+                    : const SizedBox(),
               ],
             );
           },

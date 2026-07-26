@@ -388,7 +388,13 @@ class StoreController extends GetxController implements GetxService {
     );
     _selectedItemList = [];
     _isSelectionMode = false;
-    getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+    getItemList(
+      offset: '1',
+      type: 'all',
+      search: '',
+      categoryId: 0,
+      moduleId: _currentModuleId,
+    );
     getLimitedStockItemList('1', willUpdate: false);
     update();
   }
@@ -407,7 +413,7 @@ class StoreController extends GetxController implements GetxService {
       'price': price?.toString() ?? item.price.toString(),
       'unit_price': price?.toString() ?? item.price.toString(),
       'discount': item.discount?.toString() ?? '0',
-      'discount_type': item.discountType ?? 'amount',
+      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
       'store_id':
           Get.find<ProfileController>().profileModel?.stores?[0].id
               .toString() ??
@@ -548,7 +554,13 @@ class StoreController extends GetxController implements GetxService {
       _isRecommended ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
       _isRecommended = !_isRecommended;
       showCustomSnackBar(
         Get.find<SplashController>().moduleType == 'food'
@@ -569,7 +581,13 @@ class StoreController extends GetxController implements GetxService {
       _isOrganic ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
       _isOrganic = !_isOrganic;
       showCustomSnackBar(
         Get.find<SplashController>().moduleType == 'food'
@@ -647,6 +665,7 @@ class StoreController extends GetxController implements GetxService {
     int? categoryId,
     bool willUpdate = true,
     int? moduleId,
+    String? barcode,
   }) async {
     _currentModuleId = moduleId;
 
@@ -673,6 +692,7 @@ class StoreController extends GetxController implements GetxService {
         search: search,
         categoryId: categoryId,
         moduleId: moduleId,
+        barcode: barcode,
       );
       if (itemModel != null) {
         if (offset == '1') {
@@ -920,18 +940,46 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> updateStore(Store store, String min, String max) async {
+  Future<void> updateStore(Store store, String? min, String? max) async {
     _isLoading = true;
     update();
+
+    String finalMin = min ?? '';
+    String finalMax = max ?? '';
+    String? durationType = _selectedDuration;
+
+    if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+        try {
+          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+          if (match != null) {
+            if (finalMin.isEmpty) finalMin = match.group(1)!;
+            if (finalMax.isEmpty) finalMax = match.group(2)!;
+            durationType ??= match.group(3)!;
+          }
+        } catch (e) {}
+      }
+    }
+    durationType ??= 'min';
+    if (finalMin.isEmpty) finalMin = '0';
+    if (finalMax.isEmpty) finalMax = '0';
+
     bool isSuccess = await storeServiceInterface.updateStore(
       store,
-      min,
-      max,
-      _selectedDuration!,
+      finalMin,
+      finalMax,
+      durationType,
     );
     if (isSuccess) {
       await Get.find<ProfileController>().getProfile();
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
       Get.find<StoreController>().getStoreReviewList(
         Get.find<ProfileController>().profileModel!.stores![0].id,
         '',
@@ -1189,7 +1237,13 @@ class StoreController extends GetxController implements GetxService {
       if (pendingItem) {
         getPendingItemList(offset.toString(), type);
       } else {
-        getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+        getItemList(
+          offset: '1',
+          type: 'all',
+          search: '',
+          categoryId: 0,
+          moduleId: _currentModuleId,
+        );
         Get.find<CategoryController>().getCategoryList();
       }
     }
@@ -1300,7 +1354,13 @@ class StoreController extends GetxController implements GetxService {
       _isAvailable ? 0 : 1,
     );
     if (isSuccess) {
-      getItemList(offset: '1', type: 'all', search: '', categoryId: 0, moduleId: _currentModuleId);
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
       _isAvailable = !_isAvailable;
       showCustomSnackBar('item_status_updated_successfully'.tr, isError: false);
     }
@@ -1337,7 +1397,6 @@ class StoreController extends GetxController implements GetxService {
     update();
     return isSuccess;
   }
-
 
   void initStoreBasicData() {
     _rawLogo = null;
@@ -1983,7 +2042,13 @@ class StoreController extends GetxController implements GetxService {
     Response response = await storeServiceInterface.stockUpdate(data);
 
     if (response.statusCode == 200) {
-      getItemList(offset: '1', type: _type, search: '', categoryId: 0, moduleId: _currentModuleId);
+      getItemList(
+        offset: '1',
+        type: _type,
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
       Get.find<StoreController>().getLimitedStockItemList(
         Get.find<StoreController>().offset.toString(),
         willUpdate: false,

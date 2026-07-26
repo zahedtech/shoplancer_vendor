@@ -1,0 +1,83 @@
+name: Firebase App Distribution
+
+on:
+  push:
+    branches:
+      - development
+      - main
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify Secrets
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT is missing or empty! Please add it to GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.FIREBASE_APP_ID }}" ]; then
+            echo "::error::FIREBASE_APP_ID is missing or empty! Please add it to GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ]; then
+            echo "::error::One or more Android keystore secrets (ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS) are missing or empty! Please add them to GitHub Secrets."
+            exit 1
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Create Firebase Service Account
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > firebase-service-account.json
+
+      - name: Set Firebase Group
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "FIREBASE_GROUP=production" >> $GITHUB_ENV
+          else
+            echo "FIREBASE_GROUP=development" >> $GITHUB_ENV
+          fi
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: android
+
+      - name: Install Fastlane
+        working-directory: android
+        run: bundle install
+
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=../app/upload-keystore.jks" >> android/key.properties
+
+      - name: Upload to Firebase App Distribution
+        working-directory: android
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: bundle exec fastlane beta

@@ -335,9 +335,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _login(AuthController authController) async {
     String phone = _phoneController.text.trim();
-    if (phone.startsWith('0')) {
-      phone = phone.substring(1);
-    }
     String password = _passwordController.text.trim();
     String type = authController.vendorTypeIndex == 0 ? 'owner' : 'employee';
 
@@ -349,7 +346,7 @@ class _SignInScreenState extends State<SignInScreen> {
       } else if (password.length < 6) {
         showCustomSnackBar('password_should_be'.tr);
       } else {
-        authController.login(_countryDialCode! + phone, password, type).then((
+        authController.login(phone, _countryDialCode, password, type).then((
           status,
         ) async {
           if (status != null) {

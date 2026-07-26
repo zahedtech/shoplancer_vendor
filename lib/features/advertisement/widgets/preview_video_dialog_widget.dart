@@ -61,6 +61,7 @@ class PreviewVideoDialogWidget extends StatelessWidget {
 
 
                             FloatingActionButton.small(
+                              heroTag: null,
                               backgroundColor: Theme.of(context).disabledColor,
                               onPressed: (){
                                 // setState(() {

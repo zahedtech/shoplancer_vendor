@@ -42,6 +42,7 @@ class _WithdrawMethodScreenState extends State<WithdrawMethodScreen> {
       appBar: CustomAppBarWidget(title: 'withdraw_methods'.tr),
 
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         onPressed: () => Get.toNamed(RouteHelper.getAddWithdrawMethodRoute()),
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: Colors.white),

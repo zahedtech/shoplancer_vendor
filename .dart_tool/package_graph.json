@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "shoplancer_vendor",
-      "version": "1.0.3+7",
+      "version": "1.0.5+9",
       "dependencies": [
         "audioplayers",
         "cached_network_image",
@@ -42,6 +42,7 @@
         "just_the_tooltip",
         "lottie",
         "marquee",
+        "mobile_scanner",
         "path",
         "path_provider",
         "permission_handler",
@@ -54,6 +55,7 @@
         "share_plus",
         "shared_preferences",
         "shimmer_animation",
+        "showcaseview",
         "syncfusion_flutter_datepicker",
         "url_launcher",
         "vibration",
@@ -87,6 +89,13 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "showcaseview",
+      "version": "3.0.0",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
@@ -143,6 +152,18 @@
       "dependencies": [
         "flutter",
         "meta"
+      ]
+    },
+    {
+      "name": "mobile_scanner",
+      "version": "7.2.0",
+      "dependencies": [
+        "collection",
+        "flutter",
+        "flutter_web_plugins",
+        "meta",
+        "plugin_platform_interface",
+        "web"
       ]
     },
     {
@@ -670,7 +691,7 @@
     },
     {
       "name": "matcher",
-      "version": "0.12.17",
+      "version": "0.12.19",
       "dependencies": [
         "async",
         "meta",
@@ -681,7 +702,7 @@
     },
     {
       "name": "test_api",
-      "version": "0.7.7",
+      "version": "0.7.10",
       "dependencies": [
         "async",
         "boolean_selector",
@@ -810,6 +831,13 @@
       ]
     },
     {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
       "name": "qr",
       "version": "3.0.2",
       "dependencies": [
@@ -863,13 +891,6 @@
       "name": "platform",
       "version": "3.1.6",
       "dependencies": []
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
-      ]
     },
     {
       "name": "wakelock_plus",
@@ -1698,14 +1719,14 @@
     },
     {
       "name": "material_color_utilities",
-      "version": "0.11.1",
+      "version": "0.13.0",
       "dependencies": [
         "collection"
       ]
     },
     {
       "name": "characters",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "dependencies": []
     },
     {

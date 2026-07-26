@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
 import 'package:shoplancer_vendor/common/models/response_model.dart';
-import 'package:card_swiper/card_swiper.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,10 +10,10 @@ import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/address/controllers/address_controller.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
-import 'package:shoplancer_vendor/features/business/widgets/base_card_widget.dart';
 import 'package:shoplancer_vendor/features/business/widgets/package_card_widget.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
@@ -34,7 +32,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/features/auth/widgets/custom_time_picker_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_time_picker_widget.dart'
     as common_time;
-import 'package:shoplancer_vendor/features/auth/widgets/pass_view_widget.dart';
 import 'package:shoplancer_vendor/features/address/widgets/select_location_module_view_widget.dart';
 
 class StoreRegistrationScreen extends StatefulWidget {
@@ -51,8 +48,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   final List<TextEditingController> _addressController = [];
   //final TextEditingController _vatController = TextEditingController();
   final TextEditingController _tinNumberController = TextEditingController();
-  final TextEditingController _fNameController = TextEditingController();
-  final TextEditingController _lNameController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -61,8 +57,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   final List<FocusNode> _nameFocus = [];
   final List<FocusNode> _addressFocus = [];
   //final FocusNode _vatFocus = FocusNode();
-  final FocusNode _fNameFocus = FocusNode();
-  final FocusNode _lNameFocus = FocusNode();
+  final FocusNode _fullNameFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
@@ -82,6 +77,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   String? _openingTime;
   String? _closingTime;
   bool _isOpen24Hours = false;
+  final Map<int, int> _categoryProductLevels = {};
   Timer? _slugDebounce;
   final List<Language>? _languageList =
       Get.find<SplashController>().configModel!.language;
@@ -89,6 +85,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
   final ScrollController _scrollController = ScrollController();
   String? _countryDialCode;
   bool firstTime = true;
+  // ignore: unused_field
   TabController? _tabController;
   final List<Tab> _tabs = [];
 
@@ -213,6 +210,239 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     );
   }
 
+  void _openCustomColorPicker() {
+    HSVColor hsvColor = HSVColor.fromColor(
+      _selectedColor ?? const Color(0xFF1E88E5),
+    );
+    double hue = hsvColor.hue;
+    double saturation = hsvColor.saturation;
+    double value = hsvColor.value;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('select_color'.tr, style: robotoBold),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              Color previewColor = HSVColor.fromAHSV(
+                1.0,
+                hue,
+                saturation,
+                value,
+              ).toColor();
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 80,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: previewColor,
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radiusDefault,
+                      ),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '#${previewColor.value.toRadixString(16).substring(2).toUpperCase()}',
+                        style: robotoBold.copyWith(
+                          color: previewColor.computeLuminance() > 0.5
+                              ? Colors.black
+                              : Colors.white,
+                          fontSize: Dimensions.fontSizeLarge,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Hue Slider
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hue (الدرجة)',
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                      Container(
+                        height: 12,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            colors: [
+                              for (var h = 0; h <= 360; h += 60)
+                                HSVColor.fromAHSV(
+                                  1.0,
+                                  h.toDouble(),
+                                  1.0,
+                                  1.0,
+                                ).toColor(),
+                            ],
+                          ),
+                        ),
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 12,
+                            activeTrackColor: Colors.transparent,
+                            inactiveTrackColor: Colors.transparent,
+                            thumbColor: Colors.white,
+                            overlayColor: Colors.white.withValues(alpha: 0.2),
+                          ),
+                          child: Slider(
+                            value: hue,
+                            min: 0.0,
+                            max: 360.0,
+                            onChanged: (val) {
+                              setStateDialog(() {
+                                hue = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Saturation Slider
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Saturation (التشبع)',
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                      Container(
+                        height: 12,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white,
+                              HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor(),
+                            ],
+                          ),
+                        ),
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 12,
+                            activeTrackColor: Colors.transparent,
+                            inactiveTrackColor: Colors.transparent,
+                            thumbColor: Colors.white,
+                            overlayColor: Colors.white.withValues(alpha: 0.2),
+                          ),
+                          child: Slider(
+                            value: saturation,
+                            min: 0.0,
+                            max: 1.0,
+                            onChanged: (val) {
+                              setStateDialog(() {
+                                saturation = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Value Slider
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Brightness (السطوع)',
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                      Container(
+                        height: 12,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.black,
+                              HSVColor.fromAHSV(
+                                1.0,
+                                hue,
+                                saturation,
+                                1.0,
+                              ).toColor(),
+                            ],
+                          ),
+                        ),
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 12,
+                            activeTrackColor: Colors.transparent,
+                            inactiveTrackColor: Colors.transparent,
+                            thumbColor: Colors.white,
+                            overlayColor: Colors.white.withValues(alpha: 0.2),
+                          ),
+                          child: Slider(
+                            value: value,
+                            min: 0.0,
+                            max: 1.0,
+                            onChanged: (val) {
+                              setStateDialog(() {
+                                value = val;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'cancel'.tr,
+                style: robotoRegular.copyWith(
+                  color: Theme.of(context).disabledColor,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Color finalColor = HSVColor.fromAHSV(
+                  1.0,
+                  hue,
+                  saturation,
+                  value,
+                ).toColor();
+                setState(() {
+                  _selectedColor = finalColor;
+                  _websiteColorController.text =
+                      '#${finalColor.value.toRadixString(16).substring(2).toUpperCase()}';
+                });
+                Navigator.pop(context);
+              },
+              child: Text(
+                'ok'.tr,
+                style: robotoBold.copyWith(
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _checkSlugAndProceed(AuthController authController) async {
     showDialog(
       context: context,
@@ -220,7 +450,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    ResponseModel responseModel = await authController.checkSlug(_slugController.text.trim());
+    ResponseModel responseModel = await authController.checkSlug(
+      _slugController.text.trim(),
+    );
     Get.back();
 
     if (responseModel.isSuccess) {
@@ -241,6 +473,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
 
   void _onSlugChanged(String text) {
     if (_slugDebounce?.isActive ?? false) _slugDebounce!.cancel();
+
+    setState(() {});
 
     _slugDebounce = Timer(const Duration(milliseconds: 500), () async {
       await Get.find<AuthController>().checkSlug(text.trim());
@@ -265,10 +499,18 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                   .toString();
             }
 
-            bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+            bool isSubscriptionAvailable =
+                Get.find<SplashController>()
+                        .configModel
+                        ?.subscriptionBusinessModel !=
+                    0 &&
                 authController.packageModel?.packages != null &&
                 authController.packageModel!.packages!.isNotEmpty;
-            bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
+            bool isCommissionAvailable =
+                Get.find<SplashController>()
+                    .configModel
+                    ?.commissionBusinessModel !=
+                0;
             bool showToggle = isSubscriptionAvailable && isCommissionAvailable;
 
             return PopScope(
@@ -277,8 +519,10 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                 if (authController.storeStatus == 0.6 && firstTime) {
                   authController.storeStatusChange(0.1);
                   firstTime = false;
-                } else if (authController.storeStatus == 0.9) {
+                } else if (authController.storeStatus == 0.8) {
                   authController.storeStatusChange(0.6);
+                } else if (authController.storeStatus == 0.9) {
+                  authController.storeStatusChange(0.8);
                 } else {
                   await _showBackPressedDialogue(
                     'your_registration_not_setup_yet'.tr,
@@ -292,8 +536,10 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                     if (authController.storeStatus == 0.6 && firstTime) {
                       authController.storeStatusChange(0.1);
                       firstTime = false;
-                    } else if (authController.storeStatus == 0.9) {
+                    } else if (authController.storeStatus == 0.8) {
                       authController.storeStatusChange(0.6);
+                    } else if (authController.storeStatus == 0.9) {
+                      authController.storeStatusChange(0.8);
                     } else {
                       await _showBackPressedDialogue(
                         'your_registration_not_setup_yet'.tr,
@@ -319,6 +565,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       .tr
                                 : authController.storeStatus == 0.6
                                 ? 'provide_owner_information_to_confirm'.tr
+                                : authController.storeStatus == 0.8
+                                ? 'select_categories'.tr
                                 : 'you_are_one_step_away_choose_your_business_plan'
                                       .tr,
                             style: robotoRegular.copyWith(
@@ -436,30 +684,58 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                             focusNode: _slugFocus,
                                             inputType: TextInputType.text,
                                             required: true,
-                                            onChanged: (text) => _onSlugChanged(text),
+                                            prefixText:
+                                                'https://store.shoplanser.com/',
+                                            onChanged: (text) =>
+                                                _onSlugChanged(text),
                                             validator: (value) =>
                                                 ValidateCheck.validateEmptyText(
                                                   value,
                                                   "enter_slug".tr,
                                                 ),
                                           ),
-                                          if (authController.isSlugAvailable != null && _slugController.text.trim().isNotEmpty)
+                                          if (authController.isSlugAvailable !=
+                                                  null &&
+                                              _slugController.text
+                                                  .trim()
+                                                  .isNotEmpty)
                                             Padding(
-                                              padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall),
+                                              padding: const EdgeInsets.only(
+                                                top: Dimensions
+                                                    .paddingSizeExtraSmall,
+                                                left:
+                                                    Dimensions.paddingSizeSmall,
+                                                right:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
                                               child: Row(
                                                 children: [
                                                   Icon(
-                                                    authController.isSlugAvailable! ? Icons.check_circle : Icons.cancel,
-                                                    color: authController.isSlugAvailable! ? Colors.green : Colors.red,
+                                                    authController
+                                                            .isSlugAvailable!
+                                                        ? Icons.check_circle
+                                                        : Icons.cancel,
+                                                    color:
+                                                        authController
+                                                            .isSlugAvailable!
+                                                        ? Colors.green
+                                                        : Colors.red,
                                                     size: 16,
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Expanded(
                                                     child: Text(
-                                                      authController.slugValidationMessage.tr,
+                                                      authController
+                                                          .slugValidationMessage
+                                                          .tr,
                                                       style: robotoRegular.copyWith(
-                                                        color: authController.isSlugAvailable! ? Colors.green : Colors.red,
-                                                        fontSize: Dimensions.fontSizeSmall,
+                                                        color:
+                                                            authController
+                                                                .isSlugAvailable!
+                                                            ? Colors.green
+                                                            : Colors.red,
+                                                        fontSize: Dimensions
+                                                            .fontSizeSmall,
                                                       ),
                                                     ),
                                                   ),
@@ -483,7 +759,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                   "enter_website_color".tr,
                                                 ),
                                             suffixChild: InkWell(
-                                              onTap: _openColorPicker,
+                                              onTap: _openCustomColorPicker,
                                               child: Container(
                                                 width: 30,
                                                 height: 30,
@@ -500,6 +776,158 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                   ),
                                                 ),
                                               ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeSmall,
+                                          ),
+                                          SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              children: [
+                                                ...[
+                                                  const Color(
+                                                    0xFFE53935,
+                                                  ), // Red
+                                                  const Color(
+                                                    0xFFD81B60,
+                                                  ), // Pink
+                                                  const Color(
+                                                    0xFF8E24AA,
+                                                  ), // Purple
+                                                  const Color(
+                                                    0xFF5E35B1,
+                                                  ), // Deep Purple
+                                                  const Color(
+                                                    0xFF3949AB,
+                                                  ), // Indigo
+                                                  const Color(
+                                                    0xFF1E88E5,
+                                                  ), // Blue
+                                                  const Color(
+                                                    0xFF039BE5,
+                                                  ), // Light Blue
+                                                  const Color(
+                                                    0xFF00ACC1,
+                                                  ), // Cyan
+                                                  const Color(
+                                                    0xFF00897B,
+                                                  ), // Teal
+                                                  const Color(
+                                                    0xFF43A047,
+                                                  ), // Green
+                                                  const Color(
+                                                    0xFF7CB342,
+                                                  ), // Light Green
+                                                  const Color(
+                                                    0xFFFDD835,
+                                                  ), // Yellow
+                                                  const Color(
+                                                    0xFFFFB300,
+                                                  ), // Amber
+                                                  const Color(
+                                                    0xFFF4511E,
+                                                  ), // Orange
+                                                  const Color(
+                                                    0xFF6D4C41,
+                                                  ), // Brown
+                                                  const Color(
+                                                    0xFF757575,
+                                                  ), // Grey
+                                                  const Color(
+                                                    0xFF000000,
+                                                  ), // Black
+                                                ].map((color) {
+                                                  bool isSelected =
+                                                      _selectedColor?.value ==
+                                                      color.value;
+                                                  return GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _selectedColor = color;
+                                                        _websiteColorController
+                                                                .text =
+                                                            '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      margin:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 4,
+                                                            vertical: 4,
+                                                          ),
+                                                      width: 32,
+                                                      height: 32,
+                                                      decoration: BoxDecoration(
+                                                        color: color,
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: isSelected
+                                                              ? Theme.of(
+                                                                  context,
+                                                                ).primaryColor
+                                                              : Colors.grey
+                                                                    .withOpacity(
+                                                                      0.3,
+                                                                    ),
+                                                          width: isSelected
+                                                              ? 3
+                                                              : 1,
+                                                        ),
+                                                        boxShadow: isSelected
+                                                            ? [
+                                                                BoxShadow(
+                                                                  color: color
+                                                                      .withOpacity(
+                                                                        0.4,
+                                                                      ),
+                                                                  blurRadius: 4,
+                                                                  spreadRadius:
+                                                                      1,
+                                                                ),
+                                                              ]
+                                                            : null,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                                GestureDetector(
+                                                  onTap: _openCustomColorPicker,
+                                                  child: Container(
+                                                    margin:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 4,
+                                                          vertical: 4,
+                                                        ),
+                                                    width: 32,
+                                                    height: 32,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      gradient:
+                                                          const SweepGradient(
+                                                            colors: [
+                                                              Colors.red,
+                                                              Colors.yellow,
+                                                              Colors.green,
+                                                              Colors.cyan,
+                                                              Colors.blue,
+                                                              Colors.purple,
+                                                              Colors.red,
+                                                            ],
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                        width: 1,
+                                                      ),
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.colorize,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           const SizedBox(
@@ -672,7 +1100,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                     children: [
                                                       Expanded(
                                                         child: Text(
-                                                          '${authController.storeMinTime} : ${authController.storeMaxTime} ${authController.storeTimeUnit}',
+                                                          '${authController.storeMinTime} : ${authController.storeMaxTime} ${authController.storeTimeUnit.tr}',
                                                           style: robotoMedium,
                                                         ),
                                                       ),
@@ -1455,47 +1883,22 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                             CrossAxisAlignment.start,
                                         children: [
                                           CustomTextFieldWidget(
-                                            hintText: 'write_first_name'.tr,
-                                            controller: _fNameController,
-                                            focusNode: _fNameFocus,
-                                            nextFocus: _lNameFocus,
-                                            inputType: TextInputType.name,
-                                            capitalization:
-                                                TextCapitalization.words,
-                                            prefixIcon: CupertinoIcons
-                                                .person_crop_circle_fill,
-                                            iconSize: 25,
-                                            required: true,
-                                            labelText: 'first_name'.tr,
-                                            validator: (value) =>
-                                                ValidateCheck.validateEmptyText(
-                                                  value,
-                                                  "first_name_field_is_required"
-                                                      .tr,
-                                                ),
-                                          ),
-                                          const SizedBox(
-                                            height: Dimensions
-                                                .paddingSizeExtremeLarge,
-                                          ),
-
-                                          CustomTextFieldWidget(
-                                            hintText: 'write_last_name'.tr,
-                                            controller: _lNameController,
-                                            focusNode: _lNameFocus,
+                                            hintText: 'enter_your_full_name'.tr,
+                                            controller: _fullNameController,
+                                            focusNode: _fullNameFocus,
                                             nextFocus: _phoneFocus,
-                                            prefixIcon: CupertinoIcons
-                                                .person_crop_circle_fill,
-                                            iconSize: 25,
                                             inputType: TextInputType.name,
                                             capitalization:
                                                 TextCapitalization.words,
+                                            prefixIcon: CupertinoIcons
+                                                .person_crop_circle_fill,
+                                            iconSize: 25,
                                             required: true,
-                                            labelText: 'last_name'.tr,
+                                            labelText: 'full_name'.tr,
                                             validator: (value) =>
                                                 ValidateCheck.validateEmptyText(
                                                   value,
-                                                  "last_name_field_is_required"
+                                                  "full_name_field_is_required"
                                                       .tr,
                                                 ),
                                           ),
@@ -1623,14 +2026,295 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                             ),
 
                             Visibility(
+                              visible: authController.storeStatus == 0.8,
+                              child: Column(
+                                children: [
+                                  // Categories Selection Section
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: Dimensions.paddingSizeLarge,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeLarge,
+                                        ),
+                                        Text(
+                                          'select_categories'.tr,
+                                          style: robotoBold,
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
+                                        ),
+
+                                        authController.categoriesLoading
+                                            ? const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(
+                                                    Dimensions.paddingSizeLarge,
+                                                  ),
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              )
+                                            : (authController
+                                                          .registrationCategories ==
+                                                      null ||
+                                                  authController
+                                                      .registrationCategories!
+                                                      .isEmpty)
+                                            ? Center(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    Dimensions.paddingSizeLarge,
+                                                  ),
+                                                  child: Text(
+                                                    'no_categories_found'.tr,
+                                                    style: robotoMedium
+                                                        .copyWith(
+                                                          color: Theme.of(
+                                                            context,
+                                                          ).disabledColor,
+                                                        ),
+                                                  ),
+                                                ),
+                                              )
+                                            : GridView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                      crossAxisCount: 3,
+                                                      crossAxisSpacing: 10,
+                                                      mainAxisSpacing: 10,
+                                                      childAspectRatio: 0.85,
+                                                    ),
+                                                itemCount: authController
+                                                    .registrationCategories!
+                                                    .length,
+                                                itemBuilder: (context, index) {
+                                                  final category = authController
+                                                      .registrationCategories![index];
+                                                  bool isSelected =
+                                                      authController
+                                                          .selectedCategoryIds
+                                                          .contains(
+                                                            category.id,
+                                                          );
+                                                  return InkWell(
+                                                    onTap: () => authController
+                                                        .toggleCategorySelection(
+                                                          category.id!,
+                                                        ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).cardColor,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                  .radiusDefault,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: isSelected
+                                                              ? Theme.of(
+                                                                  context,
+                                                                ).primaryColor
+                                                              : Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .disabledColor
+                                                                    .withOpacity(
+                                                                      0.15,
+                                                                    ),
+                                                          width: isSelected
+                                                              ? 2
+                                                              : 1,
+                                                        ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                  0.03,
+                                                                ),
+                                                            blurRadius: 4,
+                                                            spreadRadius: 1,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  8.0,
+                                                                ),
+                                                            child: Center(
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  ClipRRect(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          Dimensions
+                                                                              .radiusSmall,
+                                                                        ),
+                                                                    child: CustomImageWidget(
+                                                                      image:
+                                                                          category
+                                                                              .imageFullUrl ??
+                                                                          '',
+                                                                      height:
+                                                                          50,
+                                                                      width: 50,
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 8,
+                                                                  ),
+                                                                  Text(
+                                                                    category.name ??
+                                                                        '',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style: robotoMedium.copyWith(
+                                                                      fontSize:
+                                                                          Dimensions
+                                                                              .fontSizeSmall,
+                                                                      color:
+                                                                          isSelected
+                                                                          ? Theme.of(
+                                                                              context,
+                                                                            ).primaryColor
+                                                                          : Theme.of(
+                                                                              context,
+                                                                            ).textTheme.bodyLarge?.color,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (isSelected)
+                                                            Positioned(
+                                                              top: 5,
+                                                              right: 5,
+                                                              child: Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                                color: Theme.of(
+                                                                  context,
+                                                                ).primaryColor,
+                                                                size: 18,
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+
+                                        if (authController.selectedCategoryIds.isNotEmpty) ...[
+                                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                                          Text(
+                                            'product_addition_options'.tr,
+                                            style: robotoBold,
+                                          ),
+                                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemCount: authController.selectedCategoryIds.length,
+                                            itemBuilder: (context, catIdx) {
+                                              int catId = authController.selectedCategoryIds[catIdx];
+                                              String catName = '';
+                                              if (authController.registrationCategories != null) {
+                                                for (var cat in authController.registrationCategories!) {
+                                                  if (cat.id == catId) {
+                                                    catName = cat.name ?? '';
+                                                    break;
+                                                  }
+                                                }
+                                              }
+
+                                              return Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                                                    child: Text(
+                                                      catName,
+                                                      style: robotoBold.copyWith(
+                                                        color: Theme.of(context).primaryColor,
+                                                        fontSize: Dimensions.fontSizeDefault,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 1,
+                                                    title: 'add_basic_products'.tr,
+                                                    subtitle: 'add_basic_products_desc'.tr,
+                                                    icon: Icons.star_border,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 2,
+                                                    title: 'add_additional_products'.tr,
+                                                    subtitle: 'add_additional_products_desc'.tr,
+                                                    icon: Icons.add_circle_outline,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                                                  _buildProductLevelOption(
+                                                    categoryId: catId,
+                                                    level: 3,
+                                                    title: 'no_products_added'.tr,
+                                                    subtitle: 'no_products_added_desc'.tr,
+                                                    icon: Icons.block,
+                                                  ),
+                                                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            Visibility(
                               visible: authController.storeStatus == 0.9,
                               child: Column(
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.only(
                                       top: Dimensions.paddingSizeLarge,
-                                      bottom:
-                                          Dimensions.paddingSizeExtremeLarge,
+                                      bottom: Dimensions.paddingSizeLarge,
                                     ),
                                     child: Center(
                                       child: Text(
@@ -1640,312 +2324,280 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     ),
                                   ),
 
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: Dimensions.paddingSizeLarge,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        // Commission/Subscription Toggle
-                                        if (showToggle)
-                                          Container(
-                                            height: 45,
-                                            padding: const EdgeInsets.all(2),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context).cardColor,
-                                              borderRadius: BorderRadius.circular(
-                                                Dimensions.radiusDefault,
-                                              ),
-                                              border: Border.all(
-                                                color: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                                width: 0.5,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: InkWell(
-                                                    onTap: () => authController.setBusiness(
-                                                      0,
-                                                      moduleId:
-                                                          addressController
-                                                                  .selectedModuleIndex !=
-                                                              -1
-                                                          ? addressController
-                                                                .moduleList![addressController
-                                                                    .selectedModuleIndex!]
-                                                                .id
-                                                          : null,
-                                                    ),
-                                                    child: Container(
-                                                      alignment: Alignment.center,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            authController
-                                                                    .businessIndex ==
-                                                                0
-                                                            ? Theme.of(
-                                                                context,
-                                                              ).primaryColor
-                                                            : Colors.transparent,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                      .radiusDefault -
-                                                                  2,
-                                                            ),
+                                  Builder(
+                                    builder: (context) {
+                                      List<Packages> allPackages = [];
+                                      bool isCommissionAvailable = Get.find<SplashController>().configModel!.commissionBusinessModel != 0;
+                                      bool isSubscriptionAvailable = Get.find<SplashController>().configModel!.subscriptionBusinessModel != 0;
+
+                                      if (isCommissionAvailable) {
+                                        allPackages.add(Packages(
+                                          id: -1,
+                                          packageName: 'commission_base'.tr,
+                                          price: Get.find<SplashController>().configModel!.adminCommission?.toDouble() ?? 0,
+                                          description: "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_on_sales'.tr}",
+                                        ));
+                                      }
+
+                                      if (isSubscriptionAvailable && authController.packageModel != null && authController.packageModel!.packages != null) {
+                                        allPackages.addAll(authController.packageModel!.packages!);
+                                      }
+
+                                      if (authController.packageModel == null && isSubscriptionAvailable) {
+                                        return const Center(child: Padding(
+                                          padding: EdgeInsets.all(Dimensions.paddingSizeExtremeLarge),
+                                          child: CircularProgressIndicator(),
+                                        ));
+                                      }
+
+                                      if (allPackages.isEmpty) {
+                                        return Center(child: Padding(
+                                          padding: const EdgeInsets.all(Dimensions.paddingSizeExtremeLarge),
+                                          child: Text('no_package_available'.tr, style: robotoMedium),
+                                        ));
+                                      }
+
+                                      return SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        child: IntrinsicHeight(
+                                          child: Row(
+                                            children: List.generate(allPackages.length, (index) {
+                                              final package = allPackages[index];
+                                              bool isCommission = package.id == -1;
+
+                                              bool isHighlighted = false;
+                                              if (allPackages.length > 1) {
+                                                isHighlighted = index == 1;
+                                              } else {
+                                                isHighlighted = index == 0;
+                                              }
+
+                                              bool isSelected = false;
+                                              int originalIndex = -1;
+                                              if (isCommission) {
+                                                isSelected = authController.businessIndex == 0;
+                                              } else {
+                                                originalIndex = authController.packageModel!.packages!.indexOf(package);
+                                                isSelected = authController.businessIndex == 1 &&
+                                                    authController.activeSubscriptionIndex == originalIndex;
+                                              }
+
+                                              final Color cardBgColor = isHighlighted ? const Color(0xFF0F255C) : Colors.white;
+                                              final Color textColor = isHighlighted ? Colors.white : const Color(0xFF0F255C);
+                                              final Color featureTextColor = isHighlighted ? Colors.white.withOpacity(0.9) : Colors.black87;
+                                              final Color subtitleColor = isHighlighted ? Colors.white70 : Colors.grey;
+
+                                              final decoration = isHighlighted
+                                                  ? BoxDecoration(
+                                                      gradient: const LinearGradient(
+                                                        colors: [Color(0xFF0F255C), Color(0xFF0A142F)],
+                                                        begin: Alignment.topCenter,
+                                                        end: Alignment.bottomCenter,
                                                       ),
-                                                      child: Text(
-                                                        'commission'.tr,
-                                                        style: robotoMedium.copyWith(
-                                                          color:
-                                                              authController
-                                                                      .businessIndex ==
-                                                                  0
-                                                              ? Colors.white
-                                                              : Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                          fontSize: Dimensions
-                                                              .fontSizeSmall,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      border: isSelected ? Border.all(color: const Color(0xFFFF8A00), width: 3) : null,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: const Color(0xFF0F255C).withOpacity(0.3),
+                                                          blurRadius: 10,
+                                                          spreadRadius: 2,
+                                                          offset: const Offset(0, 4),
+                                                        )
+                                                      ],
+                                                    )
+                                                  : BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(16),
+                                                      border: Border.all(
+                                                        color: isSelected ? const Color(0xFFFF8A00) : Colors.grey.withOpacity(0.2),
+                                                        width: isSelected ? 3 : 1,
+                                                      ),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.04),
+                                                          blurRadius: 8,
+                                                          spreadRadius: 1,
+                                                          offset: const Offset(0, 2),
+                                                        )
+                                                      ],
+                                                    );
+
+                                              String subBadgeText = '';
+                                              if (isCommission) {
+                                                subBadgeText = '${(package.price ?? 0).toInt()}% ${'commission_on_sales'.tr}';
+                                              } else {
+                                                subBadgeText = (package.text != null && package.text!.isNotEmpty)
+                                                    ? package.text!
+                                                    : '${'subscribe_now'.tr} ${'free_month_promo'.tr}';
+                                              }
+
+                                              List<String> featureItems = [
+                                                'online_store_ready_for_launch'.tr,
+                                                'all_products_and_categories_prebuilt'.tr,
+                                                'instant_price_and_product_update'.tr,
+                                                'professional_merchant_app'.tr,
+                                                'marketing_consultations'.tr,
+                                                'technical_support_24_7'.tr,
+                                                isCommission
+                                                    ? '${'commission_on_sales'.tr} (${(package.price ?? 0).toInt()}%)'
+                                                    : 'no_commission_on_sales'.tr,
+                                              ];
+
+                                              return Container(
+                                                width: 290,
+                                                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                decoration: decoration,
+                                                padding: const EdgeInsets.all(20),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      package.packageName ?? '',
+                                                      style: robotoBold.copyWith(
+                                                        fontSize: Dimensions.fontSizeExtraLarge,
+                                                        color: textColor,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                                                      textBaseline: TextBaseline.alphabetic,
+                                                      children: [
+                                                        Text(
+                                                          isCommission ? 'free'.tr : '${(package.price ?? 0).toInt()}',
+                                                          style: robotoBold.copyWith(
+                                                            fontSize: 32,
+                                                            color: const Color(0xFFFF8A00),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          Get.find<SplashController>().configModel!.currencySymbol ?? 'EGP',
+                                                          style: robotoRegular.copyWith(
+                                                            fontSize: 14,
+                                                            color: subtitleColor,
+                                                          ),
+                                                        ),
+                                                        if (!isCommission) ...[
+                                                          const SizedBox(width: 2),
+                                                          Text(
+                                                            '/ ${'month'.tr}',
+                                                            style: robotoRegular.copyWith(
+                                                              fontSize: 14,
+                                                              color: subtitleColor,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 15),
+
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      decoration: BoxDecoration(
+                                                        color: isHighlighted
+                                                            ? Colors.white.withOpacity(0.08)
+                                                            : Colors.grey.withOpacity(0.05),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                        border: isHighlighted
+                                                            ? Border.all(color: Colors.white.withOpacity(0.12), width: 1)
+                                                            : Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.verified_user,
+                                                            size: 14,
+                                                            color: isHighlighted ? const Color(0xFFFF8A00) : const Color(0xFF0F255C),
+                                                          ),
+                                                          const SizedBox(width: 6),
+                                                          Expanded(
+                                                            child: Text(
+                                                              subBadgeText,
+                                                              textAlign: TextAlign.center,
+                                                              style: robotoMedium.copyWith(
+                                                                fontSize: 11,
+                                                                color: isHighlighted ? Colors.white : const Color(0xFF0F255C),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+
+                                                    Expanded(
+                                                      child: Column(
+                                                        children: featureItems.map((feature) {
+                                                          return Padding(
+                                                            padding: const EdgeInsets.symmetric(vertical: 4),
+                                                            child: Row(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons.check,
+                                                                  size: 16,
+                                                                  color: Color(0xFFFF8A00),
+                                                                ),
+                                                                const SizedBox(width: 8),
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    feature,
+                                                                    style: robotoRegular.copyWith(
+                                                                      fontSize: Dimensions.fontSizeSmall,
+                                                                      color: featureTextColor,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      height: 45,
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor: isHighlighted ? Colors.white : const Color(0xFF0F255C),
+                                                          foregroundColor: isHighlighted ? const Color(0xFF0F255C) : Colors.white,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(10),
+                                                          ),
+                                                          elevation: 0,
+                                                        ),
+                                                        onPressed: () {
+                                                          if (isCommission) {
+                                                            authController.setBusiness(0);
+                                                          } else {
+                                                            authController.setBusiness(1);
+                                                            authController.selectSubscriptionCard(originalIndex);
+                                                          }
+                                                        },
+                                                        child: Text(
+                                                          isSelected ? 'selected'.tr : 'subscribe_now'.tr,
+                                                          style: robotoBold.copyWith(
+                                                            fontSize: Dimensions.fontSizeDefault,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 2),
-                                                Expanded(
-                                                  child: InkWell(
-                                                    onTap: () => authController.setBusiness(
-                                                      1,
-                                                      moduleId:
-                                                          addressController
-                                                                  .selectedModuleIndex !=
-                                                              -1
-                                                          ? addressController
-                                                                .moduleList![addressController
-                                                                    .selectedModuleIndex!]
-                                                                .id
-                                                          : null,
-                                                    ),
-                                                    child: Container(
-                                                      alignment: Alignment.center,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            authController
-                                                                    .businessIndex ==
-                                                                1
-                                                            ? Theme.of(
-                                                                context,
-                                                              ).primaryColor
-                                                            : Colors.transparent,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                      .radiusDefault -
-                                                                  2,
-                                                            ),
-                                                      ),
-                                                      child: Text(
-                                                        'subscription'.tr,
-                                                        style: robotoMedium.copyWith(
-                                                          color:
-                                                              authController
-                                                                      .businessIndex ==
-                                                                  1
-                                                              ? Colors.white
-                                                              : Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                          fontSize: Dimensions
-                                                              .fontSizeSmall,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              );
+                                            }),
                                           ),
-                                        if (showToggle)
-                                          const SizedBox(
-                                            height: Dimensions.paddingSizeLarge,
-                                          ),
-
-                                        if (authController.businessIndex == 0)
-                                          PackageCardWidget(
-                                            currentIndex: 0,
-                                            package: Packages(
-                                              id: -1,
-                                              packageName: 'commission_base'.tr,
-                                              price:
-                                                  Get.find<SplashController>()
-                                                      .configModel!
-                                                      .adminCommission
-                                                      ?.toDouble() ??
-                                                  0,
-                                              description:
-                                                  "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_to'.tr} ${Get.find<SplashController>().configModel!.businessName}",
-                                            ),
-                                          ),
-
-                                        if (authController.businessIndex ==
-                                            1) ...[
-                                          // Subscription Interval Toggle
-                                          Container(
-                                            height: 45,
-                                            padding: const EdgeInsets.all(4),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .disabledColor
-                                                  .withValues(alpha: 0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                    Dimensions.radiusDefault,
-                                                  ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                _subscriptionTypeButton(
-                                                  authController,
-                                                  0,
-                                                  '1_to_3_month'.tr,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                _subscriptionTypeButton(
-                                                  authController,
-                                                  1,
-                                                  '4_to_6_month'.tr,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                _subscriptionTypeButton(
-                                                  authController,
-                                                  2,
-                                                  'more_than_6_month'.tr,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: Dimensions.paddingSizeLarge,
-                                          ),
-
-                                          if (authController.packageModel !=
-                                              null)
-                                            ListView.builder(
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              itemCount: authController
-                                                  .packageModel!
-                                                  .packages!
-                                                  .where((p) {
-                                                    int months =
-                                                        (p.validity ?? 0) ~/ 30;
-                                                    if (authController
-                                                            .subscriptionTypeIndex ==
-                                                        0)
-                                                      return months >= 1 &&
-                                                          months <= 3;
-                                                    if (authController
-                                                            .subscriptionTypeIndex ==
-                                                        1)
-                                                      return months >= 4 &&
-                                                          months <= 6;
-                                                    return months > 6;
-                                                  })
-                                                  .length,
-                                              itemBuilder: (context, index) {
-                                                List<Packages>
-                                                filteredList = authController
-                                                    .packageModel!
-                                                    .packages!
-                                                    .where((p) {
-                                                      int months =
-                                                          (p.validity ?? 0) ~/
-                                                          30;
-                                                      if (authController
-                                                              .subscriptionTypeIndex ==
-                                                          0)
-                                                        return months >= 1 &&
-                                                            months <= 3;
-                                                      if (authController
-                                                              .subscriptionTypeIndex ==
-                                                          1)
-                                                        return months >= 4 &&
-                                                            months <= 6;
-                                                      return months > 6;
-                                                    })
-                                                    .toList();
-
-                                                Packages package =
-                                                    filteredList[index];
-                                                int originalIndex =
-                                                    authController
-                                                        .packageModel!
-                                                        .packages!
-                                                        .indexOf(package);
-
-                                                return InkWell(
-                                                  onTap: () => authController
-                                                      .selectSubscriptionCard(
-                                                        originalIndex,
-                                                      ),
-                                                  child: PackageCardWidget(
-                                                    currentIndex:
-                                                        authController
-                                                                .activeSubscriptionIndex ==
-                                                            originalIndex
-                                                        ? index
-                                                        : null,
-                                                    package: package,
-                                                  ),
-                                                );
-                                              },
-                                            ),
-
-                                          if (authController.packageModel !=
-                                                  null &&
-                                              authController
-                                                  .packageModel!
-                                                  .packages!
-                                                  .where((p) {
-                                                    int months =
-                                                        (p.validity ?? 0) ~/ 30;
-                                                    if (authController
-                                                            .subscriptionTypeIndex ==
-                                                        0)
-                                                      return months >= 1 &&
-                                                          months <= 3;
-                                                    if (authController
-                                                            .subscriptionTypeIndex ==
-                                                        1)
-                                                      return months >= 4 &&
-                                                          months <= 6;
-                                                    return months > 6;
-                                                  })
-                                                  .isEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                top:
-                                                    Dimensions.paddingSizeLarge,
-                                              ),
-                                              child: Text(
-                                                'no_package_available'.tr,
-                                                style: robotoMedium,
-                                              ),
-                                            ),
-                                        ],
-
-                                        if (authController.businessIndex == 1 &&
-                                            authController.packageModel == null)
-                                          const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                      ],
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -1971,7 +2623,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                           ],
                         ),
                         child: CustomButtonWidget(
-                          buttonText: 'submit'.tr,
+                          buttonText: authController.storeStatus == 0.9
+                              ? 'submit'.tr
+                              : 'next'.tr,
                           isLoading: authController.isLoading,
                           margin: const EdgeInsets.all(
                             Dimensions.paddingSizeSmall,
@@ -1990,13 +2644,24 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                             String tin = "123456789";
                             String minTime = authController.storeMinTime;
                             String maxTime = authController.storeMaxTime;
-                            String fName = _fNameController.text.trim();
-                            String lName = _lNameController.text.trim();
+                            String fullName = _fullNameController.text.trim();
+                            String fName = '';
+                            String lName = '';
+                            List<String> nameParts = fullName.split(' ');
+                            if (nameParts.isNotEmpty) {
+                              fName = nameParts[0];
+                              if (nameParts.length > 1) {
+                                lName = nameParts.sublist(1).join(' ');
+                              } else {
+                                lName = '-';
+                              }
+                            }
                             String phone = _phoneController.text.trim();
                             if (phone.startsWith('0')) {
                               phone = phone.substring(1);
                             }
                             String password = _passwordController.text.trim();
+                            // ignore: unused_local_variable
                             String confirmPassword = _confirmPasswordController
                                 .text
                                 .trim();
@@ -2025,7 +2690,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                             }
 
                             if (authController.storeStatus == 0.1 ||
-                                authController.storeStatus == 0.6) {
+                                authController.storeStatus == 0.6 ||
+                                authController.storeStatus == 0.8) {
                               if (authController.storeStatus == 0.1) {
                                 if (_formKeyLogin!.currentState!.validate()) {
                                   if (defaultNameNull) {
@@ -2108,9 +2774,45 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                   _scrollController.jumpTo(
                                     _scrollController.position.minScrollExtent,
                                   );
-                                  authController.storeStatusChange(0.9);
+                                  authController.getRegistrationCategories(
+                                    zoneId: addressController
+                                        .zoneList![addressController
+                                            .selectedZoneIndex!]
+                                        .id
+                                        .toString(),
+                                    moduleId: addressController
+                                        .moduleList![addressController
+                                            .selectedModuleIndex!]
+                                        .id
+                                        .toString(),
+                                    latitude: addressController
+                                        .restaurantLocation!
+                                        .latitude
+                                        .toString(),
+                                    longitude: addressController
+                                        .restaurantLocation!
+                                        .longitude
+                                        .toString(),
+                                  );
+                                  authController.storeStatusChange(0.8);
                                 }
-                              } else {
+                              } else if (authController.storeStatus == 0.8) {
+                                if (authController.registrationCategories !=
+                                        null &&
+                                    authController
+                                        .registrationCategories!
+                                        .isNotEmpty &&
+                                    authController
+                                        .selectedCategoryIds
+                                        .isEmpty) {
+                                  showCustomSnackBar(
+                                    'select_at_least_one_category'.tr,
+                                  );
+                                  return;
+                                }
+                                _scrollController.jumpTo(
+                                  _scrollController.position.minScrollExtent,
+                                );
                                 authController.storeStatusChange(0.9);
                               }
                             } else {
@@ -2222,6 +2924,39 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                 ).toJson(),
                               );
 
+                              if (authController.registrationCategories !=
+                                      null &&
+                                  authController
+                                      .registrationCategories!
+                                      .isNotEmpty &&
+                                  authController.selectedCategoryIds.isEmpty) {
+                                showCustomSnackBar(
+                                  'select_at_least_one_category'.tr,
+                                );
+                                return;
+                              }
+
+                              for (
+                                int i = 0;
+                                i < authController.selectedCategoryIds.length;
+                                i++
+                              ) {
+                                data['category_id[$i]'] = authController
+                                    .selectedCategoryIds[i]
+                                    .toString();
+                              }
+
+                              Map<String, Map<String, bool>> categoryLevelsMap = {};
+                              for (int catId in authController.selectedCategoryIds) {
+                                int chosenLevel = _categoryProductLevels[catId] ?? 1;
+                                categoryLevelsMap[catId.toString()] = {
+                                  "additional": chosenLevel == 1,
+                                  "optional": chosenLevel == 2,
+                                  "dontAdd": chosenLevel == 3,
+                                };
+                              }
+                              data['category_levels'] = jsonEncode(categoryLevelsMap);
+
                               authController.registerStore(data);
                             }
                           },
@@ -2268,6 +3003,88 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
               fontSize: 11,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductLevelOption({
+    required int categoryId,
+    required int level,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    if (!_categoryProductLevels.containsKey(categoryId)) {
+      _categoryProductLevels[categoryId] = 1;
+    }
+    bool isSelected = _categoryProductLevels[categoryId] == level;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _categoryProductLevels[categoryId] = level;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor.withOpacity(0.2),
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withOpacity(0.08),
+              blurRadius: 4,
+              spreadRadius: 1,
+            )
+          ] : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Theme.of(context).disabledColor.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: Dimensions.paddingSizeSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeDefault,
+                      color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: robotoRegular.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+              size: 20,
+            ),
+          ],
         ),
       ),
     );

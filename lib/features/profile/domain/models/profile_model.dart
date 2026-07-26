@@ -275,6 +275,7 @@ class Store {
   double? minimumShippingCharge;
   double? maximumShippingCharge;
   double? perKmShippingCharge;
+  double? deliveryPrice;
   String? deliveryTime;
   int? veg;
   int? nonVeg;
@@ -338,6 +339,7 @@ class Store {
     this.minimumShippingCharge,
     this.maximumShippingCharge,
     this.perKmShippingCharge,
+    this.deliveryPrice,
     this.deliveryTime,
     this.veg,
     this.nonVeg,
@@ -405,6 +407,9 @@ class Store {
     perKmShippingCharge = json['per_km_shipping_charge'] != null
         ? json['per_km_shipping_charge']?.toDouble()
         : 0.0;
+    deliveryPrice = json['delivery_price'] != null
+        ? double.tryParse(json['delivery_price'].toString())
+        : null;
     deliveryTime = json['delivery_time'];
     veg = json['veg'];
     nonVeg = json['non_veg'];
@@ -514,6 +519,7 @@ class Store {
     data['minimum_shipping_charge'] = minimumShippingCharge;
     data['maximum_shipping_charge'] = maximumShippingCharge;
     data['per_km_shipping_charge'] = perKmShippingCharge;
+    data['delivery_price'] = deliveryPrice;
     data['delivery_time'] = deliveryTime;
     data['veg'] = veg;
     data['non_veg'] = nonVeg;
@@ -722,7 +728,7 @@ class Discount {
     minPurchase = json['min_purchase']?.toDouble();
     maxDiscount = json['max_discount']?.toDouble();
     discount = json['discount']?.toDouble();
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     storeId = json['store_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];

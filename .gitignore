@@ -27,3 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+build/
+.dart_tool/
+
+# Firebase Service Account
+firebase-service-account.json

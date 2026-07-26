@@ -65,7 +65,7 @@ class OrderDetailsModel {
       });
     }
     discountOnItem = json['discount_on_item']?.toDouble();
-    discountType = json['discount_type'];
+    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
     quantity = json['quantity'] != null ? double.tryParse(json['quantity'].toString()) : null;
     taxAmount = json['tax_amount']?.toDouble();
     variant = json['variant'];

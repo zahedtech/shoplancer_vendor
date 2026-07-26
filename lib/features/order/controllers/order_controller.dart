@@ -42,14 +42,24 @@ class OrderController extends GetxController implements GetxService {
   bool _campaignOnly = false;
   bool get campaignOnly => _campaignOnly;
 
+  String _runningOrderSort = 'latest';
+  String get runningOrderSort => _runningOrderSort;
+
   String _otp = '';
   String get otp => _otp;
 
   int _historyIndex = 0;
   int get historyIndex => _historyIndex;
 
-  final List<String> _statusList = ['all', 'delivered', 'refunded'];
+  final List<String> _statusList = ['all', 'delivered', 'canceled'];
   List<String> get statusList => _statusList;
+
+  String? _fromDate;
+  String? get fromDate => _fromDate;
+  String? _toDate;
+  String? get toDate => _toDate;
+  int _selectedDateIndex = 0;
+  int get selectedDateIndex => _selectedDateIndex;
 
   bool _paginate = false;
   bool get paginate => _paginate;
@@ -243,7 +253,7 @@ class OrderController extends GetxController implements GetxService {
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
       PaginatedOrderModel? historyOrderModel = await orderServiceInterface
-          .getPaginatedOrderList(offset, _statusList[_historyIndex]);
+          .getPaginatedOrderList(offset, _statusList[_historyIndex], from: _fromDate, to: _toDate);
       if (historyOrderModel != null) {
         if (offset == 1) {
           _historyOrderList = [];
@@ -273,6 +283,12 @@ class OrderController extends GetxController implements GetxService {
   void setOrderType(String type) {
     _orderType = type;
     getPaginatedOrders(1, true);
+  }
+
+  void setRunningOrderSort(String sort) {
+    _runningOrderSort = sort;
+    _sortRunningOrderGroups();
+    update();
   }
 
   Future<bool> updateOrderStatus(
@@ -415,6 +431,33 @@ class OrderController extends GetxController implements GetxService {
     update();
   }
 
+  void _sortRunningOrderGroups() {
+    if (_runningOrders == null) {
+      return;
+    }
+
+    for (final RunningOrderModel runningOrder in _runningOrders!) {
+      runningOrder.orderList.sort((first, second) {
+        final int comparison = _runningOrderSort == 'latest'
+            ? _orderTime(second).compareTo(_orderTime(first))
+            : _orderTime(first).compareTo(_orderTime(second));
+
+        if (comparison != 0) {
+          return comparison;
+        }
+
+        return _runningOrderSort == 'latest'
+            ? (second.id ?? 0).compareTo(first.id ?? 0)
+            : (first.id ?? 0).compareTo(second.id ?? 0);
+      });
+    }
+  }
+
+  DateTime _orderTime(OrderModel order) {
+    return DateTime.tryParse(order.createdAt ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(order.id ?? 0);
+  }
+
   void toggleCampaignOnly() {
     _campaignOnly = !_campaignOnly;
     bool isGrocery = Get.find<SplashController>().moduleType == 'grocery';
@@ -474,6 +517,7 @@ class OrderController extends GetxController implements GetxService {
         }
       }
     }
+    _sortRunningOrderGroups();
     update();
   }
 
@@ -486,7 +530,15 @@ class OrderController extends GetxController implements GetxService {
 
   void setHistoryIndex(int index) {
     _historyIndex = index;
-    getPaginatedOrders(offset, true);
+    getPaginatedOrders(1, true);
+    update();
+  }
+
+  void setDateFilter(String? from, String? to, int index) {
+    _fromDate = from;
+    _toDate = to;
+    _selectedDateIndex = index;
+    getPaginatedOrders(1, true);
     update();
   }
 

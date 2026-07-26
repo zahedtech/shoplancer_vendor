@@ -31,16 +31,21 @@ class StoreRepository implements StoreRepositoryInterface {
     required String search,
     int? categoryId,
     int? moduleId,
+    String? barcode,
   }) async {
     ItemModel? itemModel;
     String url = '';
+    final String encodedSearch = Uri.encodeQueryComponent(search);
+    final String barcodeQuery = barcode != null && barcode.trim().isNotEmpty
+        ? '&barcode=${Uri.encodeQueryComponent(barcode.trim())}'
+        : '';
     if (moduleId != null) {
       int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       url =
-          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     } else {
       url =
-          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$search${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     }
     Response response = await apiClient.getData(url);
     if (response.statusCode == 200) {
@@ -219,6 +224,7 @@ class StoreRepository implements StoreRepositoryInterface {
       'gst': store.gstCode!,
       'minimum_delivery_charge': store.minimumShippingCharge.toString(),
       'per_km_delivery_charge': store.perKmShippingCharge.toString(),
+      'delivery_price': store.deliveryPrice.toString(),
       'veg': store.veg.toString(),
       'non_veg': store.nonVeg.toString(),
       'halal_tag_status': store.isHalalActive! ? '1' : '0',
@@ -285,7 +291,7 @@ class StoreRepository implements StoreRepositoryInterface {
       'price': item.price.toString(),
       'discount': item.discount.toString(),
       'veg': item.veg.toString(),
-      'discount_type': item.discountType ?? '',
+      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? ''),
       'category_id': item.categoryIds![0].id!,
       'translations': jsonEncode(item.translations),
       'tags': tags,
