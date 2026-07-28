@@ -216,22 +216,23 @@ class _SignInScreenState extends State<SignInScreen> {
                         ],
                       ),
                     ),
-                    // const SizedBox(height: 10),
-
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.end,
-                    //   children: [
-                    //     authController.vendorTypeIndex == 1
-                    //         ? const SizedBox()
-                    //         : TextButton(
-                    //             onPressed: () => Get.toNamed(
-                    //               RouteHelper.getForgotPassRoute(),
-                    //             ),
-                    //             child: Text('${'forgot_password'.tr}?'),
-                    //           ),
-                    //   ],
-                    // ),
-                    const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: _launchWhatsAppSupport,
+                          child: Text(
+                            '${'forgot_password'.tr}?',
+                            style: robotoMedium.copyWith(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: Dimensions.fontSizeSmall,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeDefault),
 
                     CustomButtonWidget(
                       isLoading: authController.isLoading,
@@ -287,17 +288,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
                     InkWell(
-                      onTap: () async {
-                        var url = "https://wa.me/972598765425";
-                        if (await canLaunchUrl(Uri.parse(url))) {
-                          await launchUrl(
-                            Uri.parse(url),
-                            mode: LaunchMode.externalApplication,
-                          );
-                        } else {
-                          showCustomSnackBar('can_not_launch_url'.tr);
-                        }
-                      },
+                      onTap: _launchWhatsAppSupport,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: Dimensions.paddingSizeSmall,
@@ -331,6 +322,18 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _launchWhatsAppSupport() async {
+    const String url = "https://wa.me/+201036860264";
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      showCustomSnackBar('can_not_launch_url'.tr);
+    }
   }
 
   void _login(AuthController authController) async {

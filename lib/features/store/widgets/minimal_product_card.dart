@@ -144,16 +144,16 @@ class MinimalProductCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (item.unitType != null &&
-                            item.unitType!.isNotEmpty) ...[
+                        if (item.description != null &&
+                            item.description!.trim().isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            item.unitType!,
+                            item.description!.trim(),
                             style: robotoRegular.copyWith(
                               fontSize: 12,
                               color: Theme.of(context).disabledColor,
                             ),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -165,19 +165,11 @@ class MinimalProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: PopupMenuButton<String>(
-                            onSelected: (value) async {
-                              if (value == 'increase') {
-                                double currentPrice = item.price ?? 0;
-                                double newPrice = currentPrice * 2;
-                                Map<String, String> data = Get.find<StoreController>().buildStockUpdateData(item, price: newPrice);
-                                await Get.find<StoreController>().bulkItemsUpdate([data]);
-                              } else if (value == 'decrease') {
-                                double currentPrice = item.price ?? 0;
-                                double newPrice = currentPrice / 2;
-                                Map<String, String> data = Get.find<StoreController>().buildStockUpdateData(item, price: newPrice);
-                                await Get.find<StoreController>().bulkItemsUpdate([data]);
-                              }
+                          child: PopupMenuButton<double>(
+                            onSelected: (double newPrice) async {
+                              Map<String, String> data = Get.find<StoreController>()
+                                  .buildStockUpdateData(item, price: newPrice);
+                              await Get.find<StoreController>().bulkItemsUpdate([data]);
                             },
                             padding: EdgeInsets.zero,
                             child: Column(
@@ -217,28 +209,44 @@ class MinimalProductCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                              PopupMenuItem<String>(
-                                value: 'increase',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.trending_up, size: 18, color: Colors.green),
-                                    const SizedBox(width: 8),
-                                    Text('${'increase_price'.tr} (x2)'),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'decrease',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.trending_down, size: 18, color: Colors.red),
-                                    const SizedBox(width: 8),
-                                    Text('${'decrease_price'.tr} (/2)'),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            itemBuilder: (BuildContext context) {
+                              final double basePrice = item.price ?? 0;
+                              int start = (basePrice - 10).round();
+                              if (start < 1) start = 1;
+                              int end = (basePrice + 20).round();
+                              if (end < start + 5) end = start + 30;
+
+                              List<PopupMenuEntry<double>> options = [];
+                              for (int p = start; p <= end; p++) {
+                                final double val = p.toDouble();
+                                final bool isCurrent = (basePrice.round() == p);
+                                options.add(
+                                  PopupMenuItem<double>(
+                                    value: val,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          PriceConverterHelper.convertPrice(val),
+                                          style: isCurrent
+                                              ? robotoBold.copyWith(
+                                                  color: Theme.of(context).primaryColor,
+                                                )
+                                              : robotoRegular,
+                                        ),
+                                        if (isCurrent)
+                                          Icon(
+                                            Icons.check,
+                                            size: 16,
+                                            color: Theme.of(context).primaryColor,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                              return options;
+                            },
                           ),
                         ),
                         InkWell(

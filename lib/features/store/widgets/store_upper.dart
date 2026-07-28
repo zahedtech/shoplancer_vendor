@@ -106,12 +106,15 @@ class _StoreUpperState extends State<StoreUpper> {
                 children: [
                   Builder(
                     builder: (context) {
-                      bool hasLogo = widget.store?.logoFullUrl != null &&
+                      bool hasLogo =
+                          widget.store?.logoFullUrl != null &&
                           widget.store!.logoFullUrl!.isNotEmpty &&
                           !widget.store!.logoFullUrl!.contains('default') &&
                           !widget.store!.logoFullUrl!.contains('placeholder');
 
-                      String firstLetter = (widget.store?.name != null && widget.store!.name!.isNotEmpty)
+                      String firstLetter =
+                          (widget.store?.name != null &&
+                              widget.store!.name!.isNotEmpty)
                           ? widget.store!.name![0].toUpperCase()
                           : 'S';
 
@@ -121,7 +124,9 @@ class _StoreUpperState extends State<StoreUpper> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Theme.of(context).primaryColor.withOpacity(0.2),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.2),
                             width: 1,
                           ),
                         ),
@@ -144,7 +149,7 @@ class _StoreUpperState extends State<StoreUpper> {
                                 ),
                         ),
                       );
-                    }
+                    },
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -215,7 +220,11 @@ class _StoreUpperState extends State<StoreUpper> {
                       if (widget.store != null) {
                         String storeUrl = _buildStoreUrl(widget.store!);
                         if (storeUrl.isNotEmpty) {
-                          _showShareBottomSheet(context, storeUrl, widget.store!.name ?? '');
+                          _showShareBottomSheet(
+                            context,
+                            storeUrl,
+                            widget.store!.name ?? '',
+                          );
                         }
                       }
                     },
@@ -232,11 +241,19 @@ class _StoreUpperState extends State<StoreUpper> {
                     '${widget.store?.totalOrder ?? 0}',
                     'orders'.tr,
                   ),
-                  _buildStatItem(
-                    context,
-                    Icons.inventory_2_outlined,
-                    '${widget.store?.totalItems ?? 0}',
-                    'items'.tr,
+                  GetBuilder<StoreController>(
+                    builder: (storeController) {
+                      int totalItems =
+                          storeController.itemSize ??
+                          widget.store?.totalItems ??
+                          0;
+                      return _buildStatItem(
+                        context,
+                        Icons.inventory_2_outlined,
+                        '$totalItems',
+                        'items'.tr,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -365,7 +382,11 @@ class _StoreUpperState extends State<StoreUpper> {
     return 'https://store.shoplanser.com/$slug';
   }
 
-  void _showShareBottomSheet(BuildContext context, String storeUrl, String storeName) {
+  void _showShareBottomSheet(
+    BuildContext context,
+    String storeUrl,
+    String storeName,
+  ) {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
@@ -377,14 +398,15 @@ class _StoreUpperState extends State<StoreUpper> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 4, width: 40,
+              height: 4,
+              width: 40,
               decoration: BoxDecoration(
                 color: Theme.of(context).disabledColor.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: Dimensions.paddingSizeLarge),
-            
+
             Text(
               'share_store'.tr,
               style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
@@ -394,15 +416,22 @@ class _StoreUpperState extends State<StoreUpper> {
             ListTile(
               leading: Icon(Icons.link, color: Theme.of(context).primaryColor),
               title: Text('share_link'.tr, style: robotoMedium),
-              subtitle: Text(storeUrl, maxLines: 1, overflow: TextOverflow.ellipsis),
+              subtitle: Text(
+                storeUrl,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               onTap: () {
                 Get.back();
                 Share.share(storeUrl);
               },
             ),
-            
+
             ListTile(
-              leading: Icon(Icons.qr_code, color: Theme.of(context).primaryColor),
+              leading: Icon(
+                Icons.qr_code,
+                color: Theme.of(context).primaryColor,
+              ),
               title: Text('share_as_qr'.tr, style: robotoMedium),
               onTap: () {
                 Get.back();
@@ -450,7 +479,10 @@ class _StoreUpperState extends State<StoreUpper> {
                       const SizedBox(height: Dimensions.paddingSizeSmall),
                       Text(
                         'store.shoplanser.com',
-                        style: robotoMedium.copyWith(color: Colors.black, fontSize: Dimensions.fontSizeSmall),
+                        style: robotoMedium.copyWith(
+                          color: Colors.black,
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
                       ),
                     ],
                   ),
@@ -463,34 +495,48 @@ class _StoreUpperState extends State<StoreUpper> {
                 children: [
                   TextButton(
                     onPressed: () => Get.back(),
-                    child: Text('cancel'.tr, style: robotoMedium.copyWith(color: Theme.of(context).disabledColor)),
+                    child: Text(
+                      'cancel'.tr,
+                      style: robotoMedium.copyWith(
+                        color: Theme.of(context).disabledColor,
+                      ),
+                    ),
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     onPressed: () async {
-                      Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+                      Get.dialog(
+                        const Center(child: CircularProgressIndicator()),
+                        barrierDismissible: false,
+                      );
                       try {
-                        final Uint8List? imageBytes = await screenshotController.capture();
+                        final Uint8List? imageBytes = await screenshotController
+                            .capture();
                         Get.back(); // close progress loader
                         if (imageBytes != null) {
                           final directory = await getTemporaryDirectory();
-                          final String path = '${directory.path}/store_qr_${DateTime.now().millisecondsSinceEpoch}.png';
+                          final String path =
+                              '${directory.path}/store_qr_${DateTime.now().millisecondsSinceEpoch}.png';
                           final File file = await File(path).create();
                           await file.writeAsBytes(imageBytes);
-                          
+
                           Get.back(); // close QR dialog
-                          await Share.shareXFiles(
-                            [XFile(file.path)],
-                            text: '${'share_store'.tr}: $storeName',
-                          );
+                          await Share.shareXFiles([
+                            XFile(file.path),
+                          ], text: '${'share_store'.tr}: $storeName');
                         }
                       } catch (e) {
                         Get.back(); // close progress loader if open
-                        showCustomSnackBar('failed_to_save_qr'.tr, isError: true);
+                        showCustomSnackBar(
+                          'failed_to_save_qr'.tr,
+                          isError: true,
+                        );
                       }
                     },
                     icon: const Icon(Icons.share, size: 18),

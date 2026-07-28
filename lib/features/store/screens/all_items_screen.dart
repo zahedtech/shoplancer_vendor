@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
@@ -48,7 +51,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
       willUpdate: false,
       moduleId: moduleId,
     );
-    storeController.getStoreCategories();
+    _fetchPublicCategories(storeController);
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -72,6 +75,32 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         }
       }
     });
+  }
+
+  Future<void> _fetchPublicCategories(StoreController storeController) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://dashboard.shoplanser.com/api/v1/categories'),
+        headers: {
+          'X-localization': Get.locale?.languageCode ?? 'ar',
+          'zoneId': '[6]',
+          'moduleId': '1',
+          'latitude': '29.909732664744325',
+          'longitude': '31.05635669520862',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> body = jsonDecode(response.body);
+        final List<CategoryModel> categories =
+            body.map((json) => CategoryModel.fromJson(json)).toList();
+
+        storeController.setCategoriesFromExternal(categories);
+      }
+    } catch (e) {
+      debugPrint('Error fetching public categories in AllItemsScreen: $e');
+    }
   }
 
   @override
@@ -687,7 +716,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
           ),
         ),
         child: Icon(
-          Icons.qr_code_scanner,
+          Icons.barcode_reader,
           color: Theme.of(context).primaryColor,
         ),
       ),

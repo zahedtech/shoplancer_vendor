@@ -2053,6 +2053,19 @@ class StoreController extends GetxController implements GetxService {
         Get.find<StoreController>().offset.toString(),
         willUpdate: false,
       );
+      if (Get.isRegistered<CategoryController>()) {
+        final catController = Get.find<CategoryController>();
+        if (catController.itemList != null) {
+          int idx = catController.itemList!.indexWhere((element) => element.id == itemId);
+          if (idx != -1) {
+            final double? newPrice = double.tryParse(data['price'] ?? '');
+            final int? newStock = int.tryParse(data['current_stock'] ?? '');
+            if (newPrice != null) catController.itemList![idx].price = newPrice;
+            if (newStock != null) catController.itemList![idx].stock = newStock;
+            catController.update();
+          }
+        }
+      }
       if (shouldBack) {
         Get.back();
       }
@@ -2140,6 +2153,20 @@ class StoreController extends GetxController implements GetxService {
     if (isUpdate) {
       Future.microtask(() => update());
     }
+  }
+
+  void setCategoriesFromExternal(List<CategoryModel> categories) {
+    _categoryNameList = [];
+    _categoryIdList = [];
+    _categoryNameList!.add('all');
+    _categoryIdList!.add(0);
+    for (CategoryModel categoryModel in categories) {
+      if (categoryModel.name != null && categoryModel.id != null) {
+        _categoryNameList!.add(categoryModel.name!);
+        _categoryIdList!.add(categoryModel.id!);
+      }
+    }
+    update();
   }
 
   void setCategory({
