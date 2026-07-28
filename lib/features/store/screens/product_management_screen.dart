@@ -524,7 +524,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
           ),
         ),
         child: Icon(
-          Icons.qr_code_scanner,
+          Icons.barcode_reader,
           color: Theme.of(context).primaryColor,
         ),
       ),
@@ -613,14 +613,18 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                Text(
-                  PriceConverterHelper.convertPrice(currentPrice),
-                  style: robotoBold.copyWith(
-                    fontSize: Dimensions.fontSizeDefault,
-                    color: Theme.of(context).primaryColor,
+                InkWell(
+                  onTap: () =>
+                      _showEditPriceDialog(context, item, currentPrice),
+                  child: Text(
+                    PriceConverterHelper.convertPrice(currentPrice),
+                    style: robotoBold.copyWith(
+                      fontSize: Dimensions.fontSizeDefault,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 if (currentPrice != originalPrice) ...[
                   const SizedBox(height: 2),
@@ -658,15 +662,29 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                         );
                       }),
                       Expanded(
-                        child: Text(
-                          currentPrice.toStringAsFixed(2),
-                          textAlign: TextAlign.center,
-                          style: robotoBold.copyWith(
-                            fontSize: Dimensions.fontSizeSmall,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                        child: InkWell(
+                          onTap: () =>
+                              _showEditPriceDialog(context, item, currentPrice),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusSmall,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              currentPrice % 1 == 0
+                                  ? currentPrice.toInt().toString()
+                                  : currentPrice.toStringAsFixed(2),
+                              textAlign: TextAlign.center,
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ),
                       _counterButton(Icons.add, Colors.green, () {
@@ -894,6 +912,71 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       _updatedPrices.remove(itemId);
       _editedItems.remove(itemId);
     });
+  }
+
+  void _showEditPriceDialog(
+    BuildContext context,
+    Item item,
+    double currentPrice,
+  ) {
+    final TextEditingController controller = TextEditingController(
+      text: currentPrice > 0
+          ? (currentPrice % 1 == 0
+                ? currentPrice.toInt().toString()
+                : currentPrice.toString())
+          : '',
+    );
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('edit_price'.tr, style: robotoMedium),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.name ?? '',
+              style: robotoRegular.copyWith(
+                fontSize: Dimensions.fontSizeSmall,
+                color: Theme.of(context).disabledColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: 'price'.tr,
+                border: const OutlineInputBorder(),
+                isDense: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+          TextButton(
+            onPressed: () {
+              final String val = controller.text.trim();
+              final double? newPrice = double.tryParse(val);
+              if (newPrice != null && newPrice >= 0) {
+                _setUpdatedPrice(item, newPrice);
+                Get.back();
+              } else {
+                showCustomSnackBar('enter_price'.tr);
+              }
+            },
+            child: Text('update'.tr),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
+    );
   }
 
   Widget _counterButton(IconData icon, Color color, VoidCallback onTap) {

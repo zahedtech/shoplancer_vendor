@@ -36,6 +36,305 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
     return 'https://store.shoplanser.com/$slug';
   }
 
+  void _showQrPreviewDialog(
+    BuildContext context,
+    String storeUrl,
+    String storeName,
+  ) {
+    final ScreenshotController modalScreenshotController =
+        ScreenshotController();
+    bool isSaving = false;
+    bool isSharingModal = false;
+
+    Get.dialog(
+      StatefulBuilder(
+        builder: (context, setModalState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            ),
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 24,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Top header: Title and Close button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'store_qr_code'.tr,
+                          style: robotoBold.copyWith(
+                            fontSize: Dimensions.fontSizeLarge,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Get.back(),
+                          icon: Icon(
+                            Icons.close,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 20),
+
+                    // QR Code Screenshot container
+                    Screenshot(
+                      controller: modalScreenshotController,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusDefault,
+                          ),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            QrImageView(
+                              data: storeUrl,
+                              size: 220,
+                              backgroundColor: Colors.white,
+                              padding: EdgeInsets.zero,
+                              eyeStyle: QrEyeStyle(
+                                eyeShape: QrEyeShape.circle,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              dataModuleStyle: QrDataModuleStyle(
+                                dataModuleShape: QrDataModuleShape.circle,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Text(
+                              storeName,
+                              textAlign: TextAlign.center,
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeLarge,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              storeUrl,
+                              textAlign: TextAlign.center,
+                              style: robotoRegular.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                    // Action buttons: Save to Device and Share
+                    Row(
+                      children: [
+                        // Save button
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusSmall,
+                                ),
+                              ),
+                            ),
+                            onPressed: isSaving
+                                ? null
+                                : () async {
+                                    setModalState(() {
+                                      isSaving = true;
+                                    });
+                                    try {
+                                      final Uint8List? imageBytes =
+                                          await modalScreenshotController
+                                              .capture();
+                                      if (imageBytes != null) {
+                                        Directory? directory;
+                                        if (Platform.isAndroid) {
+                                          final downloadsDir = Directory(
+                                            '/storage/emulated/0/Download',
+                                          );
+                                          if (await downloadsDir.exists()) {
+                                            directory = downloadsDir;
+                                          } else {
+                                            final picturesDir = Directory(
+                                              '/storage/emulated/0/Pictures',
+                                            );
+                                            if (await picturesDir.exists()) {
+                                              directory = picturesDir;
+                                            } else {
+                                              directory =
+                                                  await getExternalStorageDirectory();
+                                            }
+                                          }
+                                        } else if (Platform.isIOS) {
+                                          directory =
+                                              await getApplicationDocumentsDirectory();
+                                        } else {
+                                          directory =
+                                              await getDownloadsDirectory() ??
+                                              await getApplicationDocumentsDirectory();
+                                        }
+
+                                        if (directory != null) {
+                                          final String filePath =
+                                              '${directory.path}/store_qr_${DateTime.now().millisecondsSinceEpoch}.png';
+                                          final File file = File(filePath);
+                                          await file.writeAsBytes(imageBytes);
+                                          showCustomSnackBar(
+                                            'qr_code_saved'.tr,
+                                            isError: false,
+                                          );
+                                        } else {
+                                          showCustomSnackBar(
+                                            'failed_to_save_qr'.tr,
+                                            isError: true,
+                                          );
+                                        }
+                                      } else {
+                                        showCustomSnackBar(
+                                          'failed_to_save_qr'.tr,
+                                          isError: true,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      showCustomSnackBar(
+                                        'failed_to_save_qr'.tr,
+                                        isError: true,
+                                      );
+                                    } finally {
+                                      setModalState(() {
+                                        isSaving = false;
+                                      });
+                                    }
+                                  },
+                            icon: isSaving
+                                ? const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.download_rounded, size: 18),
+                            label: Text(
+                              'download_qr'.tr,
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                        // Share button
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              foregroundColor: Theme.of(context).primaryColor,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusSmall,
+                                ),
+                              ),
+                            ),
+                            onPressed: isSharingModal
+                                ? null
+                                : () async {
+                                    setModalState(() {
+                                      isSharingModal = true;
+                                    });
+                                    try {
+                                      final Uint8List? imageBytes =
+                                          await modalScreenshotController
+                                              .capture();
+                                      if (imageBytes != null) {
+                                        final directory =
+                                            await getTemporaryDirectory();
+                                        final String path =
+                                            '${directory.path}/store_qr_${DateTime.now().millisecondsSinceEpoch}.png';
+                                        final File file = await File(
+                                          path,
+                                        ).create();
+                                        await file.writeAsBytes(imageBytes);
+
+                                        await Share.shareXFiles(
+                                          [XFile(file.path)],
+                                          text:
+                                              '${'share_store'.tr}: $storeName\n$storeUrl',
+                                        );
+                                      }
+                                    } catch (e) {
+                                      showCustomSnackBar(
+                                        'failed_to_save_qr'.tr,
+                                        isError: true,
+                                      );
+                                    } finally {
+                                      setModalState(() {
+                                        isSharingModal = false;
+                                      });
+                                    }
+                                  },
+                            icon: isSharingModal
+                                ? SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  )
+                                : const Icon(Icons.share, size: 18),
+                            label: Text(
+                              'share'.tr,
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Store? store =
@@ -75,30 +374,57 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Left side: QR code image with Screenshot capture container
-          Screenshot(
-            controller: screenshotController,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade200, width: 1),
-              ),
-              child: QrImageView(
-                data: storeUrl,
-                size: 80,
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.zero,
-                eyeStyle: QrEyeStyle(
-                  eyeShape: QrEyeShape.circle,
-                  color: Theme.of(context).primaryColor,
+          // Left side: QR code image with Screenshot capture container (Clickable to enlarge)
+          InkWell(
+            onTap: () =>
+                _showQrPreviewDialog(context, storeUrl, store.name ?? ''),
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              children: [
+                Screenshot(
+                  controller: screenshotController,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade200, width: 1),
+                    ),
+                    child: QrImageView(
+                      data: storeUrl,
+                      size: 80,
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.zero,
+                      eyeStyle: QrEyeStyle(
+                        eyeShape: QrEyeShape.circle,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      dataModuleStyle: QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.circle,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
                 ),
-                dataModuleStyle: QrDataModuleStyle(
-                  dataModuleShape: QrDataModuleShape.circle,
-                  color: Theme.of(context).primaryColor,
+                Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.85),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.fullscreen,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           const SizedBox(width: Dimensions.paddingSizeDefault),
@@ -119,7 +445,8 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                 const SizedBox(height: 4),
                 InkWell(
                   onTap: () async {
-                    const String dashboardUrl = 'https://dashboard.shoplanser.com/login/vendor';
+                    const String dashboardUrl =
+                        'https://dashboard.shoplanser.com/login/vendor';
                     if (await canLaunchUrl(Uri.parse(dashboardUrl))) {
                       await launchUrl(
                         Uri.parse(dashboardUrl),

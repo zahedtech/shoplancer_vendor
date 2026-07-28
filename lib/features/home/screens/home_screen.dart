@@ -314,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       profileController
                                           .modulePermission!
                                           .wallet!
-                                  ? Dimensions.paddingSizeExtraLarge
+                                  ? Dimensions.paddingSizeSmall
                                   : 0,
                             ),
 

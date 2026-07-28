@@ -62,6 +62,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
   final FocusNode _minimumDeliveryFeeNode = FocusNode();
   final FocusNode _maximumDeliveryFeeNode = FocusNode();
   final FocusNode _minimumNode = FocusNode();
+  // ignore: unused_field
   final FocusNode _minimumProcessingTimeNode = FocusNode();
   final FocusNode _deliveryChargePerKmNode = FocusNode();
   final FocusNode _deliveryPriceFocusNode = FocusNode();
@@ -274,9 +275,12 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                 builder: (splashController) {
                   bool isEnableTemporarilyClosed = false;
                   ConfigModel? configModel = splashController.configModel;
+                  // ignore: unused_local_variable
                   bool isFood = widget.store.module!.moduleType! == 'food';
+                  // ignore: unused_local_variable
                   bool isPharmacy =
                       widget.store.module!.moduleType! == 'pharmacy';
+                  // ignore: unused_local_variable
                   bool isGrocery =
                       widget.store.module!.moduleType! == 'grocery';
 
@@ -360,15 +364,73 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                               child: Row(
                                                 children: [
                                                   Expanded(
-                                                    child: Text(
-                                                      'status'.tr,
-                                                      style: robotoMedium,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          'status'.tr,
+                                                          style: robotoMedium,
+                                                          maxLines: 1,
+                                                          overflow:
+                                                              TextOverflow.ellipsis,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: Dimensions
+                                                              .paddingSizeSmall,
+                                                        ),
+                                                        Container(
+                                                          padding: const EdgeInsets
+                                                              .symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 4,
+                                                          ),
+                                                          decoration: BoxDecoration(
+                                                            color: !profileController
+                                                                    .isStoreActive
+                                                                ? Colors.green
+                                                                    .withOpacity(
+                                                                      0.12,
+                                                                    )
+                                                                : Colors.red
+                                                                    .withOpacity(
+                                                                      0.12,
+                                                                    ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                      Dimensions
+                                                                          .radiusExtraLarge,
+                                                                    ),
+                                                            border: Border.all(
+                                                              color: !profileController
+                                                                      .isStoreActive
+                                                                  ? Colors
+                                                                      .green
+                                                                  : Colors.red,
+                                                              width: 1,
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            !profileController
+                                                                    .isStoreActive
+                                                                ? 'active'.tr
+                                                                : 'inactive'.tr,
+                                                            style: robotoBold
+                                                                .copyWith(
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeExtraSmall,
+                                                                  color: !profileController
+                                                                          .isStoreActive
+                                                                      ? Colors
+                                                                          .green[700]
+                                                                      : Colors
+                                                                          .red[700],
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
-
                                                   profileController
                                                               .profileModel !=
                                                           null
@@ -391,16 +453,12 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                     child: CupertinoSwitch(
                                                                       value: !profileController
                                                                           .isStoreActive,
-                                                                      activeTrackColor: Theme.of(
-                                                                        context,
-                                                                      ).primaryColor,
-                                                                      inactiveTrackColor:
-                                                                          Theme.of(
-                                                                            context,
-                                                                          ).primaryColor.withValues(
-                                                                            alpha:
-                                                                                0.5,
-                                                                          ),
+                                                                      activeColor:
+                                                                          Colors
+                                                                              .green,
+                                                                      trackColor:
+                                                                          Colors
+                                                                              .grey[300],
                                                                       onChanged:
                                                                           (
                                                                             bool
@@ -416,6 +474,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                                     .module!
                                                                                     .showRestaurantText;
                                                                             isEnableTemporarilyClosed
+                                                                                // ignore: dead_code
                                                                                 ? Get.dialog(
                                                                                     ConfirmationDialogWidget(
                                                                                       icon: Images.warning,
@@ -637,21 +696,6 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                 padding: const EdgeInsets.all(12),
                                 child: Column(
                                   children: [
-                                    CustomTextFieldWidget(
-                                      hintText: 'minimum_order_amount'.tr,
-                                      // labelText: '${'minimum_order_amount'.tr} (${Get.find<SplashController>().configModel!.currencySymbol})',
-                                      controller: _orderAmountController,
-                                      focusNode: _orderAmountNode,
-                                      nextFocus: _store.selfDeliverySystem == 1
-                                          ? _deliveryChargePerKmNode
-                                          : _deliveryPriceFocusNode,
-                                      inputType: TextInputType.number,
-                                      isAmount: true,
-                                    ),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeExtraLarge,
-                                    ),
-
                                     PickupTimeInput(
                                       minTimeController: _minimumController,
                                       maxTimeController: _maximumController,
@@ -745,26 +789,6 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                           : 0,
                                     ),
 
-                                    // _module.orderPlaceToScheduleInterval!
-                                    //     ? CustomTextFieldWidget(
-                                    //         hintText:
-                                    //             'minimum_processing_time'.tr,
-                                    //         labelText:
-                                    //             'minimum_processing_time'.tr,
-                                    //         controller:
-                                    //             _processingTimeController,
-                                    //         focusNode:
-                                    //             _minimumProcessingTimeNode,
-                                    //         nextFocus: _minimumStockNode,
-                                    //         inputType: TextInputType.number,
-                                    //         isAmount: true,
-                                    //       )
-                                    //     : const SizedBox(),
-                                    // SizedBox(
-                                    //   height: !_module.showRestaurantText!
-                                    //       ? Dimensions.paddingSizeExtraLarge
-                                    //       : 0,
-                                    // ),
                                     !_module.showRestaurantText!
                                         ? Column(
                                             children: [
@@ -801,7 +825,6 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                 hintText:
                                                     'minimum_stock_for_warning'
                                                         .tr,
-                                                // labelText: 'minimum_stock_for_warning'.tr,
                                                 controller:
                                                     _minimumStockController,
                                                 focusNode: _minimumStockNode,
@@ -813,6 +836,21 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                             ],
                                           )
                                         : const SizedBox(),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeExtraLarge,
+                                    ),
+                                    CustomTextFieldWidget(
+                                      hintText: 'minimum_order_amount'.tr,
+                                      labelText:
+                                          '${'minimum_order_amount'.tr} (${Get.find<SplashController>().configModel!.currencySymbol})',
+                                      controller: _orderAmountController,
+                                      focusNode: _orderAmountNode,
+                                      nextFocus: _store.selfDeliverySystem == 1
+                                          ? _deliveryChargePerKmNode
+                                          : _deliveryPriceFocusNode,
+                                      inputType: TextInputType.number,
+                                      isAmount: true,
+                                    ),
                                   ],
                                 ),
                               ),

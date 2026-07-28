@@ -25,33 +25,60 @@ class MenuScreen extends StatelessWidget {
 
     final List<MenuModel> menuList = [];
 
-    menuList.add(
-      MenuModel(
-        icon: '',
-        title: 'edit_profile'.tr,
-        route: RouteHelper.getUpdateProfileRoute(),
-      ),
-    );
-
     bool isEcommerce = store?.module?.moduleType == 'ecommerce';
 
+    // ------------------- 1. Products & Inventory (المنتجات والمخزون) -------------------
     if (modulePermission!.item!) {
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.inventory_rounded,
+          title: 'إدارة المنتجات',
+          route: RouteHelper.getProductManagementRoute(),
+          isBlocked: !(store?.itemSection ?? false),
+        ),
+      );
+
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.price_change_rounded,
+          title: 'تعديل الأسعار السريع',
+          route: RouteHelper.getProductPriceUpdateRoute(),
+          isBlocked: !(store?.itemSection ?? false),
+        ),
+      );
+
       if (!isEcommerce) {
         menuList.add(
           MenuModel(
-            icon: Images.addFood,
+            icon: '',
+            iconData: Icons.grid_view_rounded,
             title: 'all_items'.tr,
             route: RouteHelper.getAllItemsRoute(),
             isBlocked: !store!.itemSection!,
           ),
         );
       }
+    }
+
+    if (modulePermission.category!) {
       menuList.add(
         MenuModel(
-          icon: Images.disbursementIcon,
-          title: 'إدارة المنتجات',
-          route: RouteHelper.getProductManagementRoute(),
-          isBlocked: !(store?.itemSection ?? false),
+          icon: Images.categories,
+          title: 'categories'.tr,
+          route: RouteHelper.getCategoriesRoute(),
+        ),
+      );
+    }
+
+    if (store?.module!.moduleType != 'food') {
+      menuList.add(
+        MenuModel(
+          icon: Images.warning,
+          iconColor: Colors.white,
+          title: 'low_stock'.tr,
+          route: RouteHelper.getLowStockRoute(),
         ),
       );
     }
@@ -68,29 +95,23 @@ class MenuScreen extends StatelessWidget {
       }
     }
 
-    if (modulePermission.storeSetup!) {
+    if (store?.module!.moduleType == 'food' && modulePermission.addon!) {
       menuList.add(
         MenuModel(
-          icon: Images.settingIcon,
-          title:
-              Get.find<SplashController>()
-                  .configModel!
-                  .moduleConfig!
-                  .module!
-                  .showRestaurantText!
-              ? 'restaurant_config'.tr
-              : 'store_config'.tr,
-          route: RouteHelper.getStoreSettingsRoute(store!),
+          icon: Images.addon,
+          title: 'addons'.tr,
+          route: RouteHelper.getAddonsRoute(),
         ),
       );
     }
 
-    if (modulePermission.category!) {
+    // ------------------- 2. Marketing & Operations (التسويق والعمليات) -------------------
+    if (modulePermission.coupon!) {
       menuList.add(
         MenuModel(
-          icon: Images.categories,
-          title: 'categories'.tr,
-          route: RouteHelper.getCategoriesRoute(),
+          icon: Images.coupon,
+          title: 'coupon'.tr,
+          route: RouteHelper.getCouponRoute(),
         ),
       );
     }
@@ -104,6 +125,14 @@ class MenuScreen extends StatelessWidget {
         ),
       );
     }
+
+    menuList.add(
+      MenuModel(
+        icon: Images.adsMenu,
+        title: 'social_media'.tr,
+        route: RouteHelper.getSocialMediaRoute(),
+      ),
+    );
 
     if (modulePermission.deliveryman! || modulePermission.deliverymanList!) {
       if (store?.selfDeliverySystem == 1 &&
@@ -141,33 +170,41 @@ class MenuScreen extends StatelessWidget {
       }
     }
 
-    if (store?.module!.moduleType != 'food') {
+    if (modulePermission.expenseReport! || modulePermission.vatReport!) {
       menuList.add(
         MenuModel(
-          icon: Images.warning,
-          iconColor: Colors.white,
-          title: 'low_stock'.tr,
-          route: RouteHelper.getLowStockRoute(),
+          icon: Images.expense,
+          title: 'reports'.tr,
+          route: RouteHelper.getReportsRoute(),
         ),
       );
     }
 
-    /*if (modulePermission.reviews!) {
+    // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
+    if (modulePermission.storeSetup!) {
       menuList.add(
         MenuModel(
-          icon: Images.review,
-          title: 'reviews'.tr,
-          route: RouteHelper.getCustomerReviewRoute(),
-          isNotSubscribe:
-              store?.storeBusinessModel == 'subscription' &&
-              Get.find<ProfileController>()
-                      .profileModel!
-                      .subscription!
-                      .review ==
-                  0,
+          icon: Images.settingIcon,
+          title:
+              Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_config'.tr
+              : 'store_config'.tr,
+          route: RouteHelper.getStoreSettingsRoute(store!),
         ),
       );
-    }*/
+      menuList.add(
+        MenuModel(
+          icon: Images.wallet,
+          title: 'payment_method'.tr,
+          route: '',
+          isPaymentMethods: true,
+        ),
+      );
+    }
 
     if (modulePermission.businessPlan!) {
       menuList.add(
@@ -179,29 +216,21 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (store?.module!.moduleType == 'food' && modulePermission.addon!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.addon,
-          title: 'addons'.tr,
-          route: RouteHelper.getAddonsRoute(),
-        ),
-      );
-    }
+    menuList.add(
+      MenuModel(
+        icon: '',
+        title: 'edit_profile'.tr,
+        route: RouteHelper.getUpdateProfileRoute(),
+      ),
+    );
 
-    /*if (modulePermission.chat!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.chat,
-          title: 'conversation'.tr,
-          route: RouteHelper.getConversationListRoute(),
-          isNotSubscribe:
-              (store?.storeBusinessModel == 'subscription' &&
-              Get.find<ProfileController>().profileModel!.subscription!.chat ==
-                  0),
-        ),
-      );
-    }*/
+    menuList.add(
+      MenuModel(
+        icon: Images.settingIcon,
+        title: 'settings'.tr,
+        route: RouteHelper.getSettingRoute(),
+      ),
+    );
 
     menuList.add(
       MenuModel(
@@ -209,75 +238,6 @@ class MenuScreen extends StatelessWidget {
         title: 'الدعم الفني',
         route: 'https://wa.me/+201036860264',
         isWhatsApp: true,
-      ),
-    );
-
-    menuList.add(
-      MenuModel(
-        icon: Images.adsMenu,
-        title: 'social_media'.tr,
-        route: RouteHelper.getSocialMediaRoute(),
-      ),
-    );
-
-    // menuList.add(
-    //   MenuModel(
-    //     icon: Images.language,
-    //     title: 'language'.tr,
-    //     route: '',
-    //     isLanguage: true,
-    //   ),
-    // );
-
-    if (modulePermission.coupon!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.coupon,
-          title: 'coupon'.tr,
-          route: RouteHelper.getCouponRoute(),
-        ),
-      );
-    }
-
-    if (modulePermission.expenseReport! || modulePermission.vatReport!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.expense,
-          title: 'reports'.tr,
-          route: RouteHelper.getReportsRoute(),
-        ),
-      );
-    }
-
-    // if (modulePermission.disbursementReport! ||
-    //     modulePermission.walletMethod!) {
-    //   if (Get.find<SplashController>().configModel!.disbursementType ==
-    //       'automated') {
-    //     menuList.add(
-    //       MenuModel(
-    //         icon: Images.disbursementIcon,
-    //         title: 'disbursement'.tr,
-    //         route: RouteHelper.getDisbursementMenuRoute(),
-    //       ),
-    //     );
-    //   }
-    // }
-    if (modulePermission.storeSetup!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.wallet,
-          title: 'payment_method'.tr,
-          route: '',
-          isPaymentMethods: true,
-        ),
-      );
-    }
-
-    menuList.add(
-      MenuModel(
-        icon: Images.settingIcon,
-        title: 'settings'.tr,
-        route: RouteHelper.getSettingRoute(),
       ),
     );
 
@@ -299,7 +259,8 @@ class MenuScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             return MenuButtonWidget(
               menu: menuList[index],
-              isProfile: index == 0,
+              isProfile:
+                  menuList[index].route == RouteHelper.getUpdateProfileRoute(),
               isLogout: false,
             );
           },

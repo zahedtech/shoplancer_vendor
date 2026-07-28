@@ -1,3 +1,4 @@
+import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
@@ -290,12 +291,14 @@ class ItemWidget extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.all(5),
                           child: Icon(
-                            Icons.add_circle_outline_rounded,
+                            inStore
+                                ? Icons.edit_outlined
+                                : Icons.add_circle_outline_rounded,
                             color: Theme.of(context).primaryColor,
-                            size: 25,
+                            size: inStore ? 22 : 25,
                           ),
                         ),
-                        tooltip: 'add'.tr,
+                        tooltip: inStore ? 'edit'.tr : 'add'.tr,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -310,16 +313,18 @@ class ItemWidget extends StatelessWidget {
                                   color: Theme.of(context).disabledColor,
                                 ),
                               )
-                            : SizedBox.shrink(),
+                            : const SizedBox.shrink(),
                       ),
                     ],
                   )
                 : GestureDetector(
                     onTap: () => _showQuickUpdateDialog(context),
                     child: Icon(
-                      Icons.add_circle_outline_rounded,
+                      inStore
+                          ? Icons.edit_outlined
+                          : Icons.add_circle_outline_rounded,
                       color: Theme.of(context).primaryColor,
-                      size: 25,
+                      size: inStore ? 22 : 25,
                     ),
                   ),
           ],
@@ -330,16 +335,19 @@ class ItemWidget extends StatelessWidget {
 }
 
   void _showQuickUpdateDialog(BuildContext context) {
+    final double currentPrice = item.price ?? 0;
+    final int currentStock = item.stock ?? 0;
+
     final TextEditingController priceController = TextEditingController(
-      text: (item.price ?? 0).toString(),
+      text: currentPrice > 0 ? (currentPrice % 1 == 0 ? currentPrice.toInt().toString() : currentPrice.toString()) : '',
     );
     final TextEditingController stockController = TextEditingController(
-      text: (item.stock ?? 0).toString(),
+      text: currentStock > 0 ? currentStock.toString() : '',
     );
 
     Get.dialog(
       AlertDialog(
-        title: Text('add'.tr, style: robotoMedium),
+        title: Text(inStore ? 'edit'.tr : 'add'.tr, style: robotoMedium),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -407,7 +415,23 @@ class ItemWidget extends StatelessWidget {
                           'category_id': item.categoryId?.toString() ?? '',
                         };
 
-                        storeController.stockUpdate(data, item.id!);
+                        storeController.stockUpdate(data, item.id!).then((isSuccess) {
+                          if (isSuccess) {
+                            item.price = price;
+                            item.stock = stock;
+                            if (Get.isRegistered<CategoryController>()) {
+                              final catController = Get.find<CategoryController>();
+                              if (catController.itemList != null) {
+                                int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
+                                if (idx != -1) {
+                                  catController.itemList![idx].price = price;
+                                  catController.itemList![idx].stock = stock;
+                                }
+                              }
+                              catController.update();
+                            }
+                          }
+                        });
                       },
                       child: Text('update'.tr),
                     );

@@ -54,6 +54,7 @@ import 'package:shoplancer_vendor/features/profile/screens/update_profile_screen
 import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 import 'package:shoplancer_vendor/features/store/screens/add_item_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/all_items_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/item_search_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/announcement_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/image_viewer_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_details_screen.dart';
@@ -65,6 +66,7 @@ import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart'
 import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_management_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
 
@@ -142,6 +144,7 @@ class RouteHelper {
   // static const String qrMenu = '/qr-menu';
   // static const String generateToken = '/generate-token';
   static const String allItems = '/all-items';
+  static const String itemSearch = '/item-search';
   static const String storeEdit = '/store-edit';
   static const String setting = '/setting';
   static const String productPriceUpdate = '/product-price-update';
@@ -353,6 +356,7 @@ class RouteHelper {
   // static String getQrMenuRoute() => qrMenu;
   // static String getGenerateTokenRoute() => generateToken;
   static String getAllItemsRoute() => allItems;
+  static String getItemSearchRoute() => itemSearch;
   static String getStoreEditRoute(Store store) {
     List<int> encoded = utf8.encode(jsonEncode(store.toJson()));
     String data = base64Encode(encoded);
@@ -750,6 +754,7 @@ class RouteHelper {
     // GetPage(name: qrMenu, page: () => const QrMenuScreen()),
     // GetPage(name: generateToken, page: () => const GenerateTokenScreen()),
     GetPage(name: allItems, page: () => const AllItemsScreen()),
+    GetPage(name: itemSearch, page: () => const ItemSearchScreen()),
     GetPage(
       name: storeEdit,
       page: () {
@@ -763,7 +768,7 @@ class RouteHelper {
     GetPage(name: setting, page: () => const SettingScreen()),
     GetPage(
       name: productPriceUpdate,
-      page: () => const ProductManagementScreen(),
+      page: () => const ProductPriceManagementScreen(),
     ),
     GetPage(name: productStatus, page: () => const ProductManagementScreen()),
     GetPage(

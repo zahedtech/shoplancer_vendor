@@ -716,11 +716,24 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  'recommended'.tr,
-                                  style: robotoMedium.copyWith(
-                                    fontSize: Dimensions.fontSizeLarge,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'الأكثر مبيعاً',
+                                      style: robotoMedium.copyWith(
+                                        fontSize: Dimensions.fontSizeLarge,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'تحديد وتفعيل ظهور هذا المنتج في قائمة الأكثر مبيعاً',
+                                      style: robotoRegular.copyWith(
+                                        fontSize: Dimensions.fontSizeExtraSmall,
+                                        color: Theme.of(context).disabledColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
 
