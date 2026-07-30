@@ -11,7 +11,6 @@ import 'dart:ui' as ui;
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
 import 'package:shoplancer_vendor/util/images.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 
 class OrderWidget extends StatelessWidget {
@@ -29,14 +28,16 @@ class OrderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isCommissionLimitReached = false;
+    bool isStoreSuspended = false;
     if (Get.isRegistered<ProfileController>()) {
-      isCommissionLimitReached =
-          (Get.find<ProfileController>()
-                  .profileModel
-                  ?.totalCommissionCollected ??
-              0) >=
-          500;
+      var profile = Get.find<ProfileController>().profileModel;
+      if (profile != null) {
+        bool suspendedFlag = profile.isSuspended ?? false;
+        double prepaid = profile.prepaidBalance ?? 0.0;
+        double minLimit = profile.minPrepaidBalanceLimit ?? 0.0;
+        bool exceededLimit = minLimit > 0 ? (prepaid < -minLimit) : false;
+        isStoreSuspended = suspendedFlag || exceededLimit;
+      }
     }
 
     Widget childWidget = Column(
@@ -244,7 +245,7 @@ class OrderWidget extends StatelessWidget {
       ],
     );
 
-    if (isCommissionLimitReached) {
+    if (isStoreSuspended) {
       childWidget = ImageFiltered(
         imageFilter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
         child: childWidget,
@@ -270,23 +271,17 @@ class OrderWidget extends StatelessWidget {
       ),
       child: CustomInkWellWidget(
         onTap: () {
-          if (isCommissionLimitReached) {
+          if (isStoreSuspended) {
             Get.dialog(
               ConfirmationDialogWidget(
                 icon: Images.attentionWarningIcon,
-                title: 'commission_limit_reached'.tr,
-                description: 'pay_commission_instruction'.tr,
-                onYesPressed: () async {
+                title: 'store_suspended'.tr,
+                description: 'store_suspended_prepaid_desc'.tr,
+                onYesPressed: () {
                   Get.back();
-                  String whatsappUrl = 'https://wa.me/+201036860264';
-                  if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
-                    await launchUrl(
-                      Uri.parse(whatsappUrl),
-                      mode: LaunchMode.externalApplication,
-                    );
-                  }
+                  Get.toNamed(RouteHelper.getWalletRoute());
                 },
-                onYesButtonText: 'pay_now'.tr,
+                onYesButtonText: 'recharge_now'.tr,
                 isOnNoPressedShow: true,
                 onNoButtonText: 'cancel'.tr,
               ),
@@ -303,7 +298,7 @@ class OrderWidget extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               childWidget,
-              if (isCommissionLimitReached)
+              if (isStoreSuspended)
                 Icon(
                   Icons.lock_outline,
                   size: 32,

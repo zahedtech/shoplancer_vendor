@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/bank_info_body_model.dart';
 import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/offline_payment_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/wallet_payment_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/wallet_topup_request_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/withdraw_model.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
@@ -66,6 +69,18 @@ class PaymentController extends GetxController implements GetxService {
 
   String? _digitalPaymentName;
   String? get digitalPaymentName => _digitalPaymentName;
+
+  List<OfflinePaymentMethodModel>? _offlinePaymentMethods;
+  List<OfflinePaymentMethodModel>? get offlinePaymentMethods => _offlinePaymentMethods;
+
+  List<WalletTopupRequestModel>? _topupRequests;
+  List<WalletTopupRequestModel>? get topupRequests => _topupRequests;
+
+  XFile? _rawReceiptImage;
+  XFile? get rawReceiptImage => _rawReceiptImage;
+
+  bool _isTopupSubmitting = false;
+  bool get isTopupSubmitting => _isTopupSubmitting;
 
   Future<ResponseModel> makeCollectCashPayment(double amount, String paymentGatewayName) async {
     _isLoading = true;
@@ -212,6 +227,96 @@ class PaymentController extends GetxController implements GetxService {
     if(canUpdate) {
       update();
     }
+  }
+
+  bool _isPickerActive = false;
+
+  void pickReceiptImage(ImageSource source) async {
+    if (_isPickerActive) return;
+    _isPickerActive = true;
+    try {
+      final XFile? image = await ImagePicker().pickImage(source: source);
+      if (image != null) {
+        _rawReceiptImage = image;
+        update();
+      }
+    } catch (e) {
+      debugPrint('Error picking receipt image: $e');
+    } finally {
+      _isPickerActive = false;
+    }
+  }
+
+  void clearReceiptImage() {
+    _rawReceiptImage = null;
+    update();
+  }
+
+  Future<void> getOfflinePaymentMethods() async {
+    List<OfflinePaymentMethodModel>? methods = await paymentServiceInterface.getOfflinePaymentMethods();
+    if (methods != null) {
+      _offlinePaymentMethods = [];
+      _offlinePaymentMethods!.addAll(methods);
+    }
+    update();
+  }
+
+  Future<bool> submitTopupRequest({
+    required int offlineMethodId,
+    required double amount,
+    String? notes,
+  }) async {
+    if (_rawReceiptImage == null) {
+      showCustomSnackBar('please_upload_transfer_receipt'.tr);
+      return false;
+    }
+    _isTopupSubmitting = true;
+    update();
+
+    Map<String, String> body = {
+      'offline_payment_method_id': offlineMethodId.toString(),
+      'amount': amount.toString(),
+      if (notes != null && notes.isNotEmpty) 'notes': notes,
+    };
+
+    ResponseModel responseModel = await paymentServiceInterface.submitTopupRequest(body, _rawReceiptImage);
+    _isTopupSubmitting = false;
+
+    if (responseModel.isSuccess) {
+      _rawReceiptImage = null;
+      showCustomSnackBar(responseModel.message, isError: false);
+      getTopupRequests();
+      getWalletInfo();
+      Get.find<ProfileController>().getProfile();
+      update();
+      return true;
+    } else {
+      showCustomSnackBar(responseModel.message);
+      update();
+      return false;
+    }
+  }
+
+  Future<void> getTopupRequests() async {
+    List<WalletTopupRequestModel>? requests = await paymentServiceInterface.getTopupRequests();
+    if (requests != null) {
+      _topupRequests = [];
+      _topupRequests!.addAll(requests);
+    }
+    update();
+  }
+
+  Future<void> getWalletInfo() async {
+    Map<String, dynamic>? walletInfo = await paymentServiceInterface.getWalletInfo();
+    if (walletInfo != null && Get.isRegistered<ProfileController>() && Get.find<ProfileController>().profileModel != null) {
+      var profile = Get.find<ProfileController>().profileModel!;
+      profile.prepaidBalance = walletInfo['prepaid_balance']?.toDouble();
+      profile.minPrepaidBalanceLimit = walletInfo['min_prepaid_balance_limit']?.toDouble();
+      profile.allowedCreditRemaining = walletInfo['allowed_credit_remaining']?.toDouble();
+      profile.isSuspended = walletInfo['is_suspended'];
+      Get.find<ProfileController>().update();
+    }
+    update();
   }
 
 }

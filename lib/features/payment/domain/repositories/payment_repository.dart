@@ -1,9 +1,12 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shoplancer_vendor/api/api_client.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/models/response_model.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/offline_payment_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/wallet_payment_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/wallet_topup_request_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/withdraw_model.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
@@ -96,6 +99,67 @@ class PaymentRepository implements PaymentRepositoryInterface {
       responseModel = ResponseModel(false, response.statusText);
     }
     return responseModel;
+  }
+
+  @override
+  Future<List<OfflinePaymentMethodModel>?> getOfflinePaymentMethods() async {
+    List<OfflinePaymentMethodModel>? methods;
+    Response response = await apiClient.getData(AppConstants.offlinePaymentMethodsUri);
+    if (response.statusCode == 200 && response.body != null) {
+      methods = [];
+      List rawList = [];
+      if (response.body is Map && response.body['data'] != null) {
+        rawList = response.body['data'];
+      } else if (response.body is List) {
+        rawList = response.body;
+      }
+      for (var method in rawList) {
+        methods.add(OfflinePaymentMethodModel.fromJson(method));
+      }
+    }
+    return methods;
+  }
+
+  @override
+  Future<ResponseModel> submitTopupRequest(Map<String, String> body, dynamic receiptImage) async {
+    Response response = await apiClient.postMultipartData(
+      AppConstants.submitTopupRequestUri,
+      body,
+      [MultipartBody('receipt_image', receiptImage is XFile ? receiptImage : null)],
+    );
+    if (response.statusCode == 200) {
+      return ResponseModel(true, response.body['message'] ?? 'Topup request submitted successfully');
+    } else {
+      return ResponseModel(false, response.statusText);
+    }
+  }
+
+  @override
+  Future<List<WalletTopupRequestModel>?> getTopupRequests() async {
+    List<WalletTopupRequestModel>? requests;
+    Response response = await apiClient.getData(AppConstants.topupRequestsUri);
+    if (response.statusCode == 200 && response.body != null) {
+      requests = [];
+      List rawList = [];
+      if (response.body is Map && response.body['data'] != null) {
+        rawList = response.body['data'];
+      } else if (response.body is List) {
+        rawList = response.body;
+      }
+      for (var req in rawList) {
+        requests.add(WalletTopupRequestModel.fromJson(req));
+      }
+    }
+    return requests;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getWalletInfo() async {
+    Response response = await apiClient.getData(AppConstants.walletInfoUri);
+    if (response.statusCode == 200 && response.body != null) {
+      return Map<String, dynamic>.from(response.body);
+    }
+    return null;
   }
 
   @override

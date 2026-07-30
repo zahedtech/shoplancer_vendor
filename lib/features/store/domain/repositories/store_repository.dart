@@ -699,4 +699,14 @@ class StoreRepository implements StoreRepositoryInterface {
     }
     return vatTaxList;
   }
+
+  @override
+  Future<Response> bulkAssignProducts(
+    List<Map<String, dynamic>> products,
+  ) async {
+    return await apiClient.postData(
+      AppConstants.bulkAssignUri,
+      {'products': products},
+    );
+  }
 }

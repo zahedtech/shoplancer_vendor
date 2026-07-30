@@ -5,7 +5,6 @@ import 'package:shoplancer_vendor/features/dashboard/screens/dashboard_screen.da
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
-import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 
 class BusinessAnalyticsWidget extends StatefulWidget {
@@ -102,7 +101,7 @@ class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
             ),
           ],
         ),
-        const SizedBox(height: Dimensions.paddingSizeLarge),
+        const SizedBox(height: Dimensions.paddingSizeSmall),
 
         Row(
           children: [
@@ -121,42 +120,29 @@ class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
                       color: Theme.of(context).cardColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.2),
+                          color: Colors.grey.withValues(alpha: 0.15),
                           spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.radiusDefault,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(
-                            Dimensions.paddingSizeExtraSmall,
-                          ),
-                          child: Image.asset(Images.walletBold, height: 25),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
                         Text(
                           'total_earning'.tr,
                           style: robotoMedium.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
-                            color: Theme.of(context).textTheme.bodyLarge!.color,
+                            color: Theme.of(context).disabledColor,
                           ),
                         ),
-                        const SizedBox(
-                          height: Dimensions.paddingSizeExtraSmall,
-                        ),
-
+                        const SizedBox(height: 2),
                         Text(
                           PriceConverterHelper.convertPrice(totalEarning),
                           style: robotoBold.copyWith(
@@ -172,7 +158,7 @@ class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
               ),
             ),
 
-            const SizedBox(width: Dimensions.paddingSizeLarge),
+            const SizedBox(width: Dimensions.paddingSizeSmall),
 
             Expanded(
               child: Material(
@@ -189,42 +175,29 @@ class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
                       color: Theme.of(context).cardColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.2),
+                          color: Colors.grey.withValues(alpha: 0.15),
                           spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.orangeAccent,
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.radiusDefault,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(
-                            Dimensions.paddingSizeExtraSmall,
-                          ),
-                          child: Image.asset(Images.shapeImage, height: 25),
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
                         Text(
                           'total_orders'.tr,
                           style: robotoMedium.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
-                            color: Theme.of(context).textTheme.bodyLarge!.color,
+                            color: Theme.of(context).disabledColor,
                           ),
                         ),
-                        const SizedBox(
-                          height: Dimensions.paddingSizeExtraSmall,
-                        ),
-
+                        const SizedBox(height: 2),
                         Text(
                           '$totalOrders',
                           style: robotoBold.copyWith(

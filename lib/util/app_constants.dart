@@ -132,6 +132,12 @@ class AppConstants {
       '/api/v1/vendor/make-wallet-adjustment';
   static const String makeCollectedCashPaymentUri =
       '/api/v1/vendor/make-collected-cash-payment';
+  static const String offlinePaymentMethodsUri =
+      '/api/v1/vendor/offline-payment-methods';
+  static const String submitTopupRequestUri =
+      '/api/v1/vendor/wallet/topup-request';
+  static const String topupRequestsUri = '/api/v1/vendor/wallet/topup-requests';
+  static const String walletInfoUri = '/api/v1/vendor/wallet/info';
   static const String getBrandsUri = '/api/v1/brand';
   static const String updateReplyUri = '/api/v1/vendor/item/reply-update';
   static const String checkZoneUri = '/api/v1/zone/check';
@@ -149,6 +155,8 @@ class AppConstants {
   static const String getTaxReportUri = '/api/v1/vendor/get-tax-report';
   static const String categoryWiseProducts =
       '/api/v1/vendor/categories/category-wise-products';
+  static const String bulkAssignUri =
+      '/api/v1/vendor/store-product/bulk-assign';
   static const String updateSocialMediaUri = '/api/v1/vendor/social-media';
 
   /// Subscription url

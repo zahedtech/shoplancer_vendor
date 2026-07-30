@@ -446,6 +446,13 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
+  Future<Response> bulkAssignProducts(
+    List<Map<String, dynamic>> products,
+  ) async {
+    return await storeRepositoryInterface.bulkAssignProducts(products);
+  }
+
+  @override
   Future<List<VatTaxModel>?> getVatTaxList() async {
     return await storeRepositoryInterface.getVatTaxList();
   }

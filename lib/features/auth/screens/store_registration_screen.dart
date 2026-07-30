@@ -2866,7 +2866,8 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                       .toString(),
                                   fName: fName,
                                   lName: lName,
-                                  phone: phoneWithCountryCode,
+                                  phone: _phoneController.text.trim(),
+                                  countryCode: _countryDialCode,
                                   password: password,
                                   zoneId: addressController
                                       .zoneList![addressController

@@ -1,5 +1,7 @@
 import 'package:shoplancer_vendor/common/models/response_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/offline_payment_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/wallet_payment_model.dart';
+import 'package:shoplancer_vendor/features/payment/domain/models/wallet_topup_request_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/widthdrow_method_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/models/withdraw_model.dart';
 import 'package:shoplancer_vendor/features/payment/domain/repositories/payment_repository_interface.dart';
@@ -42,6 +44,26 @@ class PaymentService implements PaymentServiceInterface {
   @override
   Future<ResponseModel> makeCollectCashPayment(double amount, String paymentGatewayName) async {
     return await paymentRepositoryInterface.makeCollectCashPayment(amount, paymentGatewayName);
+  }
+
+  @override
+  Future<List<OfflinePaymentMethodModel>?> getOfflinePaymentMethods() async {
+    return await paymentRepositoryInterface.getOfflinePaymentMethods();
+  }
+
+  @override
+  Future<ResponseModel> submitTopupRequest(Map<String, String> body, dynamic receiptImage) async {
+    return await paymentRepositoryInterface.submitTopupRequest(body, receiptImage);
+  }
+
+  @override
+  Future<List<WalletTopupRequestModel>?> getTopupRequests() async {
+    return await paymentRepositoryInterface.getTopupRequests();
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getWalletInfo() async {
+    return await paymentRepositoryInterface.getWalletInfo();
   }
 
   @override

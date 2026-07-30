@@ -54,7 +54,7 @@ class ItemViewWidget extends StatelessWidget {
                                 index: index,
                                 length: storeController.itemList!.length,
                                 isCampaign: false,
-                                inStore: true,
+                                inStore: !fromAllItems,
                               ),
                             );
                           },
