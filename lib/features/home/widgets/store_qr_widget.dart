@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -36,10 +37,75 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
     return 'https://store.shoplanser.com/$slug';
   }
 
+  Widget _buildQrCodeWidget(
+    String? qrCode,
+    String storeUrl,
+    double size,
+    BuildContext context,
+  ) {
+    if (qrCode != null && qrCode.trim().isNotEmpty) {
+      final String trimmedQr = qrCode.trim();
+      if (trimmedQr.contains('<svg') || trimmedQr.startsWith('<?xml')) {
+        return SvgPicture.string(
+          trimmedQr,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        );
+      } else if (trimmedQr.startsWith('http://') ||
+          trimmedQr.startsWith('https://')) {
+        if (trimmedQr.endsWith('.svg')) {
+          return SvgPicture.network(
+            trimmedQr,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+          );
+        }
+        return Image.network(
+          trimmedQr,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => QrImageView(
+            data: storeUrl,
+            size: size,
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.zero,
+            eyeStyle: QrEyeStyle(
+              eyeShape: QrEyeShape.circle,
+              color: Theme.of(context).primaryColor,
+            ),
+            dataModuleStyle: QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.circle,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        );
+      }
+    }
+
+    return QrImageView(
+      data: storeUrl,
+      size: size,
+      backgroundColor: Colors.white,
+      padding: EdgeInsets.zero,
+      eyeStyle: QrEyeStyle(
+        eyeShape: QrEyeShape.circle,
+        color: Theme.of(context).primaryColor,
+      ),
+      dataModuleStyle: QrDataModuleStyle(
+        dataModuleShape: QrDataModuleShape.circle,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
+  }
+
   void _showQrPreviewDialog(
     BuildContext context,
     String storeUrl,
     String storeName,
+    String? storeQrCode,
   ) {
     final ScreenshotController modalScreenshotController =
         ScreenshotController();
@@ -109,19 +175,11 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            QrImageView(
-                              data: storeUrl,
-                              size: 220,
-                              backgroundColor: Colors.white,
-                              padding: EdgeInsets.zero,
-                              eyeStyle: QrEyeStyle(
-                                eyeShape: QrEyeShape.circle,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                              dataModuleStyle: QrDataModuleStyle(
-                                dataModuleShape: QrDataModuleShape.circle,
-                                color: Theme.of(context).primaryColor,
-                              ),
+                            _buildQrCodeWidget(
+                              storeQrCode,
+                              storeUrl,
+                              220,
+                              context,
                             ),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
                             Text(
@@ -337,20 +395,22 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final ProfileModel? profile = widget.profileController.profileModel;
     final Store? store =
-        (widget.profileController.profileModel?.stores != null &&
-            widget.profileController.profileModel!.stores!.isNotEmpty)
-        ? widget.profileController.profileModel!.stores![0]
+        (profile?.stores != null && profile!.stores!.isNotEmpty)
+        ? profile.stores![0]
         : null;
 
-    if (store == null) {
+    final String storeUrl = (profile?.storeUrl?.trim().isNotEmpty ?? false)
+        ? profile!.storeUrl!.trim()
+        : (store != null ? _buildStoreUrl(store) : '');
+    final String? storeQrCode = profile?.storeQrCode;
+
+    if (storeUrl.isEmpty && (storeQrCode == null || storeQrCode.trim().isEmpty)) {
       return const SizedBox();
     }
 
-    final String storeUrl = _buildStoreUrl(store);
-    if (storeUrl.isEmpty) {
-      return const SizedBox();
-    }
+    final String storeName = store?.name ?? profile?.fName ?? '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
@@ -377,7 +437,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
           // Left side: QR code image with Screenshot capture container (Clickable to enlarge)
           InkWell(
             onTap: () =>
-                _showQrPreviewDialog(context, storeUrl, store.name ?? ''),
+                _showQrPreviewDialog(context, storeUrl, storeName, storeQrCode),
             borderRadius: BorderRadius.circular(8),
             child: Stack(
               children: [
@@ -390,19 +450,11 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.grey.shade200, width: 1),
                     ),
-                    child: QrImageView(
-                      data: storeUrl,
-                      size: 80,
-                      backgroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      eyeStyle: QrEyeStyle(
-                        eyeShape: QrEyeShape.circle,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      dataModuleStyle: QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.circle,
-                        color: Theme.of(context).primaryColor,
-                      ),
+                    child: _buildQrCodeWidget(
+                      storeQrCode,
+                      storeUrl,
+                      80,
+                      context,
                     ),
                   ),
                 ),
@@ -436,7 +488,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  store.name ?? '',
+                  storeName,
                   style: robotoBold.copyWith(
                     fontSize: Dimensions.fontSizeLarge,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
@@ -574,7 +626,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                                   await Share.shareXFiles(
                                     [XFile(file.path)],
                                     text:
-                                        '${'share_store'.tr}: ${store.name ?? ""}\n$storeUrl',
+                                        '${'share_store'.tr}: $storeName\n$storeUrl',
                                   );
                                 }
                               } catch (e) {

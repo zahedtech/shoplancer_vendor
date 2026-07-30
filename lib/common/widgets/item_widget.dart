@@ -396,44 +396,85 @@ class ItemWidget extends StatelessWidget {
                           return;
                         }
 
-                        final Map<String, String> data = {
-                          '_method': 'post',
-                          'id': item.id.toString(),
-                          'product_id': item.id.toString(),
-                          'current_stock': stockText,
-                          'price': priceText,
-                          'unit_price': priceText,
-                          'discount': item.discount?.toString() ?? '0',
-                          'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
-                          'store_id':
-                              Get.find<ProfileController>()
-                                  .profileModel
-                                  ?.stores?[0]
-                                  .id
-                                  .toString() ??
-                              '',
-                          'category_id': item.categoryId?.toString() ?? '',
-                        };
+                        if (!inStore) {
+                          final Map<String, dynamic> productData = {
+                            'product_id': item.id,
+                            'price': price,
+                            if (stock > 0) 'stock': stock,
+                            if (stock > 0) 'manage_stock': true,
+                            if (item.discount != null && item.discount! > 0)
+                              'discount': item.discount,
+                            if (item.discountType != null &&
+                                item.discountType!.isNotEmpty)
+                              'discount_type': item.discountType == 'amount'
+                                  ? 'flat'
+                                  : item.discountType,
+                            'status': true,
+                          };
 
-                        storeController.stockUpdate(data, item.id!).then((isSuccess) {
-                          if (isSuccess) {
-                            item.price = price;
-                            item.stock = stock;
-                            if (Get.isRegistered<CategoryController>()) {
-                              final catController = Get.find<CategoryController>();
-                              if (catController.itemList != null) {
-                                int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
-                                if (idx != -1) {
-                                  catController.itemList![idx].price = price;
-                                  catController.itemList![idx].stock = stock;
-                                }
+                          storeController.bulkAssignProducts([productData]).then((isSuccess) {
+                            if (isSuccess) {
+                              if (Get.isDialogOpen ?? false) {
+                                Get.back();
                               }
-                              catController.update();
+                              item.price = price;
+                              item.stock = stock;
+                              if (Get.isRegistered<CategoryController>()) {
+                                final catController = Get.find<CategoryController>();
+                                if (catController.itemList != null) {
+                                  int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
+                                  if (idx != -1) {
+                                    catController.itemList![idx].price = price;
+                                    catController.itemList![idx].stock = stock;
+                                  }
+                                }
+                                catController.update();
+                              }
                             }
-                          }
-                        });
+                          });
+                        } else {
+                          final Map<String, String> data = {
+                            '_method': 'post',
+                            'id': item.id.toString(),
+                            'product_id': item.id.toString(),
+                            'current_stock': stockText,
+                            'price': priceText,
+                            'unit_price': priceText,
+                            'discount': item.discount?.toString() ?? '0',
+                            'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
+                            'store_id':
+                                Get.find<ProfileController>()
+                                    .profileModel
+                                    ?.stores?[0]
+                                    .id
+                                    .toString() ??
+                                '',
+                            'category_id': item.categoryId?.toString() ?? '',
+                          };
+
+                          storeController.stockUpdate(data, item.id!).then((isSuccess) {
+                            if (isSuccess) {
+                              if (Get.isDialogOpen ?? false) {
+                                Get.back();
+                              }
+                              item.price = price;
+                              item.stock = stock;
+                              if (Get.isRegistered<CategoryController>()) {
+                                final catController = Get.find<CategoryController>();
+                                if (catController.itemList != null) {
+                                  int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
+                                  if (idx != -1) {
+                                    catController.itemList![idx].price = price;
+                                    catController.itemList![idx].stock = stock;
+                                  }
+                                }
+                                catController.update();
+                              }
+                            }
+                          });
+                        }
                       },
-                      child: Text('update'.tr),
+                      child: Text(inStore ? 'update'.tr : 'add'.tr),
                     );
             },
           ),

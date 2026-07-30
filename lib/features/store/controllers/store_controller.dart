@@ -27,6 +27,7 @@ import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
 import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
+import 'package:shoplancer_vendor/api/api_checker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -397,6 +398,44 @@ class StoreController extends GetxController implements GetxService {
     );
     getLimitedStockItemList('1', willUpdate: false);
     update();
+  }
+
+  Future<bool> bulkAssignProducts(
+    List<Map<String, dynamic>> products, {
+    bool willReload = true,
+  }) async {
+    _isLoading = true;
+    update();
+    Response response = await storeServiceInterface.bulkAssignProducts(products);
+    bool isSuccess = false;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      isSuccess = true;
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+      showCustomSnackBar(
+        (response.body != null && response.body['message'] != null)
+            ? response.body['message'].toString()
+            : 'products_assigned_successfully'.tr,
+        isError: false,
+      );
+      _selectedItemList = [];
+      _isSelectionMode = false;
+      if (willReload) {
+        getItemList(
+          offset: '1',
+          type: 'all',
+          search: '',
+          categoryId: 0,
+          moduleId: _currentModuleId,
+        );
+      }
+    } else {
+      ApiChecker.checkApi(response);
+    }
+    _isLoading = false;
+    update();
+    return isSuccess;
   }
 
   Map<String, String> buildStockUpdateData(

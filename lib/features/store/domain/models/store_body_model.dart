@@ -9,6 +9,7 @@ class StoreBodyModel {
   String? fName;
   String? lName;
   String? phone;
+  String? countryCode;
   String? email;
   String? password;
   String? zoneId;
@@ -35,6 +36,7 @@ class StoreBodyModel {
     this.fName,
     this.lName,
     this.phone,
+    this.countryCode,
     this.email,
     this.password,
     this.zoneId,
@@ -62,6 +64,7 @@ class StoreBodyModel {
     fName = json['f_name'];
     lName = json['l_name'];
     phone = json['phone'];
+    countryCode = json['country_code'];
     email = json['email'];
     password = json['password'];
     zoneId = json['zone_id'];
@@ -92,6 +95,7 @@ class StoreBodyModel {
     data['f_name'] = fName!;
     data['l_name'] = lName!;
     data['phone'] = phone!;
+    data['country_code'] = countryCode ?? '';
     data['email'] = email!;
     data['password'] = password!;
     data['zone_id'] = zoneId!;
