@@ -12,6 +12,7 @@ import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.d
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
@@ -40,18 +41,28 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
     super.initState();
 
     final StoreController storeController = Get.find<StoreController>();
-    Get.find<ProfileController>().getProfile();
-    int? moduleId =
-        Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
-    storeController.getItemList(
-      offset: '1',
-      type: 'all',
-      search: '',
-      categoryId: 0,
-      willUpdate: false,
-      moduleId: moduleId,
-    );
-    _fetchPublicCategories(storeController);
+    final ProfileController profileController = Get.find<ProfileController>();
+
+    void loadData() {
+      final int? mId = profileController.profileModel?.stores?[0].module?.id;
+      storeController.getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        willUpdate: false,
+        moduleId: mId,
+      );
+      _fetchPublicCategories(storeController);
+    }
+
+    if (profileController.profileModel != null) {
+      loadData();
+    }
+
+    profileController.getProfile().then((_) {
+      loadData();
+    });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -64,12 +75,14 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         if (storeController.offset < pageSize) {
           storeController.setOffset(storeController.offset + 1);
           storeController.showBottomLoader();
+          final int? mId =
+              Get.find<ProfileController>().profileModel?.stores?[0].module?.id;
           storeController.getItemList(
             offset: storeController.offset.toString(),
             type: storeController.type,
             search: _searchController.text.trim(),
             categoryId: storeController.categoryId,
-            moduleId: moduleId,
+            moduleId: mId,
             barcode: _barcodeSearch,
           );
         }
@@ -79,22 +92,37 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
 
   Future<void> _fetchPublicCategories(StoreController storeController) async {
     try {
+      final profile = Get.find<ProfileController>().profileModel;
+      final store = profile?.stores != null && profile!.stores!.isNotEmpty
+          ? profile.stores![0]
+          : null;
+      final int? moduleId = store?.module?.id;
+      final String? latitude = store?.latitude;
+      final String? longitude = store?.longitude;
+
+      final Map<String, String> headers = {
+        'X-localization': Get.locale?.languageCode ?? 'ar',
+        'zoneId': '[6]',
+        'moduleId': moduleId != null ? moduleId.toString() : '1',
+        'latitude': latitude != null && latitude.isNotEmpty
+            ? latitude
+            : '29.909732664744325',
+        'longitude': longitude != null && longitude.isNotEmpty
+            ? longitude
+            : '31.05635669520862',
+        'Accept': 'application/json',
+      };
+
       final response = await http.get(
-        Uri.parse('https://dashboard.shoplanser.com/api/v1/categories'),
-        headers: {
-          'X-localization': Get.locale?.languageCode ?? 'ar',
-          'zoneId': '[6]',
-          'moduleId': '1',
-          'latitude': '29.909732664744325',
-          'longitude': '31.05635669520862',
-          'Accept': 'application/json',
-        },
+        Uri.parse('${AppConstants.baseUrl}${AppConstants.categoryUri}'),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> body = jsonDecode(response.body);
-        final List<CategoryModel> categories =
-            body.map((json) => CategoryModel.fromJson(json)).toList();
+        final List<CategoryModel> categories = body
+            .map((json) => CategoryModel.fromJson(json))
+            .toList();
 
         storeController.setCategoriesFromExternal(categories);
       }
@@ -162,6 +190,50 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                               icon: const Icon(Icons.select_all),
                               onPressed: () => storeController.selectAllItems(),
                               tooltip: 'select_all'.tr,
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.playlist_add_check,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                final List<Item> selectedItems = storeController
+                                    .itemList!
+                                    .where(
+                                      (item) => storeController.selectedItemList
+                                          .contains(item.id),
+                                    )
+                                    .toList();
+
+                                if (selectedItems.isEmpty) return;
+
+                                List<Map<String, dynamic>>
+                                productsPayload = selectedItems.map((item) {
+                                  return {
+                                    'product_id': item.id,
+                                    'price': item.price ?? 0,
+                                    if (item.stock != null && item.stock! > 0)
+                                      'stock': item.stock,
+                                    if (item.stock != null && item.stock! > 0)
+                                      'manage_stock': true,
+                                    if (item.discount != null &&
+                                        item.discount! > 0)
+                                      'discount': item.discount,
+                                    if (item.discountType != null &&
+                                        item.discountType!.isNotEmpty)
+                                      'discount_type':
+                                          item.discountType == 'amount'
+                                          ? 'flat'
+                                          : item.discountType,
+                                    'status': true,
+                                  };
+                                }).toList();
+
+                                storeController.bulkAssignProducts(
+                                  productsPayload,
+                                );
+                              },
+                              tooltip: 'add_selected_to_store'.tr,
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit_note, size: 30),

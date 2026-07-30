@@ -78,6 +78,7 @@ abstract class StoreServiceInterface {
   Future<List<String?>?> getAllergicIngredientsSuggestionList();
   Future<List<String?>?> getGenericNameSuggestionList();
   Future<Response> stockUpdate(Map<String, String> data);
+  Future<Response> bulkAssignProducts(List<Map<String, dynamic>> products);
   Future<List<SuitableTagModel>?> getSuitableTagList();
   int? setSuitableTagIndex(List<SuitableTagModel>? suitableTag, Item? item);
   Future<List<VatTaxModel>?> getVatTaxList();

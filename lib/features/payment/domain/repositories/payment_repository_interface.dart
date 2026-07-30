@@ -6,4 +6,8 @@ abstract class PaymentRepositoryInterface implements RepositoryInterface {
   Future<dynamic> getWalletPaymentList();
   Future<dynamic> makeWalletAdjustment();
   Future<dynamic> makeCollectCashPayment(double amount, String paymentGatewayName);
+  Future<dynamic> getOfflinePaymentMethods();
+  Future<dynamic> submitTopupRequest(Map<String, String> body, dynamic receiptImage);
+  Future<dynamic> getTopupRequests();
+  Future<dynamic> getWalletInfo();
 }

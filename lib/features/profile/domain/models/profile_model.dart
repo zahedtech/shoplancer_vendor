@@ -44,6 +44,12 @@ class ProfileModel {
   bool? subscriptionTransactions;
   int? outOfStockCount;
   double? totalCommissionCollected;
+  String? storeUrl;
+  String? storeQrCode;
+  double? prepaidBalance;
+  double? minPrepaidBalanceLimit;
+  double? allowedCreditRemaining;
+  bool? isSuspended;
 
   ProfileModel({
     this.id,
@@ -88,6 +94,12 @@ class ProfileModel {
     this.subscriptionTransactions,
     this.outOfStockCount,
     this.totalCommissionCollected,
+    this.storeUrl,
+    this.storeQrCode,
+    this.prepaidBalance,
+    this.minPrepaidBalanceLimit,
+    this.allowedCreditRemaining,
+    this.isSuspended,
   });
 
   ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -189,6 +201,12 @@ class ProfileModel {
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
     totalCommissionCollected = json['total_commission_collected']?.toDouble();
+    storeUrl = json['store_url'];
+    storeQrCode = json['store_qr_code'];
+    prepaidBalance = json['prepaid_balance']?.toDouble();
+    minPrepaidBalanceLimit = json['min_prepaid_balance_limit']?.toDouble();
+    allowedCreditRemaining = json['allowed_credit_remaining']?.toDouble();
+    isSuspended = json['is_suspended'];
   }
 
   Map<String, dynamic> toJson() {
@@ -236,6 +254,12 @@ class ProfileModel {
     data['subscription_transactions'] = subscriptionTransactions;
     data['out_of_stock_count'] = outOfStockCount;
     data['total_commission_collected'] = totalCommissionCollected;
+    data['store_url'] = storeUrl;
+    data['store_qr_code'] = storeQrCode;
+    data['prepaid_balance'] = prepaidBalance;
+    data['min_prepaid_balance_limit'] = minPrepaidBalanceLimit;
+    data['allowed_credit_remaining'] = allowedCreditRemaining;
+    data['is_suspended'] = isSuspended;
     return data;
   }
 }

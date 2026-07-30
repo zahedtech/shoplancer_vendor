@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
@@ -23,18 +24,67 @@ class StoreLinkScreen extends StatelessWidget {
     return 'https://store.shoplanser.com/$slug';
   }
 
+  Widget _buildQrCodeWidget(
+    String? qrCode,
+    String storeUrl,
+    double size,
+  ) {
+    if (qrCode != null && qrCode.trim().isNotEmpty) {
+      final String trimmedQr = qrCode.trim();
+      if (trimmedQr.contains('<svg') || trimmedQr.startsWith('<?xml')) {
+        return SvgPicture.string(
+          trimmedQr,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+        );
+      } else if (trimmedQr.startsWith('http://') ||
+          trimmedQr.startsWith('https://')) {
+        if (trimmedQr.endsWith('.svg')) {
+          return SvgPicture.network(
+            trimmedQr,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+          );
+        }
+        return Image.network(
+          trimmedQr,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => QrImageView(
+            data: storeUrl,
+            size: size,
+            backgroundColor: Colors.white,
+          ),
+        );
+      }
+    }
+
+    return QrImageView(
+      data: storeUrl,
+      size: size,
+      backgroundColor: Colors.white,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'store_link'.tr),
       body: GetBuilder<ProfileController>(
         builder: (profileController) {
-          final Store? store = profileController.profileModel?.stores?[0];
-          if (store == null) {
+          final ProfileModel? profile = profileController.profileModel;
+          final Store? store = profile?.stores?[0];
+          if (profile == null && store == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final String storeUrl = _buildStoreUrl(store);
+          final String storeUrl = (profile?.storeUrl?.trim().isNotEmpty ?? false)
+              ? profile!.storeUrl!.trim()
+              : (store != null ? _buildStoreUrl(store) : '');
+          final String? storeQrCode = profile?.storeQrCode;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
@@ -89,12 +139,8 @@ class StoreLinkScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: Dimensions.paddingSizeSmall),
                   Center(
-                    child: storeUrl.isNotEmpty
-                        ? QrImageView(
-                            data: storeUrl,
-                            size: 180,
-                            backgroundColor: Colors.white,
-                          )
+                    child: (storeQrCode != null && storeQrCode.trim().isNotEmpty) || storeUrl.isNotEmpty
+                        ? _buildQrCodeWidget(storeQrCode, storeUrl, 180)
                         : const SizedBox(),
                   ),
                 ],

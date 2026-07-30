@@ -7,6 +7,9 @@ import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
+import 'package:shoplancer_vendor/features/payment/widgets/offline_topup_bottom_sheet_widget.dart';
+import 'package:shoplancer_vendor/features/payment/widgets/topup_request_history_widget.dart';
 import 'package:shoplancer_vendor/features/payment/widgets/wallet_attention_alert_widget.dart';
 import 'package:shoplancer_vendor/features/payment/widgets/wallet_widget.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +28,7 @@ class _WalletScreenState extends State<WalletScreen> {
     Get.find<PaymentController>().getWithdrawList();
     Get.find<PaymentController>().getWithdrawMethodList();
     Get.find<PaymentController>().getWalletPaymentList();
+    Get.find<PaymentController>().getWalletInfo();
     if (Get.find<ProfileController>().profileModel == null) {
       Get.find<ProfileController>().getProfile();
     }
@@ -46,6 +50,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         ? RefreshIndicator(
                             onRefresh: () async {
                               await Get.find<ProfileController>().getProfile();
+                              await Get.find<PaymentController>().getWalletInfo();
                               await Get.find<PaymentController>()
                                   .getWithdrawList();
                             },
@@ -62,6 +67,194 @@ class _WalletScreenState extends State<WalletScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        // Prepaid Balance Card with Negative Limit Info & Top-Up Action
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(
+                                            Dimensions.paddingSizeDefault,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              Dimensions.radiusDefault,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                (profileController.profileModel!.prepaidBalance ?? 0) < 0
+                                                    ? Colors.orange.shade800
+                                                    : Theme.of(context).primaryColor,
+                                                (profileController.profileModel!.prepaidBalance ?? 0) < 0
+                                                    ? Colors.deepOrange.shade900
+                                                    : Theme.of(context).primaryColor.withValues(alpha: 0.85),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withValues(alpha: 0.25),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.account_balance_wallet,
+                                                        color: Theme.of(context).cardColor,
+                                                        size: 22,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: Dimensions.paddingSizeExtraSmall,
+                                                      ),
+                                                      Text(
+                                                        'prepaid_balance'.tr,
+                                                        style: robotoRegular.copyWith(
+                                                          fontSize: Dimensions.fontSizeSmall,
+                                                          color: Theme.of(context)
+                                                              .cardColor
+                                                              .withValues(alpha: 0.9),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  if ((profileController.profileModel!.isSuspended ?? false) ||
+                                                      ((profileController.profileModel!.prepaidBalance ?? 0) < 0))
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 2,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red,
+                                                        borderRadius: BorderRadius.circular(
+                                                          Dimensions.radiusSmall,
+                                                        ),
+                                                      ),
+                                                      child: Text(
+                                                        (profileController.profileModel!.isSuspended ?? false)
+                                                            ? 'store_suspended'.tr
+                                                            : 'negative_balance'.tr,
+                                                        style: robotoBold.copyWith(
+                                                          fontSize: Dimensions.fontSizeExtraSmall,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: Dimensions.paddingSizeSmall,
+                                              ),
+                                              FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  PriceConverterHelper.convertPrice(
+                                                    profileController.profileModel!.prepaidBalance ?? 0.0,
+                                                  ),
+                                                  style: robotoBold.copyWith(
+                                                    fontSize: 26,
+                                                    color: Theme.of(context).cardColor,
+                                                  ),
+                                                  textDirection: TextDirection.ltr,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: Dimensions.paddingSizeSmall,
+                                              ),
+                                              const Divider(color: Colors.white24, height: 1),
+                                              const SizedBox(
+                                                height: Dimensions.paddingSizeSmall,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'min_negative_limit'.tr,
+                                                        style: robotoRegular.copyWith(
+                                                          fontSize: Dimensions.fontSizeExtraSmall,
+                                                          color: Theme.of(context)
+                                                              .cardColor
+                                                              .withValues(alpha: 0.8),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '-${PriceConverterHelper.convertPrice(profileController.profileModel!.minPrepaidBalanceLimit ?? 0.0)}',
+                                                        style: robotoMedium.copyWith(
+                                                          fontSize: Dimensions.fontSizeSmall,
+                                                          color: Theme.of(context).cardColor,
+                                                        ),
+                                                        textDirection: TextDirection.ltr,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Text(
+                                                        'allowed_credit_remaining'.tr,
+                                                        style: robotoRegular.copyWith(
+                                                          fontSize: Dimensions.fontSizeExtraSmall,
+                                                          color: Theme.of(context)
+                                                              .cardColor
+                                                              .withValues(alpha: 0.8),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        PriceConverterHelper.convertPrice(
+                                                          profileController.profileModel!.allowedCreditRemaining ?? 0.0,
+                                                        ),
+                                                        style: robotoMedium.copyWith(
+                                                          fontSize: Dimensions.fontSizeSmall,
+                                                          color: Theme.of(context).cardColor,
+                                                        ),
+                                                        textDirection: TextDirection.ltr,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
+                                        ),
+
+                                        // Top-Up Request Button
+                                        CustomButtonWidget(
+                                          buttonText: 'request_balance_topup'.tr,
+                                          icon: Icons.add_circle_outline,
+                                          onPressed: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              isScrollControlled: true,
+                                              backgroundColor: Colors.transparent,
+                                              builder: (_) => const OfflineTopupBottomSheetWidget(),
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeDefault,
+                                        ),
+
                                         // Balance Cards: Online Payment & COD side-by-side
                                         Row(
                                           children: [
@@ -585,6 +778,18 @@ class _WalletScreenState extends State<WalletScreen> {
                                                       CircularProgressIndicator(),
                                                 ),
                                               ),
+
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeLarge,
+                                        ),
+                                        Text(
+                                          "topup_requests_history".tr,
+                                          style: robotoMedium,
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeSmall,
+                                        ),
+                                        const TopupRequestHistoryWidget(),
                                       ],
                                     ),
                                   ),
