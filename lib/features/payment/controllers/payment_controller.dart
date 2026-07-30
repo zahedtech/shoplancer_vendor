@@ -229,11 +229,21 @@ class PaymentController extends GetxController implements GetxService {
     }
   }
 
+  bool _isPickerActive = false;
+
   void pickReceiptImage(ImageSource source) async {
-    final XFile? image = await ImagePicker().pickImage(source: source);
-    if (image != null) {
-      _rawReceiptImage = image;
-      update();
+    if (_isPickerActive) return;
+    _isPickerActive = true;
+    try {
+      final XFile? image = await ImagePicker().pickImage(source: source);
+      if (image != null) {
+        _rawReceiptImage = image;
+        update();
+      }
+    } catch (e) {
+      debugPrint('Error picking receipt image: $e');
+    } finally {
+      _isPickerActive = false;
     }
   }
 
@@ -276,6 +286,7 @@ class PaymentController extends GetxController implements GetxService {
       _rawReceiptImage = null;
       showCustomSnackBar(responseModel.message, isError: false);
       getTopupRequests();
+      getWalletInfo();
       Get.find<ProfileController>().getProfile();
       update();
       return true;

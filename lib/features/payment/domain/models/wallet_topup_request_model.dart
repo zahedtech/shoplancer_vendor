@@ -31,7 +31,7 @@ class WalletTopupRequestModel {
     id = json['id'];
     vendorId = json['vendor_id'];
     offlinePaymentMethodId = json['offline_payment_method_id'];
-    amount = json['amount']?.toDouble();
+    amount = double.tryParse(json['amount'].toString());
     receiptImage = json['receipt_image'];
     receiptImageFullUrl = json['receipt_image_full_url'];
     notes = json['notes'];

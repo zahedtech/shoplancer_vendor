@@ -133,10 +133,11 @@ class AppConstants {
   static const String makeCollectedCashPaymentUri =
       '/api/v1/vendor/make-collected-cash-payment';
   static const String offlinePaymentMethodsUri =
-      '/api/v1/offline-payment-methods';
-  static const String submitTopupRequestUri = '/api/v1/wallet/topup-request';
-  static const String topupRequestsUri = '/api/v1/wallet/topup-requests';
-  static const String walletInfoUri = '/api/v1/wallet/info';
+      '/api/v1/vendor/offline-payment-methods';
+  static const String submitTopupRequestUri =
+      '/api/v1/vendor/wallet/topup-request';
+  static const String topupRequestsUri = '/api/v1/vendor/wallet/topup-requests';
+  static const String walletInfoUri = '/api/v1/vendor/wallet/info';
   static const String getBrandsUri = '/api/v1/brand';
   static const String updateReplyUri = '/api/v1/vendor/item/reply-update';
   static const String checkZoneUri = '/api/v1/zone/check';

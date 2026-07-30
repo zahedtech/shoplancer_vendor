@@ -105,11 +105,17 @@ class PaymentRepository implements PaymentRepositoryInterface {
   Future<List<OfflinePaymentMethodModel>?> getOfflinePaymentMethods() async {
     List<OfflinePaymentMethodModel>? methods;
     Response response = await apiClient.getData(AppConstants.offlinePaymentMethodsUri);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body != null) {
       methods = [];
-      response.body.forEach((method) {
-        methods!.add(OfflinePaymentMethodModel.fromJson(method));
-      });
+      List rawList = [];
+      if (response.body is Map && response.body['data'] != null) {
+        rawList = response.body['data'];
+      } else if (response.body is List) {
+        rawList = response.body;
+      }
+      for (var method in rawList) {
+        methods.add(OfflinePaymentMethodModel.fromJson(method));
+      }
     }
     return methods;
   }
@@ -132,11 +138,17 @@ class PaymentRepository implements PaymentRepositoryInterface {
   Future<List<WalletTopupRequestModel>?> getTopupRequests() async {
     List<WalletTopupRequestModel>? requests;
     Response response = await apiClient.getData(AppConstants.topupRequestsUri);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body != null) {
       requests = [];
-      response.body.forEach((req) {
-        requests!.add(WalletTopupRequestModel.fromJson(req));
-      });
+      List rawList = [];
+      if (response.body is Map && response.body['data'] != null) {
+        rawList = response.body['data'];
+      } else if (response.body is List) {
+        rawList = response.body;
+      }
+      for (var req in rawList) {
+        requests.add(WalletTopupRequestModel.fromJson(req));
+      }
     }
     return requests;
   }
