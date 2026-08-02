@@ -29,9 +29,15 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to}) async {
+  Future<PaginatedOrderModel?> getPaginatedOrderList(
+    int offset,
+    String status, {
+    String? from,
+    String? to,
+  }) async {
     PaginatedOrderModel? historyOrderModel;
-    String url = '${AppConstants.completedOrdersUri}?status=$status&offset=$offset&limit=10';
+    String url =
+        '${AppConstants.completedOrdersUri}?status=$status&offset=$offset&limit=10';
     if (from != null && from.isNotEmpty) {
       url += '&from=$from';
     }
@@ -46,9 +52,33 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
-  Future<ResponseModel> updateOrderStatus(UpdateStatusBodyModel updateStatusBody, List<MultipartBody> proofAttachment) async {
+  Future<ResponseModel> updateOrderStatus(
+    UpdateStatusBodyModel updateStatusBody,
+    List<MultipartBody> proofAttachment,
+  ) async {
     ResponseModel responseModel;
-    Response response = await apiClient.postMultipartData(AppConstants.updatedOrderStatusUri, updateStatusBody.toJson(), proofAttachment, handleError: false);
+    Response response = await apiClient.postMultipartData(
+      AppConstants.updatedOrderStatusUri,
+      updateStatusBody.toJson(),
+      proofAttachment,
+      handleError: false,
+    );
+    if (response.statusCode == 200) {
+      responseModel = ResponseModel(true, response.body['message']);
+    } else {
+      responseModel = ResponseModel(false, response.statusText);
+    }
+    return responseModel;
+  }
+
+  @override
+  Future<ResponseModel> cancelOrder(Map<String, String> body) async {
+    ResponseModel responseModel;
+    Response response = await apiClient.putFormData(
+      AppConstants.cancelOrderUri,
+      body,
+      handleError: false,
+    );
     if (response.statusCode == 200) {
       responseModel = ResponseModel(true, response.body['message']);
     } else {
@@ -60,10 +90,15 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<List<OrderDetailsModel>?> getOrderDetails(int orderID) async {
     List<OrderDetailsModel>? orderDetailsModel;
-    Response response = await apiClient.getData('${AppConstants.orderDetailsUri}$orderID');
-    if(response.statusCode == 200) {
+    Response response = await apiClient.getData(
+      '${AppConstants.orderDetailsUri}$orderID',
+    );
+    if (response.statusCode == 200) {
       orderDetailsModel = [];
-      response.body.forEach((orderDetails) => orderDetailsModel!.add(OrderDetailsModel.fromJson(orderDetails)));
+      response.body.forEach(
+        (orderDetails) =>
+            orderDetailsModel!.add(OrderDetailsModel.fromJson(orderDetails)),
+      );
     }
     return orderDetailsModel;
   }
@@ -71,7 +106,9 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<OrderModel?> get(int? id) async {
     OrderModel? orderModel;
-    Response response = await apiClient.getData('${AppConstants.currentOrderDetailsUri}$id');
+    Response response = await apiClient.getData(
+      '${AppConstants.currentOrderDetailsUri}$id',
+    );
     if (response.statusCode == 200) {
       orderModel = OrderModel.fromJson(response.body);
     }
@@ -81,7 +118,11 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<ResponseModel> update(Map<String, dynamic> body) async {
     ResponseModel responseModel;
-    Response response = await apiClient.postData(AppConstants.updateOrderUri, body, handleError: false);
+    Response response = await apiClient.postData(
+      AppConstants.updateOrderUri,
+      body,
+      handleError: false,
+    );
     if (response.statusCode == 200) {
       responseModel = ResponseModel(true, response.body['message']);
     } else {
@@ -93,7 +134,11 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<ResponseModel> updateOrderItems(Map<String, dynamic> body) async {
     ResponseModel responseModel;
-    Response response = await apiClient.postData(AppConstants.updateOrderItemsUri, body, handleError: false);
+    Response response = await apiClient.postData(
+      AppConstants.updateOrderItemsUri,
+      body,
+      handleError: false,
+    );
     if (response.statusCode == 200) {
       responseModel = ResponseModel(true, response.body['message']);
     } else {
@@ -105,16 +150,23 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<OrderCancellationBodyModel?> getCancelReasons() async {
     OrderCancellationBodyModel? orderCancellationBody;
-    Response response = await apiClient.getData('${AppConstants.orderCancellationUri}?offset=1&limit=30&type=store');
+    Response response = await apiClient.getData(
+      '${AppConstants.orderCancellationUri}?offset=1&limit=30&type=store',
+    );
     if (response.statusCode == 200) {
-      orderCancellationBody = OrderCancellationBodyModel.fromJson(response.body);
+      orderCancellationBody = OrderCancellationBodyModel.fromJson(
+        response.body,
+      );
     }
     return orderCancellationBody;
   }
 
   @override
   Future<bool> sendDeliveredNotification(int? orderID) async {
-    Response response = await apiClient.postData(AppConstants.deliveredOrderNotificationUri, {"_method": "put", 'token': _getUserToken(), 'order_id': orderID});
+    Response response = await apiClient.postData(
+      AppConstants.deliveredOrderNotificationUri,
+      {"_method": "put", 'token': _getUserToken(), 'order_id': orderID},
+    );
     return (response.statusCode == 200);
   }
 
@@ -134,9 +186,13 @@ class OrderRepository implements OrderRepositoryInterface {
 
   @override
   Future<void> setBluetoothAddress(String? address) async {
-    await sharedPreferences.setString(AppConstants.bluetoothMacAddress, address ?? '');
+    await sharedPreferences.setString(
+      AppConstants.bluetoothMacAddress,
+      address ?? '',
+    );
   }
-  @override
-  String? getBluetoothAddress() => sharedPreferences.getString(AppConstants.bluetoothMacAddress);
 
+  @override
+  String? getBluetoothAddress() =>
+      sharedPreferences.getString(AppConstants.bluetoothMacAddress);
 }

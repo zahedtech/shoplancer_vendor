@@ -478,7 +478,7 @@ class _LowStockScreenState extends State<LowStockScreen> {
     });
 
     try {
-      List<Map<String, String>> updates = [];
+      List<Map<String, dynamic>> updates = [];
       for (var entry in _updatedStocks.entries) {
         Item? item = storeController.stockItemList?.firstWhereOrNull(
           (element) => element.id == entry.key,

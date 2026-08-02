@@ -6,7 +6,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:shoplancer_vendor/api/api_checker.dart';
 import 'package:shoplancer_vendor/common/models/error_response.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -189,6 +188,33 @@ class ApiClient extends GetxService {
             body: jsonEncode(body),
             headers: headers ?? _mainHeaders,
           )
+          .timeout(Duration(seconds: timeoutInSeconds));
+      return handleResponse(response, uri, handleError);
+    } catch (e) {
+      return const Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
+  Future<Response> putFormData(
+    String uri,
+    Map<String, String> body, {
+    Map<String, String>? headers,
+    bool handleError = true,
+  }) async {
+    final Map<String, String> requestHeaders = {
+      ..._mainHeaders,
+      if (headers != null) ...headers,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    try {
+      ApiLogger.logRequest(
+        method: 'PUT (Form)',
+        url: appBaseUrl + uri,
+        headers: requestHeaders,
+        body: body,
+      );
+      http.Response response = await http
+          .put(Uri.parse(appBaseUrl + uri), body: body, headers: requestHeaders)
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri, handleError);
     } catch (e) {

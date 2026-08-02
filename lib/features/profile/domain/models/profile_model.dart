@@ -120,12 +120,12 @@ class ProfileModel {
     thisWeekOrderCount = json['this_week_order_count'];
     thisMonthOrderCount = json['this_month_order_count'];
     memberSinceDays = int.tryParse(json['member_since_days'].toString()) ?? 0;
-    cashInHands = json['cash_in_hands']?.toDouble();
-    balance = json['balance']?.toDouble();
-    totalEarning = json['total_earning']?.toDouble();
-    todaysEarning = json['todays_earning']?.toDouble();
-    thisWeekEarning = json['this_week_earning']?.toDouble();
-    thisMonthEarning = json['this_month_earning']?.toDouble();
+    cashInHands = double.tryParse(json['cash_in_hands']?.toString() ?? '');
+    balance = double.tryParse(json['balance']?.toString() ?? '');
+    totalEarning = double.tryParse(json['total_earning']?.toString() ?? '');
+    todaysEarning = double.tryParse(json['todays_earning']?.toString() ?? '');
+    thisWeekEarning = double.tryParse(json['this_week_earning']?.toString() ?? '');
+    thisMonthEarning = double.tryParse(json['this_month_earning']?.toString() ?? '');
     if (json['stores'] != null) {
       stores = [];
       json['stores'].forEach((v) {
@@ -182,15 +182,15 @@ class ProfileModel {
         translations!.add(Translation.fromJson(v));
       });
     }
-    withdrawAbleBalance = json['withdraw_able_balance']?.toDouble();
-    payableBalance = json['Payable_Balance']?.toDouble();
+    withdrawAbleBalance = double.tryParse(json['withdraw_able_balance']?.toString() ?? '');
+    payableBalance = double.tryParse(json['Payable_Balance']?.toString() ?? '');
     adjustable = json['adjust_able'];
     overFlowWarning = json['over_flow_warning'];
     overFlowBlockWarning = json['over_flow_block_warning'];
-    pendingWithdraw = json['pending_withdraw']?.toDouble();
-    alreadyWithdrawn = json['total_withdrawn']?.toDouble();
+    pendingWithdraw = double.tryParse(json['pending_withdraw']?.toString() ?? '');
+    alreadyWithdrawn = double.tryParse(json['total_withdrawn']?.toString() ?? '');
     dynamicBalanceType = json['dynamic_balance_type'];
-    dynamicBalance = json['dynamic_balance']?.toDouble();
+    dynamicBalance = double.tryParse(json['dynamic_balance']?.toString() ?? '');
     showPayNowButton = json['show_pay_now_button'];
     if (json['subscription'] != null) {
       subscription = Subscription.fromJson(json['subscription']);
@@ -200,13 +200,13 @@ class ProfileModel {
         : null;
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
-    totalCommissionCollected = json['total_commission_collected']?.toDouble();
+    totalCommissionCollected = double.tryParse(json['total_commission_collected']?.toString() ?? '');
     storeUrl = json['store_url'];
     storeQrCode = json['store_qr_code'];
-    prepaidBalance = json['prepaid_balance']?.toDouble();
-    minPrepaidBalanceLimit = json['min_prepaid_balance_limit']?.toDouble();
-    allowedCreditRemaining = json['allowed_credit_remaining']?.toDouble();
-    isSuspended = json['is_suspended'];
+    prepaidBalance = double.tryParse(json['prepaid_balance']?.toString() ?? '');
+    minPrepaidBalanceLimit = double.tryParse(json['min_prepaid_balance_limit']?.toString() ?? '');
+    allowedCreditRemaining = double.tryParse(json['allowed_credit_remaining']?.toString() ?? '');
+    isSuspended = json['is_suspended'] == true || json['is_suspended'] == 1 || json['is_suspended'] == '1';
   }
 
   Map<String, dynamic> toJson() {

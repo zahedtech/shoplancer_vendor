@@ -28,6 +28,9 @@ class StoreService implements StoreServiceInterface {
     int? categoryId,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   }) async {
     return await storeRepositoryInterface.getItemList(
       offset: offset,
@@ -36,6 +39,9 @@ class StoreService implements StoreServiceInterface {
       categoryId: categoryId,
       moduleId: moduleId,
       barcode: barcode,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      sort: sort,
     );
   }
 
@@ -443,6 +449,11 @@ class StoreService implements StoreServiceInterface {
   @override
   Future<Response> stockUpdate(Map<String, String> data) async {
     return await storeRepositoryInterface.stockUpdate(data);
+  }
+
+  @override
+  Future<Response> bulkStockUpdate(Map<String, dynamic> body) async {
+    return await storeRepositoryInterface.bulkStockUpdate(body);
   }
 
   @override

@@ -169,7 +169,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                 }
               }
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
+                content: Text('back_press_again_to_exit'.tr, style: robotoRegular.copyWith(color: Colors.white)),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),

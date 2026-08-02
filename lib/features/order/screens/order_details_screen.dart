@@ -166,6 +166,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     );
   }
 
+  bool _canStoreCancelOrder(OrderModel order, bool? cancelPermission) {
+    final String status = order.orderStatus ?? '';
+
+    // يسمح بالإلغاء فقط في حالتي pending أو confirmed
+    if (status != AppConstants.pending && status != AppConstants.confirmed) {
+      return false;
+    }
+
+    // لا يسمح بالإلغاء إذا كان الطلب قد سُلّم أو ألغي أو استُرد بالفعل
+    bool hasStatusDate(String? value) =>
+        value != null && value.trim().isNotEmpty;
+
+    if (hasStatusDate(order.delivered) ||
+        hasStatusDate(order.canceled) ||
+        hasStatusDate(order.refunded) ||
+        hasStatusDate(order.refundRequested)) {
+      return false;
+    }
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool? cancelPermission =
@@ -3024,6 +3046,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                               )
                             : const SizedBox(),
 
+                        // cancel button moved to below the slider
+
                         showDeliveryConfirmImage &&
                                 controllerOrderModel.orderStatus != 'delivered'
                             ? Container(
@@ -3186,218 +3210,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                       ),
                                     )
                                   : showSlider
-                                  ? (controllerOrderModel.orderStatus ==
-                                                'pending' &&
-                                            (controllerOrderModel.orderType ==
-                                                    'take_away' ||
-                                                restConfModel ||
-                                                selfDelivery) &&
-                                            cancelPermission!)
-                                        ? Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal:
-                                                  Dimensions.paddingSizeDefault,
-                                              vertical:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(
-                                                context,
-                                              ).cardColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                    Dimensions.radiusSmall,
-                                                  ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  offset: Offset(0, 3),
-                                                  color:
-                                                      Colors.grey[Get.isDarkMode
-                                                          ? 700
-                                                          : 200]!,
-                                                  blurRadius: 8,
-                                                  spreadRadius: 0,
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                order.paymentMethod !=
-                                                        'partial_payment'
-                                                    ? Row(
-                                                        children: [
-                                                          Text(
-                                                            'total_amount'.tr,
-                                                            style: robotoMedium
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeLarge,
-                                                                ),
-                                                          ),
-                                                          taxIncluded
-                                                              ? Text(
-                                                                  ' ${'vat_tax_inc'.tr}',
-                                                                  style: robotoMedium.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeExtraSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).hintColor,
-                                                                  ),
-                                                                )
-                                                              : const SizedBox(),
-                                                          const Expanded(
-                                                            child: SizedBox(),
-                                                          ),
-                                                          Text(
-                                                            PriceConverterHelper.convertPrice(
-                                                              total,
-                                                            ),
-                                                            style: robotoMedium
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeLarge,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : const SizedBox(),
-                                                SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: TextButton(
-                                                        onPressed: () {
-                                                          orderController
-                                                              .setOrderCancelReason(
-                                                                '',
-                                                              );
-                                                          Get.dialog(
-                                                            CancellationDialogueWidget(
-                                                              orderId: order.id,
-                                                            ),
-                                                          );
-                                                        },
-                                                        style: TextButton.styleFrom(
-                                                          minimumSize:
-                                                              const Size(
-                                                                1170,
-                                                                40,
-                                                              ),
-                                                          padding:
-                                                              EdgeInsets.zero,
-                                                          backgroundColor:
-                                                              Theme.of(context)
-                                                                  .hintColor
-                                                                  .withValues(
-                                                                    alpha: 0.2,
-                                                                  ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusSmall,
-                                                                ),
-                                                            side: BorderSide(
-                                                              width: 1,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .hintColor
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.2,
-                                                                      ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        child: Text(
-                                                          'cancel'.tr,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: robotoRegular.copyWith(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color,
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-
-                                                    Expanded(
-                                                      child: CustomButtonWidget(
-                                                        buttonText:
-                                                            order!.moduleType ==
-                                                                'grocery'
-                                                            ? 'ready_for_handover'
-                                                                  .tr
-                                                            : 'confirm'.tr,
-                                                        height: 40,
-                                                        onPressed: () {
-                                                          if (order!
-                                                                  .moduleType ==
-                                                              'grocery') {
-                                                            orderController
-                                                                .updateOrderStatus(
-                                                                  widget
-                                                                      .orderId,
-                                                                  AppConstants
-                                                                      .handover,
-                                                                  fromNotification:
-                                                                      true,
-                                                                );
-                                                          } else {
-                                                            Get.dialog(
-                                                              ConfirmationDialogWidget(
-                                                                icon: Images
-                                                                    .warning,
-                                                                title:
-                                                                    'are_you_sure_to_confirm'
-                                                                        .tr,
-                                                                description:
-                                                                    'you_want_to_confirm_this_order'
-                                                                        .tr,
-                                                                onYesPressed: () {
-                                                                  orderController.updateOrderStatus(
-                                                                    widget
-                                                                        .orderId,
-                                                                    AppConstants
-                                                                        .confirmed,
-                                                                    fromNotification:
-                                                                        true,
-                                                                  );
-                                                                },
-                                                              ),
-                                                              barrierDismissible:
-                                                                  false,
-                                                            );
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : Padding(
+                                  ? Column(
+                                      children: [
+                                        Padding(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal:
                                                   Dimensions.paddingSizeSmall,
@@ -3441,14 +3256,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         },
                                                         onNoPressed: () {
                                                           if (cancelPermission!) {
+                                                            Get.back();
                                                             orderController
-                                                                .updateOrderStatus(
-                                                                  widget
-                                                                      .orderId,
-                                                                  AppConstants
-                                                                      .canceled,
-                                                                  back: true,
+                                                                .setOrderCancelReason(
+                                                                  '',
                                                                 );
+                                                            Get.dialog(
+                                                              CancellationDialogueWidget(
+                                                                orderId: widget
+                                                                    .orderId,
+                                                              ),
+                                                            );
                                                           } else {
                                                             Get.back();
                                                           }
@@ -3855,7 +3673,50 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                 context,
                                               ).primaryColor,
                                             ),
-                                          )
+                                          ),
+                                        // زر إلغاء الطلب أسفل السلايدر
+                                        if (_canStoreCancelOrder(controllerOrderModel, cancelPermission))
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: Dimensions.paddingSizeSmall,
+                                              left: Dimensions.paddingSizeSmall,
+                                              right: Dimensions.paddingSizeSmall,
+                                            ),
+                                            child: SizedBox(
+                                              width: double.infinity,
+                                              child: OutlinedButton.icon(
+                                                onPressed: () {
+                                                  orderController.setOrderCancelReason('');
+                                                  Get.dialog(
+                                                    CancellationDialogueWidget(
+                                                      orderId: order!.id,
+                                                    ),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                  Icons.cancel_outlined,
+                                                  color: Colors.red,
+                                                  size: 18,
+                                                ),
+                                                label: Text(
+                                                  'cancel_order'.tr,
+                                                  style: robotoMedium.copyWith(
+                                                    color: Colors.red,
+                                                    fontSize: Dimensions.fontSizeDefault,
+                                                  ),
+                                                ),
+                                                style: OutlinedButton.styleFrom(
+                                                  side: const BorderSide(color: Colors.red, width: 1.5),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                  ),
+                                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    )
                                   : const SizedBox()
                             : const SizedBox(),
 

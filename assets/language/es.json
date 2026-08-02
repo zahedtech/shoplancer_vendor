@@ -343,6 +343,7 @@
   "select_at_least_one_item_type": "Seleccione al menos un tipo de elemento",
   "confirm": "Confirmar",
   "cancel": "Cancelar",
+  "cancel_order": "Cancelar pedido",
   "are_you_sure_to_cancel": "¿Estás seguro de cancelar?",
   "you_want_to_cancel_this_order": "¿Quieres cancelar este pedido?",
   "version": "Versión",

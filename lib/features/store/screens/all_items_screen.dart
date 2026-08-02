@@ -343,7 +343,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          List<Map<String, String>> updates =
+                                          List<Map<String, dynamic>> updates =
                                               [];
                                           for (var item in selectedItems) {
                                             double? newPrice = double.tryParse(

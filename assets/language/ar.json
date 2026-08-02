@@ -371,6 +371,7 @@
   "select_at_least_one_item_type": "حدد نوع عنصر واحدًا على الأقل",
   "confirm": "تأكيد",
   "cancel": "إلغاء",
+  "cancel_order": "إلغاء الطلب",
   "are_you_sure_to_cancel": "هل أنت متأكد من الإلغاء؟",
   "you_want_to_cancel_this_order": "هل تريد إلغاء هذا الطلب؟",
   "version": "إصدار",

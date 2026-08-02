@@ -3,20 +3,24 @@ import 'package:shoplancer_vendor/util/app_constants.dart';
 
 const robotoRegular = TextStyle(
   fontFamily: AppConstants.fontFamily,
+  fontFamilyFallback: AppConstants.kAppFontFamilyFallbackArabic,
   fontWeight: FontWeight.w400,
 );
 
 const robotoMedium = TextStyle(
   fontFamily: AppConstants.fontFamily,
+  fontFamilyFallback: AppConstants.kAppFontFamilyFallbackArabic,
   fontWeight: FontWeight.w500,
 );
 
 const robotoBold = TextStyle(
   fontFamily: AppConstants.fontFamily,
+  fontFamilyFallback: AppConstants.kAppFontFamilyFallbackArabic,
   fontWeight: FontWeight.w700,
 );
 
 const robotoBlack = TextStyle(
   fontFamily: AppConstants.fontFamily,
+  fontFamilyFallback: AppConstants.kAppFontFamilyFallbackArabic,
   fontWeight: FontWeight.w900,
 );
