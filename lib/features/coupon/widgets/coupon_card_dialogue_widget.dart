@@ -253,7 +253,7 @@ class CouponCardDialogueWidget extends StatelessWidget {
                         child: CustomButtonWidget(
                           onPressed: () {
                             Get.back();
-                            Get.dialog(const CustomLoaderWidget());
+                            Get.dialog(CustomLoaderWidget());
                             couponController.getCouponDetails(couponController.coupons![index].id!).then((couponDetails) {
                               Get.back();
                               if(couponDetails != null) {

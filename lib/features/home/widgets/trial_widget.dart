@@ -20,6 +20,7 @@ class _TrialWidgetState extends State<TrialWidget> {
   bool _showButton = false;
   @override
   Widget build(BuildContext context) {
+    if (GetPlatform.isIOS) return const SizedBox();
 
     int remainingDays = DateConverterHelper.differenceInDaysIgnoringTime(DateTime.parse(widget.subscription.expiryDate!), null);
 

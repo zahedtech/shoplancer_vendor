@@ -206,7 +206,7 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.businessPlan!) {
+    if (modulePermission.businessPlan! && !GetPlatform.isIOS) {
       menuList.add(
         MenuModel(
           icon: Images.mySubscriptionIcon,

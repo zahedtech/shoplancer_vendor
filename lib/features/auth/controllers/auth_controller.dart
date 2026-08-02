@@ -376,7 +376,8 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void resetBusiness() {
-    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0;
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 && !GetPlatform.isIOS;
+
     bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
 
     if (!isSubscriptionAvailable) {
@@ -399,7 +400,7 @@ class AuthController extends GetxController implements GetxService {
     _packageModel = await authServiceInterface.getPackageList(
       moduleId: moduleId,
     );
-    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 && !GetPlatform.isIOS &&
         _packageModel?.packages != null &&
         _packageModel!.packages!.isNotEmpty;
     if (!isSubscriptionAvailable) {

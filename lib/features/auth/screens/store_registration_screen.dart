@@ -14,7 +14,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/address/controllers/address_controller.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
-import 'package:shoplancer_vendor/features/business/widgets/package_card_widget.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/store_body_model.dart';
@@ -127,7 +126,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     _formKeySecond = GlobalKey<FormState>();
   }
 
-  void _openColorPicker() {
+  void openColorPicker() {
     final List<Color> presetColors = [
       const Color(0xFFE53935), // Red
       const Color(0xFFD81B60), // Pink
@@ -504,6 +503,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                         .configModel
                         ?.subscriptionBusinessModel !=
                     0 &&
+                !GetPlatform.isIOS &&
                 authController.packageModel?.packages != null &&
                 authController.packageModel!.packages!.isNotEmpty;
             bool isCommissionAvailable =
@@ -2231,23 +2231,37 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                 },
                                               ),
 
-                                        if (authController.selectedCategoryIds.isNotEmpty) ...[
-                                          const SizedBox(height: Dimensions.paddingSizeLarge),
+                                        if (authController
+                                            .selectedCategoryIds
+                                            .isNotEmpty) ...[
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeLarge,
+                                          ),
                                           Text(
                                             'product_addition_options'.tr,
                                             style: robotoBold,
                                           ),
-                                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                                          const SizedBox(
+                                            height: Dimensions.paddingSizeSmall,
+                                          ),
 
                                           ListView.builder(
                                             shrinkWrap: true,
-                                            physics: const NeverScrollableScrollPhysics(),
-                                            itemCount: authController.selectedCategoryIds.length,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: authController
+                                                .selectedCategoryIds
+                                                .length,
                                             itemBuilder: (context, catIdx) {
-                                              int catId = authController.selectedCategoryIds[catIdx];
+                                              int catId = authController
+                                                  .selectedCategoryIds[catIdx];
                                               String catName = '';
-                                              if (authController.registrationCategories != null) {
-                                                for (var cat in authController.registrationCategories!) {
+                                              if (authController
+                                                      .registrationCategories !=
+                                                  null) {
+                                                for (var cat
+                                                    in authController
+                                                        .registrationCategories!) {
                                                   if (cat.id == catId) {
                                                     catName = cat.name ?? '';
                                                     break;
@@ -2256,15 +2270,23 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                               }
 
                                               return Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Padding(
-                                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: Dimensions
+                                                              .paddingSizeSmall,
+                                                        ),
                                                     child: Text(
                                                       catName,
                                                       style: robotoBold.copyWith(
-                                                        color: Theme.of(context).primaryColor,
-                                                        fontSize: Dimensions.fontSizeDefault,
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).primaryColor,
+                                                        fontSize: Dimensions
+                                                            .fontSizeDefault,
                                                       ),
                                                     ),
                                                   ),
@@ -2272,29 +2294,49 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                   _buildProductLevelOption(
                                                     categoryId: catId,
                                                     level: 1,
-                                                    title: 'add_basic_products'.tr,
-                                                    subtitle: 'add_basic_products_desc'.tr,
+                                                    title:
+                                                        'add_basic_products'.tr,
+                                                    subtitle:
+                                                        'add_basic_products_desc'
+                                                            .tr,
                                                     icon: Icons.star_border,
                                                   ),
-                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                                                  const SizedBox(
+                                                    height: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
 
                                                   _buildProductLevelOption(
                                                     categoryId: catId,
                                                     level: 2,
-                                                    title: 'add_additional_products'.tr,
-                                                    subtitle: 'add_additional_products_desc'.tr,
-                                                    icon: Icons.add_circle_outline,
+                                                    title:
+                                                        'add_additional_products'
+                                                            .tr,
+                                                    subtitle:
+                                                        'add_additional_products_desc'
+                                                            .tr,
+                                                    icon: Icons
+                                                        .add_circle_outline,
                                                   ),
-                                                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                                                  const SizedBox(
+                                                    height: Dimensions
+                                                        .paddingSizeSmall,
+                                                  ),
 
                                                   _buildProductLevelOption(
                                                     categoryId: catId,
                                                     level: 3,
-                                                    title: 'no_products_added'.tr,
-                                                    subtitle: 'no_products_added_desc'.tr,
+                                                    title:
+                                                        'no_products_added'.tr,
+                                                    subtitle:
+                                                        'no_products_added_desc'
+                                                            .tr,
                                                     icon: Icons.block,
                                                   ),
-                                                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                                                  const SizedBox(
+                                                    height: Dimensions
+                                                        .paddingSizeDefault,
+                                                  ),
                                                 ],
                                               );
                                             },
@@ -2327,44 +2369,91 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                   Builder(
                                     builder: (context) {
                                       List<Packages> allPackages = [];
-                                      bool isCommissionAvailable = Get.find<SplashController>().configModel!.commissionBusinessModel != 0;
-                                      bool isSubscriptionAvailable = Get.find<SplashController>().configModel!.subscriptionBusinessModel != 0;
+                                      bool isCommissionAvailable =
+                                          Get.find<SplashController>()
+                                              .configModel!
+                                              .commissionBusinessModel !=
+                                          0;
+                                      bool isSubscriptionAvailable =
+                                          Get.find<SplashController>()
+                                                  .configModel!
+                                                  .subscriptionBusinessModel !=
+                                              0 &&
+                                          !GetPlatform.isIOS;
 
                                       if (isCommissionAvailable) {
-                                        allPackages.add(Packages(
-                                          id: -1,
-                                          packageName: 'commission_base'.tr,
-                                          price: Get.find<SplashController>().configModel!.adminCommission?.toDouble() ?? 0,
-                                          description: "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_on_sales'.tr}",
-                                        ));
+                                        allPackages.add(
+                                          Packages(
+                                            id: -1,
+                                            packageName: 'commission_base'.tr,
+                                            price:
+                                                Get.find<SplashController>()
+                                                    .configModel!
+                                                    .adminCommission
+                                                    ?.toDouble() ??
+                                                0,
+                                            description:
+                                                "${'vendor_will_pay'.tr} ${Get.find<SplashController>().configModel!.adminCommission}% ${'commission_on_sales'.tr}",
+                                          ),
+                                        );
                                       }
 
-                                      if (isSubscriptionAvailable && authController.packageModel != null && authController.packageModel!.packages != null) {
-                                        allPackages.addAll(authController.packageModel!.packages!);
+                                      if (isSubscriptionAvailable &&
+                                          authController.packageModel != null &&
+                                          authController
+                                                  .packageModel!
+                                                  .packages !=
+                                              null) {
+                                        allPackages.addAll(
+                                          authController
+                                              .packageModel!
+                                              .packages!,
+                                        );
                                       }
 
-                                      if (authController.packageModel == null && isSubscriptionAvailable) {
-                                        return const Center(child: Padding(
-                                          padding: EdgeInsets.all(Dimensions.paddingSizeExtremeLarge),
-                                          child: CircularProgressIndicator(),
-                                        ));
+                                      if (authController.packageModel == null &&
+                                          isSubscriptionAvailable) {
+                                        return const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(
+                                              Dimensions
+                                                  .paddingSizeExtremeLarge,
+                                            ),
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
                                       }
 
                                       if (allPackages.isEmpty) {
-                                        return Center(child: Padding(
-                                          padding: const EdgeInsets.all(Dimensions.paddingSizeExtremeLarge),
-                                          child: Text('no_package_available'.tr, style: robotoMedium),
-                                        ));
+                                        return Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(
+                                              Dimensions
+                                                  .paddingSizeExtremeLarge,
+                                            ),
+                                            child: Text(
+                                              'no_package_available'.tr,
+                                              style: robotoMedium,
+                                            ),
+                                          ),
+                                        );
                                       }
 
                                       return SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 10,
+                                        ),
                                         child: IntrinsicHeight(
                                           child: Row(
-                                            children: List.generate(allPackages.length, (index) {
-                                              final package = allPackages[index];
-                                              bool isCommission = package.id == -1;
+                                            children: List.generate(allPackages.length, (
+                                              index,
+                                            ) {
+                                              final package =
+                                                  allPackages[index];
+                                              bool isCommission =
+                                                  package.id == -1;
 
                                               bool isHighlighted = false;
                                               if (allPackages.length > 1) {
@@ -2376,119 +2465,225 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                               bool isSelected = false;
                                               int originalIndex = -1;
                                               if (isCommission) {
-                                                isSelected = authController.businessIndex == 0;
+                                                isSelected =
+                                                    authController
+                                                        .businessIndex ==
+                                                    0;
                                               } else {
-                                                originalIndex = authController.packageModel!.packages!.indexOf(package);
-                                                isSelected = authController.businessIndex == 1 &&
-                                                    authController.activeSubscriptionIndex == originalIndex;
+                                                originalIndex = authController
+                                                    .packageModel!
+                                                    .packages!
+                                                    .indexOf(package);
+                                                isSelected =
+                                                    authController
+                                                            .businessIndex ==
+                                                        1 &&
+                                                    authController
+                                                            .activeSubscriptionIndex ==
+                                                        originalIndex;
                                               }
 
-                                              final Color cardBgColor = isHighlighted ? const Color(0xFF0F255C) : Colors.white;
-                                              final Color textColor = isHighlighted ? Colors.white : const Color(0xFF0F255C);
-                                              final Color featureTextColor = isHighlighted ? Colors.white.withOpacity(0.9) : Colors.black87;
-                                              final Color subtitleColor = isHighlighted ? Colors.white70 : Colors.grey;
+                                              final Color cardBgColor =
+                                                  isHighlighted
+                                                  ? const Color(0xFF0F255C)
+                                                  : Colors.white;
+                                              final Color textColor =
+                                                  isHighlighted
+                                                  ? Colors.white
+                                                  : const Color(0xFF0F255C);
+                                              final Color featureTextColor =
+                                                  isHighlighted
+                                                  ? Colors.white.withOpacity(
+                                                      0.9,
+                                                    )
+                                                  : Colors.black87;
+                                              final Color subtitleColor =
+                                                  isHighlighted
+                                                  ? Colors.white70
+                                                  : Colors.grey;
 
                                               final decoration = isHighlighted
                                                   ? BoxDecoration(
-                                                      gradient: const LinearGradient(
-                                                        colors: [Color(0xFF0F255C), Color(0xFF0A142F)],
-                                                        begin: Alignment.topCenter,
-                                                        end: Alignment.bottomCenter,
-                                                      ),
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      border: isSelected ? Border.all(color: const Color(0xFFFF8A00), width: 3) : null,
+                                                      gradient:
+                                                          const LinearGradient(
+                                                            colors: [
+                                                              Color(0xFF0F255C),
+                                                              Color(0xFF0A142F),
+                                                            ],
+                                                            begin: Alignment
+                                                                .topCenter,
+                                                            end: Alignment
+                                                                .bottomCenter,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
+                                                      border: isSelected
+                                                          ? Border.all(
+                                                              color:
+                                                                  const Color(
+                                                                    0xFFFF8A00,
+                                                                  ),
+                                                              width: 3,
+                                                            )
+                                                          : null,
                                                       boxShadow: [
                                                         BoxShadow(
-                                                          color: const Color(0xFF0F255C).withOpacity(0.3),
+                                                          color: const Color(
+                                                            0xFF0F255C,
+                                                          ).withOpacity(0.3),
                                                           blurRadius: 10,
                                                           spreadRadius: 2,
-                                                          offset: const Offset(0, 4),
-                                                        )
+                                                          offset: const Offset(
+                                                            0,
+                                                            4,
+                                                          ),
+                                                        ),
                                                       ],
                                                     )
                                                   : BoxDecoration(
                                                       color: Colors.white,
-                                                      borderRadius: BorderRadius.circular(16),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            16,
+                                                          ),
                                                       border: Border.all(
-                                                        color: isSelected ? const Color(0xFFFF8A00) : Colors.grey.withOpacity(0.2),
-                                                        width: isSelected ? 3 : 1,
+                                                        color: isSelected
+                                                            ? const Color(
+                                                                0xFFFF8A00,
+                                                              )
+                                                            : Colors.grey
+                                                                  .withOpacity(
+                                                                    0.2,
+                                                                  ),
+                                                        width: isSelected
+                                                            ? 3
+                                                            : 1,
                                                       ),
                                                       boxShadow: [
                                                         BoxShadow(
-                                                          color: Colors.black.withOpacity(0.04),
+                                                          color: Colors.black
+                                                              .withOpacity(
+                                                                0.04,
+                                                              ),
                                                           blurRadius: 8,
                                                           spreadRadius: 1,
-                                                          offset: const Offset(0, 2),
-                                                        )
+                                                          offset: const Offset(
+                                                            0,
+                                                            2,
+                                                          ),
+                                                        ),
                                                       ],
                                                     );
 
                                               String subBadgeText = '';
                                               if (isCommission) {
-                                                subBadgeText = '${(package.price ?? 0).toInt()}% ${'commission_on_sales'.tr}';
+                                                subBadgeText =
+                                                    '${(package.price ?? 0).toInt()}% ${'commission_on_sales'.tr}';
                                               } else {
-                                                subBadgeText = (package.text != null && package.text!.isNotEmpty)
+                                                subBadgeText =
+                                                    (package.text != null &&
+                                                        package
+                                                            .text!
+                                                            .isNotEmpty)
                                                     ? package.text!
                                                     : '${'subscribe_now'.tr} ${'free_month_promo'.tr}';
                                               }
 
                                               List<String> featureItems = [
-                                                'online_store_ready_for_launch'.tr,
-                                                'all_products_and_categories_prebuilt'.tr,
-                                                'instant_price_and_product_update'.tr,
+                                                'online_store_ready_for_launch'
+                                                    .tr,
+                                                'all_products_and_categories_prebuilt'
+                                                    .tr,
+                                                'instant_price_and_product_update'
+                                                    .tr,
                                                 'professional_merchant_app'.tr,
                                                 'marketing_consultations'.tr,
                                                 'technical_support_24_7'.tr,
                                                 isCommission
                                                     ? '${'commission_on_sales'.tr} (${(package.price ?? 0).toInt()}%)'
-                                                    : 'no_commission_on_sales'.tr,
+                                                    : 'no_commission_on_sales'
+                                                          .tr,
                                               ];
 
                                               return Container(
                                                 width: 290,
-                                                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 8,
+                                                    ),
                                                 decoration: decoration,
-                                                padding: const EdgeInsets.all(20),
+                                                padding: const EdgeInsets.all(
+                                                  20,
+                                                ),
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
                                                   children: [
                                                     Text(
                                                       package.packageName ?? '',
                                                       style: robotoBold.copyWith(
-                                                        fontSize: Dimensions.fontSizeExtraLarge,
+                                                        fontSize: Dimensions
+                                                            .fontSizeExtraLarge,
                                                         color: textColor,
                                                       ),
                                                     ),
                                                     const SizedBox(height: 10),
 
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                                                      textBaseline: TextBaseline.alphabetic,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .baseline,
+                                                      textBaseline: TextBaseline
+                                                          .alphabetic,
                                                       children: [
                                                         Text(
-                                                          isCommission ? 'free'.tr : '${(package.price ?? 0).toInt()}',
-                                                          style: robotoBold.copyWith(
-                                                            fontSize: 32,
-                                                            color: const Color(0xFFFF8A00),
-                                                          ),
+                                                          isCommission
+                                                              ? 'free'.tr
+                                                              : '${(package.price ?? 0).toInt()}',
+                                                          style: robotoBold
+                                                              .copyWith(
+                                                                fontSize: 32,
+                                                                color:
+                                                                    const Color(
+                                                                      0xFFFF8A00,
+                                                                    ),
+                                                              ),
                                                         ),
-                                                        const SizedBox(width: 4),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
                                                         Text(
-                                                          Get.find<SplashController>().configModel!.currencySymbol ?? 'EGP',
-                                                          style: robotoRegular.copyWith(
-                                                            fontSize: 14,
-                                                            color: subtitleColor,
-                                                          ),
+                                                          Get.find<
+                                                                    SplashController
+                                                                  >()
+                                                                  .configModel!
+                                                                  .currencySymbol ??
+                                                              'EGP',
+                                                          style: robotoRegular
+                                                              .copyWith(
+                                                                fontSize: 14,
+                                                                color:
+                                                                    subtitleColor,
+                                                              ),
                                                         ),
                                                         if (!isCommission) ...[
-                                                          const SizedBox(width: 2),
+                                                          const SizedBox(
+                                                            width: 2,
+                                                          ),
                                                           Text(
                                                             '/ ${'month'.tr}',
-                                                            style: robotoRegular.copyWith(
-                                                              fontSize: 14,
-                                                              color: subtitleColor,
-                                                            ),
+                                                            style: robotoRegular
+                                                                .copyWith(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      subtitleColor,
+                                                                ),
                                                           ),
                                                         ],
                                                       ],
@@ -2497,32 +2692,77 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
 
                                                     Container(
                                                       width: double.infinity,
-                                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 10,
+                                                            vertical: 8,
+                                                          ),
                                                       decoration: BoxDecoration(
                                                         color: isHighlighted
-                                                            ? Colors.white.withOpacity(0.08)
-                                                            : Colors.grey.withOpacity(0.05),
-                                                        borderRadius: BorderRadius.circular(8),
+                                                            ? Colors.white
+                                                                  .withOpacity(
+                                                                    0.08,
+                                                                  )
+                                                            : Colors.grey
+                                                                  .withOpacity(
+                                                                    0.05,
+                                                                  ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
                                                         border: isHighlighted
-                                                            ? Border.all(color: Colors.white.withOpacity(0.12), width: 1)
-                                                            : Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
+                                                            ? Border.all(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                      0.12,
+                                                                    ),
+                                                                width: 1,
+                                                              )
+                                                            : Border.all(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                      0.1,
+                                                                    ),
+                                                                width: 1,
+                                                              ),
                                                       ),
                                                       child: Row(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
                                                           Icon(
                                                             Icons.verified_user,
                                                             size: 14,
-                                                            color: isHighlighted ? const Color(0xFFFF8A00) : const Color(0xFF0F255C),
+                                                            color: isHighlighted
+                                                                ? const Color(
+                                                                    0xFFFF8A00,
+                                                                  )
+                                                                : const Color(
+                                                                    0xFF0F255C,
+                                                                  ),
                                                           ),
-                                                          const SizedBox(width: 6),
+                                                          const SizedBox(
+                                                            width: 6,
+                                                          ),
                                                           Expanded(
                                                             child: Text(
                                                               subBadgeText,
-                                                              textAlign: TextAlign.center,
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
                                                               style: robotoMedium.copyWith(
                                                                 fontSize: 11,
-                                                                color: isHighlighted ? Colors.white : const Color(0xFF0F255C),
+                                                                color:
+                                                                    isHighlighted
+                                                                    ? Colors
+                                                                          .white
+                                                                    : const Color(
+                                                                        0xFF0F255C,
+                                                                      ),
                                                               ),
                                                             ),
                                                           ),
@@ -2533,24 +2773,38 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
 
                                                     Expanded(
                                                       child: Column(
-                                                        children: featureItems.map((feature) {
+                                                        children: featureItems.map((
+                                                          feature,
+                                                        ) {
                                                           return Padding(
-                                                            padding: const EdgeInsets.symmetric(vertical: 4),
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  vertical: 4,
+                                                                ),
                                                             child: Row(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
                                                               children: [
                                                                 const Icon(
                                                                   Icons.check,
                                                                   size: 16,
-                                                                  color: Color(0xFFFF8A00),
+                                                                  color: Color(
+                                                                    0xFFFF8A00,
+                                                                  ),
                                                                 ),
-                                                                const SizedBox(width: 8),
+                                                                const SizedBox(
+                                                                  width: 8,
+                                                                ),
                                                                 Expanded(
                                                                   child: Text(
                                                                     feature,
                                                                     style: robotoRegular.copyWith(
-                                                                      fontSize: Dimensions.fontSizeSmall,
-                                                                      color: featureTextColor,
+                                                                      fontSize:
+                                                                          Dimensions
+                                                                              .fontSizeSmall,
+                                                                      color:
+                                                                          featureTextColor,
                                                                     ),
                                                                   ),
                                                                 ),
@@ -2567,25 +2821,47 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                                       height: 45,
                                                       child: ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
-                                                          backgroundColor: isHighlighted ? Colors.white : const Color(0xFF0F255C),
-                                                          foregroundColor: isHighlighted ? const Color(0xFF0F255C) : Colors.white,
+                                                          backgroundColor:
+                                                              isHighlighted
+                                                              ? Colors.white
+                                                              : const Color(
+                                                                  0xFF0F255C,
+                                                                ),
+                                                          foregroundColor:
+                                                              isHighlighted
+                                                              ? const Color(
+                                                                  0xFF0F255C,
+                                                                )
+                                                              : Colors.white,
                                                           shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.circular(10),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
                                                           ),
                                                           elevation: 0,
                                                         ),
                                                         onPressed: () {
                                                           if (isCommission) {
-                                                            authController.setBusiness(0);
+                                                            authController
+                                                                .setBusiness(0);
                                                           } else {
-                                                            authController.setBusiness(1);
-                                                            authController.selectSubscriptionCard(originalIndex);
+                                                            authController
+                                                                .setBusiness(1);
+                                                            authController
+                                                                .selectSubscriptionCard(
+                                                                  originalIndex,
+                                                                );
                                                           }
                                                         },
                                                         child: Text(
-                                                          isSelected ? 'selected'.tr : 'subscribe_now'.tr,
+                                                          isSelected
+                                                              ? 'selected'.tr
+                                                              : 'subscribe_now'
+                                                                    .tr,
                                                           style: robotoBold.copyWith(
-                                                            fontSize: Dimensions.fontSizeDefault,
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault,
                                                           ),
                                                         ),
                                                       ),
@@ -2947,16 +3223,21 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                                     .toString();
                               }
 
-                              Map<String, Map<String, bool>> categoryLevelsMap = {};
-                              for (int catId in authController.selectedCategoryIds) {
-                                int chosenLevel = _categoryProductLevels[catId] ?? 1;
+                              Map<String, Map<String, bool>> categoryLevelsMap =
+                                  {};
+                              for (int catId
+                                  in authController.selectedCategoryIds) {
+                                int chosenLevel =
+                                    _categoryProductLevels[catId] ?? 1;
                                 categoryLevelsMap[catId.toString()] = {
                                   "additional": chosenLevel == 1,
                                   "optional": chosenLevel == 2,
                                   "dontAdd": chosenLevel == 3,
                                 };
                               }
-                              data['category_levels'] = jsonEncode(categoryLevelsMap);
+                              data['category_levels'] = jsonEncode(
+                                categoryLevelsMap,
+                              );
 
                               authController.registerStore(data);
                             }
@@ -3032,28 +3313,36 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
           border: Border.all(
-            color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor.withOpacity(0.2),
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).disabledColor.withOpacity(0.2),
             width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: Theme.of(context).primaryColor.withOpacity(0.08),
-              blurRadius: 4,
-              spreadRadius: 1,
-            )
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Theme.of(context).primaryColor.withOpacity(0.08),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Theme.of(context).disabledColor.withOpacity(0.05),
+                color: isSelected
+                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    : Theme.of(context).disabledColor.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).disabledColor,
                 size: 20,
               ),
             ),
@@ -3066,7 +3355,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
                     title,
                     style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeDefault,
-                      color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -3082,7 +3373,9 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
             ),
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).disabledColor,
               size: 20,
             ),
           ],

@@ -77,11 +77,23 @@ class _ChangeSubscriptionPlanBottomSheetState
         bool isRentalModule =
             Get.find<AuthController>().getModuleType() == 'rental';
 
-        bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
-            (subscriptionController.packageList != null 
-                ? subscriptionController.packageList!.where((p) => p.id != -1).isNotEmpty
-                : (Get.find<AuthController>().packageModel?.packages != null && Get.find<AuthController>().packageModel!.packages!.isNotEmpty));
-        bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
+        bool isSubscriptionAvailable =
+            Get.find<SplashController>()
+                    .configModel
+                    ?.subscriptionBusinessModel !=
+                0 &&
+            (subscriptionController.packageList != null
+                ? subscriptionController.packageList!
+                      .where((p) => p.id != -1)
+                      .isNotEmpty
+                : (Get.find<AuthController>().packageModel?.packages != null &&
+                      Get.find<AuthController>()
+                          .packageModel!
+                          .packages!
+                          .isNotEmpty));
+        bool isCommissionAvailable =
+            Get.find<SplashController>().configModel?.commissionBusinessModel !=
+            0;
         bool showToggle = isSubscriptionAvailable && isCommissionAvailable;
 
         if (!isSubscriptionAvailable && subscriptionController.isSelect) {
@@ -276,18 +288,12 @@ class _ChangeSubscriptionPlanBottomSheetState
                             _subscriptionTypeButton(
                               subscriptionController,
                               0,
-                              '1_to_3_month'.tr,
-                            ),
-                            const SizedBox(width: 4),
-                            _subscriptionTypeButton(
-                              subscriptionController,
-                              1,
                               '4_to_6_month'.tr,
                             ),
                             const SizedBox(width: 4),
                             _subscriptionTypeButton(
                               subscriptionController,
-                              2,
+                              1,
                               'more_than_6_month'.tr,
                             ),
                           ],
@@ -314,7 +320,7 @@ class _ChangeSubscriptionPlanBottomSheetState
                                       'vendor_will_give_admin_commission_each_order'
                                           .tr,
                                 );
-                                bool isCommission = true;
+                                // bool isCommission = true;
                                 bool isSelected = widget.businessIsCommission;
 
                                 return Container(
@@ -535,10 +541,6 @@ class _ChangeSubscriptionPlanBottomSheetState
                                     if (subscriptionController
                                             .subscriptionTypeIndex ==
                                         0)
-                                      return months >= 1 && months <= 3;
-                                    if (subscriptionController
-                                            .subscriptionTypeIndex ==
-                                        1)
                                       return months >= 4 && months <= 6;
                                     return months > 6;
                                   })
@@ -555,10 +557,6 @@ class _ChangeSubscriptionPlanBottomSheetState
                                       if (subscriptionController
                                               .subscriptionTypeIndex ==
                                           0)
-                                        return months >= 1 && months <= 3;
-                                      if (subscriptionController
-                                              .subscriptionTypeIndex ==
-                                          1)
                                         return months >= 4 && months <= 6;
                                       return months > 6;
                                     }).toList();
@@ -754,19 +752,36 @@ class _ChangeSubscriptionPlanBottomSheetState
                                                 ),
                                               )
                                             : Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   // Custom features from API
-                                                  if (package.customFeatures != null && package.customFeatures!.isNotEmpty)
+                                                  if (package.customFeatures !=
+                                                          null &&
+                                                      package
+                                                          .customFeatures!
+                                                          .isNotEmpty)
                                                     ...package.customFeatures!
-                                                        .where((f) => f.enabled == 1)
-                                                        .map((feature) => _buildFeatureItem(
-                                                              context,
-                                                              feature.description ?? feature.title ?? '',
-                                                            )),
+                                                        .where(
+                                                          (f) => f.enabled == 1,
+                                                        )
+                                                        .map(
+                                                          (
+                                                            feature,
+                                                          ) => _buildFeatureItem(
+                                                            context,
+                                                            feature.description ??
+                                                                feature.title ??
+                                                                '',
+                                                          ),
+                                                        ),
 
                                                   // Fallback: show standard features if no custom features
-                                                  if (package.customFeatures == null || package.customFeatures!.isEmpty) ...[
+                                                  if (package.customFeatures ==
+                                                          null ||
+                                                      package
+                                                          .customFeatures!
+                                                          .isEmpty) ...[
                                                     _buildFeatureItem(
                                                       context,
                                                       '${isRentalModule ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
@@ -795,7 +810,8 @@ class _ChangeSubscriptionPlanBottomSheetState
                                                         context,
                                                         'review'.tr,
                                                       ),
-                                                    if (package.selfDelivery != 0)
+                                                    if (package.selfDelivery !=
+                                                        0)
                                                       _buildFeatureItem(
                                                         context,
                                                         'self_delivery'.tr,
@@ -803,24 +819,44 @@ class _ChangeSubscriptionPlanBottomSheetState
                                                   ],
 
                                                   // Text note (e.g. pricing promo)
-                                                  if (package.text != null && package.text!.isNotEmpty) ...[
-                                                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                                                  if (package.text != null &&
+                                                      package
+                                                          .text!
+                                                          .isNotEmpty) ...[
+                                                    const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSizeSmall,
+                                                    ),
                                                     Container(
                                                       width: double.infinity,
                                                       padding: const EdgeInsets.symmetric(
-                                                        horizontal: Dimensions.paddingSizeSmall,
-                                                        vertical: Dimensions.paddingSizeExtraSmall,
+                                                        horizontal: Dimensions
+                                                            .paddingSizeSmall,
+                                                        vertical: Dimensions
+                                                            .paddingSizeExtraSmall,
                                                       ),
                                                       decoration: BoxDecoration(
-                                                        color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-                                                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                        color: Theme.of(context)
+                                                            .primaryColor
+                                                            .withValues(
+                                                              alpha: 0.08,
+                                                            ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              Dimensions
+                                                                  .radiusSmall,
+                                                            ),
                                                       ),
                                                       child: Text(
                                                         package.text!,
-                                                        style: robotoMedium.copyWith(
-                                                          fontSize: Dimensions.fontSizeSmall,
-                                                          color: Theme.of(context).primaryColor,
-                                                        ),
+                                                        style: robotoMedium
+                                                            .copyWith(
+                                                              fontSize: Dimensions
+                                                                  .fontSizeSmall,
+                                                              color: Theme.of(
+                                                                context,
+                                                              ).primaryColor,
+                                                            ),
                                                       ),
                                                     ),
                                                   ],

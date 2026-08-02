@@ -158,7 +158,11 @@ class AuthRepository implements AuthRepositoryInterface {
     String type,
   ) async {
     try {
-      await sharedPreferences.setString(AppConstants.userPassword, password);
+      // SECURITY: passwords must never be persisted in plaintext (SharedPreferences
+      // is unencrypted storage on both Android and iOS). Only the phone number and
+      // vendor type are remembered to prefill the login form; the password field is
+      // always left blank for the user to re-enter.
+      await sharedPreferences.remove(AppConstants.userPassword);
       await sharedPreferences.setString(AppConstants.userNumber, number);
       await sharedPreferences.setString(AppConstants.userType, type);
     } catch (e) {
@@ -173,7 +177,13 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   String getUserPassword() {
-    return sharedPreferences.getString(AppConstants.userPassword) ?? "";
+    // Deliberately always empty — passwords are never persisted. Kept for
+    // interface compatibility with existing callers (e.g. login form prefill).
+    // Also purges any plaintext password left over from installs predating this fix.
+    if (sharedPreferences.containsKey(AppConstants.userPassword)) {
+      sharedPreferences.remove(AppConstants.userPassword);
+    }
+    return "";
   }
 
   @override

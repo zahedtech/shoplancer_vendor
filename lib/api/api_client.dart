@@ -29,8 +29,6 @@ class ApiClient extends GetxService {
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
     token = sharedPreferences.getString(AppConstants.token);
     type = sharedPreferences.getString(AppConstants.type);
-    debugPrint('Token: $token');
-    debugPrint('Type: $type');
     updateHeader(
       token,
       sharedPreferences.getString(AppConstants.languageCode),

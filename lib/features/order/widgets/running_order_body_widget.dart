@@ -4,10 +4,8 @@ import 'package:get/get.dart';
 import '../../../common/widgets/order_shimmer_widget.dart';
 import '../../../common/widgets/order_widget.dart';
 import '../../../util/dimensions.dart';
-import '../../../util/styles.dart';
 import '../../home/widgets/order_button_widget.dart';
 import '../../profile/controllers/profile_controller.dart';
-import '../../store/screens/store_screen.dart';
 import '../controllers/order_controller.dart';
 import '../domain/models/order_model.dart';
 

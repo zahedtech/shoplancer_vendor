@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
-import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart';
+
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/review/widgets/customer_review_screen_shimmer.dart';
 import 'package:shoplancer_vendor/features/review/widgets/review_card_widget.dart';
@@ -20,7 +18,7 @@ class CustomerReviewScreen extends StatefulWidget {
 }
 
 class _CustomerReviewScreenState extends State<CustomerReviewScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {

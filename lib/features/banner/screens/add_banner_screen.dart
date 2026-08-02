@@ -63,7 +63,8 @@ class _AddBannerScreenState extends State<AddBannerScreen>
     _update = widget.storeBannerListModel != null;
     _storeBannerListModel = widget.storeBannerListModel;
     if (widget.storeBannerListModel != null) {
-      bool isImage = widget.storeBannerListModel!.type == 'image' ||
+      bool isImage =
+          widget.storeBannerListModel!.type == 'image' ||
           (widget.storeBannerListModel!.imageFullUrl ?? '').isNotEmpty;
       _bannerType = isImage ? _bannerTypeImage : _bannerTypeText;
     } else {
@@ -332,9 +333,10 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                if (false) const SizedBox(
-                                  height: Dimensions.paddingSizeLarge,
-                                ),
+                                if (false)
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeLarge,
+                                  ),
 
                                 Text('subtitle'.tr, style: robotoBold),
                                 const SizedBox(
@@ -366,140 +368,178 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                if (false) const SizedBox(
-                                  height: Dimensions.paddingSizeLarge,
-                                ),
-
-                                if (false) Text(
-                                  'banner_background_color'.tr,
-                                  style: robotoBold,
-                                ),
-                                if (false) const SizedBox(
-                                  height: Dimensions.paddingSizeSmall,
-                                ),
-                                if (false) Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(
-                                    Dimensions.paddingSizeDefault,
+                                if (false)
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeLarge,
                                   ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      Dimensions.radiusDefault,
-                                    ),
-                                    border: Border.all(
-                                      color: Theme.of(
-                                        context,
-                                      ).disabledColor.withValues(alpha: 0.2),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Wrap(
-                                        spacing: Dimensions.paddingSizeSmall,
-                                        runSpacing: Dimensions.paddingSizeSmall,
-                                        children: _backgroundColorOptions.map((
-                                          colorHex,
-                                        ) {
-                                          final bool isSelected =
-                                              _backgroundColorHex == colorHex;
-                                          final Color color = _colorFromHex(
-                                            colorHex,
-                                          );
 
-                                          return InkWell(
-                                            onTap: () {
-                                              setState(() {
-                                                _backgroundColorHex = colorHex;
-                                                _customColorController.text = colorHex;
-                                              });
-                                            },
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusDefault,
-                                            ),
-                                            child: Container(
-                                              height: 42,
-                                              width: 42,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                color: color,
+                                if (false)
+                                  Text(
+                                    'banner_background_color'.tr,
+                                    style: robotoBold,
+                                  ),
+                                if (false)
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeSmall,
+                                  ),
+                                if (false)
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(
+                                      Dimensions.paddingSizeDefault,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        Dimensions.radiusDefault,
+                                      ),
+                                      border: Border.all(
+                                        color: Theme.of(
+                                          context,
+                                        ).disabledColor.withValues(alpha: 0.2),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: Dimensions.paddingSizeSmall,
+                                          runSpacing:
+                                              Dimensions.paddingSizeSmall,
+                                          children: _backgroundColorOptions.map(
+                                            (colorHex) {
+                                              final bool isSelected =
+                                                  _backgroundColorHex ==
+                                                  colorHex;
+                                              final Color color = _colorFromHex(
+                                                colorHex,
+                                              );
+
+                                              return InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _backgroundColorHex =
+                                                        colorHex;
+                                                    _customColorController
+                                                            .text =
+                                                        colorHex;
+                                                  });
+                                                },
                                                 borderRadius:
                                                     BorderRadius.circular(
                                                       Dimensions.radiusDefault,
                                                     ),
-                                                border: Border.all(
-                                                  color: isSelected
-                                                      ? Theme.of(
-                                                          context,
-                                                        ).textTheme.bodyLarge!
-                                                            .color!
-                                                      : Colors.white.withValues(
-                                                          alpha: 0.5,
+                                                child: Container(
+                                                  height: 42,
+                                                  width: 42,
+                                                  alignment: Alignment.center,
+                                                  decoration: BoxDecoration(
+                                                    color: color,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          Dimensions
+                                                              .radiusDefault,
                                                         ),
-                                                  width: isSelected ? 2 : 1,
+                                                    border: Border.all(
+                                                      color: isSelected
+                                                          ? Theme.of(context)
+                                                                .textTheme
+                                                                .bodyLarge!
+                                                                .color!
+                                                          : Colors.white
+                                                                .withValues(
+                                                                  alpha: 0.5,
+                                                                ),
+                                                      width: isSelected ? 2 : 1,
+                                                    ),
+                                                  ),
+                                                  child: isSelected
+                                                      ? const Icon(
+                                                          Icons.check,
+                                                          color: Colors.white,
+                                                          size: 20,
+                                                        )
+                                                      : null,
                                                 ),
-                                              ),
-                                              child: isSelected
-                                                  ? const Icon(
-                                                      Icons.check,
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    )
-                                                  : null,
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                      const SizedBox(height: Dimensions.paddingSizeDefault),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: CustomTextFieldWidget(
-                                              hintText: '#00A082',
-                                              labelText: 'custom_color_hex'.tr,
-                                              controller: _customColorController,
-                                              inputType: TextInputType.text,
-                                              showLabelText: true,
-                                              onChanged: (text) {
-                                                if (text.startsWith('#') && text.length == 7) {
-                                                  setState(() {
-                                                    _backgroundColorHex = text;
-                                                  });
-                                                } else if (!text.startsWith('#') && text.length == 6) {
-                                                  setState(() {
-                                                    _backgroundColorHex = '#$text';
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          const SizedBox(width: Dimensions.paddingSizeSmall),
-                                          InkWell(
-                                            onTap: () {
-                                              _openColorPickerDialog();
+                                              );
                                             },
-                                            child: Container(
-                                              height: 50,
-                                              width: 50,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                                color: _colorFromHex(_backgroundColorHex),
-                                                border: Border.all(
-                                                  color: Theme.of(context).primaryColor,
-                                                  width: 2,
+                                          ).toList(),
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions.paddingSizeDefault,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: CustomTextFieldWidget(
+                                                hintText: '#00A082',
+                                                labelText:
+                                                    'custom_color_hex'.tr,
+                                                controller:
+                                                    _customColorController,
+                                                inputType: TextInputType.text,
+                                                showLabelText: true,
+                                                onChanged: (text) {
+                                                  if (text.startsWith('#') &&
+                                                      text.length == 7) {
+                                                    setState(() {
+                                                      _backgroundColorHex =
+                                                          text;
+                                                    });
+                                                  } else if (!text.startsWith(
+                                                        '#',
+                                                      ) &&
+                                                      text.length == 6) {
+                                                    setState(() {
+                                                      _backgroundColorHex =
+                                                          '#$text';
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width:
+                                                  Dimensions.paddingSizeSmall,
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                _openColorPickerDialog();
+                                              },
+                                              child: Container(
+                                                height: 50,
+                                                width: 50,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        Dimensions
+                                                            .radiusDefault,
+                                                      ),
+                                                  color: _colorFromHex(
+                                                    _backgroundColorHex,
+                                                  ),
+                                                  border: Border.all(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.colorize,
+                                                  color: Colors.white,
                                                 ),
                                               ),
-                                              child: const Icon(Icons.colorize, color: Colors.white),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                if (false) const SizedBox(
-                                  height: Dimensions.paddingSizeLarge,
-                                ),
+                                if (false)
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeLarge,
+                                  ),
 
                                 // Real-Time Preview
                                 Text('live_preview'.tr, style: robotoBold),
@@ -665,9 +705,10 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     ],
                                   ),
                                 ),
-                                if (false) const SizedBox(
-                                  height: Dimensions.paddingSizeLarge,
-                                ),
+                                if (false)
+                                  const SizedBox(
+                                    height: Dimensions.paddingSizeLarge,
+                                  ),
                               ],
 
                               if (_bannerType == _bannerTypeImage) ...[
@@ -973,9 +1014,30 @@ class _AddBannerScreenState extends State<AddBannerScreen>
 
   void _openColorPickerDialog() {
     final List<String> pickerColors = [
-      '#FF1744', '#F50057', '#D500F9', '#651FFF', '#3D5AFE', '#2979FF', '#00E5FF', '#1DE9B6',
-      '#00E676', '#76FF03', '#C6FF00', '#FFEA00', '#FFC400', '#FF9100', '#FF3D00', '#3E2723',
-      '#9E9E9E', '#607D8B', '#000000', '#111827', '#00A082', '#FF8A00', '#EF4444', '#2563EB',
+      '#FF1744',
+      '#F50057',
+      '#D500F9',
+      '#651FFF',
+      '#3D5AFE',
+      '#2979FF',
+      '#00E5FF',
+      '#1DE9B6',
+      '#00E676',
+      '#76FF03',
+      '#C6FF00',
+      '#FFEA00',
+      '#FFC400',
+      '#FF9100',
+      '#FF3D00',
+      '#3E2723',
+      '#9E9E9E',
+      '#607D8B',
+      '#000000',
+      '#111827',
+      '#00A082',
+      '#FF8A00',
+      '#EF4444',
+      '#2563EB',
     ];
 
     showDialog(

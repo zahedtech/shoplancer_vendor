@@ -5,7 +5,6 @@ import 'package:shoplancer_vendor/features/profile/controllers/profile_controlle
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 import 'package:shoplancer_vendor/common/models/config_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
-import 'package:shoplancer_vendor/features/store/widgets/update_stock_bottom_sheet.dart';
 import 'package:shoplancer_vendor/features/store/widgets/variation_view_widget.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
@@ -19,8 +18,7 @@ import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
-import 'package:shoplancer_vendor/features/store/widgets/review_widget.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';

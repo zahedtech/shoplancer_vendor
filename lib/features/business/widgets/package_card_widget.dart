@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
-import 'package:shoplancer_vendor/features/business/widgets/curve_clipper_widget.dart';
-import 'package:shoplancer_vendor/features/business/widgets/package_widget.dart';
+
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
@@ -113,17 +112,21 @@ class PackageCardWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Custom features from API
-                  if (package.customFeatures != null && package.customFeatures!.isNotEmpty)
+                  if (package.customFeatures != null &&
+                      package.customFeatures!.isNotEmpty)
                     ...package.customFeatures!
                         .where((f) => f.enabled == 1)
-                        .map((feature) => _buildFeatureItem(
-                              context,
-                              feature.description ?? feature.title ?? '',
-                              isSelected,
-                            )),
+                        .map(
+                          (feature) => _buildFeatureItem(
+                            context,
+                            feature.description ?? feature.title ?? '',
+                            isSelected,
+                          ),
+                        ),
 
                   // Fallback: show standard features if no custom features
-                  if (package.customFeatures == null || package.customFeatures!.isEmpty) ...[
+                  if (package.customFeatures == null ||
+                      package.customFeatures!.isEmpty) ...[
                     _buildFeatureItem(
                       context,
                       '${isRental ? 'max_trip'.tr : 'max_order'.tr} (${package.maxOrder?.tr})',
@@ -143,7 +146,11 @@ class PackageCardWidget extends StatelessWidget {
                     if (package.review != 0)
                       _buildFeatureItem(context, 'review'.tr, isSelected),
                     if (package.selfDelivery != 0)
-                      _buildFeatureItem(context, 'self_delivery'.tr, isSelected),
+                      _buildFeatureItem(
+                        context,
+                        'self_delivery'.tr,
+                        isSelected,
+                      ),
                   ],
 
                   // Text note (e.g. pricing promo)
@@ -157,9 +164,15 @@ class PackageCardWidget extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? Theme.of(context).cardColor.withValues(alpha: 0.15)
-                            : Theme.of(context).primaryColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                            ? Theme.of(
+                                context,
+                              ).cardColor.withValues(alpha: 0.15)
+                            : Theme.of(
+                                context,
+                              ).primaryColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.radiusSmall,
+                        ),
                       ),
                       child: Text(
                         package.text!,

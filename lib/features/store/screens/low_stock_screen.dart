@@ -7,10 +7,8 @@ import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/discount_tag_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/not_available_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/rating_bar_widget.dart';
-import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
+
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
-import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/features/store/widgets/update_stock_bottom_sheet.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';

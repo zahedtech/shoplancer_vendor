@@ -73,7 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Get.back();
               }
             },
-            icon: const Icon(Icons.arrow_back_ios_rounded)),
+            icon: Icon(Icons.arrow_back_ios_rounded)),
             title: Row(
               children: [
                 ClipOval(child: chatController.messageModel?.conversation!.receiver!.imageFullUrl != null ? CustomImageWidget(
