@@ -402,15 +402,15 @@ class RouteHelper {
       page: () => DashboardScreen(
         pageIndex: Get.parameters['page'] == 'home'
             ? 0
-            : Get.parameters['page'] == 'favourite'
+            : (Get.parameters['page'] == 'favourite' || Get.parameters['page'] == 'orders')
             ? 1
-            : Get.parameters['page'] == 'cart'
+            : (Get.parameters['page'] == 'cart' || Get.parameters['page'] == 'store')
             ? 2
-            : Get.parameters['page'] == 'order'
+            : (Get.parameters['page'] == 'order' || Get.parameters['page'] == 'wallet')
             ? 3
             : Get.parameters['page'] == 'menu'
             ? 4
-            : 0,
+            : int.tryParse(Get.parameters['page'] ?? '') ?? 0,
       ),
     ),
     GetPage(name: forgotPassword, page: () => const ForgetPassScreen()),

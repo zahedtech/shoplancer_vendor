@@ -167,9 +167,15 @@ class MinimalProductCard extends StatelessWidget {
                         Expanded(
                           child: PopupMenuButton<double>(
                             onSelected: (double newPrice) async {
-                              Map<String, String> data = Get.find<StoreController>()
-                                  .buildStockUpdateData(item, price: newPrice);
-                              await Get.find<StoreController>().bulkItemsUpdate([data]);
+                              Map<String, dynamic> data =
+                                  Get.find<StoreController>()
+                                      .buildStockUpdateData(
+                                        item,
+                                        price: newPrice,
+                                      );
+                              await Get.find<StoreController>().bulkItemsUpdate(
+                                [data],
+                              );
                             },
                             padding: EdgeInsets.zero,
                             child: Column(
@@ -178,7 +184,9 @@ class MinimalProductCard extends StatelessWidget {
                               children: [
                                 if (hasDiscount)
                                   Text(
-                                    PriceConverterHelper.convertPrice(originalPrice),
+                                    PriceConverterHelper.convertPrice(
+                                      originalPrice,
+                                    ),
                                     style: robotoRegular.copyWith(
                                       fontSize: 11,
                                       color: Theme.of(context).disabledColor,
@@ -191,7 +199,9 @@ class MinimalProductCard extends StatelessWidget {
                                     Flexible(
                                       child: Text(
                                         PriceConverterHelper.convertPrice(
-                                          hasDiscount ? discountedPrice : originalPrice,
+                                          hasDiscount
+                                              ? discountedPrice
+                                              : originalPrice,
                                         ),
                                         style: robotoBold.copyWith(
                                           fontSize: 17,
@@ -224,13 +234,18 @@ class MinimalProductCard extends StatelessWidget {
                                   PopupMenuItem<double>(
                                     value: val,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          PriceConverterHelper.convertPrice(val),
+                                          PriceConverterHelper.convertPrice(
+                                            val,
+                                          ),
                                           style: isCurrent
                                               ? robotoBold.copyWith(
-                                                  color: Theme.of(context).primaryColor,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).primaryColor,
                                                 )
                                               : robotoRegular,
                                         ),
@@ -238,7 +253,9 @@ class MinimalProductCard extends StatelessWidget {
                                           Icon(
                                             Icons.check,
                                             size: 16,
-                                            color: Theme.of(context).primaryColor,
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor,
                                           ),
                                       ],
                                     ),
@@ -257,7 +274,9 @@ class MinimalProductCard extends StatelessWidget {
                             height: 36,
                             width: 36,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(

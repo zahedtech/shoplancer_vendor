@@ -27,6 +27,7 @@ class AppConstants {
       '/api/v1/vendor/order-details?order_id=';
   static const String updatedOrderStatusUri =
       '/api/v1/vendor/update-order-status';
+  static const String cancelOrderUri = '/api/v1/vendor/cancel-order';
   static const String notificationUri = '/api/v1/vendor/notifications';
   static const String profileUri = '/api/v1/vendor/profile';
   static const String updateProfileUri = '/api/v1/vendor/update-profile';

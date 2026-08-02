@@ -343,6 +343,7 @@
   "select_at_least_one_item_type": "কমপক্ষে একটি আইটেম টাইপ সিলেক্ট করুন",
   "confirm": "কনফার্ম",
   "cancel": "ক্যান্সেল",
+  "cancel_order": "অর্ডার ক্যান্সেল",
   "are_you_sure_to_cancel": "আপনি কি ক্যান্সেল করতে চান?",
   "you_want_to_cancel_this_order": "আপনি এই অর্ডার ক্যান্সেল করতে চান?",
   "version": "ভার্সন",

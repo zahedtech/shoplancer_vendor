@@ -279,6 +279,7 @@ class StoreController extends GetxController implements GetxService {
   List<String>? get categoryNameList => _categoryNameList;
 
   List<int>? _categoryIdList;
+  List<int>? get categoryIdList => _categoryIdList;
 
   int? _categoryId = 0;
   int? get categoryId => _categoryId;
@@ -376,27 +377,31 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> bulkItemsUpdate(List<Map<String, String>> updates) async {
+  Future<void> bulkItemsUpdate(List<Map<String, dynamic>> updates) async {
     _isLoading = true;
     update();
-    for (var data in updates) {
-      await storeServiceInterface.stockUpdate(data);
+    Response response = await storeServiceInterface.bulkStockUpdate({
+      'products': updates,
+    });
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showCustomSnackBar(
+        'selected_items_updated_successfully'.tr,
+        isError: false,
+      );
+      _selectedItemList = [];
+      _isSelectionMode = false;
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
+      getLimitedStockItemList('1', willUpdate: false);
+    } else {
+      ApiChecker.checkApi(response);
     }
     _isLoading = false;
-    showCustomSnackBar(
-      'selected_items_updated_successfully'.tr,
-      isError: false,
-    );
-    _selectedItemList = [];
-    _isSelectionMode = false;
-    getItemList(
-      offset: '1',
-      type: 'all',
-      search: '',
-      categoryId: 0,
-      moduleId: _currentModuleId,
-    );
-    getLimitedStockItemList('1', willUpdate: false);
     update();
   }
 
@@ -438,26 +443,35 @@ class StoreController extends GetxController implements GetxService {
     return isSuccess;
   }
 
-  Map<String, String> buildStockUpdateData(
+  Map<String, dynamic> buildStockUpdateData(
     Item item, {
     double? price,
     int? stock,
   }) {
-    final Map<String, String> data = {
-      '_method': 'post',
-      'id': item.id.toString(),
+    final String storeId =
+        Get.find<ProfileController>().profileModel?.stores?[0].id.toString() ??
+            '';
+    final String categoryId = item.categoryId?.toString() ??
+        (item.categoryIds?.isNotEmpty == true
+            ? item.categoryIds![0].id ?? ''
+            : '');
+
+    final double finalPrice = price ?? item.price ?? 0.0;
+    final double discount = item.discount ?? 0.0;
+    final String discountType = item.discountType == 'flat'
+        ? 'amount'
+        : (item.discountType ?? 'amount');
+
+    final Map<String, dynamic> data = {
       'product_id': item.id.toString(),
-      'current_stock': stock?.toString() ?? item.stock.toString(),
+      'current_stock': (stock ?? item.stock ?? 0).toString(),
       'manage_stock': '1',
-      'price': price?.toString() ?? item.price.toString(),
-      'unit_price': price?.toString() ?? item.price.toString(),
-      'discount': item.discount?.toString() ?? '0',
-      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
-      'store_id':
-          Get.find<ProfileController>().profileModel?.stores?[0].id
-              .toString() ??
-          '',
-      'category_id': item.categoryId?.toString() ?? '',
+      'price': finalPrice.toString(),
+      'unit_price': finalPrice.toString(),
+      'discount': discount.toString(),
+      'discount_type': discountType,
+      'store_id': storeId,
+      'category_id': categoryId,
     };
 
     final List<Variation> variations = item.variations ?? [];
@@ -705,6 +719,9 @@ class StoreController extends GetxController implements GetxService {
     bool willUpdate = true,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   }) async {
     _currentModuleId = moduleId;
 
@@ -732,6 +749,9 @@ class StoreController extends GetxController implements GetxService {
         categoryId: categoryId,
         moduleId: moduleId,
         barcode: barcode,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        sort: sort,
       );
       if (itemModel != null) {
         if (offset == '1') {

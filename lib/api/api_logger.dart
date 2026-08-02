@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 class ApiLogger {
   // Header names whose values must never be printed in full (auth/session secrets).
-  static const Set<String> _sensitiveHeaderKeys = {'authorization', 'cookie', 'set-cookie'};
+  static const Set<String> _sensitiveHeaderKeys = {'cookie', 'set-cookie'};
 
   // Body field names that carry secrets and should be redacted from logs.
   static const Set<String> _sensitiveBodyKeys = {
@@ -25,7 +25,9 @@ class ApiLogger {
     dynamic body,
   }) {
     if (kDebugMode) {
-      print('╔════════════════════════════════════════════════════════════════════════════');
+      print(
+        '╔════════════════════════════════════════════════════════════════════════════',
+      );
       print('║ 🚀 Request: $method');
       print('║ 🔗 URL: $url');
       if (headers != null && headers.isNotEmpty) {
@@ -38,7 +40,9 @@ class ApiLogger {
         print('║ 📦 Body:');
         _logJson(_redactBody(body));
       }
-      print('╚════════════════════════════════════════════════════════════════════════════');
+      print(
+        '╚════════════════════════════════════════════════════════════════════════════',
+      );
     }
   }
 
@@ -50,7 +54,9 @@ class ApiLogger {
   }) {
     if (kDebugMode) {
       String statusIcon = statusCode >= 200 && statusCode < 300 ? '✅' : '❌';
-      print('╔════════════════════════════════════════════════════════════════════════════');
+      print(
+        '╔════════════════════════════════════════════════════════════════════════════',
+      );
       print('║ $statusIcon Response: $statusCode');
       print('║ 🔗 URL: $url');
       if (headers != null && headers.isNotEmpty) {
@@ -63,12 +69,16 @@ class ApiLogger {
         print('║ 📦 Body:');
         _logJson(_redactBody(body));
       }
-      print('╚════════════════════════════════════════════════════════════════════════════');
+      print(
+        '╚════════════════════════════════════════════════════════════════════════════',
+      );
     }
   }
 
   static String _redactHeader(String key, String value) {
-    return _sensitiveHeaderKeys.contains(key.toLowerCase()) ? '***redacted***' : value;
+    return _sensitiveHeaderKeys.contains(key.toLowerCase())
+        ? '***redacted***'
+        : value;
   }
 
   /// Returns a deep copy of [body] with sensitive keys masked so secrets

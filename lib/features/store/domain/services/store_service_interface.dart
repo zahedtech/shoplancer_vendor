@@ -20,6 +20,9 @@ abstract class StoreServiceInterface {
     int? categoryId,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   });
   Future<ItemModel?> getStockItemList(String offset);
   Future<PendingItemModel?> getPendingItemList(String offset, String type);
@@ -78,6 +81,7 @@ abstract class StoreServiceInterface {
   Future<List<String?>?> getAllergicIngredientsSuggestionList();
   Future<List<String?>?> getGenericNameSuggestionList();
   Future<Response> stockUpdate(Map<String, String> data);
+  Future<Response> bulkStockUpdate(Map<String, dynamic> body);
   Future<Response> bulkAssignProducts(List<Map<String, dynamic>> products);
   Future<List<SuitableTagModel>?> getSuitableTagList();
   int? setSuitableTagIndex(List<SuitableTagModel>? suitableTag, Item? item);

@@ -31,6 +31,9 @@ class StoreRepository implements StoreRepositoryInterface {
     int? categoryId,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   }) async {
     ItemModel? itemModel;
     String url = '';
@@ -38,13 +41,23 @@ class StoreRepository implements StoreRepositoryInterface {
     final String barcodeQuery = barcode != null && barcode.trim().isNotEmpty
         ? '&barcode=${Uri.encodeQueryComponent(barcode.trim())}'
         : '';
+    final String minPriceQuery = minPrice != null && minPrice.trim().isNotEmpty
+        ? '&min_price=${Uri.encodeQueryComponent(minPrice.trim())}'
+        : '';
+    final String maxPriceQuery = maxPrice != null && maxPrice.trim().isNotEmpty
+        ? '&max_price=${Uri.encodeQueryComponent(maxPrice.trim())}'
+        : '';
+    final String sortQuery = sort != null && sort.trim().isNotEmpty && sort != 'none'
+        ? '&sort=${Uri.encodeQueryComponent(sort.trim())}&sort_by_price=${Uri.encodeQueryComponent(sort.trim())}&order=${Uri.encodeQueryComponent(sort.trim())}'
+        : '';
+
     if (moduleId != null) {
       int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       url =
-          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery$minPriceQuery$maxPriceQuery$sortQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     } else {
       url =
-          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery$minPriceQuery$maxPriceQuery$sortQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     }
     Response response = await apiClient.getData(url);
     if (response.statusCode == 200) {
@@ -536,6 +549,11 @@ class StoreRepository implements StoreRepositoryInterface {
   @override
   Future<Response> stockUpdate(Map<String, String> data) async {
     return await apiClient.postData(AppConstants.itemStockUpdateUri, data);
+  }
+
+  @override
+  Future<Response> bulkStockUpdate(Map<String, dynamic> body) async {
+    return await apiClient.postData(AppConstants.itemStockUpdateUri, body);
   }
 
   @override
