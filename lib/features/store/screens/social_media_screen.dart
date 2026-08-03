@@ -43,11 +43,83 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
 
     profile.Store? store = Get.find<ProfileController>().profileModel?.stores?[0];
     if (store != null) {
-      _facebookController.text = store.facebook ?? '';
-      _instagramController.text = store.instagram ?? '';
-      _tiktokController.text = store.tiktok ?? '';
+      _facebookController.text = _extractUsername(store.facebook, 'facebook');
+      _instagramController.text = _extractUsername(store.instagram, 'instagram');
+      _tiktokController.text = _extractUsername(store.tiktok, 'tiktok');
       _splitWhatsapp(store.whatsapp);
     }
+  }
+
+  String _extractUsername(String? url, String platform) {
+    if (url == null || url.trim().isEmpty) return '';
+    String val = url.trim();
+
+    while (val.endsWith('/')) {
+      val = val.substring(0, val.length - 1);
+    }
+
+    try {
+      if (platform == 'facebook') {
+        if (val.contains('facebook.com/')) {
+          val = val.substring(val.indexOf('facebook.com/') + 13);
+        }
+      } else if (platform == 'instagram') {
+        if (val.contains('instagram.com/')) {
+          val = val.substring(val.indexOf('instagram.com/') + 14);
+        }
+      } else if (platform == 'tiktok') {
+        if (val.contains('tiktok.com/@')) {
+          val = val.substring(val.indexOf('tiktok.com/@') + 12);
+        } else if (val.contains('tiktok.com/')) {
+          val = val.substring(val.indexOf('tiktok.com/') + 11);
+        }
+      }
+      if (val.startsWith('@')) {
+        val = val.substring(1);
+      }
+      return val;
+    } catch (_) {
+      return url;
+    }
+  }
+
+  String _formatUrl(String input, String platform) {
+    String val = input.trim();
+    if (val.isEmpty) return '';
+
+    while (val.endsWith('/')) {
+      val = val.substring(0, val.length - 1);
+    }
+
+    if (platform == 'facebook') {
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        return val;
+      }
+      if (val.startsWith('facebook.com/') || val.startsWith('www.facebook.com/')) {
+        return 'https://$val';
+      }
+      if (val.startsWith('@')) val = val.substring(1);
+      return 'https://facebook.com/$val';
+    } else if (platform == 'instagram') {
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        return val;
+      }
+      if (val.startsWith('instagram.com/') || val.startsWith('www.instagram.com/')) {
+        return 'https://$val';
+      }
+      if (val.startsWith('@')) val = val.substring(1);
+      return 'https://instagram.com/$val';
+    } else if (platform == 'tiktok') {
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        return val;
+      }
+      if (val.startsWith('tiktok.com/') || val.startsWith('www.tiktok.com/')) {
+        return 'https://$val';
+      }
+      if (val.startsWith('@')) val = val.substring(1);
+      return 'https://tiktok.com/@$val';
+    }
+    return val;
   }
 
   void _splitWhatsapp(String? whatsappLink) {
@@ -147,64 +219,44 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
             CustomButtonWidget(
               buttonText: 'update'.tr,
               onPressed: () async {
-                String facebook = _facebookController.text.trim();
-                String instagram = _instagramController.text.trim();
-                String tiktok = _tiktokController.text.trim();
-                String whatsapp = _whatsappController.text.trim();
+                String facebookInput = _facebookController.text.trim();
+                String instagramInput = _instagramController.text.trim();
+                String tiktokInput = _tiktokController.text.trim();
+                String whatsappInput = _whatsappController.text.trim();
 
-                if (facebook.isEmpty) {
-                  showCustomSnackBar('enter_facebook_url'.tr);
-                  return;
-                } else if (!GetUtils.isURL(facebook)) {
-                  showCustomSnackBar('enter_a_valid_facebook_url'.tr);
-                  return;
-                }
-
-                if (instagram.isEmpty) {
-                  showCustomSnackBar('enter_instagram_url'.tr);
-                  return;
-                } else if (!GetUtils.isURL(instagram)) {
-                  showCustomSnackBar('enter_a_valid_instagram_url'.tr);
+                if (facebookInput.isEmpty &&
+                    instagramInput.isEmpty &&
+                    tiktokInput.isEmpty &&
+                    whatsappInput.isEmpty) {
+                  showCustomSnackBar('يرجى إدخال اسم مستخدم أو رابط لوسيلة تواصل واحدة على الأقل');
                   return;
                 }
 
-                if (tiktok.isEmpty) {
-                  showCustomSnackBar('enter_tiktok_url'.tr);
-                  return;
-                } else if (!GetUtils.isURL(tiktok)) {
-                  showCustomSnackBar('enter_a_valid_tiktok_url'.tr);
-                  return;
+                String facebookUrl = facebookInput.isNotEmpty ? _formatUrl(facebookInput, 'facebook') : '';
+                String instagramUrl = instagramInput.isNotEmpty ? _formatUrl(instagramInput, 'instagram') : '';
+                String tiktokUrl = tiktokInput.isNotEmpty ? _formatUrl(tiktokInput, 'tiktok') : '';
+
+                String whatsappUrl = '';
+                if (whatsappInput.isNotEmpty) {
+                  if (whatsappInput.startsWith('0')) {
+                    whatsappInput = whatsappInput.substring(1);
+                  }
+                  String dialCode = _whatsappDialCode ?? '+20';
+                  String cleanDialCode = dialCode.replaceAll('+', '');
+                  if (whatsappInput.startsWith(cleanDialCode)) {
+                    whatsappInput = whatsappInput.substring(cleanDialCode.length);
+                  }
+                  whatsappUrl = 'https://wa.me/$cleanDialCode$whatsappInput';
                 }
-
-                if (whatsapp.isEmpty) {
-                  showCustomSnackBar('enter_whatsapp_number'.tr);
-                  return;
-                }
-
-                // Normalization: strip leading '0'
-                if (whatsapp.startsWith('0')) {
-                  whatsapp = whatsapp.substring(1);
-                }
-
-                String dialCode = _whatsappDialCode ?? '+20';
-                String cleanDialCode = dialCode.replaceAll('+', '');
-
-                // Strip dial code if user entered it again
-                if (whatsapp.startsWith(cleanDialCode)) {
-                  whatsapp = whatsapp.substring(cleanDialCode.length);
-                }
-
-                // Construct standard WhatsApp Link
-                String whatsappLink = 'https://wa.me/$cleanDialCode$whatsapp';
 
                 Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
                 Response response = await Get.find<ApiClient>().postData(
                   AppConstants.updateSocialMediaUri,
                   {
-                    'facebook': facebook,
-                    'instagram': instagram,
-                    'tiktok': tiktok,
-                    'whatsapp': whatsappLink,
+                    'facebook': facebookUrl,
+                    'instagram': instagramUrl,
+                    'tiktok': tiktokUrl,
+                    'whatsapp': whatsappUrl,
                   },
                 );
                 Get.back();
@@ -212,10 +264,10 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
                 if (response.statusCode == 200) {
                   profile.Store? store = Get.find<ProfileController>().profileModel?.stores?[0];
                   if (store != null) {
-                    store.facebook = facebook;
-                    store.instagram = instagram;
-                    store.tiktok = tiktok;
-                    store.whatsapp = whatsappLink;
+                    store.facebook = facebookUrl;
+                    store.instagram = instagramUrl;
+                    store.tiktok = tiktokUrl;
+                    store.whatsapp = whatsappUrl;
                   }
                   Get.back();
                   showCustomSnackBar('social_media_links_updated_successfully'.tr, isError: false);
@@ -265,9 +317,9 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
         ),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         CustomTextFieldWidget(
-          hintText: '${'enter'.tr} $title ${'link'.tr}',
+          hintText: 'اسم المستخدم أو الرابط',
           controller: controller,
-          inputType: TextInputType.url,
+          inputType: TextInputType.text,
         ),
       ],
     );

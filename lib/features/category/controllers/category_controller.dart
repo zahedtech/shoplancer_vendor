@@ -1,3 +1,5 @@
+import 'package:shoplancer_vendor/api/api_checker.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:get/get.dart';
@@ -50,6 +52,88 @@ class CategoryController extends GetxController implements GetxService {
       _categoryList = categoryList;
     }
     update();
+  }
+
+  Future<bool> toggleCategoryStatus(int categoryId, bool isNextActive) async {
+    return await updateCategoryStatus(categoryId, isNextActive ? 1 : 0);
+  }
+
+  Future<bool> updateCategoryStatus(int categoryId, int status) async {
+    _isLoading = true;
+    update();
+    Response response = await categoryServiceInterface.updateCategoryStatus(categoryId, status);
+    _isLoading = false;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (_categoryList != null) {
+        int index = _categoryList!.indexWhere((element) => element.id == categoryId);
+        if (index != -1) {
+          _categoryList![index].status = status;
+        }
+      }
+      String message = response.body != null && response.body['message'] != null
+          ? response.body['message']
+          : (status == 1 ? 'تم تفعيل الفئة بنجاح' : 'تم إيقاف الفئة بنجاح');
+
+      if (response.body != null &&
+          response.body['data'] != null &&
+          response.body['data']['affected_products_count'] != null) {
+        final count = response.body['data']['affected_products_count'];
+        message = '$message ($count منتج)';
+      }
+
+      showCustomSnackBar(message, isError: false);
+      update();
+      return true;
+    } else {
+      ApiChecker.checkApi(response);
+      update();
+      return false;
+    }
+  }
+
+  Future<bool> requestCategoryAddition({int? categoryId, String? customCategoryName, String? note}) async {
+    _isLoading = true;
+    update();
+    try {
+      Response response = await categoryServiceInterface.requestCategoryAddition(
+        categoryId: categoryId,
+        customCategoryName: customCategoryName,
+        note: note,
+      );
+      _isLoading = false;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Refresh vendor categories because the category is actually added
+        getCategoryList();
+
+        String message = 'تم إضافة الفئة بنجاح';
+        try {
+          if (response.body is Map && response.body['message'] != null) {
+            message = response.body['message'].toString();
+          }
+          if (response.body is Map &&
+              response.body['data'] is Map &&
+              response.body['data']['products_submitted'] != null) {
+            final count = response.body['data']['products_submitted'];
+            message = '$message ($count منتج بانتظار الموافقة)';
+          }
+        } catch (_) {
+          // keep default message on parse error
+        }
+
+        showCustomSnackBar(message, isError: false);
+        update();
+        return true;
+      } else {
+        ApiChecker.checkApi(response);
+        update();
+        return false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      showCustomSnackBar('حدث خطأ غير متوقع، يرجى المحاولة مجدداً', isError: true);
+      update();
+      return false;
+    }
   }
 
   Future<void> getSubCategoryList(int categoryID) async {

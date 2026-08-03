@@ -762,7 +762,7 @@ class RouteHelper {
           Get.parameters['data']!.replaceAll(' ', '+'),
         );
         Store data = Store.fromJson(jsonDecode(utf8.decode(decode)));
-        return StoreEditScreen(store: data);
+        return StoreSettingsScreen(store: data);
       },
     ),
     GetPage(name: setting, page: () => const SettingScreen()),

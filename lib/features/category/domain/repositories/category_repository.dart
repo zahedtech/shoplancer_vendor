@@ -42,6 +42,23 @@ class CategoryRepository implements CategoryRepositoryInterface {
   }
 
   @override
+  Future<Response> requestCategoryAddition({int? categoryId, String? customCategoryName, String? note}) async {
+    Map<String, dynamic> body = {};
+    if (categoryId != null) body['category_id'] = categoryId;
+    if (customCategoryName != null && customCategoryName.isNotEmpty) body['custom_category_name'] = customCategoryName;
+    if (note != null && note.isNotEmpty) body['reason_or_note'] = note;
+    return await apiClient.postData(AppConstants.categoryRequestUri, body);
+  }
+
+  @override
+  Future<Response> updateCategoryStatus(int categoryId, int status) async {
+    return await apiClient.postData(AppConstants.categoryStatusUri, {
+      'category_id': categoryId,
+      'status': status,
+    });
+  }
+
+  @override
   Future add(value) {
     throw UnimplementedError();
   }

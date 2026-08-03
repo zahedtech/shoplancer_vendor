@@ -105,16 +105,16 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    // ------------------- 2. Marketing & Operations (التسويق والعمليات) -------------------
-    if (modulePermission.coupon!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.coupon,
-          title: 'coupon'.tr,
-          route: RouteHelper.getCouponRoute(),
-        ),
-      );
-    }
+    // // ------------------- 2. Marketing & Operations (التسويق والعمليات) -------------------
+    // if (modulePermission.coupon!) {
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: Images.coupon,
+    //       title: 'coupon'.tr,
+    //       route: RouteHelper.getCouponRoute(),
+    //     ),
+    //   );
+    // }
 
     if (modulePermission.banner!) {
       menuList.add(

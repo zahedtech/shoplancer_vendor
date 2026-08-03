@@ -39,7 +39,10 @@ class AppConstants {
   static const String updateBankInfoUri = '/api/v1/vendor/update-bank-info';
   static const String withdrawRequestUri = '/api/v1/vendor/request-withdraw';
   static const String categoryUri = '/api/v1/vendor/categories';
+  static const String globalCategoryUri = '/api/v1/categories';
   static const String subCategoryUri = '/api/v1/vendor/categories/childes/';
+  static const String categoryRequestUri = '/api/v1/vendor/category-request';
+  static const String categoryStatusUri = '/api/v1/vendor/category/toggle-status';
   static const String addonUri = '/api/v1/vendor/addon';
   static const String addAddonUri = '/api/v1/vendor/addon/store';
   static const String updateAddonUri = '/api/v1/vendor/addon/update';

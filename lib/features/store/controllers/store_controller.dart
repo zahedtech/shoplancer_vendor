@@ -967,6 +967,73 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  Future<void> updateStoreBasicInfoAndSettings({
+    required Store store,
+    required List<Translation> translations,
+    required String? minimum,
+    required String? maximum,
+  }) async {
+    _isLoading = true;
+    update();
+
+    bool isBasicSuccess = await storeServiceInterface.updateStoreBasicInfo(
+      store,
+      _rawLogo,
+      _rawCover,
+      translations,
+      _pickedMetaImage,
+    );
+
+    String finalMin = minimum ?? '';
+    String finalMax = maximum ?? '';
+    String? durationType = _selectedDuration;
+
+    if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+        try {
+          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+          if (match != null) {
+            if (finalMin.isEmpty) finalMin = match.group(1)!;
+            if (finalMax.isEmpty) finalMax = match.group(2)!;
+            durationType ??= match.group(3)!;
+          }
+        } catch (_) {}
+      }
+    }
+    durationType ??= 'min';
+    if (finalMin.isEmpty) finalMin = '0';
+    if (finalMax.isEmpty) finalMax = '0';
+
+    bool isSettingsSuccess = await storeServiceInterface.updateStore(
+      store,
+      finalMin,
+      finalMax,
+      durationType,
+    );
+
+    if (isBasicSuccess || isSettingsSuccess) {
+      await Get.find<ProfileController>().getProfile();
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      } else {
+        Get.back();
+      }
+      showCustomSnackBar(
+        Get.find<SplashController>()
+                .configModel!
+                .moduleConfig!
+                .module!
+                .showRestaurantText!
+            ? 'restaurant_settings_updated_successfully'.tr
+            : 'store_settings_updated_successfully'.tr,
+        isError: false,
+      );
+    }
+    _isLoading = false;
+    update();
+  }
+
   Future<void> updateStoreBasicInfo(
     Store store,
     List<Translation> translation,

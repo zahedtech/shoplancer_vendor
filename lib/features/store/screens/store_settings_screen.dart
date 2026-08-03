@@ -1,13 +1,22 @@
+import 'dart:io';
+import 'package:country_code_picker/country_code_picker.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_card.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 import 'package:shoplancer_vendor/common/models/config_model.dart';
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart'
     as profile;
+import 'package:shoplancer_vendor/helper/custom_validator_helper.dart';
+import 'package:shoplancer_vendor/helper/validate_check.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
@@ -33,6 +42,22 @@ class StoreSettingsScreen extends StatefulWidget {
 }
 
 class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
+  // Basic Store Info Controllers (from StoreEditScreen)
+  final List<TextEditingController> _nameController = [];
+  final List<TextEditingController> _addressController = [];
+  final TextEditingController _contactController = TextEditingController();
+  final List<FocusNode> _nameNode = [];
+  final List<FocusNode> _addressNode = [];
+  final FocusNode _contactNode = FocusNode();
+
+  String? _countryDialCode;
+  String? _countryCode;
+
+  final List<Language>? _languageList =
+      Get.find<SplashController>().configModel!.language;
+  final List<Translation>? translation =
+      Get.find<ProfileController>().profileModel!.translations;
+
   final TextEditingController _orderAmountController = TextEditingController();
   final TextEditingController _minimumDeliveryFeeController =
       TextEditingController();
@@ -114,6 +139,44 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
 
     StoreController storeController = Get.find<StoreController>();
     storeController.initStoreData(widget.store);
+    storeController.initStoreBasicData();
+
+    _countryDialCode = CountryCode.fromCountryCode(
+      Get.find<SplashController>().configModel!.country!,
+    ).dialCode;
+    _countryCode = CountryCode.fromCountryCode(
+      Get.find<SplashController>().configModel!.country!,
+    ).code;
+    _splitPhone(widget.store.phone);
+
+    if (_languageList != null) {
+      for (int index = 0; index < _languageList!.length; index++) {
+        _nameController.add(TextEditingController());
+        _addressController.add(TextEditingController());
+        _nameNode.add(FocusNode());
+        _addressNode.add(FocusNode());
+
+        if (translation != null) {
+          for (var trans in translation!) {
+            if (_languageList![index].key == trans.locale &&
+                trans.key == 'name') {
+              _nameController[index].text = trans.value ?? '';
+            }
+            if (_languageList![index].key == trans.locale &&
+                trans.key == 'address') {
+              _addressController[index].text = trans.value ?? '';
+            }
+          }
+        }
+
+        if (_nameController[index].text.isEmpty) {
+          _nameController[index].text = widget.store.name ?? '';
+        }
+        if (_addressController[index].text.isEmpty) {
+          _addressController[index].text = widget.store.address ?? '';
+        }
+      }
+    }
 
     _orderAmountController.text = widget.store.minimumOrder.toString();
     _minimumDeliveryFeeController.text = widget.store.minimumShippingCharge
@@ -258,6 +321,40 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
     showCustomSnackBar('reset_successful'.tr, isError: false);
   }
 
+  void _splitPhone(String? phone) async {
+    String? code = widget.store.countryCode;
+    if (code == null || code.isEmpty) {
+      code = Get.find<ProfileController>().profileModel?.countryCode;
+    }
+
+    if (code != null && code.isNotEmpty) {
+      _countryDialCode = code;
+      try {
+        _countryCode = CountryCode.fromDialCode(code).code;
+      } catch (_) {}
+      _contactController.text = phone ?? '';
+      if (mounted) setState(() {});
+      return;
+    }
+
+    try {
+      if (phone != null && phone.isNotEmpty) {
+        PhoneNumber phoneNumber = PhoneNumber.parse(phone);
+        _countryDialCode = '+${phoneNumber.countryCode}';
+        _countryCode = phoneNumber.isoCode.name;
+        _contactController.text = phoneNumber.international
+            .substring(_countryDialCode!.length)
+            .trim();
+      }
+    } catch (e) {
+      debugPrint('Phone Number Parse Error: $e');
+      if (phone != null && phone.isNotEmpty) {
+        _contactController.text = phone;
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -294,6 +391,303 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              /// Basic Info
+                              CustomCard(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeSmall,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('basic_info'.tr, style: robotoBold),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeSmall,
+                                    ),
+                                    CustomTextFieldWidget(
+                                      hintText: _module!.showRestaurantText!
+                                          ? 'restaurant_name'.tr
+                                          : 'store_name'.tr,
+                                      labelText: _module!.showRestaurantText!
+                                          ? 'restaurant_name'.tr
+                                          : 'store_name'.tr,
+                                      controller: _nameController.isNotEmpty
+                                          ? _nameController[0]
+                                          : TextEditingController(
+                                              text: widget.store.name,
+                                            ),
+                                      capitalization: TextCapitalization.words,
+                                      focusNode: _nameNode.isNotEmpty
+                                          ? _nameNode[0]
+                                          : null,
+                                      nextFocus: _addressNode.isNotEmpty
+                                          ? _addressNode[0]
+                                          : null,
+                                      required: true,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+
+                              /// Address
+                              CustomCard(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeSmall,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('address'.tr, style: robotoBold),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeSmall,
+                                    ),
+                                    CustomTextFieldWidget(
+                                      hintText: 'enter_store_address'.tr,
+                                      labelText: 'address'.tr,
+                                      controller: _addressController.isNotEmpty
+                                          ? _addressController[0]
+                                          : TextEditingController(
+                                              text: widget.store.address,
+                                            ),
+                                      focusNode: _addressNode.isNotEmpty
+                                          ? _addressNode[0]
+                                          : null,
+                                      capitalization:
+                                          TextCapitalization.sentences,
+                                      maxLines: 3,
+                                      prefixIcon: Icons.location_on_outlined,
+                                      nextFocus: _contactNode,
+                                      required: true,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+
+                              /// Phone Number
+                              CustomCard(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeSmall,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('phone_number'.tr, style: robotoBold),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeSmall,
+                                    ),
+                                    CustomTextFieldWidget(
+                                      hintText: 'xxx-xxxxxxx',
+                                      labelText: 'phone_number'.tr,
+                                      controller: _contactController,
+                                      focusNode: _contactNode,
+                                      required: true,
+                                      inputType: TextInputType.phone,
+                                      isPhone: true,
+                                      onCountryChanged:
+                                          (CountryCode countryCode) {
+                                            _countryDialCode =
+                                                countryCode.dialCode;
+                                          },
+                                      countryDialCode:
+                                          _countryDialCode ??
+                                          CountryCode.fromCountryCode(
+                                            Get.find<SplashController>()
+                                                .configModel!
+                                                .country!,
+                                          ).dialCode,
+                                      validator: (value) =>
+                                          ValidateCheck.validateEmptyText(
+                                            value,
+                                            null,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+
+                              /// Business Logo
+                              CustomCard(
+                                width: context.width,
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeDefault,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: 'business_logo'.tr,
+                                            style: robotoBold.copyWith(
+                                              fontSize:
+                                                  Dimensions.fontSizeDefault,
+                                              color: Theme.of(
+                                                context,
+                                              ).textTheme.bodyLarge!.color,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '*',
+                                            style: robotoRegular.copyWith(
+                                              fontSize:
+                                                  Dimensions.fontSizeLarge,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      'image_format_and_ratio_for_business_logo'
+                                          .tr,
+                                      style: robotoRegular.copyWith(
+                                        fontSize: Dimensions.fontSizeSmall,
+                                        color: Theme.of(context).hintColor,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeDefault,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Stack(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(2),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    Dimensions.radiusDefault,
+                                                  ),
+                                              child:
+                                                  storeController.rawLogo !=
+                                                      null
+                                                  ? GetPlatform.isWeb
+                                                        ? Image.network(
+                                                            storeController
+                                                                .rawLogo!
+                                                                .path,
+                                                            width: 120,
+                                                            height: 120,
+                                                            fit: BoxFit.cover,
+                                                          )
+                                                        : Image.file(
+                                                            File(
+                                                              storeController
+                                                                  .rawLogo!
+                                                                  .path,
+                                                            ),
+                                                            width: 120,
+                                                            height: 120,
+                                                            fit: BoxFit.cover,
+                                                          )
+                                                  : widget.store.logoFullUrl !=
+                                                        null
+                                                  ? CustomImageWidget(
+                                                      image:
+                                                          widget
+                                                              .store
+                                                              .logoFullUrl ??
+                                                          '',
+                                                      height: 120,
+                                                      width: 120,
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : SizedBox(
+                                                      width: 120,
+                                                      height: 120,
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          CustomAssetImageWidget(
+                                                            Images.uploadIcon,
+                                                            height: 30,
+                                                            width: 30,
+                                                            color: Theme.of(
+                                                              context,
+                                                            ).hintColor,
+                                                          ),
+                                                          const SizedBox(
+                                                            height: Dimensions
+                                                                .paddingSizeSmall,
+                                                          ),
+                                                          Text(
+                                                            'click_to_upload'
+                                                                .tr,
+                                                            style: robotoMedium
+                                                                .copyWith(
+                                                                  color: Colors
+                                                                      .blue,
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeSmall,
+                                                                ),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 0,
+                                            right: 0,
+                                            top: 0,
+                                            left: 0,
+                                            child: InkWell(
+                                              onTap: () => storeController
+                                                  .pickImage(true, false),
+                                              child: DottedBorder(
+                                                options:
+                                                    RoundedRectDottedBorderOptions(
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).hintColor,
+                                                      strokeWidth: 1,
+                                                      strokeCap: StrokeCap.butt,
+                                                      dashPattern: const [5, 5],
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            0,
+                                                          ),
+                                                      radius:
+                                                          const Radius.circular(
+                                                            Dimensions
+                                                                .radiusDefault,
+                                                          ),
+                                                    ),
+                                                child: const SizedBox(
+                                                  width: 120,
+                                                  height: 120,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeLarge,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+
                               /// Restaurant Availability
                               Container(
                                 padding: EdgeInsets.all(
@@ -370,41 +764,41 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                           'status'.tr,
                                                           style: robotoMedium,
                                                           maxLines: 1,
-                                                          overflow:
-                                                              TextOverflow.ellipsis,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
                                                         const SizedBox(
                                                           width: Dimensions
                                                               .paddingSizeSmall,
                                                         ),
                                                         Container(
-                                                          padding: const EdgeInsets
-                                                              .symmetric(
-                                                            horizontal: 10,
-                                                            vertical: 4,
-                                                          ),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 4,
+                                                              ),
                                                           decoration: BoxDecoration(
-                                                            color: !profileController
+                                                            color:
+                                                                !profileController
                                                                     .isStoreActive
                                                                 ? Colors.green
-                                                                    .withOpacity(
-                                                                      0.12,
-                                                                    )
+                                                                      .withOpacity(
+                                                                        0.12,
+                                                                      )
                                                                 : Colors.red
-                                                                    .withOpacity(
-                                                                      0.12,
-                                                                    ),
+                                                                      .withOpacity(
+                                                                        0.12,
+                                                                      ),
                                                             borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                      Dimensions
-                                                                          .radiusExtraLarge,
-                                                                    ),
+                                                                BorderRadius.circular(
+                                                                  Dimensions
+                                                                      .radiusExtraLarge,
+                                                                ),
                                                             border: Border.all(
-                                                              color: !profileController
+                                                              color:
+                                                                  !profileController
                                                                       .isStoreActive
-                                                                  ? Colors
-                                                                      .green
+                                                                  ? Colors.green
                                                                   : Colors.red,
                                                               width: 1,
                                                             ),
@@ -414,18 +808,17 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                     .isStoreActive
                                                                 ? 'active'.tr
                                                                 : 'inactive'.tr,
-                                                            style: robotoBold
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeExtraSmall,
-                                                                  color: !profileController
-                                                                          .isStoreActive
-                                                                      ? Colors
-                                                                          .green[700]
-                                                                      : Colors
-                                                                          .red[700],
-                                                                ),
+                                                            style: robotoBold.copyWith(
+                                                              fontSize: Dimensions
+                                                                  .fontSizeExtraSmall,
+                                                              color:
+                                                                  !profileController
+                                                                      .isStoreActive
+                                                                  ? Colors
+                                                                        .green[700]
+                                                                  : Colors
+                                                                        .red[700],
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -1289,12 +1682,72 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       ),
                                     };
 
+                                    String name = _nameController.isNotEmpty
+                                        ? _nameController[0].text.trim()
+                                        : widget.store.name ?? '';
+                                    String address =
+                                        _addressController.isNotEmpty
+                                        ? _addressController[0].text.trim()
+                                        : widget.store.address ?? '';
+                                    String contact = _contactController.text
+                                        .trim();
+
+                                    String numberWithCountryCode = contact;
+                                    if (contact.isNotEmpty) {
+                                      if (contact.startsWith('+') ||
+                                          contact.startsWith(
+                                            (_countryDialCode ?? '').replaceAll(
+                                              '+',
+                                              '',
+                                            ),
+                                          )) {
+                                        numberWithCountryCode =
+                                            contact.startsWith('+')
+                                            ? contact
+                                            : '+$contact';
+                                      } else {
+                                        numberWithCountryCode =
+                                            (_countryDialCode ?? '') + contact;
+                                      }
+                                    }
+
+                                    List<Translation> translationsList = [];
+                                    if (_languageList != null) {
+                                      for (
+                                        int index = 0;
+                                        index < _languageList!.length;
+                                        index++
+                                      ) {
+                                        translationsList.add(
+                                          Translation(
+                                            locale: _languageList![index].key,
+                                            key: 'name',
+                                            value: name,
+                                          ),
+                                        );
+                                        translationsList.add(
+                                          Translation(
+                                            locale: _languageList![index].key,
+                                            key: 'address',
+                                            value: address,
+                                          ),
+                                        );
+                                      }
+                                    }
+
+                                    _store.name = name;
+                                    _store.address = address;
+                                    _store.phone = numberWithCountryCode;
+                                    _store.countryCode = _countryDialCode;
+
                                     print('Halal Tag: ${_store.isHalalActive}');
-                                    storeController.updateStore(
-                                      _store,
-                                      minimum,
-                                      maximum,
-                                    );
+                                    storeController
+                                        .updateStoreBasicInfoAndSettings(
+                                          store: _store,
+                                          translations: translationsList,
+                                          minimum: minimum,
+                                          maximum: maximum,
+                                        );
                                   }
                                 },
                                 buttonText: 'update'.tr,
