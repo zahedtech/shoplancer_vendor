@@ -6,6 +6,7 @@ class ProfileModel {
   String? fName;
   String? lName;
   String? phone;
+  String? countryCode;
   String? email;
   String? createdAt;
   String? updatedAt;
@@ -107,6 +108,7 @@ class ProfileModel {
     fName = json['f_name'];
     lName = json['l_name'];
     phone = json['phone'];
+    countryCode = json['country_code'];
     email = json['email'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -124,8 +126,12 @@ class ProfileModel {
     balance = double.tryParse(json['balance']?.toString() ?? '');
     totalEarning = double.tryParse(json['total_earning']?.toString() ?? '');
     todaysEarning = double.tryParse(json['todays_earning']?.toString() ?? '');
-    thisWeekEarning = double.tryParse(json['this_week_earning']?.toString() ?? '');
-    thisMonthEarning = double.tryParse(json['this_month_earning']?.toString() ?? '');
+    thisWeekEarning = double.tryParse(
+      json['this_week_earning']?.toString() ?? '',
+    );
+    thisMonthEarning = double.tryParse(
+      json['this_month_earning']?.toString() ?? '',
+    );
     if (json['stores'] != null) {
       stores = [];
       json['stores'].forEach((v) {
@@ -182,13 +188,19 @@ class ProfileModel {
         translations!.add(Translation.fromJson(v));
       });
     }
-    withdrawAbleBalance = double.tryParse(json['withdraw_able_balance']?.toString() ?? '');
+    withdrawAbleBalance = double.tryParse(
+      json['withdraw_able_balance']?.toString() ?? '',
+    );
     payableBalance = double.tryParse(json['Payable_Balance']?.toString() ?? '');
     adjustable = json['adjust_able'];
     overFlowWarning = json['over_flow_warning'];
     overFlowBlockWarning = json['over_flow_block_warning'];
-    pendingWithdraw = double.tryParse(json['pending_withdraw']?.toString() ?? '');
-    alreadyWithdrawn = double.tryParse(json['total_withdrawn']?.toString() ?? '');
+    pendingWithdraw = double.tryParse(
+      json['pending_withdraw']?.toString() ?? '',
+    );
+    alreadyWithdrawn = double.tryParse(
+      json['total_withdrawn']?.toString() ?? '',
+    );
     dynamicBalanceType = json['dynamic_balance_type'];
     dynamicBalance = double.tryParse(json['dynamic_balance']?.toString() ?? '');
     showPayNowButton = json['show_pay_now_button'];
@@ -200,13 +212,22 @@ class ProfileModel {
         : null;
     subscriptionTransactions = json['subscription_transactions'] ?? false;
     outOfStockCount = json['out_of_stock_count'];
-    totalCommissionCollected = double.tryParse(json['total_commission_collected']?.toString() ?? '');
+    totalCommissionCollected = double.tryParse(
+      json['total_commission_collected']?.toString() ?? '',
+    );
     storeUrl = json['store_url'];
     storeQrCode = json['store_qr_code'];
     prepaidBalance = double.tryParse(json['prepaid_balance']?.toString() ?? '');
-    minPrepaidBalanceLimit = double.tryParse(json['min_prepaid_balance_limit']?.toString() ?? '');
-    allowedCreditRemaining = double.tryParse(json['allowed_credit_remaining']?.toString() ?? '');
-    isSuspended = json['is_suspended'] == true || json['is_suspended'] == 1 || json['is_suspended'] == '1';
+    minPrepaidBalanceLimit = double.tryParse(
+      json['min_prepaid_balance_limit']?.toString() ?? '',
+    );
+    allowedCreditRemaining = double.tryParse(
+      json['allowed_credit_remaining']?.toString() ?? '',
+    );
+    isSuspended =
+        json['is_suspended'] == true ||
+        json['is_suspended'] == 1 ||
+        json['is_suspended'] == '1';
   }
 
   Map<String, dynamic> toJson() {
@@ -215,6 +236,7 @@ class ProfileModel {
     data['f_name'] = fName;
     data['l_name'] = lName;
     data['phone'] = phone;
+    data['country_code'] = countryCode;
     data['email'] = email;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
@@ -269,6 +291,7 @@ class Store {
   String? slug;
   String? name;
   String? phone;
+  String? countryCode;
   String? email;
   String? logoFullUrl;
   String? latitude;
@@ -327,12 +350,14 @@ class Store {
   String? facebook;
   String? whatsapp;
   int? defaultBanner;
+  int? zoneId;
 
   Store({
     this.id,
     this.slug,
     this.name,
     this.phone,
+    this.countryCode,
     this.email,
     this.logoFullUrl,
     this.latitude,
@@ -390,13 +415,16 @@ class Store {
     this.tiktok,
     this.whatsapp,
     this.defaultBanner,
+    this.zoneId,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    zoneId = json['zone_id'];
     slug = json['slug'] ?? json['slug_name'];
     name = json['name'];
     phone = json['phone'];
+    countryCode = json['country_code'];
     email = json['email'];
     logoFullUrl = json['logo_full_url'];
     latitude = json['latitude'];
@@ -419,7 +447,7 @@ class Store {
     ratingCount = json['rating_count'];
     totalItems = json['total_items'];
     totalOrder = json['total_order'];
-    active = json['active'];
+    active = json['active'] == true || json['active'] == 1 || json['active'] == '1';
     gstStatus = json['gst_status'];
     gstCode = json['gst_code'];
     selfDeliverySystem = json['self_delivery_system'];
@@ -513,6 +541,7 @@ class Store {
     data['slug'] = slug;
     data['name'] = name;
     data['phone'] = phone;
+    data['country_code'] = countryCode;
     data['email'] = email;
     data['logo_full_url'] = logoFullUrl;
     data['latitude'] = latitude;
@@ -752,7 +781,9 @@ class Discount {
     minPurchase = json['min_purchase']?.toDouble();
     maxDiscount = json['max_discount']?.toDouble();
     discount = json['discount']?.toDouble();
-    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
+    discountType = json['discount_type'] == 'flat'
+        ? 'amount'
+        : json['discount_type'];
     storeId = json['store_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];

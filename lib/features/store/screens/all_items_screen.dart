@@ -114,7 +114,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
       };
 
       final response = await http.get(
-        Uri.parse('${AppConstants.baseUrl}${AppConstants.categoryUri}'),
+        Uri.parse('${AppConstants.baseUrl}${AppConstants.globalCategoryUri}'),
         headers: headers,
       );
 

@@ -57,6 +57,9 @@ class ProfileController extends GetxController implements GetxService {
         profileModel.isSuspended ??= _profileModel!.isSuspended;
       }
       _profileModel = profileModel;
+      if (_profileModel!.stores != null && _profileModel!.stores!.isNotEmpty) {
+        _isStoreActive = _profileModel!.stores![0].active ?? true;
+      }
       Get.find<SplashController>().setModule(_profileModel!.stores![0].module!.id, _profileModel!.stores![0].module!.moduleType);
       profileServiceInterface.updateHeader(_profileModel!.stores![0].module!.id);
       _allowModulePermission(_profileModel?.roles);
