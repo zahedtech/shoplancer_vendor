@@ -818,6 +818,7 @@ class StoreController extends GetxController implements GetxService {
           _itemList!.addAll(newItems);
         }
         _itemSize = itemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
@@ -852,6 +853,7 @@ class StoreController extends GetxController implements GetxService {
         }
         _stockItemList!.addAll(itemModel.items!);
         _pageSize = itemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
@@ -901,6 +903,7 @@ class StoreController extends GetxController implements GetxService {
         }
         _pendingItem!.addAll(pendingItemModel.items!);
         _pageSize = pendingItemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
