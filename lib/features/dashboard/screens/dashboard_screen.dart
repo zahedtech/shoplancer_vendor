@@ -16,6 +16,8 @@ import 'package:shoplancer_vendor/features/rental_module/trips/screens/trip_hist
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/features/payment/screens/wallet_screen.dart';
+import 'package:shoplancer_vendor/features/pos/screens/pos_screen.dart';
+import 'package:shoplancer_vendor/features/disbursement/screens/disbursement_screen.dart';
 import 'package:shoplancer_vendor/features/dashboard/widgets/bottom_nav_item_widget.dart';
 import 'package:shoplancer_vendor/features/home/screens/home_screen.dart';
 import 'package:shoplancer_vendor/features/menu/screens/menu_screen.dart';
@@ -37,8 +39,8 @@ class DashboardScreenState extends State<DashboardScreen> {
   PageController? _pageController;
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _ordersKey = GlobalKey();
-  final GlobalKey _storeKey = GlobalKey();
-  final GlobalKey _walletKey = GlobalKey();
+  final GlobalKey _createOrderKey = GlobalKey();
+  final GlobalKey _financeKey = GlobalKey();
   final GlobalKey _menuKey = GlobalKey();
   bool _showcaseInitiated = false;
 
@@ -51,8 +53,8 @@ class DashboardScreenState extends State<DashboardScreen> {
           ShowCaseWidget.of(context).startShowCase([
             _homeKey,
             _ordersKey,
-            _storeKey,
-            _walletKey,
+            _createOrderKey,
+            _financeKey,
             _menuKey,
           ]);
           prefs.setBool('showcase_shown', true);
@@ -105,8 +107,8 @@ class DashboardScreenState extends State<DashboardScreen> {
     _screens = [
       authController.getModuleType() == 'rental' ? const TaxiHomeScreen() : const HomeScreen(),
       authController.getModuleType() == 'rental' ? const TripHistoryScreen() : const OrderHistoryScreen(),
-      authController.getModuleType() == 'rental' ? const ProviderScreen() : const StoreScreen(),
-      const WalletScreen(),
+      const PosScreen(),
+      authController.getModuleType() == 'rental' ? const ProviderScreen() : const WalletScreen(),
       Container(),
     ];
 
@@ -187,9 +189,9 @@ class DashboardScreenState extends State<DashboardScreen> {
             child: Scaffold(
 
               floatingActionButton: !GetPlatform.isMobile || keyboardVisible ? null : _buildShowcaseItem(
-                key: _storeKey,
-                title: 'showcase_store_title'.tr,
-                description: 'showcase_store_desc'.tr,
+                key: _createOrderKey,
+                title: 'إنشاء طلب جديد (POS)'.tr,
+                description: 'إنشاء طلب جديد بسرعة عبر نظام النقطة'.tr,
                 isCircle: true,
                 child: Container(
                   decoration: BoxDecoration(
@@ -199,14 +201,14 @@ class DashboardScreenState extends State<DashboardScreen> {
                   ),
                   child: FloatingActionButton(
                     heroTag: null,
-                    backgroundColor:Theme.of(context).primaryColor,
+                    backgroundColor: Theme.of(context).primaryColor,
                     onPressed: () {
                       _setPage(2);
                     },
-                    child: Image.asset(
-                      Get.find<AuthController>().getModuleType() == 'rental' ? Images.taxiHome : Images.restaurant,
-                      height: 20, width: 20,
-                      color: Theme.of(context).cardColor,
+                    child: const Icon(
+                      Icons.add,
+                      size: 30,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -250,8 +252,8 @@ class DashboardScreenState extends State<DashboardScreen> {
                       unSelectedIcon: Images.walletUnSelect,
                       isSelected: _pageIndex == 3,
                       onTap: () => _setPage(3),
-                      showcaseKey: _walletKey,
-                      showcaseTitle: 'showcase_wallet_title'.tr,
+                      showcaseKey: _financeKey,
+                      showcaseTitle: 'wallet'.tr,
                       showcaseDescription: 'showcase_wallet_desc'.tr,
                     ),
                     BottomNavItemWidget(

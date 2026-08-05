@@ -7,9 +7,6 @@ import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
-import 'package:shoplancer_vendor/features/payment/widgets/offline_topup_bottom_sheet_widget.dart';
-import 'package:shoplancer_vendor/features/payment/widgets/topup_request_history_widget.dart';
 import 'package:shoplancer_vendor/features/payment/widgets/wallet_attention_alert_widget.dart';
 import 'package:shoplancer_vendor/features/payment/widgets/wallet_widget.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +20,7 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  int _selectedHistoryTab = 0;
+
 
   @override
   void initState() {
@@ -70,252 +67,6 @@ class _WalletScreenState extends State<WalletScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // Prepaid Balance Card with Negative Limit Info & Top-Up Action
-                                        Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.all(
-                                            Dimensions.paddingSizeDefault,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusDefault,
-                                            ),
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                (profileController
-                                                                .profileModel!
-                                                                .prepaidBalance ??
-                                                            0) <
-                                                        0
-                                                    ? Colors.orange.shade800
-                                                    : Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                (profileController
-                                                                .profileModel!
-                                                                .prepaidBalance ??
-                                                            0) <
-                                                        0
-                                                    ? Colors.deepOrange.shade900
-                                                    : Theme.of(
-                                                        context,
-                                                      ).primaryColor.withValues(
-                                                        alpha: 0.85,
-                                                      ),
-                                              ],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Theme.of(context)
-                                                    .primaryColor
-                                                    .withValues(alpha: 0.25),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .account_balance_wallet,
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).cardColor,
-                                                        size: 22,
-                                                      ),
-                                                      const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeExtraSmall,
-                                                      ),
-                                                      Text(
-                                                        'prepaid_balance'.tr,
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .cardColor
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.9,
-                                                                      ),
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  if ((profileController
-                                                              .profileModel!
-                                                              .isSuspended ??
-                                                          false) ||
-                                                      ((profileController
-                                                                  .profileModel!
-                                                                  .prepaidBalance ??
-                                                              0) <
-                                                          0))
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 2,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              Dimensions
-                                                                  .radiusSmall,
-                                                            ),
-                                                      ),
-                                                      child: Text(
-                                                        (profileController
-                                                                    .profileModel!
-                                                                    .isSuspended ??
-                                                                false)
-                                                            ? 'store_suspended'
-                                                                  .tr
-                                                            : 'negative_balance'
-                                                                  .tr,
-                                                        style: robotoBold.copyWith(
-                                                          fontSize: Dimensions
-                                                              .fontSizeExtraSmall,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                              const SizedBox(
-                                                height:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  PriceConverterHelper.convertPrice(
-                                                    profileController
-                                                            .profileModel!
-                                                            .prepaidBalance ??
-                                                        0.0,
-                                                  ),
-                                                  style: robotoBold.copyWith(
-                                                    fontSize: 26,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).cardColor,
-                                                  ),
-                                                  textDirection:
-                                                      TextDirection.ltr,
-                                                ),
-                                              ),
-                                              // const SizedBox(
-                                              //   height:
-                                              //       Dimensions.paddingSizeSmall,
-                                              // ),
-                                              // const Divider(
-                                              //   color: Colors.white24,
-                                              //   height: 1,
-                                              // ),
-                                              // const SizedBox(
-                                              //   height:
-                                              //       Dimensions.paddingSizeSmall,
-                                              // ),
-                                              // Row(
-                                              //   mainAxisAlignment:
-                                              //       MainAxisAlignment.spaceBetween,
-                                              //   children: [
-                                              //     Column(
-                                              //       crossAxisAlignment:
-                                              //           CrossAxisAlignment.start,
-                                              //       children: [
-                                              //         Text(
-                                              //           'min_negative_limit'.tr,
-                                              //           style: robotoRegular.copyWith(
-                                              //             fontSize: Dimensions.fontSizeExtraSmall,
-                                              //             color: Theme.of(context)
-                                              //                 .cardColor
-                                              //                 .withValues(alpha: 0.8),
-                                              //           ),
-                                              //         ),
-                                              //         Text(
-                                              //           '-${PriceConverterHelper.convertPrice(profileController.profileModel!.minPrepaidBalanceLimit ?? 0.0)}',
-                                              //           style: robotoMedium.copyWith(
-                                              //             fontSize: Dimensions.fontSizeSmall,
-                                              //             color: Theme.of(context).cardColor,
-                                              //           ),
-                                              //           textDirection: TextDirection.ltr,
-                                              //         ),
-                                              //       ],
-                                              //     ),
-                                              //     Column(
-                                              //       crossAxisAlignment:
-                                              //           CrossAxisAlignment.end,
-                                              //       children: [
-                                              //         Text(
-                                              //           'allowed_credit_remaining'.tr,
-                                              //           style: robotoRegular.copyWith(
-                                              //             fontSize: Dimensions.fontSizeExtraSmall,
-                                              //             color: Theme.of(context)
-                                              //                 .cardColor
-                                              //                 .withValues(alpha: 0.8),
-                                              //           ),
-                                              //         ),
-                                              //         Text(
-                                              //           PriceConverterHelper.convertPrice(
-                                              //             profileController.profileModel!.allowedCreditRemaining ?? 0.0,
-                                              //           ),
-                                              //           style: robotoMedium.copyWith(
-                                              //             fontSize: Dimensions.fontSizeSmall,
-                                              //             color: Theme.of(context).cardColor,
-                                              //           ),
-                                              //           textDirection: TextDirection.ltr,
-                                              //         ),
-                                              //       ],
-                                              //     ),
-                                              //   ],
-                                              // ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeSmall,
-                                        ),
-
-                                        // Top-Up Request Button
-                                        CustomButtonWidget(
-                                          buttonText:
-                                              'request_balance_topup'.tr,
-                                          icon: Icons.add_circle_outline,
-                                          onPressed: () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              builder: (_) =>
-                                                  const OfflineTopupBottomSheetWidget(),
-                                            );
-                                          },
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeDefault,
-                                        ),
-
                                         // Balance Cards: Online Payment & COD side-by-side
                                         Row(
                                           children: [
@@ -722,173 +473,107 @@ class _WalletScreenState extends State<WalletScreen> {
                                         height: Dimensions.paddingSizeLarge,
                                         ),
 
-                                         Container(
-                                           decoration: BoxDecoration(
-                                             color: Theme.of(context).disabledColor.withValues(alpha: 0.08),
-                                             borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                             border: Border.all(
-                                               color: Theme.of(context).disabledColor.withValues(alpha: 0.15),
-                                             ),
-                                           ),
-                                           padding: const EdgeInsets.all(3),
-                                           child: Row(
-                                             children: [
-                                               Expanded(
-                                                 child: InkWell(
-                                                   onTap: () => setState(() => _selectedHistoryTab = 0),
-                                                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                   child: Container(
-                                                     padding: const EdgeInsets.symmetric(vertical: 8),
-                                                     alignment: Alignment.center,
-                                                     decoration: BoxDecoration(
-                                                       color: _selectedHistoryTab == 0
-                                                           ? Theme.of(context).primaryColor
-                                                           : Colors.transparent,
-                                                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                     ),
-                                                     child: Text(
-                                                       "transaction_history".tr,
-                                                       style: robotoBold.copyWith(
-                                                         color: _selectedHistoryTab == 0
-                                                             ? Colors.white
-                                                             : Theme.of(context).textTheme.bodyLarge?.color,
-                                                         fontSize: Dimensions.fontSizeSmall,
-                                                       ),
-                                                     ),
-                                                   ),
-                                                 ),
-                                               ),
-                                               Expanded(
-                                                 child: InkWell(
-                                                   onTap: () => setState(() => _selectedHistoryTab = 1),
-                                                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                   child: Container(
-                                                     padding: const EdgeInsets.symmetric(vertical: 8),
-                                                     alignment: Alignment.center,
-                                                     decoration: BoxDecoration(
-                                                       color: _selectedHistoryTab == 1
-                                                           ? Theme.of(context).primaryColor
-                                                           : Colors.transparent,
-                                                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                     ),
-                                                     child: Text(
-                                                       "topup_requests_history".tr,
-                                                       style: robotoBold.copyWith(
-                                                         color: _selectedHistoryTab == 1
-                                                             ? Colors.white
-                                                             : Theme.of(context).textTheme.bodyLarge?.color,
-                                                         fontSize: Dimensions.fontSizeSmall,
-                                                       ),
-                                                     ),
-                                                   ),
-                                                 ),
-                                               ),
-                                             ],
-                                           ),
-                                         ),
-                                         const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                                         _selectedHistoryTab == 0
-                                             ? Column(
-                                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                                 children: [
-                                                   if (bankController.transactions != null &&
-                                                       bankController.transactions!.isNotEmpty)
-                                                     Align(
-                                                       alignment: Alignment.centerLeft,
-                                                       child: InkWell(
-                                                         onTap: () {
-                                                           Get.toNamed(
-                                                             RouteHelper.getPaymentHistoryRoute(),
-                                                           );
-                                                         },
-                                                         child: Padding(
-                                                           padding: const EdgeInsets.only(bottom: 8),
-                                                           child: Text(
-                                                             'view_all'.tr,
-                                                             style: robotoMedium.copyWith(
-                                                               fontSize: Dimensions.fontSizeSmall,
-                                                               color: Theme.of(context).primaryColor,
-                                                             ),
-                                                           ),
-                                                         ),
-                                                       ),
-                                                     ),
-                                                   bankController.transactions != null
-                                                       ? bankController.transactions!.isNotEmpty
-                                                           ? ListView.builder(
-                                                               itemCount: bankController.transactions!.length > 25
-                                                                   ? 25
-                                                                   : bankController.transactions!.length,
-                                                               shrinkWrap: true,
-                                                               padding: const EdgeInsets.only(
-                                                                 bottom: Dimensions.paddingSizeDefault,
-                                                               ),
-                                                               physics: const NeverScrollableScrollPhysics(),
-                                                               itemBuilder: (context, index) {
-                                                                 return Column(
-                                                                   children: [
-                                                                     Padding(
-                                                                       padding: const EdgeInsets.symmetric(
-                                                                         vertical: Dimensions.paddingSizeLarge,
-                                                                       ),
-                                                                       child: Row(
-                                                                         children: [
-                                                                           Expanded(
-                                                                             child: Column(
-                                                                               crossAxisAlignment: CrossAxisAlignment.start,
-                                                                               children: [
-                                                                                 Text(
-                                                                                   PriceConverterHelper.convertPrice(
-                                                                                     bankController.transactions![index].amount,
-                                                                                   ),
-                                                                                   style: robotoMedium.copyWith(
-                                                                                     fontSize: Dimensions.fontSizeDefault,
-                                                                                   ),
-                                                                                 ),
-                                                                                 const SizedBox(
-                                                                                   height: Dimensions.paddingSizeExtraSmall,
-                                                                                 ),
-                                                                                 Text(
-                                                                                   '${'paid_via'.tr} ${bankController.transactions![index].method?.replaceAll('_', ' ').capitalize ?? ''}',
-                                                                                   style: robotoRegular.copyWith(
-                                                                                     fontSize: Dimensions.fontSizeExtraSmall,
-                                                                                     color: Theme.of(context).disabledColor,
-                                                                                   ),
-                                                                                 ),
-                                                                               ],
-                                                                             ),
-                                                                           ),
-                                                                           Text(
-                                                                             bankController.transactions![index].paymentTime.toString(),
-                                                                             style: robotoRegular.copyWith(
-                                                                               fontSize: Dimensions.fontSizeSmall,
-                                                                               color: Theme.of(context).disabledColor,
-                                                                             ),
-                                                                           ),
-                                                                         ],
-                                                                       ),
-                                                                     ),
-                                                                     const Divider(height: 1),
-                                                                   ],
-                                                                 );
-                                                               },
-                                                             )
-                                                           : Center(
-                                                               child: Padding(
-                                                                 padding: const EdgeInsets.only(top: 40, bottom: 40),
-                                                                 child: Text('no_transaction_found'.tr),
-                                                               ),
-                                                             )
-                                                       : const Center(
-                                                           child: Padding(
-                                                             padding: EdgeInsets.only(top: 40, bottom: 40),
-                                                             child: CircularProgressIndicator(),
-                                                           ),
-                                                         ),
-                                                 ],
-                                               )
-                                             : const TopupRequestHistoryWidget(),
+
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              if (bankController.transactions != null &&
+                                                  bankController.transactions!.isNotEmpty)
+                                                Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      Get.toNamed(
+                                                        RouteHelper.getPaymentHistoryRoute(),
+                                                      );
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.only(bottom: 8),
+                                                      child: Text(
+                                                        'view_all'.tr,
+                                                        style: robotoMedium.copyWith(
+                                                          fontSize: Dimensions.fontSizeSmall,
+                                                          color: Theme.of(context).primaryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              bankController.transactions != null
+                                                  ? bankController.transactions!.isNotEmpty
+                                                      ? ListView.builder(
+                                                          itemCount: bankController.transactions!.length > 25
+                                                              ? 25
+                                                              : bankController.transactions!.length,
+                                                          shrinkWrap: true,
+                                                          padding: const EdgeInsets.only(
+                                                            bottom: Dimensions.paddingSizeDefault,
+                                                          ),
+                                                          physics: const NeverScrollableScrollPhysics(),
+                                                          itemBuilder: (context, index) {
+                                                            return Column(
+                                                              children: [
+                                                                Padding(
+                                                                  padding: const EdgeInsets.symmetric(
+                                                                    vertical: Dimensions.paddingSizeLarge,
+                                                                  ),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child: Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text(
+                                                                              PriceConverterHelper.convertPrice(
+                                                                                bankController.transactions![index].amount,
+                                                                              ),
+                                                                              style: robotoMedium.copyWith(
+                                                                                fontSize: Dimensions.fontSizeDefault,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(
+                                                                              height: Dimensions.paddingSizeExtraSmall,
+                                                                            ),
+                                                                            Text(
+                                                                              '${'paid_via'.tr} ${bankController.transactions![index].method?.replaceAll('_', ' ').capitalize ?? ''}',
+                                                                              style: robotoRegular.copyWith(
+                                                                                fontSize: Dimensions.fontSizeExtraSmall,
+                                                                                color: Theme.of(context).disabledColor,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Text(
+                                                                        bankController.transactions![index].paymentTime.toString(),
+                                                                        style: robotoRegular.copyWith(
+                                                                          fontSize: Dimensions.fontSizeSmall,
+                                                                          color: Theme.of(context).disabledColor,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                const Divider(height: 1),
+                                                              ],
+                                                            );
+                                                          },
+                                                        )
+                                                      : Center(
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.only(top: 40, bottom: 40),
+                                                            child: Text('no_transaction_found'.tr),
+                                                          ),
+                                                        )
+                                                  : const Center(
+                                                      child: Padding(
+                                                        padding: EdgeInsets.only(top: 40, bottom: 40),
+                                                        child: CircularProgressIndicator(),
+                                                      ),
+                                                    ),
+                                            ],
+                                          ),
                                       ],
                                     ),
                                   ),

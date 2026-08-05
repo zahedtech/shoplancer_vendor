@@ -264,7 +264,11 @@ class ApiClient extends GetxService {
       statusCode: response.statusCode,
       statusText: response.reasonPhrase,
     );
-    if (response0.statusCode != 200 &&
+    bool isSuccess = response0.statusCode != null &&
+        response0.statusCode! >= 200 &&
+        response0.statusCode! < 300;
+
+    if (!isSuccess &&
         response0.body != null &&
         response0.body is! String) {
       if (response0.body.toString().startsWith('{errors: [{code:')) {
@@ -281,7 +285,7 @@ class ApiClient extends GetxService {
           statusText: response0.body['message'],
         );
       }
-    } else if (response0.statusCode != 200 && response0.body == null) {
+    } else if (!isSuccess && response0.body == null) {
       response0 = const Response(statusCode: 0, statusText: noInternetMessage);
     }
     ApiLogger.logResponse(
@@ -291,7 +295,7 @@ class ApiClient extends GetxService {
       headers: response0.headers,
     );
     if (handleError) {
-      if (response0.statusCode == 200) {
+      if (isSuccess) {
         return response0;
       } else {
         ApiChecker.checkApi(response0);

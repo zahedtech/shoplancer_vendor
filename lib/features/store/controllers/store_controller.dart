@@ -22,6 +22,7 @@ import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.d
 import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart'
     hide CategoryIds;
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/store_section_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
 import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
@@ -67,6 +68,9 @@ class StoreController extends GetxController implements GetxService {
 
   final List<int> _loadingRecommendedList = [];
   List<int> get loadingRecommendedList => _loadingRecommendedList;
+
+  final List<int> _loadingBestSellerList = [];
+  List<int> get loadingBestSellerList => _loadingBestSellerList;
 
   int? _pageSize;
   int? get pageSize => _pageSize;
@@ -164,6 +168,9 @@ class StoreController extends GetxController implements GetxService {
 
   bool _isRecommended = false;
   bool get isRecommended => _isRecommended;
+
+  bool _isBestSeller = false;
+  bool get isBestSeller => _isBestSeller;
 
   bool _isOrganic = false;
   bool get isOrganic => _isOrganic;
@@ -411,7 +418,9 @@ class StoreController extends GetxController implements GetxService {
   }) async {
     _isLoading = true;
     update();
-    Response response = await storeServiceInterface.bulkAssignProducts(products);
+    Response response = await storeServiceInterface.bulkAssignProducts(
+      products,
+    );
     bool isSuccess = false;
     if (response.statusCode == 200 || response.statusCode == 201) {
       isSuccess = true;
@@ -450,8 +459,9 @@ class StoreController extends GetxController implements GetxService {
   }) {
     final String storeId =
         Get.find<ProfileController>().profileModel?.stores?[0].id.toString() ??
-            '';
-    final String categoryId = item.categoryId?.toString() ??
+        '';
+    final String categoryId =
+        item.categoryId?.toString() ??
         (item.categoryIds?.isNotEmpty == true
             ? item.categoryIds![0].id ?? ''
             : '');
@@ -588,6 +598,10 @@ class StoreController extends GetxController implements GetxService {
     _isRecommended = isRecommended;
   }
 
+  void setBestSeller(bool isBestSeller) {
+    _isBestSeller = isBestSeller;
+  }
+
   void setOrganic(bool isOrganic) {
     _isOrganic = isOrganic;
   }
@@ -624,6 +638,37 @@ class StoreController extends GetxController implements GetxService {
     }
     if (productID != null) {
       _loadingRecommendedList.remove(productID);
+    }
+    update();
+  }
+
+  void toggleBestSellerProduct(int? productID) async {
+    if (productID != null) {
+      _loadingBestSellerList.add(productID);
+      update();
+    }
+    bool isSuccess = await storeServiceInterface.updateBestSellerProductStatus(
+      productID,
+      _isBestSeller ? 0 : 1,
+    );
+    if (isSuccess) {
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
+      _isBestSeller = !_isBestSeller;
+      showCustomSnackBar(
+        Get.find<SplashController>().moduleType == 'food'
+            ? 'food_status_updated_successfully'.tr
+            : 'product_status_updated_successfully'.tr,
+        isError: false,
+      );
+    }
+    if (productID != null) {
+      _loadingBestSellerList.remove(productID);
     }
     update();
   }
@@ -2159,7 +2204,7 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<bool> stockUpdate(
-    Map<String, String> data,
+    Map<String, dynamic> data,
     int itemId, {
     bool shouldBack = true,
   }) async {
@@ -2167,7 +2212,7 @@ class StoreController extends GetxController implements GetxService {
     update();
     Response response = await storeServiceInterface.stockUpdate(data);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       getItemList(
         offset: '1',
         type: _type,
@@ -2182,10 +2227,23 @@ class StoreController extends GetxController implements GetxService {
       if (Get.isRegistered<CategoryController>()) {
         final catController = Get.find<CategoryController>();
         if (catController.itemList != null) {
-          int idx = catController.itemList!.indexWhere((element) => element.id == itemId);
+          int idx = catController.itemList!.indexWhere(
+            (element) => element.id == itemId,
+          );
           if (idx != -1) {
-            final double? newPrice = double.tryParse(data['price'] ?? '');
-            final int? newStock = int.tryParse(data['current_stock'] ?? '');
+            Map<String, dynamic> itemMap = data;
+            if (data.containsKey('products') &&
+                (data['products'] is List) &&
+                (data['products'] as List).isNotEmpty) {
+              itemMap =
+                  (data['products'] as List).first as Map<String, dynamic>;
+            }
+            final double? newPrice = double.tryParse(
+              itemMap['price']?.toString() ?? '',
+            );
+            final int? newStock = int.tryParse(
+              itemMap['current_stock']?.toString() ?? '',
+            );
             if (newPrice != null) catController.itemList![idx].price = newPrice;
             if (newStock != null) catController.itemList![idx].stock = newStock;
             catController.update();
@@ -2198,7 +2256,7 @@ class StoreController extends GetxController implements GetxService {
     }
     _isLoading = false;
     update();
-    return response.statusCode == 200;
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   Future<void> getVatTaxList() async {
@@ -2655,6 +2713,122 @@ class StoreController extends GetxController implements GetxService {
       _maxVideoPreview = metaData.metaMaxVideoPreview.toString();
       _maxImagePreview = metaData.metaMaxImagePreview.toString();
       _imagePreviewSelectedType = metaData.metaMaxImagePreviewValue ?? '';
+    }
+  }
+
+  List<StoreSectionModel>? _storeSectionList;
+  List<StoreSectionModel>? get storeSectionList => _storeSectionList;
+
+  Future<void> getStoreSections() async {
+    _isLoading = true;
+    update();
+    Response response = await storeServiceInterface.getStoreSections();
+    _isLoading = false;
+    if (response.statusCode == 200 && response.body != null) {
+      _storeSectionList = [];
+      List<dynamic> list = response.body is List
+          ? response.body
+          : (response.body['data'] ?? []);
+      for (var item in list) {
+        _storeSectionList!.add(StoreSectionModel.fromJson(item));
+      }
+    } else {
+      // Fallback default sections if backend is not ready yet
+      _storeSectionList = [
+        StoreSectionModel(
+          id: 1,
+          sectionKey: 'main_banner',
+          defaultName: 'البانر الرئيسي',
+          customName: 'البانر الرئيسي',
+          isActive: 1,
+          sortOrder: 1,
+        ),
+        StoreSectionModel(
+          id: 2,
+          sectionKey: 'featured_categories',
+          defaultName: 'الأقسام المميزة',
+          customName: 'الأقسام المميزة',
+          isActive: 1,
+          sortOrder: 2,
+        ),
+        StoreSectionModel(
+          id: 3,
+          sectionKey: 'popular_items',
+          defaultName: 'الأكثر مبيعاً',
+          customName: 'الأكثر مبيعاً',
+          isActive: 1,
+          sortOrder: 3,
+        ),
+        StoreSectionModel(
+          id: 4,
+          sectionKey: 'discounted_items',
+          defaultName: 'العروض والتخفيضات',
+          customName: 'العروض والتخفيضات',
+          isActive: 1,
+          sortOrder: 4,
+        ),
+        StoreSectionModel(
+          id: 5,
+          sectionKey: 'new_arrivals',
+          defaultName: 'وصل حديثاً',
+          customName: 'وصل حديثاً',
+          isActive: 1,
+          sortOrder: 5,
+        ),
+      ];
+    }
+    update();
+  }
+
+  void reorderStoreSections(int oldIndex, int newIndex) {
+    if (_storeSectionList == null) return;
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = _storeSectionList!.removeAt(oldIndex);
+    _storeSectionList!.insert(newIndex, item);
+    for (int i = 0; i < _storeSectionList!.length; i++) {
+      _storeSectionList![i].sortOrder = i + 1;
+    }
+    update();
+  }
+
+  void toggleStoreSectionActive(int index, bool isActive) {
+    if (_storeSectionList == null) return;
+    _storeSectionList![index].isActive = isActive ? 1 : 0;
+    update();
+  }
+
+  void updateStoreSectionCustomName(int index, String name) {
+    if (_storeSectionList == null) return;
+    _storeSectionList![index].customName = name;
+    update();
+  }
+
+  Future<bool> saveStoreSections() async {
+    if (_storeSectionList == null) return false;
+    _isLoading = true;
+    update();
+
+    List<Map<String, dynamic>> payload = _storeSectionList!
+        .map((s) => s.toJson())
+        .toList();
+    Response response = await storeServiceInterface.updateStoreSections(
+      payload,
+    );
+    _isLoading = false;
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showCustomSnackBar(
+        'تم حفظ ترتيب وترتيب السكاشن بنجاح'.tr,
+        isError: false,
+      );
+      update();
+      return true;
+    } else {
+      ApiChecker.checkApi(response);
+      update();
+      return false;
     }
   }
 }

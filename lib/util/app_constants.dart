@@ -66,6 +66,19 @@ class AppConstants {
   static const String placeOrderUri = '/api/v1/vendor/pos/place-order';
   static const String posOrderUri = '/api/v1/vendor/pos/orders';
   static const String searchCustomersUri = '/api/v1/vendor/pos/customers';
+  static const String addPosCustomerUri = '/api/v1/vendor/customer/store';
+  static const String applyPosCouponUri = '/api/v1/vendor/pos/coupon';
+
+  static const String employeeListUri = '/api/v1/vendor/employee/list';
+  static const String employeeRolesUri = '/api/v1/vendor/employee/roles';
+  static const String addEmployeeUri = '/api/v1/vendor/employee/store';
+  static const String updateEmployeeUri = '/api/v1/vendor/employee/update';
+  static const String deleteEmployeeUri = '/api/v1/vendor/employee/delete';
+  static const String updateEmployeeStatusUri = '/api/v1/vendor/employee/status';
+
+  static const String storeSectionsUri = '/api/v1/vendor/store/sections';
+  static const String updateStoreSectionsUri = '/api/v1/vendor/store/sections/update';
+
   static const String dmListUri = '/api/v1/vendor/delivery-man/list';
   static const String addDmUri = '/api/v1/vendor/delivery-man/store';
   static const String updateDmUri = '/api/v1/vendor/delivery-man/update/';
@@ -101,6 +114,8 @@ class AppConstants {
   static const String expenseListUri = '/api/v1/vendor/get-expense';
   static const String updateProductRecommendedUri =
       '/api/v1/vendor/item/recommended';
+  static const String updateProductBestSellerUri =
+      '/api/v1/vendor/item/best-seller';
   static const String updateProductOrganicUri = '/api/v1/vendor/item/organic';
   static const String geocodeUri = '/api/v1/config/geocode-api';
   static const String itemDetailsUri = '/api/v1/vendor/item/details';

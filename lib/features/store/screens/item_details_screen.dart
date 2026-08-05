@@ -52,8 +52,12 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     _variationPriceControllers = [];
     if (item.variations != null) {
       for (var variation in item.variations!) {
-        _variationStockControllers.add(TextEditingController(text: (variation.stock ?? 0).toString()));
-        _variationPriceControllers.add(TextEditingController(text: (variation.price ?? 0.0).toString()));
+        _variationStockControllers.add(
+          TextEditingController(text: (variation.stock ?? 0).toString()),
+        );
+        _variationPriceControllers.add(
+          TextEditingController(text: (variation.price ?? 0.0).toString()),
+        );
       }
     }
   }
@@ -103,7 +107,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"price": item.price.toString()});
     data.addAll({"unit_price": item.price.toString()});
     data.addAll({"discount": discountValue.toString()});
-    data.addAll({"discount_type": discountType == 'flat' ? 'amount' : discountType});
+    data.addAll({
+      "discount_type": discountType == 'flat' ? 'amount' : discountType,
+    });
 
     if (item.variations != null && item.variations!.isNotEmpty) {
       for (var variation in item.variations!) {
@@ -140,6 +146,10 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
             _initStockPriceControllers();
           });
+          Get.find<StoreController>().setRecommended(
+            item.recommendedStatus == 1,
+          );
+          Get.find<StoreController>().setBestSeller(item.isBestSeller == 1);
         }
       }
       setState(() {
@@ -148,15 +158,22 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     });
   }
 
-  void _updateStockAndPrice(StoreController storeController, {required String updateType}) {
+  void _updateStockAndPrice(
+    StoreController storeController, {
+    required String updateType,
+  }) {
     if (updateType == 'stock') {
       if (_variationStockControllers.isNotEmpty) {
-        if (_variationStockControllers.any((element) => element.text.trim().isEmpty || element.text.trim() == '0')) {
+        if (_variationStockControllers.any(
+          (element) =>
+              element.text.trim().isEmpty || element.text.trim() == '0',
+        )) {
           showCustomSnackBar('stock_cannot_be_zero'.tr);
           return;
         }
       } else {
-        if (_stockController.text.trim().isEmpty || _stockController.text.trim() == '0') {
+        if (_stockController.text.trim().isEmpty ||
+            _stockController.text.trim() == '0') {
           showCustomSnackBar('stock_cannot_be_zero'.tr);
           return;
         }
@@ -165,12 +182,19 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
     if (updateType == 'price') {
       if (_variationPriceControllers.isNotEmpty) {
-        if (_variationPriceControllers.any((element) => element.text.trim().isEmpty || double.tryParse(element.text.trim()) == null || double.parse(element.text.trim()) <= 0)) {
+        if (_variationPriceControllers.any(
+          (element) =>
+              element.text.trim().isEmpty ||
+              double.tryParse(element.text.trim()) == null ||
+              double.parse(element.text.trim()) <= 0,
+        )) {
           showCustomSnackBar('price_cannot_be_zero_or_less'.tr);
           return;
         }
       } else {
-        if (_priceController.text.trim().isEmpty || double.tryParse(_priceController.text.trim()) == null || double.parse(_priceController.text.trim()) <= 0) {
+        if (_priceController.text.trim().isEmpty ||
+            double.tryParse(_priceController.text.trim()) == null ||
+            double.parse(_priceController.text.trim()) <= 0) {
           showCustomSnackBar('price_cannot_be_zero_or_less'.tr);
           return;
         }
@@ -181,7 +205,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     data.addAll({"_method": 'post'});
     data.addAll({"id": item.id.toString()});
     data.addAll({"product_id": item.id.toString()});
-    
+
     if (_variationStockControllers.isNotEmpty) {
       int totalStock = 0;
       for (var c in _variationStockControllers) {
@@ -191,7 +215,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     } else {
       data.addAll({"current_stock": _stockController.text.trim()});
     }
-    
+
     data.addAll({"manage_stock": "1"});
     data.addAll({
       "store_id":
@@ -200,28 +224,36 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
           '',
     });
     data.addAll({"category_id": item.categoryId?.toString() ?? ''});
-    
+
     if (item.variations == null || item.variations!.isEmpty) {
       data.addAll({"price": _priceController.text.trim()});
       data.addAll({"unit_price": _priceController.text.trim()});
       data.addAll({"discount": item.discount?.toString() ?? '0'});
-      data.addAll({"discount_type": item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount')});
+      data.addAll({
+        "discount_type": item.discountType == 'flat'
+            ? 'amount'
+            : (item.discountType ?? 'amount'),
+      });
     } else {
       for (var variation in item.variations!) {
         int index = item.variations!.indexOf(variation);
         data.addAll({
-          "price_${index}_${variation.type}": _variationPriceControllers[index].text.trim(),
+          "price_${index}_${variation.type}": _variationPriceControllers[index]
+              .text
+              .trim(),
         });
       }
     }
-    
+
     List<String> types = [];
     if (item.variations != null && item.variations!.isNotEmpty) {
       for (var variation in item.variations!) {
         types.add(variation.type!);
         int index = item.variations!.indexOf(variation);
         data.addAll({
-          "stock_${index}_${variation.type}": _variationStockControllers[index].text.trim(),
+          "stock_${index}_${variation.type}": _variationStockControllers[index]
+              .text
+              .trim(),
         });
       }
     }
@@ -235,10 +267,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
       }
     });
 
-    storeController.stockUpdate(data, item.id!, shouldBack: false).then((isSuccess) async {
+    storeController.stockUpdate(data, item.id!, shouldBack: false).then((
+      isSuccess,
+    ) async {
       if (isSuccess) {
         showCustomSnackBar(
-          updateType == 'price' ? 'price_updated_successfully'.tr : 'stock_updated_successfully'.tr,
+          updateType == 'price'
+              ? 'price_updated_successfully'.tr
+              : 'stock_updated_successfully'.tr,
           isError: false,
         );
         Item? updatedItem = await storeController.getItemDetails(item.id!);
@@ -250,6 +286,10 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
             _initStockPriceControllers();
           });
+          Get.find<StoreController>().setRecommended(
+            item.recommendedStatus == 1,
+          );
+          Get.find<StoreController>().setBestSeller(item.isBestSeller == 1);
         }
       }
       setState(() {
@@ -276,19 +316,13 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             .module!
             .moduleType ==
         'grocery';
-    final isPharmacy =
-        Get.find<ProfileController>()
-            .profileModel!
-            .stores![0]
-            .module!
-            .moduleType ==
-        'pharmacy';
     final isFood = Get.find<SplashController>()
         .getStoreModuleConfig()
         .newVariation!;
 
     Get.find<StoreController>().setAvailability(item.status == 1);
     Get.find<StoreController>().setRecommended(item.recommendedStatus == 1);
+    Get.find<StoreController>().setBestSeller(item.isBestSeller == 1);
     if (isGrocery) {
       Get.find<StoreController>().setOrganic(item.organicStatus == 1);
     }
@@ -362,13 +396,17 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        if (item.description != null && item.description!.isNotEmpty) ...[
+                                        if (item.description != null &&
+                                            item.description!.isNotEmpty) ...[
                                           const SizedBox(height: 4),
                                           Text(
                                             item.description!,
                                             style: robotoRegular.copyWith(
-                                              fontSize: Dimensions.fontSizeSmall,
-                                              color: Theme.of(context).disabledColor,
+                                              fontSize:
+                                                  Dimensions.fontSizeSmall,
+                                              color: Theme.of(
+                                                context,
+                                              ).disabledColor,
                                             ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
@@ -409,12 +447,14 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
 
                                         Row(
                                           children: [
-                                            if (item.discount != null && item.discount! > 0)
+                                            if (item.discount != null &&
+                                                item.discount! > 0)
                                               Expanded(
                                                 child: Text(
                                                   '${'discount'.tr}: ${item.discount} ${item.discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol}',
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: robotoRegular,
                                                 ),
                                               )
@@ -516,7 +556,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               color: Theme.of(context).cardColor,
                               boxShadow: [boxShadow],
                             ),
-                            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                            padding: const EdgeInsets.all(
+                              Dimensions.paddingSizeSmall,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -526,7 +568,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     fontSize: Dimensions.fontSizeLarge,
                                   ),
                                 ),
-                                const SizedBox(height: Dimensions.paddingSizeSmall),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
 
                                 if (_variationPriceControllers.isEmpty) ...[
                                   CustomTextFieldWidget(
@@ -538,29 +582,39 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                   ),
                                 ] else ...[
                                   ListView.builder(
-                                    itemCount: _variationPriceControllers.length,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount:
+                                        _variationPriceControllers.length,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                                        padding: const EdgeInsets.only(
+                                          bottom: Dimensions.paddingSizeSmall,
+                                        ),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             Expanded(
                                               flex: 3,
                                               child: Text(
-                                                item.variations![index].type ?? '',
+                                                item.variations![index].type ??
+                                                    '',
                                                 style: robotoRegular,
                                               ),
                                             ),
-                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                            const SizedBox(
+                                              width:
+                                                  Dimensions.paddingSizeSmall,
+                                            ),
                                             Expanded(
                                               flex: 5,
                                               child: CustomTextFieldWidget(
                                                 hintText: 'enter_price'.tr,
                                                 labelText: 'price'.tr,
-                                                controller: _variationPriceControllers[index],
+                                                controller:
+                                                    _variationPriceControllers[index],
                                                 inputType: TextInputType.number,
                                                 isAmount: true,
                                               ),
@@ -571,7 +625,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     },
                                   ),
                                 ],
-                                const SizedBox(height: Dimensions.paddingSizeDefault),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeDefault,
+                                ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -589,10 +645,15 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                               Get.dialog(
                                                 ConfirmationDialogWidget(
                                                   icon: Images.warning,
-                                                  description: 'are_you_sure_to_update_price'.tr,
+                                                  description:
+                                                      'are_you_sure_to_update_price'
+                                                          .tr,
                                                   onYesPressed: () {
                                                     Get.back();
-                                                    _updateStockAndPrice(storeController, updateType: 'price');
+                                                    _updateStockAndPrice(
+                                                      storeController,
+                                                      updateType: 'price',
+                                                    );
                                                   },
                                                 ),
                                               );
@@ -612,7 +673,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               color: Theme.of(context).cardColor,
                               boxShadow: [boxShadow],
                             ),
-                            padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                            padding: const EdgeInsets.all(
+                              Dimensions.paddingSizeSmall,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -622,7 +685,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     fontSize: Dimensions.fontSizeLarge,
                                   ),
                                 ),
-                                const SizedBox(height: Dimensions.paddingSizeSmall),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeSmall,
+                                ),
 
                                 if (_variationStockControllers.isEmpty) ...[
                                   CustomTextFieldWidget(
@@ -634,29 +699,39 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                   ),
                                 ] else ...[
                                   ListView.builder(
-                                    itemCount: _variationStockControllers.length,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount:
+                                        _variationStockControllers.length,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                                        padding: const EdgeInsets.only(
+                                          bottom: Dimensions.paddingSizeSmall,
+                                        ),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             Expanded(
                                               flex: 3,
                                               child: Text(
-                                                item.variations![index].type ?? '',
+                                                item.variations![index].type ??
+                                                    '',
                                                 style: robotoRegular,
                                               ),
                                             ),
-                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                            const SizedBox(
+                                              width:
+                                                  Dimensions.paddingSizeSmall,
+                                            ),
                                             Expanded(
                                               flex: 5,
                                               child: CustomTextFieldWidget(
                                                 hintText: 'enter_stock'.tr,
                                                 labelText: 'stock'.tr,
-                                                controller: _variationStockControllers[index],
+                                                controller:
+                                                    _variationStockControllers[index],
                                                 inputType: TextInputType.number,
                                                 isNumber: true,
                                               ),
@@ -667,7 +742,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     },
                                   ),
                                 ],
-                                const SizedBox(height: Dimensions.paddingSizeDefault),
+                                const SizedBox(
+                                  height: Dimensions.paddingSizeDefault,
+                                ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -685,10 +762,15 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                               Get.dialog(
                                                 ConfirmationDialogWidget(
                                                   icon: Images.warning,
-                                                  description: 'are_you_sure_to_update_stock'.tr,
+                                                  description:
+                                                      'are_you_sure_to_update_stock'
+                                                          .tr,
                                                   onYesPressed: () {
                                                     Get.back();
-                                                    _updateStockAndPrice(storeController, updateType: 'stock');
+                                                    _updateStockAndPrice(
+                                                      storeController,
+                                                      updateType: 'stock',
+                                                    );
                                                   },
                                                 ),
                                               );
@@ -726,6 +808,70 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     const SizedBox(height: 2),
                                     Text(
                                       'تحديد وتفعيل ظهور هذا المنتج في قائمة الأكثر مبيعاً',
+                                      style: robotoRegular.copyWith(
+                                        fontSize: Dimensions.fontSizeExtraSmall,
+                                        color: Theme.of(context).disabledColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              storeController.loadingBestSellerList.contains(
+                                    item.id,
+                                  )
+                                  ? const SizedBox(
+                                      width: 60,
+                                      height: 30,
+                                      child: Center(
+                                        child: CupertinoActivityIndicator(),
+                                      ),
+                                    )
+                                  : FlutterSwitch(
+                                      width: 60,
+                                      height: 30,
+                                      valueFontSize:
+                                          Dimensions.fontSizeExtraSmall,
+                                      showOnOff: true,
+                                      activeColor: Theme.of(
+                                        context,
+                                      ).primaryColor,
+                                      value: storeController.isBestSeller,
+                                      onToggle: (bool isActive) {
+                                        storeController.toggleBestSellerProduct(
+                                          item.id,
+                                        );
+                                      },
+                                    ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(cardRadius),
+                            color: Theme.of(context).cardColor,
+                            boxShadow: [boxShadow],
+                          ),
+                          padding: const EdgeInsets.all(
+                            Dimensions.paddingSizeSmall,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'موصى به',
+                                      style: robotoMedium.copyWith(
+                                        fontSize: Dimensions.fontSizeLarge,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'تحديد وتفعيل ظهور هذا المنتج كمنتج موصى به',
                                       style: robotoRegular.copyWith(
                                         fontSize: Dimensions.fontSizeExtraSmall,
                                         color: Theme.of(context).disabledColor,
@@ -1077,8 +1223,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               : 0,
                         ),
 
-
-
                         (item.taxData != null && item.taxData!.isNotEmpty)
                             ? Container(
                                 decoration: BoxDecoration(
@@ -1250,7 +1394,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                           color: Theme.of(context).cardColor,
                           boxShadow: [boxShadow],
                         ),
-                        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                        padding: const EdgeInsets.all(
+                          Dimensions.paddingSizeSmall,
+                        ),
                         child: CustomButtonWidget(
                           onPressed: () {
                             if (Get.find<ProfileController>()

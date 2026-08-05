@@ -121,6 +121,16 @@ import 'package:shoplancer_vendor/features/store/domain/repositories/store_repos
 import 'package:shoplancer_vendor/features/store/domain/repositories/store_repository_interface.dart';
 import 'package:shoplancer_vendor/features/store/domain/services/store_service.dart';
 import 'package:shoplancer_vendor/features/store/domain/services/store_service_interface.dart';
+import 'package:shoplancer_vendor/features/employee/controllers/employee_controller.dart';
+import 'package:shoplancer_vendor/features/employee/domain/repositories/employee_repository.dart';
+import 'package:shoplancer_vendor/features/employee/domain/repositories/employee_repository_interface.dart';
+import 'package:shoplancer_vendor/features/employee/domain/services/employee_service.dart';
+import 'package:shoplancer_vendor/features/employee/domain/services/employee_service_interface.dart';
+import 'package:shoplancer_vendor/features/pos/controllers/pos_controller.dart';
+import 'package:shoplancer_vendor/features/pos/domain/repositories/pos_repository.dart';
+import 'package:shoplancer_vendor/features/pos/domain/repositories/pos_repository_interface.dart';
+import 'package:shoplancer_vendor/features/pos/domain/services/pos_service.dart';
+import 'package:shoplancer_vendor/features/pos/domain/services/pos_service_interface.dart';
 import 'package:shoplancer_vendor/features/subscription/controllers/subscription_controller.dart';
 import 'package:shoplancer_vendor/features/subscription/domain/repositories/subscription_repository.dart';
 import 'package:shoplancer_vendor/features/subscription/domain/repositories/subscription_repository_interface.dart';
@@ -545,6 +555,17 @@ Future<Map<String, Map<String, String>>> init() async {
     () => AdvertisementController(advertisementServiceInterface: Get.find()),
   );
   Get.lazyPut(() => AiController(aiServiceInterface: Get.find()));
+  EmployeeRepositoryInterface employeeRepositoryInterface = EmployeeRepository(apiClient: Get.find());
+  Get.lazyPut(() => employeeRepositoryInterface);
+  EmployeeServiceInterface employeeServiceInterface = EmployeeService(employeeRepositoryInterface: Get.find());
+  Get.lazyPut(() => employeeServiceInterface);
+  Get.lazyPut(() => EmployeeController(employeeServiceInterface: Get.find()));
+
+  PosRepositoryInterface posRepositoryInterface = PosRepository(apiClient: Get.find());
+  Get.lazyPut(() => posRepositoryInterface);
+  PosServiceInterface posServiceInterface = PosService(posRepositoryInterface: Get.find());
+  Get.lazyPut(() => posServiceInterface);
+  Get.lazyPut(() => PosController(posServiceInterface: Get.find()));
 
   ///Taxi module Controllers
   Get.lazyPut(() => ProviderController(providerServiceInterface: Get.find()));

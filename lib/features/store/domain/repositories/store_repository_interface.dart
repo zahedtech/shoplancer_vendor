@@ -55,6 +55,7 @@ abstract class StoreRepositoryInterface<T>
   Future<dynamic> updateItemStatus(int? itemID, int status);
   Future<dynamic> getUnitList();
   Future<dynamic> updateRecommendedProductStatus(int? productID, int status);
+  Future<dynamic> updateBestSellerProductStatus(int? productID, int status);
   Future<dynamic> updateOrganicProductStatus(int? productID, int status);
   Future<dynamic> updateAnnouncement(int status, String announcement);
   Future<List<BrandModel>?> getBrandList();
@@ -62,9 +63,11 @@ abstract class StoreRepositoryInterface<T>
   Future<List<String?>?> getNutritionSuggestionList();
   Future<List<String?>?> getAllergicIngredientsSuggestionList();
   Future<List<String?>?> getGenericNameSuggestionList();
-  Future<Response> stockUpdate(Map<String, String> data);
+  Future<Response> stockUpdate(Map<String, dynamic> data);
   Future<Response> bulkStockUpdate(Map<String, dynamic> body);
   Future<Response> bulkAssignProducts(List<Map<String, dynamic>> products);
   Future<List<SuitableTagModel>?> getSuitableTagList();
   Future<List<VatTaxModel>?> getVatTaxList();
+  Future<Response> getStoreSections();
+  Future<Response> updateStoreSections(List<Map<String, dynamic>> sections);
 }
