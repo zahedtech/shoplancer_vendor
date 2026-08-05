@@ -15,6 +15,7 @@ import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.
 import 'package:shoplancer_vendor/common/models/config_model.dart';
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart'
     as profile;
+import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/helper/custom_validator_helper.dart';
 import 'package:shoplancer_vendor/helper/validate_check.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
@@ -425,6 +426,31 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                       required: true,
                                     ),
                                   ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: Dimensions.paddingSizeDefault,
+                              ),
+                              CustomCard(
+                                padding: const EdgeInsets.all(
+                                  Dimensions.paddingSizeSmall,
+                                ),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.view_stream, color: Theme.of(context).primaryColor),
+                                  ),
+                                  title: Text('ترتيب سكاشن المتجر على الويب'.tr, style: robotoBold),
+                                  subtitle: Text('التحكم في ترتيب، إظهار أو إخفاء وتسمية السكاشن على الصفحة الرئيسية'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
+                                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                  onTap: () {
+                                    Get.toNamed(RouteHelper.getStoreSectionsRoute());
+                                  },
                                 ),
                               ),
                               const SizedBox(

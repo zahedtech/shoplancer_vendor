@@ -109,8 +109,12 @@ class OrderRepository implements OrderRepositoryInterface {
     Response response = await apiClient.getData(
       '${AppConstants.currentOrderDetailsUri}$id',
     );
-    if (response.statusCode == 200) {
-      orderModel = OrderModel.fromJson(response.body);
+    if (response.statusCode == 200 && response.body != null) {
+      if (response.body is Map) {
+        orderModel = OrderModel.fromJson(Map<String, dynamic>.from(response.body));
+      } else if (response.body is List && (response.body as List).isNotEmpty) {
+        orderModel = OrderModel.fromJson(Map<String, dynamic>.from(response.body[0]));
+      }
     }
     return orderModel;
   }

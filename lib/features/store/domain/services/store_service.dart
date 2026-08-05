@@ -165,6 +165,14 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
+  Future<bool> updateBestSellerProductStatus(int? productID, int status) async {
+    return await storeRepositoryInterface.updateBestSellerProductStatus(
+      productID,
+      status,
+    );
+  }
+
+  @override
   Future<bool> updateOrganicProductStatus(int? productID, int status) async {
     return await storeRepositoryInterface.updateOrganicProductStatus(
       productID,
@@ -447,7 +455,7 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<Response> stockUpdate(Map<String, String> data) async {
+  Future<Response> stockUpdate(Map<String, dynamic> data) async {
     return await storeRepositoryInterface.stockUpdate(data);
   }
 
@@ -483,5 +491,17 @@ class StoreService implements StoreServiceInterface {
       translation,
       metaImage,
     );
+  }
+
+  @override
+  Future<Response> getStoreSections() async {
+    return await storeRepositoryInterface.getStoreSections();
+  }
+
+  @override
+  Future<Response> updateStoreSections(
+    List<Map<String, dynamic>> sections,
+  ) async {
+    return await storeRepositoryInterface.updateStoreSections(sections);
   }
 }

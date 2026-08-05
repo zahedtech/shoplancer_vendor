@@ -182,6 +182,45 @@ class MenuScreen extends StatelessWidget {
 
     // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
     if (modulePermission.storeSetup!) {
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.point_of_sale,
+      //     title: 'إنشاء طلب جديد (POS)'.tr,
+      //     route: RouteHelper.getPosRoute(),
+      //   ),
+      // );
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.people_outline,
+      //     title: 'إدارة الموظفين'.tr,
+      //     route: RouteHelper.getEmployeeRoute(),
+      //   ),
+      // );
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.view_stream,
+      //     title: 'ترتيب سكاشن الويب'.tr,
+      //     route: RouteHelper.getStoreSectionsRoute(),
+      //   ),
+      // );
+      // if (store != null) {
+      //   menuList.add(
+      //     MenuModel(
+      //       icon: Images.restaurant,
+      //       title: Get.find<SplashController>()
+      //           .configModel!
+      //           .moduleConfig!
+      //           .module!
+      //           .showRestaurantText!
+      //           ? 'restaurant'.tr
+      //           : 'store'.tr,
+      //       route: RouteHelper.getStoreRoute(),
+      //     ),
+      //   );
+      // }
       menuList.add(
         MenuModel(
           icon: Images.settingIcon,
@@ -202,6 +241,16 @@ class MenuScreen extends StatelessWidget {
           title: 'payment_method'.tr,
           route: '',
           isPaymentMethods: true,
+        ),
+      );
+    }
+
+    if (modulePermission.wallet!) {
+      menuList.add(
+        MenuModel(
+          icon: Images.wallet,
+          title: 'المحفظة',
+          route: RouteHelper.getPrepaidWalletRoute(),
         ),
       );
     }

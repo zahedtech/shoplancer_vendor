@@ -14,7 +14,6 @@ import 'package:shoplancer_vendor/common/widgets/order_shimmer_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/order_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/order_button_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/store_qr_widget.dart';
-import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -174,90 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          GetBuilder<ProfileController>(
-            builder: (profileController) {
-              if (profileController.modulePermission == null ||
-                  !profileController.modulePermission!.wallet! ||
-                  profileController.profileModel == null) {
-                return const SizedBox();
-              }
-
-              final double balance =
-                  profileController.profileModel!.prepaidBalance ?? 0.0;
-              final double limit =
-                  profileController.profileModel!.minPrepaidBalanceLimit ?? 0.0;
-              final double remaining =
-                  profileController.profileModel!.allowedCreditRemaining ??
-                  (limit > 0 ? (limit + balance).clamp(0.0, limit) : 0.0);
-
-              final bool is10PercentOrLessLeft = limit > 0
-                  ? (remaining <= (limit * 0.10))
-                  : (profileController.profileModel!.overFlowBlockWarning ==
-                            true ||
-                        (profileController.profileModel!.isSuspended == true));
-
-              final bool isRedWarning =
-                  is10PercentOrLessLeft ||
-                  balance < 0 ||
-                  (profileController.profileModel!.isSuspended == true);
-
-              return InkWell(
-                onTap: () =>
-                    Get.offAllNamed(RouteHelper.getMainRoute('wallet')),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 4,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isRedWarning
-                        ? Colors.red.shade700
-                        : Theme.of(
-                            context,
-                          ).primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isRedWarning
-                          ? Colors.red.shade900
-                          : Theme.of(
-                              context,
-                            ).primaryColor.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isRedWarning
-                            ? Icons.warning_amber_rounded
-                            : Icons.account_balance_wallet,
-                        size: 16,
-                        color: isRedWarning
-                            ? Colors.white
-                            : Theme.of(context).primaryColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        PriceConverterHelper.convertPrice(balance),
-                        style: robotoBold.copyWith(
-                          fontSize: Dimensions.fontSizeExtraSmall,
-                          color: isRedWarning
-                              ? Colors.white
-                              : Theme.of(context).primaryColor,
-                        ),
-                        textDirection: TextDirection.ltr,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
           IconButton(
             icon: GetBuilder<NotificationController>(
               builder: (notificationController) {

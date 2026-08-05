@@ -11,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 
@@ -406,11 +408,26 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
         : (store != null ? _buildStoreUrl(store) : '');
     final String? storeQrCode = profile?.storeQrCode;
 
-    if (storeUrl.isEmpty && (storeQrCode == null || storeQrCode.trim().isEmpty)) {
+    if (storeUrl.isEmpty &&
+        (storeQrCode == null || storeQrCode.trim().isEmpty)) {
       return const SizedBox();
     }
 
     final String storeName = store?.name ?? profile?.fName ?? '';
+    final bool hasWalletPermission =
+        widget.profileController.modulePermission?.wallet == true &&
+        profile != null;
+    final double balance = profile?.prepaidBalance ?? 0.0;
+    final double limit = profile?.minPrepaidBalanceLimit ?? 0.0;
+    final double remaining =
+        profile?.allowedCreditRemaining ??
+        (limit > 0 ? (limit + balance).clamp(0.0, limit) : 0.0);
+    final bool is10PercentOrLessLeft = limit > 0
+        ? remaining <= (limit * 0.10)
+        : (profile?.overFlowBlockWarning == true ||
+              profile?.isSuspended == true);
+    final bool isRedWarning =
+        is10PercentOrLessLeft || balance < 0 || (profile?.isSuspended == true);
 
     return Container(
       margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
@@ -487,12 +504,74 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  storeName,
-                  style: robotoBold.copyWith(
-                    fontSize: Dimensions.fontSizeLarge,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        storeName,
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeLarge,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (hasWalletPermission) ...[
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: () =>
+                            Get.offAllNamed(RouteHelper.getMainRoute('wallet')),
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isRedWarning
+                                ? Colors.red.shade700
+                                : Theme.of(
+                                    context,
+                                  ).primaryColor.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: isRedWarning
+                                  ? Colors.red.shade900
+                                  : Theme.of(
+                                      context,
+                                    ).primaryColor.withValues(alpha: 0.25),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isRedWarning
+                                    ? Icons.warning_amber_rounded
+                                    : Icons.account_balance_wallet,
+                                size: 14,
+                                color: isRedWarning
+                                    ? Colors.white
+                                    : Theme.of(context).primaryColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                PriceConverterHelper.convertPrice(balance),
+                                style: robotoBold.copyWith(
+                                  fontSize: Dimensions.fontSizeExtraSmall,
+                                  color: isRedWarning
+                                      ? Colors.white
+                                      : Theme.of(context).primaryColor,
+                                ),
+                                textDirection: TextDirection.ltr,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 4),
                 InkWell(
@@ -536,15 +615,24 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                       );
                     }
                   },
-                  child: Text(
-                    storeUrl,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(
-                      fontSize: Dimensions.fontSizeExtraSmall,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.public, size: 14, color: Colors.blue),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          storeUrl,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeExtraSmall,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),

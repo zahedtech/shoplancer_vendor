@@ -547,8 +547,11 @@ class StoreRepository implements StoreRepositoryInterface {
   }
 
   @override
-  Future<Response> stockUpdate(Map<String, String> data) async {
-    return await apiClient.postData(AppConstants.itemStockUpdateUri, data);
+  Future<Response> stockUpdate(Map<String, dynamic> data) async {
+    Map<String, dynamic> body = data.containsKey('products')
+        ? data
+        : {'products': [data]};
+    return await apiClient.postData(AppConstants.itemStockUpdateUri, body);
   }
 
   @override
@@ -582,6 +585,17 @@ class StoreRepository implements StoreRepositoryInterface {
   ) async {
     Response response = await apiClient.getData(
       '${AppConstants.updateProductRecommendedUri}?id=$productID&status=$status',
+    );
+    return (response.statusCode == 200);
+  }
+
+  @override
+  Future<bool> updateBestSellerProductStatus(
+    int? productID,
+    int status,
+  ) async {
+    Response response = await apiClient.getData(
+      '${AppConstants.updateProductBestSellerUri}?id=$productID&status=$status',
     );
     return (response.statusCode == 200);
   }
@@ -725,5 +739,17 @@ class StoreRepository implements StoreRepositoryInterface {
       AppConstants.bulkAssignUri,
       {'products': products},
     );
+  }
+
+  @override
+  Future<Response> getStoreSections() async {
+    return await apiClient.getData(AppConstants.storeSectionsUri);
+  }
+
+  @override
+  Future<Response> updateStoreSections(List<Map<String, dynamic>> sections) async {
+    return await apiClient.postData(AppConstants.updateStoreSectionsUri, {
+      'sections': sections,
+    });
   }
 }

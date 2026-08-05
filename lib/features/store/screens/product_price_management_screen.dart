@@ -248,12 +248,6 @@ class _ProductPriceManagementScreenState
     }
   }
 
-  void _onClearCurrent(List<Item> items) {
-    if (items.isEmpty || _currentIndex >= items.length) return;
-    final Item currentItem = items[_currentIndex];
-    _resetItemPrice(currentItem);
-  }
-
   void _goToIndex(int index, List<Item> items) {
     if (index < 0 || index >= items.length) return;
     setState(() {
@@ -759,9 +753,7 @@ class _ProductPriceManagementScreenState
                       ),
                       label: Text(
                         'مراجعة (${_stagedPrices.length})',
-                        style: robotoBold.copyWith(
-                          color: Colors.white,
-                        ),
+                        style: robotoBold.copyWith(color: Colors.white),
                       ),
                     ),
                   )
@@ -1224,10 +1216,10 @@ class _ProductPriceManagementScreenState
                                           ),
                                           child: TextField(
                                             controller: controller,
-                                            keyboardType:
-                                                const TextInputType.numberWithOptions(
-                                                  decimal: true,
-                                                ),
+                                            keyboardType: TextInputType.none,
+                                            readOnly: true,
+                                            showCursor: false,
+                                            enableInteractiveSelection: false,
                                             textAlign: TextAlign.center,
                                             style: robotoBold.copyWith(
                                               fontSize:

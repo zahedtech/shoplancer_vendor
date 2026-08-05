@@ -101,6 +101,7 @@ class Item {
   List<Translation>? translations;
   List<Tag>? tags;
   int? recommendedStatus;
+  int? isBestSeller;
   int? organicStatus;
   int? maxOrderQuantity;
   int? itemId;
@@ -163,6 +164,7 @@ class Item {
     this.translations,
     this.tags,
     this.recommendedStatus,
+    this.isBestSeller,
     this.organicStatus,
     this.maxOrderQuantity,
     this.itemId,
@@ -335,7 +337,9 @@ class Item {
     price = json['price']?.toDouble();
     tax = json['tax']?.toDouble();
     discount = json['discount']?.toDouble();
-    discountType = json['discount_type'] == 'flat' ? 'amount' : json['discount_type'];
+    discountType = json['discount_type'] == 'flat'
+        ? 'amount'
+        : json['discount_type'];
     availableTimeStarts = json['available_time_starts'];
     availableTimeEnds = json['available_time_ends'];
     setMenu = parseInt(json['set_menu']);
@@ -350,7 +354,9 @@ class Item {
     ratingCount = json['rating_count'];
     veg = parseInt(json['veg']);
     unitType = json['unit_type'];
-    quantityUnit = json['quantity_unit'] != null ? double.tryParse(json['quantity_unit'].toString()) : null;
+    quantityUnit = json['quantity_unit'] != null
+        ? double.tryParse(json['quantity_unit'].toString())
+        : null;
     if (unitType == null && json['unit'] != null) {
       if (json['unit'] is String) {
         unitType = json['unit'];
@@ -440,6 +446,9 @@ class Item {
     }
     recommendedStatus = json['recommended'] != null
         ? int.parse(json['recommended'].toString())
+        : 0;
+    isBestSeller = json['is_best_seller'] != null
+        ? int.parse(json['is_best_seller'].toString())
         : 0;
     organicStatus = parseInt(json['organic']);
     maxOrderQuantity = json['maximum_cart_quantity'] != null
@@ -566,6 +575,7 @@ class Item {
       data['tags'] = tags!.map((v) => v.toJson()).toList();
     }
     data['recommended'] = recommendedStatus;
+    data['is_best_seller'] = isBestSeller;
     data['organic'] = organicStatus;
     data['maximum_cart_quantity'] = maxOrderQuantity;
     data['item_id'] = itemId;

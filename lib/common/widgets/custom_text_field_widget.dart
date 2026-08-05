@@ -153,19 +153,38 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
             isDense: true,
             hintText: widget.hintText,
             fillColor: Theme.of(context).cardColor,
-            hintStyle: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).disabledColor),
+            hintStyle: robotoRegular.copyWith(
+              fontSize: Dimensions.fontSizeDefault,
+              color: Theme.of(context).disabledColor,
+            ),
             filled: true,
-            labelStyle : widget.showLabelText ? robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).disabledColor) : null,
+            floatingLabelBehavior: (widget.showLabelText && widget.labelText != null && widget.labelText!.isNotEmpty)
+                ? FloatingLabelBehavior.auto
+                : FloatingLabelBehavior.never,
+            labelStyle: (widget.showLabelText && widget.labelText != null && widget.labelText!.isNotEmpty)
+                ? robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).disabledColor)
+                : null,
             errorStyle: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
 
-            label: widget.showLabelText ? Text.rich(TextSpan(children: [
-
-              TextSpan(text: widget.labelText ?? '', style: robotoRegular.copyWith(fontSize: widget.labelTextSize ?? Dimensions.fontSizeLarge, color: Theme.of(context).disabledColor.withValues(alpha: .75))),
-
-              if(widget.required && widget.labelText != null)
-                TextSpan(text : ' *', style: robotoRegular.copyWith(color: Theme.of(context).colorScheme.error, fontSize: Dimensions.fontSizeLarge)),
-
-            ])) : null,
+            label: (widget.showLabelText && widget.labelText != null && widget.labelText!.isNotEmpty)
+                ? Text.rich(TextSpan(children: [
+                    TextSpan(
+                      text: widget.labelText!,
+                      style: robotoRegular.copyWith(
+                        fontSize: widget.labelTextSize ?? Dimensions.fontSizeLarge,
+                        color: Theme.of(context).disabledColor.withValues(alpha: .75),
+                      ),
+                    ),
+                    if (widget.required)
+                      TextSpan(
+                        text: ' *',
+                        style: robotoRegular.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: Dimensions.fontSizeLarge,
+                        ),
+                      ),
+                  ]))
+                : null,
 
              prefixIcon: widget.prefixText != null
                 ? ClipRRect(
