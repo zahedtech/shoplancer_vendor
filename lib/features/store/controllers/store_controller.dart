@@ -1024,62 +1024,67 @@ class StoreController extends GetxController implements GetxService {
     _isLoading = true;
     update();
 
-    bool isBasicSuccess = await storeServiceInterface.updateStoreBasicInfo(
-      store,
-      _rawLogo,
-      _rawCover,
-      translations,
-      _pickedMetaImage,
-    );
-
-    String finalMin = minimum ?? '';
-    String finalMax = maximum ?? '';
-    String? durationType = _selectedDuration;
-
-    if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
-      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
-        try {
-          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
-          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
-          if (match != null) {
-            if (finalMin.isEmpty) finalMin = match.group(1)!;
-            if (finalMax.isEmpty) finalMax = match.group(2)!;
-            durationType ??= match.group(3)!;
-          }
-        } catch (_) {}
-      }
-    }
-    durationType ??= 'min';
-    if (finalMin.isEmpty) finalMin = '0';
-    if (finalMax.isEmpty) finalMax = '0';
-
-    bool isSettingsSuccess = await storeServiceInterface.updateStore(
-      store,
-      finalMin,
-      finalMax,
-      durationType,
-    );
-
-    if (isBasicSuccess || isSettingsSuccess) {
-      await Get.find<ProfileController>().getProfile();
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      } else {
-        Get.back();
-      }
-      showCustomSnackBar(
-        Get.find<SplashController>()
-                .configModel!
-                .moduleConfig!
-                .module!
-                .showRestaurantText!
-            ? 'restaurant_settings_updated_successfully'.tr
-            : 'store_settings_updated_successfully'.tr,
-        isError: false,
+    try {
+      bool isBasicSuccess = await storeServiceInterface.updateStoreBasicInfo(
+        store,
+        _rawLogo,
+        _rawCover,
+        translations,
+        _pickedMetaImage,
       );
+
+      String finalMin = minimum ?? '';
+      String finalMax = maximum ?? '';
+      String? durationType = _selectedDuration;
+
+      if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+        if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+          try {
+            RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+            RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+            if (match != null) {
+              if (finalMin.isEmpty) finalMin = match.group(1)!;
+              if (finalMax.isEmpty) finalMax = match.group(2)!;
+              durationType ??= match.group(3)!;
+            }
+          } catch (_) {}
+        }
+      }
+      durationType ??= 'min';
+      if (finalMin.isEmpty) finalMin = '0';
+      if (finalMax.isEmpty) finalMax = '0';
+
+      bool isSettingsSuccess = await storeServiceInterface.updateStore(
+        store,
+        finalMin,
+        finalMax,
+        durationType,
+      );
+
+      if (isBasicSuccess || isSettingsSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        } else {
+          Get.back();
+        }
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_settings_updated_successfully'.tr
+              : 'store_settings_updated_successfully'.tr,
+          isError: false,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   Future<void> updateStoreBasicInfo(
@@ -1089,89 +1094,99 @@ class StoreController extends GetxController implements GetxService {
     _isLoading = true;
     update();
 
-    bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(
-      store,
-      _rawLogo,
-      _rawCover,
-      translation,
-      _pickedMetaImage,
-    );
-    if (isSuccess) {
-      await Get.find<ProfileController>().getProfile();
-      Get.back();
-      showCustomSnackBar(
-        Get.find<SplashController>()
-                .configModel!
-                .moduleConfig!
-                .module!
-                .showRestaurantText!
-            ? 'restaurant_edit_updated_successfully'.tr
-            : 'store_edit_updated_successfully'.tr,
-        isError: false,
+    try {
+      bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(
+        store,
+        _rawLogo,
+        _rawCover,
+        translation,
+        _pickedMetaImage,
       );
+      if (isSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        Get.back();
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_edit_updated_successfully'.tr
+              : 'store_edit_updated_successfully'.tr,
+          isError: false,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   Future<void> updateStore(Store store, String? min, String? max) async {
     _isLoading = true;
     update();
 
-    String finalMin = min ?? '';
-    String finalMax = max ?? '';
-    String? durationType = _selectedDuration;
+    try {
+      String finalMin = min ?? '';
+      String finalMax = max ?? '';
+      String? durationType = _selectedDuration;
 
-    if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
-      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
-        try {
-          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
-          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
-          if (match != null) {
-            if (finalMin.isEmpty) finalMin = match.group(1)!;
-            if (finalMax.isEmpty) finalMax = match.group(2)!;
-            durationType ??= match.group(3)!;
-          }
-        } catch (e) {}
+      if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+        if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+          try {
+            RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+            RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+            if (match != null) {
+              if (finalMin.isEmpty) finalMin = match.group(1)!;
+              if (finalMax.isEmpty) finalMax = match.group(2)!;
+              durationType ??= match.group(3)!;
+            }
+          } catch (e) {}
+        }
       }
-    }
-    durationType ??= 'min';
-    if (finalMin.isEmpty) finalMin = '0';
-    if (finalMax.isEmpty) finalMax = '0';
+      durationType ??= 'min';
+      if (finalMin.isEmpty) finalMin = '0';
+      if (finalMax.isEmpty) finalMax = '0';
 
-    bool isSuccess = await storeServiceInterface.updateStore(
-      store,
-      finalMin,
-      finalMax,
-      durationType,
-    );
-    if (isSuccess) {
-      await Get.find<ProfileController>().getProfile();
-      getItemList(
-        offset: '1',
-        type: 'all',
-        search: '',
-        categoryId: 0,
-        moduleId: _currentModuleId,
+      bool isSuccess = await storeServiceInterface.updateStore(
+        store,
+        finalMin,
+        finalMax,
+        durationType,
       );
-      Get.find<StoreController>().getStoreReviewList(
-        Get.find<ProfileController>().profileModel!.stores![0].id,
-        '',
-      );
-      showCustomSnackBar(
-        Get.find<SplashController>()
-                .configModel!
-                .moduleConfig!
-                .module!
-                .showRestaurantText!
-            ? 'restaurant_settings_updated_successfully'.tr
-            : 'store_settings_updated_successfully'.tr,
-        isError: false,
-      );
-      Get.offAllNamed(RouteHelper.getMainRoute('cart'));
+      if (isSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        getItemList(
+          offset: '1',
+          type: 'all',
+          search: '',
+          categoryId: 0,
+          moduleId: _currentModuleId,
+        );
+        Get.find<StoreController>().getStoreReviewList(
+          Get.find<ProfileController>().profileModel!.stores![0].id,
+          '',
+        );
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_settings_updated_successfully'.tr
+              : 'store_settings_updated_successfully'.tr,
+          isError: false,
+        );
+        Get.offAllNamed(RouteHelper.getMainRoute('cart'));
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   void pickImage(bool isLogo, bool isRemove) async {
@@ -1576,9 +1591,11 @@ class StoreController extends GetxController implements GetxService {
     _rawLogo = null;
     _rawCover = null;
     _pickedMetaImage = null;
+    update();
   }
 
   void initStoreData(Store store) {
+    _isLoading = false;
     _isGstEnabled = store.gstStatus;
     _scheduleList = [];
     _scheduleList!.addAll(store.schedules!);
@@ -1596,6 +1613,7 @@ class StoreController extends GetxController implements GetxService {
     _isTakeAwayEnabled = store.takeAway;
     _isPrescriptionStatusEnable = store.prescriptionStatus;
     _isHalalEnabled = store.isHalalActive;
+    update();
   }
 
   void toggleGst() {

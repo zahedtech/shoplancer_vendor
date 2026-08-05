@@ -18,9 +18,10 @@ class PosCartBottomSheet extends StatefulWidget {
 
 class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _buildingController = TextEditingController();
+  final TextEditingController _apartmentController = TextEditingController();
   final TextEditingController _deliveryChargeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  final TextEditingController _couponController = TextEditingController();
   final TextEditingController _customerSearchController = TextEditingController();
 
   @override
@@ -195,8 +196,6 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                             _orderTypeChip('استلام بنفسه (Takeaway)', 'take_away', posController),
                             const SizedBox(width: 8),
                             _orderTypeChip('توصيل (Delivery)', 'delivery', posController),
-                            const SizedBox(width: 8),
-                            _orderTypeChip('صالة (Dine-in)', 'dine_in', posController),
                           ],
                         ),
                       ),
@@ -226,6 +225,42 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                           prefixIcon: Icons.location_on,
                         ),
                         const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                        // Building and Apartment fields side-by-side
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('رقم العمارة'.tr, style: robotoBold),
+                                  const SizedBox(height: 6),
+                                  CustomTextFieldWidget(
+                                    controller: _buildingController,
+                                    hintText: 'مثال: 5'.tr,
+                                    inputType: TextInputType.text,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('رقم الشقة'.tr, style: robotoBold),
+                                  const SizedBox(height: 6),
+                                  CustomTextFieldWidget(
+                                    controller: _apartmentController,
+                                    hintText: 'مثال: 12'.tr,
+                                    inputType: TextInputType.text,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeDefault),
                       ],
 
                       // 4. Payment Method & Status
@@ -235,9 +270,7 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                         spacing: 8,
                         children: [
                           _paymentChip('كاش عند الاستلام', 'cash_on_delivery', posController),
-                          _paymentChip('بطاقة ائتمان', 'card', posController),
                           _paymentChip('دفع إلكتروني', 'digital_payment', posController),
-                          _paymentChip('المحفظة', 'wallet', posController),
                         ],
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -278,30 +311,6 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                      // 5. Coupon Input
-                      Text('كوبون الخصم'.tr, style: robotoBold),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextFieldWidget(
-                              controller: _couponController,
-                              hintText: 'رمز الكوبون'.tr,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (_couponController.text.trim().isNotEmpty) {
-                                posController.applyCoupon(_couponController.text.trim());
-                              }
-                            },
-                            child: Text('تطبيق'.tr),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeDefault),
-
                       // Order Summary
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -325,16 +334,6 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                                 children: [
                                   Text('رسوم التوصيل:'.tr, style: robotoRegular),
                                   Text('+ ${posController.deliveryCharge.toStringAsFixed(2)} ج.م', style: robotoMedium),
-                                ],
-                              ),
-                            ],
-                            if (posController.couponDiscountAmount > 0) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('خصم الكوبون:'.tr, style: robotoRegular.copyWith(color: Colors.green)),
-                                  Text('- ${posController.couponDiscountAmount.toStringAsFixed(2)} ج.م', style: robotoMedium.copyWith(color: Colors.green)),
                                 ],
                               ),
                             ],
@@ -367,6 +366,8 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                     bool success = await posController.placeOrder(
                       address: _addressController.text.trim(),
                       note: _noteController.text.trim(),
+                      house: _buildingController.text.trim(),
+                      floor: _apartmentController.text.trim(),
                     );
                     if (success && context.mounted) {
                       Navigator.of(context).pop();

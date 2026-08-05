@@ -170,15 +170,15 @@ class MenuScreen extends StatelessWidget {
       }
     }
 
-    if (modulePermission.expenseReport! || modulePermission.vatReport!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.expense,
-          title: 'reports'.tr,
-          route: RouteHelper.getReportsRoute(),
-        ),
-      );
-    }
+    // if (modulePermission.expenseReport! || modulePermission.vatReport!) {
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: Images.expense,
+    //       title: 'reports'.tr,
+    //       route: RouteHelper.getReportsRoute(),
+    //     ),
+    //   );
+    // }
 
     // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
     if (modulePermission.storeSetup!) {

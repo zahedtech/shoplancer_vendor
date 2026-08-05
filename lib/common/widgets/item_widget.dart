@@ -23,6 +23,7 @@ class ItemWidget extends StatelessWidget {
   final int length;
   final bool inStore;
   final bool isCampaign;
+  final bool editOpensDetails;
   const ItemWidget({
     super.key,
     required this.item,
@@ -30,6 +31,7 @@ class ItemWidget extends StatelessWidget {
     required this.length,
     this.inStore = false,
     this.isCampaign = false,
+    this.editOpensDetails = false,
   });
 
   @override
@@ -278,8 +280,17 @@ class ItemWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      IconButton(
-                        onPressed: () => _showQuickUpdateDialog(context),
+                       IconButton(
+                        onPressed: () {
+                          if (editOpensDetails) {
+                            Get.toNamed(
+                              RouteHelper.getItemDetailsRoute(item),
+                              arguments: ItemDetailsScreen(product: item),
+                            );
+                          } else {
+                            _showQuickUpdateDialog(context);
+                          }
+                        },
                         icon: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(
@@ -318,7 +329,16 @@ class ItemWidget extends StatelessWidget {
                     ],
                   )
                 : GestureDetector(
-                    onTap: () => _showQuickUpdateDialog(context),
+                    onTap: () {
+                      if (editOpensDetails) {
+                        Get.toNamed(
+                          RouteHelper.getItemDetailsRoute(item),
+                          arguments: ItemDetailsScreen(product: item),
+                        );
+                      } else {
+                        _showQuickUpdateDialog(context);
+                      }
+                    },
                     child: Icon(
                       inStore
                           ? Icons.edit_outlined

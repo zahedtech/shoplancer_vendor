@@ -431,31 +431,31 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                               const SizedBox(
                                 height: Dimensions.paddingSizeDefault,
                               ),
-                              CustomCard(
-                                padding: const EdgeInsets.all(
-                                  Dimensions.paddingSizeSmall,
-                                ),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(Icons.view_stream, color: Theme.of(context).primaryColor),
-                                  ),
-                                  title: Text('ترتيب سكاشن المتجر على الويب'.tr, style: robotoBold),
-                                  subtitle: Text('التحكم في ترتيب، إظهار أو إخفاء وتسمية السكاشن على الصفحة الرئيسية'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
-                                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                  onTap: () {
-                                    Get.toNamed(RouteHelper.getStoreSectionsRoute());
-                                  },
-                                ),
-                              ),
-                              const SizedBox(
-                                height: Dimensions.paddingSizeDefault,
-                              ),
+                              // CustomCard(
+                              //   padding: const EdgeInsets.all(
+                              //     Dimensions.paddingSizeSmall,
+                              //   ),
+                              //   child: ListTile(
+                              //     contentPadding: EdgeInsets.zero,
+                              //     leading: Container(
+                              //       padding: const EdgeInsets.all(8),
+                              //       decoration: BoxDecoration(
+                              //         color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              //         shape: BoxShape.circle,
+                              //       ),
+                              //       child: Icon(Icons.view_stream, color: Theme.of(context).primaryColor),
+                              //     ),
+                              //     title: Text('ترتيب سكاشن المتجر على الويب'.tr, style: robotoBold),
+                              //     subtitle: Text('التحكم في ترتيب، إظهار أو إخفاء وتسمية السكاشن على الصفحة الرئيسية'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
+                              //     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                              //     onTap: () {
+                              //       Get.toNamed(RouteHelper.getStoreSectionsRoute());
+                              //     },
+                              //   ),
+                              // ),
+                              // const SizedBox(
+                              //   height: Dimensions.paddingSizeDefault,
+                              // ),
 
                               /// Address
                               CustomCard(
@@ -805,7 +805,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                               ),
                                                           decoration: BoxDecoration(
                                                             color:
-                                                                !profileController
+                                                                profileController
                                                                     .isStoreActive
                                                                 ? Colors.green
                                                                       .withOpacity(
@@ -822,7 +822,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                 ),
                                                             border: Border.all(
                                                               color:
-                                                                  !profileController
+                                                                  profileController
                                                                       .isStoreActive
                                                                   ? Colors.green
                                                                   : Colors.red,
@@ -830,7 +830,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                             ),
                                                           ),
                                                           child: Text(
-                                                            !profileController
+                                                            profileController
                                                                     .isStoreActive
                                                                 ? 'active'.tr
                                                                 : 'inactive'.tr,
@@ -838,7 +838,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                               fontSize: Dimensions
                                                                   .fontSizeExtraSmall,
                                                               color:
-                                                                  !profileController
+                                                                  profileController
                                                                       .isStoreActive
                                                                   ? Colors
                                                                         .green[700]
@@ -870,7 +870,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                 : Transform.scale(
                                                                     scale: 0.8,
                                                                     child: CupertinoSwitch(
-                                                                      value: !profileController
+                                                                      value: profileController
                                                                           .isStoreActive,
                                                                       activeColor:
                                                                           Colors
@@ -912,15 +912,15 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                                                       icon: Images.warning,
                                                                                       description: isActive
                                                                                           ? showRestaurantText!
-                                                                                                ? 'are_you_sure_to_close_restaurant'.tr
-                                                                                                : 'are_you_sure_to_close_store'.tr
+                                                                                                ? 'are_you_sure_to_open_restaurant'.tr
+                                                                                                : 'are_you_sure_to_open_store'.tr
                                                                                           : showRestaurantText!
-                                                                                          ? 'are_you_sure_to_open_restaurant'.tr
-                                                                                          : 'are_you_sure_to_open_store'.tr,
+                                                                                          ? 'are_you_sure_to_close_restaurant'.tr
+                                                                                          : 'are_you_sure_to_close_store'.tr,
                                                                                       onYesPressed: () {
                                                                                         Get.back();
                                                                                         profileController.setStoreStatus(
-                                                                                          !isActive,
+                                                                                          isActive,
                                                                                         );
                                                                                         Get.find<
                                                                                               AuthController

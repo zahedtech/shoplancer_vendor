@@ -168,6 +168,7 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
               _facebookController,
               icon: Icons.facebook,
               color: Colors.blue,
+              prefixText: 'facebook.com/',
             ),
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -175,6 +176,7 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
               'Instagram',
               _instagramController,
               imagePath: Images.instagram,
+              prefixText: 'instagram.com/',
             ),
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -182,6 +184,7 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
               'TikTok',
               _tiktokController,
               imagePath: Images.tiktok,
+              prefixText: 'tiktok.com/@',
             ),
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -288,6 +291,7 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
     IconData? icon,
     String? imagePath,
     Color? color,
+    String? prefixText,
   }) {
     Widget iconWidget;
     if (imagePath != null) {
@@ -317,9 +321,10 @@ class _SocialMediaScreenState extends State<SocialMediaScreen> {
         ),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         CustomTextFieldWidget(
-          hintText: 'اسم المستخدم أو الرابط',
+          hintText: Get.locale?.languageCode == 'ar' ? 'اسم المستخدم' : 'Username',
           controller: controller,
           inputType: TextInputType.text,
+          prefixText: prefixText,
         ),
       ],
     );

@@ -1188,32 +1188,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                   );
                                                 },
                                               ),
-
-                                              // Address if available
-                                              if (order.deliveryAddress?.address != null) ...[
-                                                const SizedBox(height: 8),
-                                                Row(
-                                                  children: [
-                                                    Image.asset(
-                                                      Images.markerIcon,
-                                                      width: 12,
-                                                      height: 12,
-                                                    ),
-                                                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                                                    Expanded(
-                                                      child: Text(
-                                                        order.deliveryAddress!.address!,
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: robotoMedium.copyWith(
-                                                          color: Theme.of(context).hintColor,
-                                                          fontSize: Dimensions.fontSizeSmall,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
                                             ],
                                           ),
                                         ),
