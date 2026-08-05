@@ -213,7 +213,7 @@ class PosController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool> placeOrder({String? address, String? note}) async {
+  Future<bool> placeOrder({String? address, String? note, String? house, String? floor}) async {
     if (_cartList.isEmpty) {
       showCustomSnackBar('السلة فارغة، أضف منتجات أولاً'.tr);
       return false;
@@ -249,6 +249,15 @@ class PosController extends GetxController implements GetxService {
       });
     }
 
+    // Append house and floor to address for safety
+    String finalAddress = address ?? '';
+    if (house != null && house.trim().isNotEmpty) {
+      finalAddress += ', عمارة: $house';
+    }
+    if (floor != null && floor.trim().isNotEmpty) {
+      finalAddress += ', شقة: $floor';
+    }
+
     Map<String, dynamic> body = {
       'customer_id': _selectedCustomer?.id,
       'order_type': _orderType,
@@ -259,7 +268,9 @@ class PosController extends GetxController implements GetxService {
       'coupon_discount_amount': _couponDiscountAmount,
       'delivery_charge': _orderType == 'delivery' ? _deliveryCharge : 0.0,
       'coupon_code': _couponCode,
-      'address': address,
+      'address': finalAddress,
+      'house': house,
+      'floor': floor,
       'order_note': note,
       'cart': cartPayload,
     };

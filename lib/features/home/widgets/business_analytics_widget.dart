@@ -17,7 +17,7 @@ class BusinessAnalyticsWidget extends StatefulWidget {
 }
 
 class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
-  int index = 0;
+  int index = 1;
 
   @override
   Widget build(BuildContext context) {

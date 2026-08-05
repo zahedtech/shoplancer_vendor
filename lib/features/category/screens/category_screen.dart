@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/api/api_client.dart';
@@ -795,9 +795,7 @@ class _GlobalCategorySelectionSheetState
                   _showCustomCategoryRequestDialog();
                 },
                 icon: const Icon(Icons.create_new_folder_outlined),
-                label: const Text(
-                  'أو أطلب إضافة فئة خاصة جديدة غير موجودة بالقائمة',
-                ),
+                label: const Text('طلب إضافة فئة جديدة'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(color: Theme.of(context).primaryColor),

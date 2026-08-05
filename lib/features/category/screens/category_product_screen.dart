@@ -168,6 +168,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                     item: categoryController.itemList![index],
                     index: index, length: categoryController.itemList!.length, isCampaign: false,
                     inStore: true,
+                    editOpensDetails: true,
                   ),
                 );
               },

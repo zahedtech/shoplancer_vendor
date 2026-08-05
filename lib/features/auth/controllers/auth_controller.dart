@@ -224,16 +224,21 @@ class AuthController extends GetxController implements GetxService {
   Future<void> toggleStoreClosedStatus() async {
     _storeClosedStatusLoading = true;
     update();
-    bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
-    if (isSuccess) {
-      if (getModuleType() == 'rental') {
-        await Get.find<TaxiProfileController>().getProfile();
-      } else {
-        await Get.find<ProfileController>().getProfile();
+    try {
+      bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
+      if (isSuccess) {
+        if (getModuleType() == 'rental') {
+          await Get.find<TaxiProfileController>().getProfile();
+        } else {
+          await Get.find<ProfileController>().getProfile();
+        }
       }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _storeClosedStatusLoading = false;
+      update();
     }
-    _storeClosedStatusLoading = false;
-    update();
   }
 
   Future<void> registerStore(Map<String, String> data) async {

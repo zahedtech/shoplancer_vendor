@@ -354,7 +354,6 @@ class OrderController extends GetxController implements GetxService {
       }
       getCurrentOrders();
       Get.find<ProfileController>().getProfile();
-      showCustomSnackBar('order_status_updated'.tr, isError: false);
     } else {
       showCustomSnackBar(responseModel.message?.tr, isError: true);
     }
