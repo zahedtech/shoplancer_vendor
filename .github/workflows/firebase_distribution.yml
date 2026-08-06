@@ -17,15 +17,19 @@ jobs:
       - name: Verify Secrets
         run: |
           if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
-            echo "::error::FIREBASE_SERVICE_ACCOUNT is missing or empty! Please add it to GitHub Secrets."
+            echo "::error::FIREBASE_SERVICE_ACCOUNT is missing!"
             exit 1
           fi
+
           if [ -z "${{ secrets.FIREBASE_APP_ID }}" ]; then
-            echo "::error::FIREBASE_APP_ID is missing or empty! Please add it to GitHub Secrets."
+            echo "::error::FIREBASE_APP_ID is missing!"
             exit 1
           fi
-          if [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ]; then
-            echo "::error::One or more Android keystore secrets (ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS) are missing or empty! Please add them to GitHub Secrets."
+
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || \
+             [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] || \
+             [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ]; then
+            echo "::error::Android keystore secrets are missing!"
             exit 1
           fi
 
@@ -50,13 +54,24 @@ jobs:
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT" > firebase-service-account.json
 
-      - name: Set Firebase Group
+      - name: Debug Firebase
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "FIREBASE_GROUP=production" >> $GITHUB_ENV
-          else
-            echo "FIREBASE_GROUP=development" >> $GITHUB_ENV
-          fi
+          echo "=============================="
+          echo "Firebase Debug"
+          echo "=============================="
+          echo "Branch: ${{ github.ref_name }}"
+          echo "App ID: $FIREBASE_APP_ID"
+          echo "Current Directory:"
+          pwd
+          echo ""
+          echo "Service Account:"
+          ls -lah firebase-service-account.json
+          echo ""
+          echo "Android APK Exists?"
+          ls -lah build/app/outputs/flutter-apk || true
+          echo "=============================="
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
