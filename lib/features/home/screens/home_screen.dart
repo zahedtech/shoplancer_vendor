@@ -4,6 +4,7 @@ import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart
 import 'package:shoplancer_vendor/features/home/widgets/business_analytics_widget.dart';
 import 'package:shoplancer_vendor/features/notification/controllers/notification_controller.dart';
 import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
+import 'package:shoplancer_vendor/features/payment/controllers/payment_controller.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
@@ -48,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     await Get.find<ProfileController>().getProfile();
+    await Get.find<PaymentController>().getWalletInfo();
     await Get.find<OrderController>().getCurrentOrders();
     await Get.find<NotificationController>().getNotificationList();
   }

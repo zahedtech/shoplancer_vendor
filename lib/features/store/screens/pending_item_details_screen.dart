@@ -84,7 +84,7 @@ class _PendingItemDetailsScreenState extends State<PendingItemDetailsScreen>
             ),
             centerTitle: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
+              icon: Icon(Icons.arrow_back_ios),
               color: Theme.of(context).textTheme.bodyLarge!.color,
               onPressed: () => Get.back(),
             ),

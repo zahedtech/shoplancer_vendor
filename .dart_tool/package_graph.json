@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "shoplancer_vendor",
-      "version": "1.0.6+11",
+      "version": "1.0.7+12",
       "dependencies": [
         "audioplayers",
         "cached_network_image",
@@ -198,7 +198,7 @@
     },
     {
       "name": "fluttertoast",
-      "version": "9.1.0",
+      "version": "9.0.0",
       "dependencies": [
         "flutter",
         "flutter_web_plugins",
@@ -476,7 +476,7 @@
     },
     {
       "name": "vibration",
-      "version": "3.2.0",
+      "version": "3.1.8",
       "dependencies": [
         "flutter",
         "plugin_platform_interface",
@@ -1342,7 +1342,7 @@
     },
     {
       "name": "synchronized",
-      "version": "3.4.0+1",
+      "version": "3.4.0",
       "dependencies": []
     },
     {
@@ -1795,7 +1795,7 @@
     },
     {
       "name": "wakelock_plus_platform_interface",
-      "version": "1.6.0",
+      "version": "1.5.1",
       "dependencies": [
         "flutter",
         "meta",

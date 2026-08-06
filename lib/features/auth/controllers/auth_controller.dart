@@ -224,16 +224,21 @@ class AuthController extends GetxController implements GetxService {
   Future<void> toggleStoreClosedStatus() async {
     _storeClosedStatusLoading = true;
     update();
-    bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
-    if (isSuccess) {
-      if (getModuleType() == 'rental') {
-        await Get.find<TaxiProfileController>().getProfile();
-      } else {
-        await Get.find<ProfileController>().getProfile();
+    try {
+      bool isSuccess = await authServiceInterface.toggleStoreClosedStatus();
+      if (isSuccess) {
+        if (getModuleType() == 'rental') {
+          await Get.find<TaxiProfileController>().getProfile();
+        } else {
+          await Get.find<ProfileController>().getProfile();
+        }
       }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _storeClosedStatusLoading = false;
+      update();
     }
-    _storeClosedStatusLoading = false;
-    update();
   }
 
   Future<void> registerStore(Map<String, String> data) async {
@@ -376,7 +381,8 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void resetBusiness() {
-    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0;
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 && !GetPlatform.isIOS;
+
     bool isCommissionAvailable = Get.find<SplashController>().configModel?.commissionBusinessModel != 0;
 
     if (!isSubscriptionAvailable) {
@@ -399,7 +405,7 @@ class AuthController extends GetxController implements GetxService {
     _packageModel = await authServiceInterface.getPackageList(
       moduleId: moduleId,
     );
-    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 &&
+    bool isSubscriptionAvailable = Get.find<SplashController>().configModel?.subscriptionBusinessModel != 0 && !GetPlatform.isIOS &&
         _packageModel?.packages != null &&
         _packageModel!.packages!.isNotEmpty;
     if (!isSubscriptionAvailable) {

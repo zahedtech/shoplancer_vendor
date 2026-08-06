@@ -18,13 +18,29 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to}) async {
-    return await orderRepositoryInterface.getPaginatedOrderList(offset, status, from: from, to: to);
+  Future<PaginatedOrderModel?> getPaginatedOrderList(
+    int offset,
+    String status, {
+    String? from,
+    String? to,
+  }) async {
+    return await orderRepositoryInterface.getPaginatedOrderList(
+      offset,
+      status,
+      from: from,
+      to: to,
+    );
   }
 
   @override
-  Future<ResponseModel> updateOrderStatus(UpdateStatusBodyModel updateStatusBody, List<MultipartBody> proofAttachment) async {
-    return await orderRepositoryInterface.updateOrderStatus(updateStatusBody, proofAttachment);
+  Future<ResponseModel> updateOrderStatus(
+    UpdateStatusBodyModel updateStatusBody,
+    List<MultipartBody> proofAttachment,
+  ) async {
+    return await orderRepositoryInterface.updateOrderStatus(
+      updateStatusBody,
+      proofAttachment,
+    );
   }
 
   @override
@@ -53,6 +69,11 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
+  Future<ResponseModel> cancelOrder(Map<String, String> body) async {
+    return await orderRepositoryInterface.cancelOrder(body);
+  }
+
+  @override
   Future<bool> sendDeliveredNotification(int? orderID) async {
     return await orderRepositoryInterface.sendDeliveredNotification(orderID);
   }
@@ -60,7 +81,7 @@ class OrderService implements OrderServiceInterface {
   @override
   List<MultipartBody> processMultipartData(List<XFile> pickedPrescriptions) {
     List<MultipartBody> multiParts = [];
-    for(XFile file in pickedPrescriptions) {
+    for (XFile file in pickedPrescriptions) {
       multiParts.add(MultipartBody('order_proof[]', file));
     }
     return multiParts;
@@ -72,5 +93,6 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
-  String? getBluetoothAddress() => orderRepositoryInterface.getBluetoothAddress();
+  String? getBluetoothAddress() =>
+      orderRepositoryInterface.getBluetoothAddress();
 }

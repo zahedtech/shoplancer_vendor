@@ -50,7 +50,16 @@ class ProfileController extends GetxController implements GetxService {
   Future<void> getProfile() async {
     ProfileModel? profileModel = await profileServiceInterface.getProfileInfo();
     if (profileModel != null) {
+      if (_profileModel != null) {
+        profileModel.prepaidBalance ??= _profileModel!.prepaidBalance;
+        profileModel.minPrepaidBalanceLimit ??= _profileModel!.minPrepaidBalanceLimit;
+        profileModel.allowedCreditRemaining ??= _profileModel!.allowedCreditRemaining;
+        profileModel.isSuspended ??= _profileModel!.isSuspended;
+      }
       _profileModel = profileModel;
+      if (_profileModel!.stores != null && _profileModel!.stores!.isNotEmpty) {
+        _isStoreActive = _profileModel!.stores![0].active ?? true;
+      }
       Get.find<SplashController>().setModule(_profileModel!.stores![0].module!.id, _profileModel!.stores![0].module!.moduleType);
       profileServiceInterface.updateHeader(_profileModel!.stores![0].module!.id);
       _allowModulePermission(_profileModel?.roles);

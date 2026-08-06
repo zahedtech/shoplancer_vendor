@@ -22,6 +22,7 @@ import 'package:shoplancer_vendor/features/store/domain/models/attribute_model.d
 import 'package:shoplancer_vendor/features/store/domain/models/pending_item_model.dart'
     hide CategoryIds;
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:shoplancer_vendor/features/store/domain/models/store_section_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/unit_model.dart';
 import 'package:shoplancer_vendor/features/rental_module/profile/controllers/taxi_profile_controller.dart';
@@ -67,6 +68,9 @@ class StoreController extends GetxController implements GetxService {
 
   final List<int> _loadingRecommendedList = [];
   List<int> get loadingRecommendedList => _loadingRecommendedList;
+
+  final List<int> _loadingBestSellerList = [];
+  List<int> get loadingBestSellerList => _loadingBestSellerList;
 
   int? _pageSize;
   int? get pageSize => _pageSize;
@@ -164,6 +168,9 @@ class StoreController extends GetxController implements GetxService {
 
   bool _isRecommended = false;
   bool get isRecommended => _isRecommended;
+
+  bool _isBestSeller = false;
+  bool get isBestSeller => _isBestSeller;
 
   bool _isOrganic = false;
   bool get isOrganic => _isOrganic;
@@ -279,6 +286,7 @@ class StoreController extends GetxController implements GetxService {
   List<String>? get categoryNameList => _categoryNameList;
 
   List<int>? _categoryIdList;
+  List<int>? get categoryIdList => _categoryIdList;
 
   int? _categoryId = 0;
   int? get categoryId => _categoryId;
@@ -376,27 +384,31 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> bulkItemsUpdate(List<Map<String, String>> updates) async {
+  Future<void> bulkItemsUpdate(List<Map<String, dynamic>> updates) async {
     _isLoading = true;
     update();
-    for (var data in updates) {
-      await storeServiceInterface.stockUpdate(data);
+    Response response = await storeServiceInterface.bulkStockUpdate({
+      'products': updates,
+    });
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showCustomSnackBar(
+        'selected_items_updated_successfully'.tr,
+        isError: false,
+      );
+      _selectedItemList = [];
+      _isSelectionMode = false;
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
+      getLimitedStockItemList('1', willUpdate: false);
+    } else {
+      ApiChecker.checkApi(response);
     }
     _isLoading = false;
-    showCustomSnackBar(
-      'selected_items_updated_successfully'.tr,
-      isError: false,
-    );
-    _selectedItemList = [];
-    _isSelectionMode = false;
-    getItemList(
-      offset: '1',
-      type: 'all',
-      search: '',
-      categoryId: 0,
-      moduleId: _currentModuleId,
-    );
-    getLimitedStockItemList('1', willUpdate: false);
     update();
   }
 
@@ -406,7 +418,9 @@ class StoreController extends GetxController implements GetxService {
   }) async {
     _isLoading = true;
     update();
-    Response response = await storeServiceInterface.bulkAssignProducts(products);
+    Response response = await storeServiceInterface.bulkAssignProducts(
+      products,
+    );
     bool isSuccess = false;
     if (response.statusCode == 200 || response.statusCode == 201) {
       isSuccess = true;
@@ -438,26 +452,36 @@ class StoreController extends GetxController implements GetxService {
     return isSuccess;
   }
 
-  Map<String, String> buildStockUpdateData(
+  Map<String, dynamic> buildStockUpdateData(
     Item item, {
     double? price,
     int? stock,
   }) {
-    final Map<String, String> data = {
-      '_method': 'post',
-      'id': item.id.toString(),
+    final String storeId =
+        Get.find<ProfileController>().profileModel?.stores?[0].id.toString() ??
+        '';
+    final String categoryId =
+        item.categoryId?.toString() ??
+        (item.categoryIds?.isNotEmpty == true
+            ? item.categoryIds![0].id ?? ''
+            : '');
+
+    final double finalPrice = price ?? item.price ?? 0.0;
+    final double discount = item.discount ?? 0.0;
+    final String discountType = item.discountType == 'flat'
+        ? 'amount'
+        : (item.discountType ?? 'amount');
+
+    final Map<String, dynamic> data = {
       'product_id': item.id.toString(),
-      'current_stock': stock?.toString() ?? item.stock.toString(),
+      'current_stock': (stock ?? item.stock ?? 0).toString(),
       'manage_stock': '1',
-      'price': price?.toString() ?? item.price.toString(),
-      'unit_price': price?.toString() ?? item.price.toString(),
-      'discount': item.discount?.toString() ?? '0',
-      'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
-      'store_id':
-          Get.find<ProfileController>().profileModel?.stores?[0].id
-              .toString() ??
-          '',
-      'category_id': item.categoryId?.toString() ?? '',
+      'price': finalPrice.toString(),
+      'unit_price': finalPrice.toString(),
+      'discount': discount.toString(),
+      'discount_type': discountType,
+      'store_id': storeId,
+      'category_id': categoryId,
     };
 
     final List<Variation> variations = item.variations ?? [];
@@ -574,6 +598,10 @@ class StoreController extends GetxController implements GetxService {
     _isRecommended = isRecommended;
   }
 
+  void setBestSeller(bool isBestSeller) {
+    _isBestSeller = isBestSeller;
+  }
+
   void setOrganic(bool isOrganic) {
     _isOrganic = isOrganic;
   }
@@ -610,6 +638,37 @@ class StoreController extends GetxController implements GetxService {
     }
     if (productID != null) {
       _loadingRecommendedList.remove(productID);
+    }
+    update();
+  }
+
+  void toggleBestSellerProduct(int? productID) async {
+    if (productID != null) {
+      _loadingBestSellerList.add(productID);
+      update();
+    }
+    bool isSuccess = await storeServiceInterface.updateBestSellerProductStatus(
+      productID,
+      _isBestSeller ? 0 : 1,
+    );
+    if (isSuccess) {
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: _currentModuleId,
+      );
+      _isBestSeller = !_isBestSeller;
+      showCustomSnackBar(
+        Get.find<SplashController>().moduleType == 'food'
+            ? 'food_status_updated_successfully'.tr
+            : 'product_status_updated_successfully'.tr,
+        isError: false,
+      );
+    }
+    if (productID != null) {
+      _loadingBestSellerList.remove(productID);
     }
     update();
   }
@@ -705,6 +764,9 @@ class StoreController extends GetxController implements GetxService {
     bool willUpdate = true,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   }) async {
     _currentModuleId = moduleId;
 
@@ -732,6 +794,9 @@ class StoreController extends GetxController implements GetxService {
         categoryId: categoryId,
         moduleId: moduleId,
         barcode: barcode,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        sort: sort,
       );
       if (itemModel != null) {
         if (offset == '1') {
@@ -753,6 +818,7 @@ class StoreController extends GetxController implements GetxService {
           _itemList!.addAll(newItems);
         }
         _itemSize = itemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
@@ -787,6 +853,7 @@ class StoreController extends GetxController implements GetxService {
         }
         _stockItemList!.addAll(itemModel.items!);
         _pageSize = itemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
@@ -836,6 +903,7 @@ class StoreController extends GetxController implements GetxService {
         }
         _pendingItem!.addAll(pendingItemModel.items!);
         _pageSize = pendingItemModel.totalSize;
+        _offset = int.parse(offset);
         _isLoading = false;
         update();
       }
@@ -947,6 +1015,78 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  Future<void> updateStoreBasicInfoAndSettings({
+    required Store store,
+    required List<Translation> translations,
+    required String? minimum,
+    required String? maximum,
+  }) async {
+    _isLoading = true;
+    update();
+
+    try {
+      bool isBasicSuccess = await storeServiceInterface.updateStoreBasicInfo(
+        store,
+        _rawLogo,
+        _rawCover,
+        translations,
+        _pickedMetaImage,
+      );
+
+      String finalMin = minimum ?? '';
+      String finalMax = maximum ?? '';
+      String? durationType = _selectedDuration;
+
+      if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+        if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+          try {
+            RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+            RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+            if (match != null) {
+              if (finalMin.isEmpty) finalMin = match.group(1)!;
+              if (finalMax.isEmpty) finalMax = match.group(2)!;
+              durationType ??= match.group(3)!;
+            }
+          } catch (_) {}
+        }
+      }
+      durationType ??= 'min';
+      if (finalMin.isEmpty) finalMin = '0';
+      if (finalMax.isEmpty) finalMax = '0';
+
+      bool isSettingsSuccess = await storeServiceInterface.updateStore(
+        store,
+        finalMin,
+        finalMax,
+        durationType,
+      );
+
+      if (isBasicSuccess || isSettingsSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        } else {
+          Get.back();
+        }
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_settings_updated_successfully'.tr
+              : 'store_settings_updated_successfully'.tr,
+          isError: false,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
+    }
+  }
+
   Future<void> updateStoreBasicInfo(
     Store store,
     List<Translation> translation,
@@ -954,89 +1094,99 @@ class StoreController extends GetxController implements GetxService {
     _isLoading = true;
     update();
 
-    bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(
-      store,
-      _rawLogo,
-      _rawCover,
-      translation,
-      _pickedMetaImage,
-    );
-    if (isSuccess) {
-      await Get.find<ProfileController>().getProfile();
-      Get.back();
-      showCustomSnackBar(
-        Get.find<SplashController>()
-                .configModel!
-                .moduleConfig!
-                .module!
-                .showRestaurantText!
-            ? 'restaurant_edit_updated_successfully'.tr
-            : 'store_edit_updated_successfully'.tr,
-        isError: false,
+    try {
+      bool isSuccess = await storeServiceInterface.updateStoreBasicInfo(
+        store,
+        _rawLogo,
+        _rawCover,
+        translation,
+        _pickedMetaImage,
       );
+      if (isSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        Get.back();
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_edit_updated_successfully'.tr
+              : 'store_edit_updated_successfully'.tr,
+          isError: false,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   Future<void> updateStore(Store store, String? min, String? max) async {
     _isLoading = true;
     update();
 
-    String finalMin = min ?? '';
-    String finalMax = max ?? '';
-    String? durationType = _selectedDuration;
+    try {
+      String finalMin = min ?? '';
+      String finalMax = max ?? '';
+      String? durationType = _selectedDuration;
 
-    if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
-      if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
-        try {
-          RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
-          RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
-          if (match != null) {
-            if (finalMin.isEmpty) finalMin = match.group(1)!;
-            if (finalMax.isEmpty) finalMax = match.group(2)!;
-            durationType ??= match.group(3)!;
-          }
-        } catch (e) {}
+      if (finalMin.isEmpty || finalMax.isEmpty || durationType == null) {
+        if (store.deliveryTime != null && store.deliveryTime!.isNotEmpty) {
+          try {
+            RegExp regExp = RegExp(r'(\d+)-(\d+) (hours|days|min)');
+            RegExpMatch? match = regExp.firstMatch(store.deliveryTime!);
+            if (match != null) {
+              if (finalMin.isEmpty) finalMin = match.group(1)!;
+              if (finalMax.isEmpty) finalMax = match.group(2)!;
+              durationType ??= match.group(3)!;
+            }
+          } catch (e) {}
+        }
       }
-    }
-    durationType ??= 'min';
-    if (finalMin.isEmpty) finalMin = '0';
-    if (finalMax.isEmpty) finalMax = '0';
+      durationType ??= 'min';
+      if (finalMin.isEmpty) finalMin = '0';
+      if (finalMax.isEmpty) finalMax = '0';
 
-    bool isSuccess = await storeServiceInterface.updateStore(
-      store,
-      finalMin,
-      finalMax,
-      durationType,
-    );
-    if (isSuccess) {
-      await Get.find<ProfileController>().getProfile();
-      getItemList(
-        offset: '1',
-        type: 'all',
-        search: '',
-        categoryId: 0,
-        moduleId: _currentModuleId,
+      bool isSuccess = await storeServiceInterface.updateStore(
+        store,
+        finalMin,
+        finalMax,
+        durationType,
       );
-      Get.find<StoreController>().getStoreReviewList(
-        Get.find<ProfileController>().profileModel!.stores![0].id,
-        '',
-      );
-      showCustomSnackBar(
-        Get.find<SplashController>()
-                .configModel!
-                .moduleConfig!
-                .module!
-                .showRestaurantText!
-            ? 'restaurant_settings_updated_successfully'.tr
-            : 'store_settings_updated_successfully'.tr,
-        isError: false,
-      );
-      Get.offAllNamed(RouteHelper.getMainRoute('cart'));
+      if (isSuccess) {
+        await Get.find<ProfileController>().getProfile();
+        getItemList(
+          offset: '1',
+          type: 'all',
+          search: '',
+          categoryId: 0,
+          moduleId: _currentModuleId,
+        );
+        Get.find<StoreController>().getStoreReviewList(
+          Get.find<ProfileController>().profileModel!.stores![0].id,
+          '',
+        );
+        showCustomSnackBar(
+          Get.find<SplashController>()
+                  .configModel!
+                  .moduleConfig!
+                  .module!
+                  .showRestaurantText!
+              ? 'restaurant_settings_updated_successfully'.tr
+              : 'store_settings_updated_successfully'.tr,
+          isError: false,
+        );
+        Get.offAllNamed(RouteHelper.getMainRoute('cart'));
+      }
+    } catch (e) {
+      showCustomSnackBar('something_went_wrong'.tr, isError: true);
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   void pickImage(bool isLogo, bool isRemove) async {
@@ -1441,9 +1591,11 @@ class StoreController extends GetxController implements GetxService {
     _rawLogo = null;
     _rawCover = null;
     _pickedMetaImage = null;
+    update();
   }
 
   void initStoreData(Store store) {
+    _isLoading = false;
     _isGstEnabled = store.gstStatus;
     _scheduleList = [];
     _scheduleList!.addAll(store.schedules!);
@@ -1461,6 +1613,7 @@ class StoreController extends GetxController implements GetxService {
     _isTakeAwayEnabled = store.takeAway;
     _isPrescriptionStatusEnable = store.prescriptionStatus;
     _isHalalEnabled = store.isHalalActive;
+    update();
   }
 
   void toggleGst() {
@@ -2072,7 +2225,7 @@ class StoreController extends GetxController implements GetxService {
   }
 
   Future<bool> stockUpdate(
-    Map<String, String> data,
+    Map<String, dynamic> data,
     int itemId, {
     bool shouldBack = true,
   }) async {
@@ -2080,7 +2233,7 @@ class StoreController extends GetxController implements GetxService {
     update();
     Response response = await storeServiceInterface.stockUpdate(data);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       getItemList(
         offset: '1',
         type: _type,
@@ -2095,10 +2248,23 @@ class StoreController extends GetxController implements GetxService {
       if (Get.isRegistered<CategoryController>()) {
         final catController = Get.find<CategoryController>();
         if (catController.itemList != null) {
-          int idx = catController.itemList!.indexWhere((element) => element.id == itemId);
+          int idx = catController.itemList!.indexWhere(
+            (element) => element.id == itemId,
+          );
           if (idx != -1) {
-            final double? newPrice = double.tryParse(data['price'] ?? '');
-            final int? newStock = int.tryParse(data['current_stock'] ?? '');
+            Map<String, dynamic> itemMap = data;
+            if (data.containsKey('products') &&
+                (data['products'] is List) &&
+                (data['products'] as List).isNotEmpty) {
+              itemMap =
+                  (data['products'] as List).first as Map<String, dynamic>;
+            }
+            final double? newPrice = double.tryParse(
+              itemMap['price']?.toString() ?? '',
+            );
+            final int? newStock = int.tryParse(
+              itemMap['current_stock']?.toString() ?? '',
+            );
             if (newPrice != null) catController.itemList![idx].price = newPrice;
             if (newStock != null) catController.itemList![idx].stock = newStock;
             catController.update();
@@ -2111,7 +2277,7 @@ class StoreController extends GetxController implements GetxService {
     }
     _isLoading = false;
     update();
-    return response.statusCode == 200;
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   Future<void> getVatTaxList() async {
@@ -2568,6 +2734,122 @@ class StoreController extends GetxController implements GetxService {
       _maxVideoPreview = metaData.metaMaxVideoPreview.toString();
       _maxImagePreview = metaData.metaMaxImagePreview.toString();
       _imagePreviewSelectedType = metaData.metaMaxImagePreviewValue ?? '';
+    }
+  }
+
+  List<StoreSectionModel>? _storeSectionList;
+  List<StoreSectionModel>? get storeSectionList => _storeSectionList;
+
+  Future<void> getStoreSections() async {
+    _isLoading = true;
+    update();
+    Response response = await storeServiceInterface.getStoreSections();
+    _isLoading = false;
+    if (response.statusCode == 200 && response.body != null) {
+      _storeSectionList = [];
+      List<dynamic> list = response.body is List
+          ? response.body
+          : (response.body['data'] ?? []);
+      for (var item in list) {
+        _storeSectionList!.add(StoreSectionModel.fromJson(item));
+      }
+    } else {
+      // Fallback default sections if backend is not ready yet
+      _storeSectionList = [
+        StoreSectionModel(
+          id: 1,
+          sectionKey: 'main_banner',
+          defaultName: 'البانر الرئيسي',
+          customName: 'البانر الرئيسي',
+          isActive: 1,
+          sortOrder: 1,
+        ),
+        StoreSectionModel(
+          id: 2,
+          sectionKey: 'featured_categories',
+          defaultName: 'الأقسام المميزة',
+          customName: 'الأقسام المميزة',
+          isActive: 1,
+          sortOrder: 2,
+        ),
+        StoreSectionModel(
+          id: 3,
+          sectionKey: 'popular_items',
+          defaultName: 'الأكثر مبيعاً',
+          customName: 'الأكثر مبيعاً',
+          isActive: 1,
+          sortOrder: 3,
+        ),
+        StoreSectionModel(
+          id: 4,
+          sectionKey: 'discounted_items',
+          defaultName: 'العروض والتخفيضات',
+          customName: 'العروض والتخفيضات',
+          isActive: 1,
+          sortOrder: 4,
+        ),
+        StoreSectionModel(
+          id: 5,
+          sectionKey: 'new_arrivals',
+          defaultName: 'وصل حديثاً',
+          customName: 'وصل حديثاً',
+          isActive: 1,
+          sortOrder: 5,
+        ),
+      ];
+    }
+    update();
+  }
+
+  void reorderStoreSections(int oldIndex, int newIndex) {
+    if (_storeSectionList == null) return;
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = _storeSectionList!.removeAt(oldIndex);
+    _storeSectionList!.insert(newIndex, item);
+    for (int i = 0; i < _storeSectionList!.length; i++) {
+      _storeSectionList![i].sortOrder = i + 1;
+    }
+    update();
+  }
+
+  void toggleStoreSectionActive(int index, bool isActive) {
+    if (_storeSectionList == null) return;
+    _storeSectionList![index].isActive = isActive ? 1 : 0;
+    update();
+  }
+
+  void updateStoreSectionCustomName(int index, String name) {
+    if (_storeSectionList == null) return;
+    _storeSectionList![index].customName = name;
+    update();
+  }
+
+  Future<bool> saveStoreSections() async {
+    if (_storeSectionList == null) return false;
+    _isLoading = true;
+    update();
+
+    List<Map<String, dynamic>> payload = _storeSectionList!
+        .map((s) => s.toJson())
+        .toList();
+    Response response = await storeServiceInterface.updateStoreSections(
+      payload,
+    );
+    _isLoading = false;
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showCustomSnackBar(
+        'تم حفظ ترتيب وترتيب السكاشن بنجاح'.tr,
+        isError: false,
+      );
+      update();
+      return true;
+    } else {
+      ApiChecker.checkApi(response);
+      update();
+      return false;
     }
   }
 }

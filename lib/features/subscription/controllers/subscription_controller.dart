@@ -378,6 +378,7 @@ class SubscriptionController extends GetxController implements GetxService {
   }
 
   Future<bool> trialEndBottomSheet() async {
+    if (GetPlatform.isIOS) return true;
     if (Get.find<ProfileController>().profileModel != null &&
         Get.find<ProfileController>()
                 .profileModel!

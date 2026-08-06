@@ -28,10 +28,13 @@ class AddressRepository implements AddressRepositoryInterface {
   @override
   Future<String> getAddressFromGeocode(LatLng latLng) async {
     String address = 'Unknown Location Found';
-    Response response = await apiClient.getData('${AppConstants.geocodeUri}?lat=${latLng.latitude}&lng=${latLng.longitude}', handleError: false);
-    if(response.statusCode == 200 && response.body['status'] == 'OK') {
+    Response response = await apiClient.getData(
+      '${AppConstants.geocodeUri}?lat=${latLng.latitude}&lng=${latLng.longitude}',
+      handleError: false,
+    );
+    if (response.statusCode == 200 && response.body['status'] == 'OK') {
       address = response.body['results'][0]['formatted_address'].toString();
-    }else {
+    } else {
       showCustomSnackBar(response.body['error_message'] ?? response.bodyString);
     }
     return address;
@@ -40,10 +43,16 @@ class AddressRepository implements AddressRepositoryInterface {
   @override
   Future<List<PredictionModel>> searchLocation(String text) async {
     List<PredictionModel> predictionList = [];
-    Response response = await apiClient.getData('${AppConstants.searchLocationUri}?search_text=$text', handleError: false);
+    Response response = await apiClient.getData(
+      '${AppConstants.searchLocationUri}?search_text=$text',
+      handleError: false,
+    );
     if (response.statusCode == 200) {
       predictionList = [];
-      response.body['suggestions'].forEach((prediction) => predictionList.add(PredictionModel.fromJson(prediction)));
+      response.body['suggestions'].forEach(
+        (prediction) =>
+            predictionList.add(PredictionModel.fromJson(prediction)),
+      );
     } else {
       showCustomSnackBar(response.body['error_message'] ?? response.bodyString);
     }
@@ -52,7 +61,9 @@ class AddressRepository implements AddressRepositoryInterface {
 
   @override
   Future<Response?> getPlaceDetails(String? placeID) async {
-    Response response = await apiClient.getData('${AppConstants.placeDetailsUri}?placeid=$placeID');
+    Response response = await apiClient.getData(
+      '${AppConstants.placeDetailsUri}?placeid=$placeID',
+    );
     return response;
   }
 
@@ -64,9 +75,10 @@ class AddressRepository implements AddressRepositoryInterface {
   @override
   Future<bool> saveUserAddress(String address, List<int>? zoneIDs) async {
     apiClient.updateHeader(
-        sharedPreferences.getString(AppConstants.token),
-        sharedPreferences.getString(AppConstants.languageCode), null,
-        sharedPreferences.getString(AppConstants.type)
+      sharedPreferences.getString(AppConstants.token),
+      sharedPreferences.getString(AppConstants.languageCode),
+      null,
+      sharedPreferences.getString(AppConstants.type),
     );
     return await sharedPreferences.setString(AppConstants.userAddress, address);
   }
@@ -79,18 +91,24 @@ class AddressRepository implements AddressRepositoryInterface {
   @override
   Future<List<ModuleModel>?> getModules(int? zoneId) async {
     List<ModuleModel>? moduleList;
-    Response response = await apiClient.getData('${AppConstants.modulesUri}?zone_id=$zoneId');
+    Response response = await apiClient.getData(
+      '${AppConstants.modulesUri}?zone_id=$zoneId',
+    );
     if (response.statusCode == 200) {
       moduleList = [];
-      response.body.forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
+      response.body.forEach(
+        (storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)),
+      );
     }
     return moduleList;
   }
 
   @override
   Future<bool> checkInZone(String? lat, String? lng, int zoneId) async {
-    Response response = await apiClient.getData('${AppConstants.checkZoneUri}?lat=$lat&lng=$lng&zone_id=$zoneId');
-    if(response.statusCode == 200) {
+    Response response = await apiClient.getData(
+      '${AppConstants.checkZoneUri}?lat=$lat&lng=$lng&zone_id=$zoneId',
+    );
+    if (response.statusCode == 200) {
       return response.body;
     } else {
       return response.body;
@@ -116,5 +134,4 @@ class AddressRepository implements AddressRepositoryInterface {
   Future update(Map<String, dynamic> body) {
     throw UnimplementedError();
   }
-
 }

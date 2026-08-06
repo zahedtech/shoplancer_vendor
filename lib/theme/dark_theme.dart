@@ -11,7 +11,13 @@ ThemeData dark({Color color = const Color(0xFF2C5282)}) {
     hintColor: const Color(0xFFbebebe),
     cardColor: const Color(0xFF30313C),
     shadowColor: Colors.white.withValues(alpha: 0.03),
-    textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white70)),
+    textTheme: const TextTheme(
+      bodyMedium: TextStyle(
+        color: Colors.white70,
+        fontFamily: AppConstants.fontFamily,
+        fontFamilyFallback: AppConstants.kAppFontFamilyFallbackArabic,
+      ),
+    ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(foregroundColor: color),
     ),

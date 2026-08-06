@@ -8,13 +8,22 @@ import 'package:shoplancer_vendor/features/order/domain/models/update_status_bod
 
 abstract class OrderServiceInterface {
   Future<List<OrderModel>?> getCurrentOrders();
-  Future<PaginatedOrderModel?> getPaginatedOrderList(int offset, String status, {String? from, String? to});
-  Future<ResponseModel> updateOrderStatus(UpdateStatusBodyModel updateStatusBody, List<MultipartBody> proofAttachment);
+  Future<PaginatedOrderModel?> getPaginatedOrderList(
+    int offset,
+    String status, {
+    String? from,
+    String? to,
+  });
+  Future<ResponseModel> updateOrderStatus(
+    UpdateStatusBodyModel updateStatusBody,
+    List<MultipartBody> proofAttachment,
+  );
   Future<List<OrderDetailsModel>?> getOrderDetails(int orderID);
   Future<OrderModel?> getOrderWithId(int orderId);
   Future<ResponseModel> updateOrderAmount(Map<String, String> body);
   Future<ResponseModel> updateOrderItems(Map<String, dynamic> body);
   Future<OrderCancellationBodyModel?> getCancelReasons();
+  Future<ResponseModel> cancelOrder(Map<String, String> body);
   Future<bool> sendDeliveredNotification(int? orderID);
   List<MultipartBody> processMultipartData(List<XFile> pickedPrescriptions);
   Future<void> setBluetoothAddress(String? address);

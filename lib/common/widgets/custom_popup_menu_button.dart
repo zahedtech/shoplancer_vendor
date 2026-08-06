@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shoplancer_vendor/util/styles.dart';
+
 class CustomPopupMenuButton extends StatelessWidget {
   final Widget child;
   final List<MenuItem> items;
@@ -18,7 +20,7 @@ class CustomPopupMenuButton extends StatelessWidget {
       // The key to customization: using a Row for the child property
       child: Row(
         children: [
-          Text(item.title, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(item.title, style: robotoMedium),
           Spacer(),
           Icon(item.icon, color: item.color),
         ],

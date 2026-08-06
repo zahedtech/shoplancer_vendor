@@ -22,7 +22,24 @@ class ApiChecker {
         });
       }
     } else {
-      showCustomSnackBar(response.statusText);
+      String? errorMessage;
+      if (response.body != null) {
+        if (response.body is Map && response.body['message'] != null) {
+          errorMessage = response.body['message'].toString();
+        } else if (response.body is Map && response.body['errors'] != null) {
+          if (response.body['errors'] is List && (response.body['errors'] as List).isNotEmpty) {
+            final firstError = (response.body['errors'] as List)[0];
+            if (firstError is Map && firstError['message'] != null) {
+              errorMessage = firstError['message'].toString();
+            } else {
+              errorMessage = firstError.toString();
+            }
+          } else if (response.body['errors'] is String) {
+            errorMessage = response.body['errors'].toString();
+          }
+        }
+      }
+      showCustomSnackBar(errorMessage ?? response.statusText, isError: true);
     }
   }
 }

@@ -35,17 +35,23 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
           && Get.find<CategoryController>().itemList != null && !Get.find<CategoryController>().isLoading) {
         int pageSize = (Get.find<CategoryController>().pageSize! / 10).ceil();
         if (Get.find<CategoryController>().offset < pageSize) {
-          Get.find<CategoryController>().setOffset(Get.find<CategoryController>().offset+1);
+          Get.find<CategoryController>().setOffset(Get.find<CategoryController>().offset + 1);
           debugPrint('end of the page');
           Get.find<CategoryController>().showBottomLoader();
+          int targetId = Get.find<CategoryController>().selectedSubCategoryId ?? widget.categoryId;
           Get.find<CategoryController>().getCategoryItemList(
-            offset : Get.find<CategoryController>().offset.toString(), id:  widget.categoryId,
+            offset: Get.find<CategoryController>().offset.toString(),
+            id: targetId,
           );
         }
       }
-
     });
-    
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
   
   @override
@@ -55,6 +61,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
 
       body: GetBuilder<CategoryController>(builder: (categoryController) {
         return SingleChildScrollView(
+          controller: scrollController,
           padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
           child: Column(children: [
 
@@ -65,7 +72,6 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                   borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                 ),
                 child: ListView.builder(
-                  controller: scrollController,
                   scrollDirection: Axis.horizontal,
                   itemCount: categoryController.subCategoryList!.length + 1,
                   itemBuilder: (context, index) {
@@ -162,6 +168,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                     item: categoryController.itemList![index],
                     index: index, length: categoryController.itemList!.length, isCampaign: false,
                     inStore: true,
+                    editOpensDetails: true,
                   ),
                 );
               },

@@ -13,6 +13,7 @@ class CategoryModel {
   int? featured;
   int? productsCount;
   String? imageFullUrl;
+  List<CategoryModel>? childes;
 
   CategoryModel({
     this.id,
@@ -29,6 +30,7 @@ class CategoryModel {
     this.featured,
     this.productsCount,
     this.imageFullUrl,
+    this.childes,
   });
 
   CategoryModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,12 @@ class CategoryModel {
     featured = json['featured'];
     productsCount = json['products_count'];
     imageFullUrl = json['image_full_url'];
+    if (json['childes'] != null) {
+      childes = [];
+      json['childes'].forEach((v) {
+        childes!.add(CategoryModel.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +72,9 @@ class CategoryModel {
     data['featured'] = featured;
     data['products_count'] = productsCount;
     data['image_full_url'] = imageFullUrl;
+    if (childes != null) {
+      data['childes'] = childes!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

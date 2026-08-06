@@ -20,6 +20,9 @@ abstract class StoreServiceInterface {
     int? categoryId,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   });
   Future<ItemModel?> getStockItemList(String offset);
   Future<PendingItemModel?> getPendingItemList(String offset, String type);
@@ -58,6 +61,7 @@ abstract class StoreServiceInterface {
   Future<bool> deleteSchedule(int? scheduleID);
   Future<List<UnitModel>?> getUnitList();
   Future<bool> updateRecommendedProductStatus(int? productID, int status);
+  Future<bool> updateBestSellerProductStatus(int? productID, int status);
   Future<bool> updateOrganicProductStatus(int? productID, int status);
   Future<bool> updateAnnouncement(int status, String announcement);
   Future<XFile?> pickImageFromGallery();
@@ -77,9 +81,12 @@ abstract class StoreServiceInterface {
   Future<List<String?>?> getNutritionSuggestionList();
   Future<List<String?>?> getAllergicIngredientsSuggestionList();
   Future<List<String?>?> getGenericNameSuggestionList();
-  Future<Response> stockUpdate(Map<String, String> data);
+  Future<Response> stockUpdate(Map<String, dynamic> data);
+  Future<Response> bulkStockUpdate(Map<String, dynamic> body);
   Future<Response> bulkAssignProducts(List<Map<String, dynamic>> products);
   Future<List<SuitableTagModel>?> getSuitableTagList();
   int? setSuitableTagIndex(List<SuitableTagModel>? suitableTag, Item? item);
   Future<List<VatTaxModel>?> getVatTaxList();
+  Future<Response> getStoreSections();
+  Future<Response> updateStoreSections(List<Map<String, dynamic>> sections);
 }

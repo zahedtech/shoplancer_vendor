@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class PaginatedOrderModel {
   int? totalSize;
   String? limit;
@@ -152,19 +154,48 @@ class OrderModel {
   });
 
   OrderModel.fromJson(Map<String, dynamic> json) {
+    DeliveryAddress? parseDeliveryAddress(dynamic value) {
+      if (value == null) {
+        return null;
+      }
+
+      if (value is Map<String, dynamic>) {
+        return DeliveryAddress.fromJson(value);
+      }
+
+      if (value is String && value.trim().isNotEmpty) {
+        try {
+          final dynamic decoded = jsonDecode(value);
+          if (decoded is Map<String, dynamic>) {
+            return DeliveryAddress.fromJson(decoded);
+          }
+        } catch (_) {}
+      }
+
+      return null;
+    }
+
     id = json['id'];
-    orderAmount = json['order_amount']?.toDouble();
-    couponDiscountAmount = json['coupon_discount_amount']?.toDouble();
+    orderAmount = json['order_amount'] != null
+        ? double.tryParse(json['order_amount'].toString())
+        : 0.0;
+    couponDiscountAmount = json['coupon_discount_amount'] != null
+        ? double.tryParse(json['coupon_discount_amount'].toString())
+        : 0.0;
     couponDiscountTitle = json['coupon_discount_title'];
     paymentStatus = json['payment_status'];
     orderStatus = json['order_status'];
-    totalTaxAmount = json['total_tax_amount']?.toDouble();
+    totalTaxAmount = json['total_tax_amount'] != null
+        ? double.tryParse(json['total_tax_amount'].toString())
+        : 0.0;
     paymentMethod = json['payment_method'];
     orderNote = json['order_note'];
     orderType = json['order_type'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    deliveryCharge = json['delivery_charge']?.toDouble();
+    deliveryCharge = json['delivery_charge'] != null
+        ? double.tryParse(json['delivery_charge'].toString())
+        : 0.0;
     scheduleAt = json['schedule_at'];
     otp = json['otp'];
     pending = json['pending'];
@@ -177,9 +208,13 @@ class OrderModel {
     canceled = json['canceled'];
     refundRequested = json['refund_requested'];
     refunded = json['refunded'];
-    deliveryAddress = json['delivery_address'] != null ? DeliveryAddress.fromJson(json['delivery_address']) : null;
+    deliveryAddress = parseDeliveryAddress(
+      json['delivery_address'] ?? json['receiver_details'],
+    );
     scheduled = json['scheduled'];
-    storeDiscountAmount = json['store_discount_amount']?.toDouble();
+    storeDiscountAmount = json['store_discount_amount'] != null
+        ? double.tryParse(json['store_discount_amount'].toString())
+        : 0.0;
     storeName = json['store_name'];
     storeAddress = json['store_address'];
     storePhone = json['store_phone'];
@@ -191,17 +226,23 @@ class OrderModel {
     if (json['order_attachment_full_url'] != null) {
       orderAttachmentFullUrl = [];
       json['order_attachment_full_url'].forEach((v) {
-        if(v != null) {
-          orderAttachmentFullUrl!.add(v);
+        if (v != null) {
+          orderAttachmentFullUrl!.add(v.toString());
         }
       });
     }
     moduleType = json['module_type'];
     prescriptionOrder = json['prescription_order'];
-    customer = json['customer'] != null ? Customer.fromJson(json['customer']) : null;
-    dmTips = json['dm_tips']?.toDouble();
+    customer = json['customer'] != null
+        ? Customer.fromJson(json['customer'])
+        : null;
+    dmTips = json['dm_tips'] != null
+        ? double.tryParse(json['dm_tips'].toString())
+        : 0.0;
     processingTime = json['processing_time'];
-    deliveryMan = json['delivery_man'] != null ? DeliveryMan.fromJson(json['delivery_man']) : null;
+    deliveryMan = json['delivery_man'] != null
+        ? DeliveryMan.fromJson(json['delivery_man'])
+        : null;
     taxStatus = json['tax_status'] == 'included' ? true : false;
     cutlery = json['cutlery'];
     unavailableItemNote = json['unavailable_item_note'];
@@ -209,8 +250,8 @@ class OrderModel {
     if (json['order_proof_full_url'] != null) {
       orderProofFullUrl = [];
       json['order_proof_full_url'].forEach((v) {
-        if(v != null) {
-          orderProofFullUrl!.add(v);
+        if (v != null) {
+          orderProofFullUrl!.add(v.toString());
         }
       });
     }
@@ -220,19 +261,31 @@ class OrderModel {
         payments!.add(Payments.fromJson(v));
       });
     }
-    additionalCharge = json['additional_charge']?.toDouble() ?? 0;
+    additionalCharge = json['additional_charge'] != null
+        ? double.tryParse(json['additional_charge'].toString())
+        : 0.0;
     isGuest = json['is_guest'];
-    flashAdminDiscountAmount = json['flash_admin_discount_amount']?.toDouble() ?? 0;
-    flashStoreDiscountAmount = json['flash_store_discount_amount']?.toDouble() ?? 0;
-    extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
-    referrerBonusAmount = json['ref_bonus_amount']?.toDouble();
-    bringChangeAmount = json['bring_change_amount']?.toDouble();
+    flashAdminDiscountAmount = json['flash_admin_discount_amount'] != null
+        ? double.tryParse(json['flash_admin_discount_amount'].toString())
+        : 0.0;
+    flashStoreDiscountAmount = json['flash_store_discount_amount'] != null
+        ? double.tryParse(json['flash_store_discount_amount'].toString())
+        : 0.0;
+    extraPackagingAmount = json['extra_packaging_amount'] != null
+        ? double.tryParse(json['extra_packaging_amount'].toString())
+        : 0.0;
+    referrerBonusAmount = json['ref_bonus_amount'] != null
+        ? double.tryParse(json['ref_bonus_amount'].toString())
+        : 0.0;
+    bringChangeAmount = json['bring_change_amount'] != null
+        ? double.tryParse(json['bring_change_amount'].toString())
+        : 0.0;
     paymentReference = json['payment_reference'];
     if (json['payment_receipt_full_url'] != null) {
       paymentReceiptFullUrl = [];
       json['payment_receipt_full_url'].forEach((v) {
         if (v != null) {
-          paymentReceiptFullUrl!.add(v);
+          paymentReceiptFullUrl!.add(v.toString());
         }
       });
     }

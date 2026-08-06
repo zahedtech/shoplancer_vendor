@@ -25,6 +25,7 @@ import 'package:shoplancer_vendor/features/payment/screens/payment_history_scree
 import 'package:shoplancer_vendor/features/payment/screens/payment_screen.dart';
 import 'package:shoplancer_vendor/features/payment/screens/payment_successful_screen.dart';
 import 'package:shoplancer_vendor/features/payment/screens/wallet_screen.dart';
+import 'package:shoplancer_vendor/features/payment/screens/prepaid_wallet_screen.dart';
 import 'package:shoplancer_vendor/features/payment/screens/withdraw_history_screen.dart';
 import 'package:shoplancer_vendor/features/banner/screens/add_banner_screen.dart';
 import 'package:shoplancer_vendor/features/banner/screens/banner_list_screen.dart';
@@ -70,6 +71,11 @@ import 'package:shoplancer_vendor/features/store/screens/product_price_managemen
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
 
+import 'package:shoplancer_vendor/features/employee/screens/employee_screen.dart';
+import 'package:shoplancer_vendor/features/employee/screens/add_employee_screen.dart';
+import 'package:shoplancer_vendor/features/pos/screens/pos_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/store_sections_screen.dart';
+import 'package:shoplancer_vendor/features/pos/screens/pos_barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/features/splash/screens/splash_screen.dart';
 import 'package:shoplancer_vendor/features/subscription/screens/my_subscription_screen.dart';
 import 'package:shoplancer_vendor/features/update/screens/update_screen.dart';
@@ -90,6 +96,7 @@ class RouteHelper {
   static const String notification = '/notification';
   static const String bankInfo = '/bank-info';
   static const String wallet = '/wallet';
+  static const String prepaidWallet = '/prepaid-wallet';
   static const String withdrawHistory = '/withdraw-history';
   static const String store = '/store';
   static const String storeLink = '/store-link';
@@ -138,6 +145,18 @@ class RouteHelper {
   static const String advertisementList = '/advertisement-list';
   static const String createAdvertisement = '/create-advertisement';
   static const String advertisementDetails = '/advertisement-details';
+
+  static const String employee = '/employee';
+  static const String addEmployee = '/add-employee';
+  static const String pos = '/pos';
+  static const String posBarcode = '/pos-barcode';
+  static const String storeSections = '/store-sections';
+
+  static String getEmployeeRoute() => employee;
+  static String getAddEmployeeRoute() => addEmployee;
+  static String getPosRoute() => pos;
+  static String getPosBarcodeRoute() => posBarcode;
+  static String getStoreSectionsRoute() => storeSections;
   static const String lowStock = '/low-stock';
   static const String reports = '/reports';
   static const String taxReport = '/tax-report';
@@ -180,9 +199,10 @@ class RouteHelper {
   static String getUpdateProfileRoute() => updateProfile;
   static String getNotificationRoute({bool? fromNotification}) =>
       '$notification?from=${fromNotification.toString()}';
+
   static String getBankInfoRoute() => bankInfo;
   static String getWalletRoute() => wallet;
-  static String getWithdrawHistoryRoute() => withdrawHistory;
+  static String getPrepaidWalletRoute() => prepaidWallet;
   static String getStoreRoute() => store;
   static String getStoreLinkRoute() => storeLink;
   static String getCampaignRoute() => campaign;
@@ -402,15 +422,15 @@ class RouteHelper {
       page: () => DashboardScreen(
         pageIndex: Get.parameters['page'] == 'home'
             ? 0
-            : Get.parameters['page'] == 'favourite'
+            : (Get.parameters['page'] == 'favourite' || Get.parameters['page'] == 'orders')
             ? 1
-            : Get.parameters['page'] == 'cart'
+            : (Get.parameters['page'] == 'cart' || Get.parameters['page'] == 'store')
             ? 2
-            : Get.parameters['page'] == 'order'
+            : (Get.parameters['page'] == 'order' || Get.parameters['page'] == 'wallet')
             ? 3
             : Get.parameters['page'] == 'menu'
             ? 4
-            : 0,
+            : int.tryParse(Get.parameters['page'] ?? '') ?? 0,
       ),
     ),
     GetPage(name: forgotPassword, page: () => const ForgetPassScreen()),
@@ -443,6 +463,7 @@ class RouteHelper {
     ),
     GetPage(name: bankInfo, page: () => const BankInfoScreen()),
     GetPage(name: wallet, page: () => const WalletScreen()),
+    GetPage(name: prepaidWallet, page: () => const PrepaidWalletScreen()),
     GetPage(name: withdrawHistory, page: () => const WithdrawHistoryScreen()),
     GetPage(name: store, page: () => const StoreScreen()),
     GetPage(name: storeLink, page: () => const StoreLinkScreen()),
@@ -762,7 +783,7 @@ class RouteHelper {
           Get.parameters['data']!.replaceAll(' ', '+'),
         );
         Store data = Store.fromJson(jsonDecode(utf8.decode(decode)));
-        return StoreEditScreen(store: data);
+        return StoreSettingsScreen(store: data);
       },
     ),
     GetPage(name: setting, page: () => const SettingScreen()),
@@ -782,5 +803,10 @@ class RouteHelper {
         orderId: int.parse(Get.parameters['order_id']!),
       ),
     ),
+    GetPage(name: employee, page: () => const EmployeeScreen()),
+    GetPage(name: addEmployee, page: () => AddEmployeeScreen(employee: Get.arguments)),
+    GetPage(name: pos, page: () => const PosScreen()),
+    GetPage(name: posBarcode, page: () => const PosBarcodeScannerScreen()),
+    GetPage(name: storeSections, page: () => const StoreSectionsScreen()),
   ];
 }

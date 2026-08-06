@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shoplancer_vendor/features/order/widgets/invoice_dialog_widget.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
@@ -29,12 +28,10 @@ import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/input_dialog_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
-import 'package:shoplancer_vendor/features/order/screens/invoice_print_screen.dart';
 import 'package:shoplancer_vendor/features/order/widgets/amount_input_dialogue_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/camera_button_sheet_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/cancellation_dialogue_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/collect_money_delivery_sheet_widget.dart';
-import 'package:shoplancer_vendor/features/order/widgets/dialogue_image_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/order_item_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/slider_button_widget.dart';
 import 'package:shoplancer_vendor/features/order/widgets/verify_delivery_sheet_widget.dart';
@@ -167,6 +164,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
       ),
       barrierDismissible: false,
     );
+  }
+
+  bool _canStoreCancelOrder(OrderModel order, bool? cancelPermission) {
+    final String status = order.orderStatus ?? '';
+
+    // يسمح بالإلغاء فقط في حالتي pending أو confirmed
+    if (status != AppConstants.pending && status != AppConstants.confirmed) {
+      return false;
+    }
+
+    // لا يسمح بالإلغاء إذا كان الطلب قد سُلّم أو ألغي أو استُرد بالفعل
+    bool hasStatusDate(String? value) =>
+        value != null && value.trim().isNotEmpty;
+
+    if (hasStatusDate(order.delivered) ||
+        hasStatusDate(order.canceled) ||
+        hasStatusDate(order.refunded) ||
+        hasStatusDate(order.refundRequested)) {
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -618,15 +637,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                       .orderDetailsModel!
                                                       .length,
                                                   itemBuilder: (context, index) {
-                                                    return Column(
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            if (orderController
-                                                                    .orderModel!
-                                                                    .orderStatus ==
-                                                                'pending')
-                                                              Checkbox(
+                                                     return Column(
+                                                       children: [
+                                                         Row(
+                                                           children: [
+                                                             if (orderController.orderModel!.orderStatus != 'delivered' &&
+                                                                 orderController.orderModel!.orderStatus != 'canceled' &&
+                                                                 orderController.orderModel!.orderStatus != 'failed' &&
+                                                                 orderController.orderModel!.orderStatus != 'refunded')
+                                                               Checkbox(
                                                                 value: orderController
                                                                     .isItemChecked(
                                                                       order!
@@ -1021,681 +1040,158 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                           )
                                         : const SizedBox(),
 
-                                    ///Customer info
-                                    if (order!.deliveryAddress != null) ...[
-                                      // const SizedBox(
-                                      //   height: Dimensions.paddingSizeDefault,
-                                      // ),
-                                      // Container(
-                                      //   padding: EdgeInsets.symmetric(
-                                      //     horizontal:
-                                      //         Dimensions.paddingSizeDefault,
-                                      //     vertical: Dimensions.paddingSizeSmall,
-                                      //   ),
-                                      //   decoration: BoxDecoration(
-                                      //     color: Theme.of(context).cardColor,
-                                      //     borderRadius: BorderRadius.circular(
-                                      //       Dimensions.radiusSmall,
-                                      //     ),
-                                      //     boxShadow: [
-                                      //       BoxShadow(
-                                      //         offset: Offset(0, 3),
-                                      //         color:
-                                      //             Colors.grey[Get.isDarkMode
-                                      //                 ? 700
-                                      //                 : 200]!,
-                                      //         blurRadius: 8,
-                                      //         spreadRadius: 0,
-                                      //       ),
-                                      //     ],
-                                      //   ),
-                                      //   child: Column(
-                                      //     crossAxisAlignment:
-                                      //         CrossAxisAlignment.start,
-                                      //     children: [
-                                      //       Text(
-                                      //         'customer_details'.tr,
-                                      //         style: robotoBold,
-                                      //       ),
-                                      //       Divider(
-                                      //         thickness: 1,
-                                      //         color: Theme.of(
-                                      //           context,
-                                      //         ).hintColor.withOpacity(0.1),
-                                      //       ),
-                                      //       Row(
-                                      //         children: [
-                                      //           Expanded(
-                                      //             child: Column(
-                                      //               crossAxisAlignment:
-                                      //                   CrossAxisAlignment
-                                      //                       .start,
-                                      //               children: [
-                                      //                 Text(
-                                      //                   order
-                                      //                       .deliveryAddress!
-                                      //                       .contactPersonName!,
-                                      //                   maxLines: 1,
-                                      //                   overflow: TextOverflow
-                                      //                       .ellipsis,
-                                      //                   style: robotoMedium,
-                                      //                 ),
-                                      //                 Text(
-                                      //                   order
-                                      //                           .deliveryAddress!
-                                      //                           .address ??
-                                      //                       '',
-                                      //                   maxLines: 1,
-                                      //                   overflow: TextOverflow
-                                      //                       .ellipsis,
-                                      //                   style: robotoRegular
-                                      //                       .copyWith(
-                                      //                         color: Theme.of(
-                                      //                           context,
-                                      //                         ).hintColor,
-                                      //                       ),
-                                      //                 ),
-                                      //               ],
-                                      //             ),
-                                      //           ),
-                                      //           (order.orderType ==
-                                      //                       'take_away' &&
-                                      //                   (order.orderStatus ==
-                                      //                           'pending' ||
-                                      //                       order.orderStatus ==
-                                      //                           'confirmed' ||
-                                      //                       order.orderStatus ==
-                                      //                           'processing'))
-                                      //               ? IconButton(
-                                      //                   onPressed: () async {
-                                      //                     String url =
-                                      //                         'https://www.google.com/maps/dir/?api=1&destination=${order.deliveryAddress!.latitude}'
-                                      //                         ',${order.deliveryAddress!.longitude}&mode=d';
-                                      //                     if (await canLaunchUrlString(
-                                      //                       url,
-                                      //                     )) {
-                                      //                       await launchUrlString(
-                                      //                         url,
-                                      //                         mode: LaunchMode
-                                      //                             .externalApplication,
-                                      //                       );
-                                      //                     } else {
-                                      //                       showCustomSnackBar(
-                                      //                         'unable_to_launch_google_map'
-                                      //                             .tr,
-                                      //                       );
-                                      //                     }
-                                      //                   },
-                                      //                   icon: const Icon(
-                                      //                     Icons.directions,
-                                      //                   ),
-                                      //                 )
-                                      //               : const SizedBox(),
+                                     /// Delivery & Customer Info
+                                     if (order.deliveryAddress != null ||
+                                         order.deliveryInstruction != null ||
+                                         order.customer != null) ...[
+                                       const SizedBox(
+                                         height: Dimensions.paddingSizeDefault,
+                                       ),
+                                       Container(
+                                         padding: const EdgeInsets.symmetric(
+                                           horizontal: Dimensions.paddingSizeDefault,
+                                           vertical: Dimensions.paddingSizeSmall,
+                                         ),
+                                         decoration: BoxDecoration(
+                                           color: Theme.of(context).cardColor,
+                                           borderRadius: BorderRadius.circular(
+                                             Dimensions.radiusSmall,
+                                           ),
+                                           boxShadow: [
+                                             BoxShadow(
+                                               offset: const Offset(0, 3),
+                                               color: Colors.grey[Get.isDarkMode ? 700 : 300]!,
+                                               blurRadius: 8,
+                                               spreadRadius: 0,
+                                             ),
+                                           ],
+                                         ),
+                                         child: Column(
+                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                           children: [
+                                             Row(
+                                               children: [
+                                                 Text(
+                                                   'تفاصيل العميل والطلب'.tr,
+                                                   style: robotoBold,
+                                                 ),
+                                                 const Spacer(),
+                                                 Text(
+                                                   order.orderType == 'delivery'
+                                                       ? 'home_delivery'.tr
+                                                       : (order.orderType ?? '').tr,
+                                                   style: robotoMedium.copyWith(
+                                                     color: Colors.blueAccent,
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                             Divider(
+                                               thickness: 1,
+                                               color: Theme.of(context).hintColor.withOpacity(0.1),
+                                             ),
 
-                                      //           (order.orderStatus !=
-                                      //                       'delivered' &&
-                                      //                   order.orderStatus !=
-                                      //                       'failed' &&
-                                      //                   Get.find<
-                                      //                         ProfileController
-                                      //                       >()
-                                      //                       .modulePermission!
-                                      //                       .chat! &&
-                                      //                   order.orderStatus !=
-                                      //                       'canceled' &&
-                                      //                   order.orderStatus !=
-                                      //                       'refunded')
-                                      //               ? order.isGuest!
-                                      //                     ? const SizedBox()
-                                      //                     : Row(
-                                      //                         children: [
-                                      //                           // IconButton(
-                                      //                           //   onPressed: () async {
-                                      //                           //     if (Get.find<
-                                      //                           //                   ProfileController
-                                      //                           //                 >()
-                                      //                           //                 .profileModel!
-                                      //                           //                 .subscription !=
-                                      //                           //             null &&
-                                      //                           //         Get.find<
-                                      //                           //                   ProfileController
-                                      //                           //                 >()
-                                      //                           //                 .profileModel!
-                                      //                           //                 .subscription!
-                                      //                           //                 .chat ==
-                                      //                           //             0 &&
-                                      //                           //         Get.find<
-                                      //                           //                   ProfileController
-                                      //                           //                 >()
-                                      //                           //                 .profileModel!
-                                      //                           //                 .stores![0]
-                                      //                           //                 .storeBusinessModel ==
-                                      //                           //             'subscription') {
-                                      //                           //       showCustomSnackBar(
-                                      //                           //         'you_have_no_available_subscription'
-                                      //                           //             .tr,
-                                      //                           //       );
-                                      //                           //     } else {
-                                      //                           //       _timer
-                                      //                           //           ?.cancel();
-                                      //                           //       await Get.toNamed(
-                                      //                           //         RouteHelper.getChatRoute(
-                                      //                           //           notificationBody: NotificationBodyModel(
-                                      //                           //             orderId:
-                                      //                           //                 order.id,
-                                      //                           //             customerId:
-                                      //                           //                 order.customer!.id,
-                                      //                           //           ),
-                                      //                           //           user: User(
-                                      //                           //             id: order.customer!.id,
-                                      //                           //             fName:
-                                      //                           //                 order.customer!.fName,
-                                      //                           //             lName:
-                                      //                           //                 order.customer!.lName,
-                                      //                           //             imageFullUrl:
-                                      //                           //                 order.customer!.imageFullUrl,
-                                      //                           //           ),
-                                      //                           //         ),
-                                      //                           //       );
-                                      //                           //       _startApiCalling();
-                                      //                           //     }
-                                      //                           //   },
-                                      //                           //   icon: Image.asset(
-                                      //                           //     Images
-                                      //                           //         .chatIcon,
-                                      //                           //     width: 22,
-                                      //                           //     height: 22,
-                                      //                           //   ),
-                                      //                           // ),
-                                      //                           if (order
-                                      //                                       .customer
-                                      //                                       ?.phone !=
-                                      //                                   null &&
-                                      //                               order
-                                      //                                       .customer
-                                      //                                       ?.phone !=
-                                      //                                   '')
-                                      //                             IconButton(
-                                      //                               onPressed: () async {
-                                      //                                 if (Get.find<
-                                      //                                               ProfileController
-                                      //                                             >()
-                                      //                                             .profileModel!
-                                      //                                             .subscription !=
-                                      //                                         null &&
-                                      //                                     Get.find<
-                                      //                                               ProfileController
-                                      //                                             >()
-                                      //                                             .profileModel!
-                                      //                                             .subscription!
-                                      //                                             .chat ==
-                                      //                                         0 &&
-                                      //                                     Get.find<
-                                      //                                               ProfileController
-                                      //                                             >()
-                                      //                                             .profileModel!
-                                      //                                             .stores![0]
-                                      //                                             .storeBusinessModel ==
-                                      //                                         'subscription') {
-                                      //                                   showCustomSnackBar(
-                                      //                                     'you_have_no_available_subscription'
-                                      //                                         .tr,
-                                      //                                   );
-                                      //                                 } else {
-                                      //                                   _timer
-                                      //                                       ?.cancel();
-                                      //                                   if (await canLaunchUrlString(
-                                      //                                     'tel:${order.customer?.phone ?? ''}',
-                                      //                                   )) {
-                                      //                                     launchUrlString(
-                                      //                                       'tel:${order.customer?.phone ?? ''}',
-                                      //                                       mode:
-                                      //                                           LaunchMode.externalApplication,
-                                      //                                     );
-                                      //                                   } else {
-                                      //                                     showCustomSnackBar(
-                                      //                                       '${'can_not_launch'.tr} ${order.customer?.phone ?? ''}',
-                                      //                                     );
-                                      //                                   }
-                                      //                                 }
-                                      //                               },
-                                      //                               icon: Image.asset(
-                                      //                                 Images
-                                      //                                     .callIcon,
-                                      //                                 width: 22,
-                                      //                                 height:
-                                      //                                     22,
-                                      //                               ),
-                                      //                             ),
-                                      //                         ],
-                                      //                       )
-                                      //               : const SizedBox(),
-                                      //         ],
-                                      //       ),
-                                      //     ],
-                                      //   ),
-                                      // ),
+                                              // Customer Info
+                                              Builder(
+                                                builder: (context) {
+                                                  String cName = '';
+                                                  if (order.customer != null) {
+                                                    cName = '${order.customer!.fName ?? ''} ${order.customer!.lName ?? ''}'.trim();
+                                                  }
+                                                  if (cName.isEmpty && order.deliveryAddress?.contactPersonName != null) {
+                                                    cName = order.deliveryAddress!.contactPersonName!;
+                                                  }
+                                                  if (cName.isEmpty) {
+                                                    cName = 'عميل زائر';
+                                                  }
 
-                                      /// Delivery Info
-                                      if (order.deliveryAddress != null ||
-                                          order.deliveryInstruction !=
-                                              null) ...[
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeDefault,
-                                        ),
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal:
-                                                Dimensions.paddingSizeDefault,
-                                            vertical:
-                                                Dimensions.paddingSizeSmall,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusSmall,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                offset: Offset(0, 3),
-                                                color:
-                                                    Colors.grey[Get.isDarkMode
-                                                        ? 700
-                                                        : 300]!,
-                                                blurRadius: 8,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'delivery_information'.tr,
-                                                    style: robotoBold,
-                                                  ),
-                                                  Spacer(),
-                                                  Text(
-                                                    order.orderType ==
-                                                            'delivery'
-                                                        ? 'home_delivery'.tr
-                                                        : order.orderType!.tr,
-                                                    style: robotoMedium
-                                                        .copyWith(
-                                                          color:
-                                                              Colors.blueAccent,
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Divider(
-                                                thickness: 1,
-                                                color: Theme.of(
-                                                  context,
-                                                ).hintColor.withOpacity(0.1),
-                                              ),
-                                              if (order
-                                                      .deliveryAddress!
-                                                      .contactPersonName !=
-                                                  null) ...[
-                                                Row(
-                                                  children: [
-                                                    Image.asset(
-                                                      Images.userIcon,
-                                                      width: 14,
-                                                      height: 14,
-                                                    ),
-                                                    SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-                                                    Text(
-                                                      order
-                                                          .deliveryAddress!
-                                                          .contactPersonName!,
-                                                      style: robotoMedium
-                                                          .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                          ),
-                                                    ),
-                                                    Spacer(),
-                                                    IconButton(
-                                                      onPressed: () async {
-                                                        if (Get.find<
-                                                                      ProfileController
-                                                                    >()
-                                                                    .profileModel!
-                                                                    .subscription !=
-                                                                null &&
-                                                            Get.find<
-                                                                      ProfileController
-                                                                    >()
-                                                                    .profileModel!
-                                                                    .subscription!
-                                                                    .chat ==
-                                                                0 &&
-                                                            Get.find<
-                                                                      ProfileController
-                                                                    >()
-                                                                    .profileModel!
-                                                                    .stores![0]
-                                                                    .storeBusinessModel ==
-                                                                'subscription') {
-                                                          showCustomSnackBar(
-                                                            'you_have_no_available_subscription'
-                                                                .tr,
-                                                          );
-                                                        } else {
-                                                          _timer?.cancel();
-                                                          if (await canLaunchUrlString(
-                                                            'tel:${order.customer?.phone ?? ''}',
-                                                          )) {
-                                                            launchUrlString(
-                                                              'tel:${order.customer?.phone ?? ''}',
-                                                              mode: LaunchMode
-                                                                  .externalApplication,
-                                                            );
-                                                          } else {
-                                                            showCustomSnackBar(
-                                                              '${'can_not_launch'.tr} ${order.customer?.phone ?? ''}',
-                                                            );
-                                                          }
-                                                        }
-                                                      },
-                                                      icon: Image.asset(
-                                                        Images.callIcon,
-                                                        width: 22,
-                                                        height: 22,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                                  String cPhone = order.customer?.phone ?? order.deliveryAddress?.contactPersonNumber ?? '';
 
-                                              // if (order
-                                              //         .deliveryAddress!
-                                              //         .contactPersonNumber !=
-                                              //     null) ...[
-                                              //   Row(
-                                              //     children: [
-                                              //       Image.asset(
-                                              //         Images.phoneFlip,
-                                              //         width: 14,
-                                              //         height: 14,
-                                              //       ),
-                                              //       SizedBox(
-                                              //         width: Dimensions
-                                              //             .paddingSizeSmall,
-                                              //       ),
-                                              //       Text(
-                                              //         order
-                                              //             .deliveryAddress!
-                                              //             .contactPersonNumber!,
-                                              //         style: robotoMedium
-                                              //             .copyWith(
-                                              //               color: Theme.of(
-                                              //                 context,
-                                              //               ).hintColor,
-                                              //               fontSize: Dimensions
-                                              //                   .fontSizeSmall,
-                                              //             ),
-                                              //       ),
-                                              //     ],
-                                              //   ),
-                                              //   SizedBox(
-                                              //     height: Dimensions
-                                              //         .paddingSizeExtraSmall,
-                                              //   ),
-                                              // ],
-                                              if (order
-                                                      .deliveryAddress
-                                                      ?.address !=
-                                                  null)
-                                                Row(
-                                                  children: [
-                                                    Image.asset(
-                                                      Images.markerIcon,
-                                                      width: 12,
-                                                      height: 12,
-                                                    ),
-                                                    SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-                                                    Expanded(
-                                                      child: Text(
-                                                        order
-                                                            .deliveryAddress!
-                                                            .address!,
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: robotoMedium
-                                                            .copyWith(
-                                                              color: Theme.of(
-                                                                context,
-                                                              ).hintColor,
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              if (_isViewMore) ...[
-                                                SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeExtraSmall,
-                                                ),
-
-                                                if (order
-                                                            .deliveryAddress!
-                                                            .streetNumber !=
-                                                        null &&
-                                                    order
-                                                        .deliveryAddress!
-                                                        .streetNumber!
-                                                        .isNotEmpty) ...[
-                                                  Row(
+                                                  return Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Icon(
-                                                        Icons.signpost,
-                                                        size: 14,
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                      ),
-                                                      SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall,
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          '${'street_number'.tr}: ${order.deliveryAddress!.streetNumber!}',
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: robotoMedium.copyWith(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).hintColor,
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
+                                                      Row(
+                                                        children: [
+                                                          Image.asset(
+                                                            Images.userIcon,
+                                                            width: 14,
+                                                            height: 14,
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: Dimensions
-                                                        .paddingSizeExtraSmall,
-                                                  ),
-                                                ],
-
-                                                if (order
-                                                            .deliveryAddress!
-                                                            .house !=
-                                                        null &&
-                                                    order
-                                                        .deliveryAddress!
-                                                        .house!
-                                                        .isNotEmpty) ...[
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.home_outlined,
-                                                        size: 14,
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                      ),
-                                                      SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall,
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          '${'house'.tr}: ${order.deliveryAddress!.house!}',
-                                                          maxLines: 2,
-                                                          overflow:
-                                                              TextOverflow.clip,
-                                                          style: robotoMedium.copyWith(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).hintColor,
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    height: Dimensions
-                                                        .paddingSizeExtraSmall,
-                                                  ),
-                                                ],
-
-                                                if (order
-                                                            .deliveryAddress!
-                                                            .floor !=
-                                                        null &&
-                                                    order
-                                                        .deliveryAddress!
-                                                        .floor!
-                                                        .isNotEmpty) ...[
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.stairs,
-                                                        size: 14,
-                                                        color: Theme.of(
-                                                          context,
-                                                        ).primaryColor,
-                                                      ),
-                                                      SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeSmall,
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          '${'floor'.tr}: ${order.deliveryAddress!.floor!}',
-                                                          maxLines: 2,
-                                                          overflow:
-                                                              TextOverflow.clip,
-                                                          style: robotoMedium.copyWith(
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).hintColor,
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ],
-
-                                              // View More Toggle Button
-                                              ((order
-                                                                  .deliveryAddress!
-                                                                  .streetNumber !=
-                                                              null &&
-                                                          order
-                                                              .deliveryAddress!
-                                                              .streetNumber!
-                                                              .isNotEmpty) ||
-                                                      (order
-                                                                  .deliveryAddress!
-                                                                  .house !=
-                                                              null &&
-                                                          order
-                                                              .deliveryAddress!
-                                                              .house!
-                                                              .isNotEmpty) ||
-                                                      (order
-                                                                  .deliveryAddress!
-                                                                  .floor !=
-                                                              null &&
-                                                          order
-                                                              .deliveryAddress!
-                                                              .floor!
-                                                              .isNotEmpty))
-                                                  ? InkWell(
-                                                      onTap: () => setState(
-                                                        () => _isViewMore =
-                                                            !_isViewMore,
-                                                      ),
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(
-                                                          vertical: Dimensions
-                                                              .paddingSizeExtraSmall,
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              _isViewMore
-                                                                  ? 'view_less'
-                                                                        .tr
-                                                                  : 'view_more'
-                                                                        .tr,
+                                                          const SizedBox(width: Dimensions.paddingSizeSmall),
+                                                          Expanded(
+                                                            child: Text(
+                                                              cName,
                                                               style: robotoMedium.copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
+                                                                fontSize: Dimensions.fontSizeSmall,
                                                               ),
                                                             ),
-                                                            Icon(
-                                                              _isViewMore
-                                                                  ? Icons
-                                                                        .keyboard_arrow_up
-                                                                  : Icons
-                                                                        .keyboard_arrow_down,
-                                                              size: 18,
-                                                              color: Theme.of(
-                                                                context,
-                                                              ).primaryColor,
+                                                          ),
+                                                          if (cPhone.isNotEmpty)
+                                                            IconButton(
+                                                              onPressed: () async {
+                                                                if (await canLaunchUrlString('tel:$cPhone')) {
+                                                                  launchUrlString('tel:$cPhone', mode: LaunchMode.externalApplication);
+                                                                } else {
+                                                                  showCustomSnackBar('${'can_not_launch'.tr} $cPhone');
+                                                                }
+                                                              },
+                                                              icon: Image.asset(
+                                                                Images.callIcon,
+                                                                width: 22,
+                                                                height: 22,
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                      if (cPhone.isNotEmpty) ...[
+                                                        const SizedBox(height: 4),
+                                                        Row(
+                                                          children: [
+                                                            const Icon(Icons.phone, size: 14, color: Colors.grey),
+                                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                                            Text(
+                                                              cPhone,
+                                                              style: robotoMedium.copyWith(
+                                                                color: Theme.of(context).hintColor,
+                                                                fontSize: Dimensions.fontSizeSmall,
+                                                              ),
                                                             ),
                                                           ],
                                                         ),
-                                                      ),
-                                                    )
-                                                  : SizedBox.shrink(),
+                                                      ],
+                                                      // Address if available
+                                                      if (order.deliveryAddress?.address != null) ...[
+                                                        const SizedBox(height: 8),
+                                                        Row(
+                                                          children: [
+                                                            Image.asset(
+                                                              Images.markerIcon,
+                                                              width: 12,
+                                                              height: 12,
+                                                            ),
+                                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                                            Expanded(
+                                                              child: Text(
+                                                                order.deliveryAddress!.address!,
+                                                                maxLines: 2,
+                                                                overflow: TextOverflow.ellipsis,
+                                                                style: robotoMedium.copyWith(
+                                                                  color: Theme.of(context).hintColor,
+                                                                  fontSize: Dimensions.fontSizeSmall,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ],
+                                                  );
+                                                },
+                                              ),
                                             ],
                                           ),
                                         ),
                                       ],
-                                    ],
 
                                     /// cutlery
                                     // Get.find<SplashController>().getModuleConfig(order.moduleType).newVariation!
@@ -3027,6 +2523,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                               )
                             : const SizedBox(),
 
+                        // cancel button moved to below the slider
+
                         showDeliveryConfirmImage &&
                                 controllerOrderModel.orderStatus != 'delivered'
                             ? Container(
@@ -3189,218 +2687,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                       ),
                                     )
                                   : showSlider
-                                  ? (controllerOrderModel.orderStatus ==
-                                                'pending' &&
-                                            (controllerOrderModel.orderType ==
-                                                    'take_away' ||
-                                                restConfModel ||
-                                                selfDelivery) &&
-                                            cancelPermission!)
-                                        ? Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal:
-                                                  Dimensions.paddingSizeDefault,
-                                              vertical:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(
-                                                context,
-                                              ).cardColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                    Dimensions.radiusSmall,
-                                                  ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  offset: Offset(0, 3),
-                                                  color:
-                                                      Colors.grey[Get.isDarkMode
-                                                          ? 700
-                                                          : 200]!,
-                                                  blurRadius: 8,
-                                                  spreadRadius: 0,
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                order.paymentMethod !=
-                                                        'partial_payment'
-                                                    ? Row(
-                                                        children: [
-                                                          Text(
-                                                            'total_amount'.tr,
-                                                            style: robotoMedium
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeLarge,
-                                                                ),
-                                                          ),
-                                                          taxIncluded
-                                                              ? Text(
-                                                                  ' ${'vat_tax_inc'.tr}',
-                                                                  style: robotoMedium.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeExtraSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).hintColor,
-                                                                  ),
-                                                                )
-                                                              : const SizedBox(),
-                                                          const Expanded(
-                                                            child: SizedBox(),
-                                                          ),
-                                                          Text(
-                                                            PriceConverterHelper.convertPrice(
-                                                              total,
-                                                            ),
-                                                            style: robotoMedium
-                                                                .copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeLarge,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : const SizedBox(),
-                                                SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: TextButton(
-                                                        onPressed: () {
-                                                          orderController
-                                                              .setOrderCancelReason(
-                                                                '',
-                                                              );
-                                                          Get.dialog(
-                                                            CancellationDialogueWidget(
-                                                              orderId: order.id,
-                                                            ),
-                                                          );
-                                                        },
-                                                        style: TextButton.styleFrom(
-                                                          minimumSize:
-                                                              const Size(
-                                                                1170,
-                                                                40,
-                                                              ),
-                                                          padding:
-                                                              EdgeInsets.zero,
-                                                          backgroundColor:
-                                                              Theme.of(context)
-                                                                  .hintColor
-                                                                  .withValues(
-                                                                    alpha: 0.2,
-                                                                  ),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  Dimensions
-                                                                      .radiusSmall,
-                                                                ),
-                                                            side: BorderSide(
-                                                              width: 1,
-                                                              color:
-                                                                  Theme.of(
-                                                                        context,
-                                                                      )
-                                                                      .hintColor
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.2,
-                                                                      ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        child: Text(
-                                                          'cancel'.tr,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: robotoRegular.copyWith(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyLarge!
-                                                                    .color,
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-
-                                                    Expanded(
-                                                      child: CustomButtonWidget(
-                                                        buttonText:
-                                                            order!.moduleType ==
-                                                                'grocery'
-                                                            ? 'ready_for_handover'
-                                                                  .tr
-                                                            : 'confirm'.tr,
-                                                        height: 40,
-                                                        onPressed: () {
-                                                          if (order!
-                                                                  .moduleType ==
-                                                              'grocery') {
-                                                            orderController
-                                                                .updateOrderStatus(
-                                                                  widget
-                                                                      .orderId,
-                                                                  AppConstants
-                                                                      .handover,
-                                                                  fromNotification:
-                                                                      true,
-                                                                );
-                                                          } else {
-                                                            Get.dialog(
-                                                              ConfirmationDialogWidget(
-                                                                icon: Images
-                                                                    .warning,
-                                                                title:
-                                                                    'are_you_sure_to_confirm'
-                                                                        .tr,
-                                                                description:
-                                                                    'you_want_to_confirm_this_order'
-                                                                        .tr,
-                                                                onYesPressed: () {
-                                                                  orderController.updateOrderStatus(
-                                                                    widget
-                                                                        .orderId,
-                                                                    AppConstants
-                                                                        .confirmed,
-                                                                    fromNotification:
-                                                                        true,
-                                                                  );
-                                                                },
-                                                              ),
-                                                              barrierDismissible:
-                                                                  false,
-                                                            );
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : Padding(
+                                  ? Column(
+                                      children: [
+                                        Padding(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal:
                                                   Dimensions.paddingSizeSmall,
@@ -3444,14 +2733,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         },
                                                         onNoPressed: () {
                                                           if (cancelPermission!) {
+                                                            Get.back();
                                                             orderController
-                                                                .updateOrderStatus(
-                                                                  widget
-                                                                      .orderId,
-                                                                  AppConstants
-                                                                      .canceled,
-                                                                  back: true,
+                                                                .setOrderCancelReason(
+                                                                  '',
                                                                 );
+                                                            Get.dialog(
+                                                              CancellationDialogueWidget(
+                                                                orderId: widget
+                                                                    .orderId,
+                                                              ),
+                                                            );
                                                           } else {
                                                             Get.back();
                                                           }
@@ -3858,7 +3150,50 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                 context,
                                               ).primaryColor,
                                             ),
-                                          )
+                                          ),
+                                        // زر إلغاء الطلب أسفل السلايدر
+                                        if (_canStoreCancelOrder(controllerOrderModel, cancelPermission))
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: Dimensions.paddingSizeSmall,
+                                              left: Dimensions.paddingSizeSmall,
+                                              right: Dimensions.paddingSizeSmall,
+                                            ),
+                                            child: SizedBox(
+                                              width: double.infinity,
+                                              child: OutlinedButton.icon(
+                                                onPressed: () {
+                                                  orderController.setOrderCancelReason('');
+                                                  Get.dialog(
+                                                    CancellationDialogueWidget(
+                                                      orderId: order!.id,
+                                                    ),
+                                                  );
+                                                },
+                                                icon: const Icon(
+                                                  Icons.cancel_outlined,
+                                                  color: Colors.red,
+                                                  size: 18,
+                                                ),
+                                                label: Text(
+                                                  'cancel_order'.tr,
+                                                  style: robotoMedium.copyWith(
+                                                    color: Colors.red,
+                                                    fontSize: Dimensions.fontSizeDefault,
+                                                  ),
+                                                ),
+                                                style: OutlinedButton.styleFrom(
+                                                  side: const BorderSide(color: Colors.red, width: 1.5),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                  ),
+                                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    )
                                   : const SizedBox()
                             : const SizedBox(),
 

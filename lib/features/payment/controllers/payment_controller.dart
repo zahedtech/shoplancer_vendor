@@ -287,7 +287,6 @@ class PaymentController extends GetxController implements GetxService {
       showCustomSnackBar(responseModel.message, isError: false);
       getTopupRequests();
       getWalletInfo();
-      Get.find<ProfileController>().getProfile();
       update();
       return true;
     } else {
@@ -310,10 +309,18 @@ class PaymentController extends GetxController implements GetxService {
     Map<String, dynamic>? walletInfo = await paymentServiceInterface.getWalletInfo();
     if (walletInfo != null && Get.isRegistered<ProfileController>() && Get.find<ProfileController>().profileModel != null) {
       var profile = Get.find<ProfileController>().profileModel!;
-      profile.prepaidBalance = walletInfo['prepaid_balance']?.toDouble();
-      profile.minPrepaidBalanceLimit = walletInfo['min_prepaid_balance_limit']?.toDouble();
-      profile.allowedCreditRemaining = walletInfo['allowed_credit_remaining']?.toDouble();
-      profile.isSuspended = walletInfo['is_suspended'];
+      if (walletInfo['prepaid_balance'] != null) {
+        profile.prepaidBalance = double.tryParse(walletInfo['prepaid_balance'].toString()) ?? profile.prepaidBalance;
+      }
+      if (walletInfo['min_prepaid_balance_limit'] != null) {
+        profile.minPrepaidBalanceLimit = double.tryParse(walletInfo['min_prepaid_balance_limit'].toString()) ?? profile.minPrepaidBalanceLimit;
+      }
+      if (walletInfo['allowed_credit_remaining'] != null) {
+        profile.allowedCreditRemaining = double.tryParse(walletInfo['allowed_credit_remaining'].toString()) ?? profile.allowedCreditRemaining;
+      }
+      if (walletInfo['is_suspended'] != null) {
+        profile.isSuspended = walletInfo['is_suspended'] == true || walletInfo['is_suspended'] == 1 || walletInfo['is_suspended'] == '1';
+      }
       Get.find<ProfileController>().update();
     }
     update();

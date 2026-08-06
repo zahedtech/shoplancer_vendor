@@ -10,7 +10,7 @@ class CustomLoaderWidget extends StatelessWidget {
       height: 100, width: 100,
       decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
       alignment: Alignment.center,
-      child: const CircularProgressIndicator(),
+      child: CircularProgressIndicator(),
     ));
   }
 }

@@ -253,7 +253,12 @@ class OrderController extends GetxController implements GetxService {
     if (!_offsetList.contains(offset)) {
       _offsetList.add(offset);
       PaginatedOrderModel? historyOrderModel = await orderServiceInterface
-          .getPaginatedOrderList(offset, _statusList[_historyIndex], from: _fromDate, to: _toDate);
+          .getPaginatedOrderList(
+            offset,
+            _statusList[_historyIndex],
+            from: _fromDate,
+            to: _toDate,
+          );
       if (historyOrderModel != null) {
         if (offset == 1) {
           _historyOrderList = [];
@@ -349,7 +354,53 @@ class OrderController extends GetxController implements GetxService {
       }
       getCurrentOrders();
       Get.find<ProfileController>().getProfile();
-      showCustomSnackBar('order_status_updated'.tr, isError: false);
+    } else {
+      showCustomSnackBar(responseModel.message?.tr, isError: true);
+    }
+    _isLoading = false;
+    update();
+    return responseModel.isSuccess;
+  }
+
+  Future<bool> cancelOrder(
+    int? orderID, {
+    required String reason,
+    bool back = false,
+    bool fromNotification = false,
+  }) async {
+    if (orderID == null) {
+      showCustomSnackBar('order_id'.tr, isError: true);
+      return false;
+    }
+    if (reason.trim().isEmpty) {
+      showCustomSnackBar('you_did_not_select_any_reason'.tr, isError: true);
+      return false;
+    }
+
+    _isLoading = true;
+    update();
+    ResponseModel responseModel = await orderServiceInterface.cancelOrder({
+      'order_id': orderID.toString(),
+      'reason': reason.trim(),
+    });
+
+    if (Get.isDialogOpen == true) {
+      Get.back(result: responseModel.isSuccess);
+    }
+    if (responseModel.isSuccess) {
+      if (back && fromNotification) {
+        Get.offAllNamed(RouteHelper.getInitialRoute());
+      } else if (back && !fromNotification) {
+        Get.back();
+      } else {
+        await getOrderDetails(orderID);
+      }
+      await getCurrentOrders();
+      Get.find<ProfileController>().getProfile();
+      showCustomSnackBar(
+        responseModel.message ?? 'order_status_updated'.tr,
+        isError: false,
+      );
     } else {
       showCustomSnackBar(responseModel.message?.tr, isError: true);
     }

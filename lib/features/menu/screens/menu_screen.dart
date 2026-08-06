@@ -105,16 +105,16 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    // ------------------- 2. Marketing & Operations (التسويق والعمليات) -------------------
-    if (modulePermission.coupon!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.coupon,
-          title: 'coupon'.tr,
-          route: RouteHelper.getCouponRoute(),
-        ),
-      );
-    }
+    // // ------------------- 2. Marketing & Operations (التسويق والعمليات) -------------------
+    // if (modulePermission.coupon!) {
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: Images.coupon,
+    //       title: 'coupon'.tr,
+    //       route: RouteHelper.getCouponRoute(),
+    //     ),
+    //   );
+    // }
 
     if (modulePermission.banner!) {
       menuList.add(
@@ -170,18 +170,57 @@ class MenuScreen extends StatelessWidget {
       }
     }
 
-    if (modulePermission.expenseReport! || modulePermission.vatReport!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.expense,
-          title: 'reports'.tr,
-          route: RouteHelper.getReportsRoute(),
-        ),
-      );
-    }
+    // if (modulePermission.expenseReport! || modulePermission.vatReport!) {
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: Images.expense,
+    //       title: 'reports'.tr,
+    //       route: RouteHelper.getReportsRoute(),
+    //     ),
+    //   );
+    // }
 
     // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
     if (modulePermission.storeSetup!) {
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.point_of_sale,
+      //     title: 'إنشاء طلب جديد (POS)'.tr,
+      //     route: RouteHelper.getPosRoute(),
+      //   ),
+      // );
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.people_outline,
+      //     title: 'إدارة الموظفين'.tr,
+      //     route: RouteHelper.getEmployeeRoute(),
+      //   ),
+      // );
+      // menuList.add(
+      //   MenuModel(
+      //     icon: '',
+      //     iconData: Icons.view_stream,
+      //     title: 'ترتيب سكاشن الويب'.tr,
+      //     route: RouteHelper.getStoreSectionsRoute(),
+      //   ),
+      // );
+      // if (store != null) {
+      //   menuList.add(
+      //     MenuModel(
+      //       icon: Images.restaurant,
+      //       title: Get.find<SplashController>()
+      //           .configModel!
+      //           .moduleConfig!
+      //           .module!
+      //           .showRestaurantText!
+      //           ? 'restaurant'.tr
+      //           : 'store'.tr,
+      //       route: RouteHelper.getStoreRoute(),
+      //     ),
+      //   );
+      // }
       menuList.add(
         MenuModel(
           icon: Images.settingIcon,
@@ -206,7 +245,17 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.businessPlan!) {
+    if (modulePermission.wallet!) {
+      menuList.add(
+        MenuModel(
+          icon: Images.wallet,
+          title: 'المحفظة',
+          route: RouteHelper.getPrepaidWalletRoute(),
+        ),
+      );
+    }
+
+    if (modulePermission.businessPlan! && !GetPlatform.isIOS) {
       menuList.add(
         MenuModel(
           icon: Images.mySubscriptionIcon,

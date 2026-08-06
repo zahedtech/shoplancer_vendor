@@ -6,7 +6,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:shoplancer_vendor/api/api_checker.dart';
 import 'package:shoplancer_vendor/common/models/error_response.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,8 +28,6 @@ class ApiClient extends GetxService {
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
     token = sharedPreferences.getString(AppConstants.token);
     type = sharedPreferences.getString(AppConstants.type);
-    debugPrint('Token: $token');
-    debugPrint('Type: $type');
     updateHeader(
       token,
       sharedPreferences.getString(AppConstants.languageCode),
@@ -198,6 +195,33 @@ class ApiClient extends GetxService {
     }
   }
 
+  Future<Response> putFormData(
+    String uri,
+    Map<String, String> body, {
+    Map<String, String>? headers,
+    bool handleError = true,
+  }) async {
+    final Map<String, String> requestHeaders = {
+      ..._mainHeaders,
+      if (headers != null) ...headers,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    try {
+      ApiLogger.logRequest(
+        method: 'PUT (Form)',
+        url: appBaseUrl + uri,
+        headers: requestHeaders,
+        body: body,
+      );
+      http.Response response = await http
+          .put(Uri.parse(appBaseUrl + uri), body: body, headers: requestHeaders)
+          .timeout(Duration(seconds: timeoutInSeconds));
+      return handleResponse(response, uri, handleError);
+    } catch (e) {
+      return const Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
   Future<Response> deleteData(
     String uri, {
     Map<String, String>? headers,
@@ -240,7 +264,11 @@ class ApiClient extends GetxService {
       statusCode: response.statusCode,
       statusText: response.reasonPhrase,
     );
-    if (response0.statusCode != 200 &&
+    bool isSuccess = response0.statusCode != null &&
+        response0.statusCode! >= 200 &&
+        response0.statusCode! < 300;
+
+    if (!isSuccess &&
         response0.body != null &&
         response0.body is! String) {
       if (response0.body.toString().startsWith('{errors: [{code:')) {
@@ -257,7 +285,7 @@ class ApiClient extends GetxService {
           statusText: response0.body['message'],
         );
       }
-    } else if (response0.statusCode != 200 && response0.body == null) {
+    } else if (!isSuccess && response0.body == null) {
       response0 = const Response(statusCode: 0, statusText: noInternetMessage);
     }
     ApiLogger.logResponse(
@@ -267,7 +295,7 @@ class ApiClient extends GetxService {
       headers: response0.headers,
     );
     if (handleError) {
-      if (response0.statusCode == 200) {
+      if (isSuccess) {
         return response0;
       } else {
         ApiChecker.checkApi(response0);

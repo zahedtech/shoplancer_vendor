@@ -114,7 +114,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
       };
 
       final response = await http.get(
-        Uri.parse('${AppConstants.baseUrl}${AppConstants.categoryUri}'),
+        Uri.parse('${AppConstants.baseUrl}${AppConstants.globalCategoryUri}'),
         headers: headers,
       );
 
@@ -343,7 +343,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          List<Map<String, String>> updates =
+                                          List<Map<String, dynamic>> updates =
                                               [];
                                           for (var item in selectedItems) {
                                             double? newPrice = double.tryParse(

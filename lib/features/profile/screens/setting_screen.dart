@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shoplancer_vendor/common/controllers/theme_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_bottom_sheet_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/details_custom_card.dart';
@@ -145,15 +144,25 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.privacy_tip_outlined, size: 24, color: Theme.of(context).primaryColor),
+                        Icon(
+                          Icons.privacy_tip_outlined,
+                          size: 24,
+                          color: Theme.of(context).primaryColor,
+                        ),
                         const SizedBox(width: Dimensions.paddingSizeSmall),
                         Expanded(
                           child: Text(
                             'privacy_policy'.tr,
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault),
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                            ),
                           ),
                         ),
-                        Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).disabledColor),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Theme.of(context).disabledColor,
+                        ),
                       ],
                     ),
                   ),
@@ -169,15 +178,25 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.description_outlined, size: 24, color: Theme.of(context).primaryColor),
+                        Icon(
+                          Icons.description_outlined,
+                          size: 24,
+                          color: Theme.of(context).primaryColor,
+                        ),
                         const SizedBox(width: Dimensions.paddingSizeSmall),
                         Expanded(
                           child: Text(
                             'terms_condition'.tr,
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault),
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                            ),
                           ),
                         ),
-                        Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).disabledColor),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Theme.of(context).disabledColor,
+                        ),
                       ],
                     ),
                   ),
@@ -205,7 +224,11 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.logout_rounded, size: 24, color: Colors.red),
+                        const Icon(
+                          Icons.logout_rounded,
+                          size: 24,
+                          color: Colors.red,
+                        ),
                         const SizedBox(width: Dimensions.paddingSizeSmall),
                         Expanded(
                           child: Text(
@@ -216,7 +239,11 @@ class _SettingScreenState extends State<SettingScreen> {
                             ),
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Colors.red,
+                        ),
                       ],
                     ),
                   ),

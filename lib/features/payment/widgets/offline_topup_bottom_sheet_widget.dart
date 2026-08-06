@@ -404,7 +404,9 @@ class _OfflineTopupBottomSheetWidgetState
                             );
 
                         if (success) {
-                          Get.back();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
                         }
                       },
                     ),

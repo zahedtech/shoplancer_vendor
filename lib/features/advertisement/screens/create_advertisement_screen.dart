@@ -125,10 +125,12 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
   bool _hasChanges(AdvertisementController adsController) {
     final original = widget.adsDetailsModel!;
     if (adsController.selectedAdsType != (original.addType ?? '')) return true;
-    if (adsController.isReviewChecked != (original.isReviewActive == 1))
+    if (adsController.isReviewChecked != (original.isReviewActive == 1)) {
       return true;
-    if (adsController.isRatingsChecked != (original.isRatingActive == 1))
+    }
+    if (adsController.isRatingsChecked != (original.isRatingActive == 1)) {
       return true;
+    }
 
     final originalDateRange =
         '${DateConverterHelper.stringToMDY(original.startDate ?? '')} - ${DateConverterHelper.stringToMDY(original.endDate ?? '')}';
@@ -140,15 +142,18 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
       String originalDesc = i == 0 ? (original.description ?? '') : '';
       if (i > 0) {
         original.translations?.forEach((t) {
-          if (t.locale == langKey && t.key == 'title')
+          if (t.locale == langKey && t.key == 'title') {
             originalTitle = t.value ?? '';
-          if (t.locale == langKey && t.key == 'description')
+          }
+          if (t.locale == langKey && t.key == 'description') {
             originalDesc = t.value ?? '';
+          }
         });
       }
       if (titleController[i].text.trim() != originalTitle.trim()) return true;
-      if (descriptionController[i].text.trim() != originalDesc.trim())
+      if (descriptionController[i].text.trim() != originalDesc.trim()) {
         return true;
+      }
     }
 
     if (adsController.pickedVideoFile != null) return true;
@@ -340,7 +345,8 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
                                     labelText: 'title'.tr,
                                     inputType: TextInputType.text,
                                     controller: titleController[0],
-                                    capitalization: TextCapitalization.sentences,
+                                    capitalization:
+                                        TextCapitalization.sentences,
                                     focusNode: _titleFocus[0],
                                     nextFocus: _descriptionFocus[0],
                                     validator: (value) =>
@@ -358,7 +364,8 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
                                     labelText: 'description'.tr,
                                     inputType: TextInputType.text,
                                     controller: descriptionController[0],
-                                    capitalization: TextCapitalization.sentences,
+                                    capitalization:
+                                        TextCapitalization.sentences,
                                     focusNode: _descriptionFocus[0],
                                     inputAction: TextInputAction.done,
                                     maxLines: 2,

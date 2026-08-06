@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/common/models/vat_tax_model.dart';
@@ -32,6 +31,9 @@ class StoreRepository implements StoreRepositoryInterface {
     int? categoryId,
     int? moduleId,
     String? barcode,
+    String? minPrice,
+    String? maxPrice,
+    String? sort,
   }) async {
     ItemModel? itemModel;
     String url = '';
@@ -39,13 +41,23 @@ class StoreRepository implements StoreRepositoryInterface {
     final String barcodeQuery = barcode != null && barcode.trim().isNotEmpty
         ? '&barcode=${Uri.encodeQueryComponent(barcode.trim())}'
         : '';
+    final String minPriceQuery = minPrice != null && minPrice.trim().isNotEmpty
+        ? '&min_price=${Uri.encodeQueryComponent(minPrice.trim())}'
+        : '';
+    final String maxPriceQuery = maxPrice != null && maxPrice.trim().isNotEmpty
+        ? '&max_price=${Uri.encodeQueryComponent(maxPrice.trim())}'
+        : '';
+    final String sortQuery = sort != null && sort.trim().isNotEmpty && sort != 'none'
+        ? '&sort=${Uri.encodeQueryComponent(sort.trim())}&sort_by_price=${Uri.encodeQueryComponent(sort.trim())}&order=${Uri.encodeQueryComponent(sort.trim())}'
+        : '';
+
     if (moduleId != null) {
       int? storeId = Get.find<ProfileController>().profileModel?.stores?[0].id;
       url =
-          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '/api/v1/products/list/$moduleId/$storeId?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery$minPriceQuery$maxPriceQuery$sortQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     } else {
       url =
-          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
+          '${AppConstants.itemListUri}?offset=$offset&limit=10&type=$type&search=$encodedSearch$barcodeQuery$minPriceQuery$maxPriceQuery$sortQuery${categoryId != null ? '&category_id=$categoryId' : ''}&page=$offset';
     }
     Response response = await apiClient.getData(url);
     if (response.statusCode == 200) {
@@ -216,29 +228,29 @@ class StoreRepository implements StoreRepositoryInterface {
     Map<String, dynamic> fields = {};
     fields.addAll(<String, dynamic>{
       '_method': 'put',
-      'schedule_order': store.scheduleOrder! ? '1' : '0',
+      'schedule_order': (store.scheduleOrder ?? false) ? '1' : '0',
       'minimum_order': store.minimumOrder.toString(),
-      'delivery': store.delivery! ? '1' : '0',
-      'take_away': store.takeAway! ? '1' : '0',
-      'gst_status': store.gstStatus! ? '1' : '0',
-      'gst': store.gstCode!,
+      'delivery': (store.delivery ?? false) ? '1' : '0',
+      'take_away': (store.takeAway ?? false) ? '1' : '0',
+      'gst_status': (store.gstStatus ?? false) ? '1' : '0',
+      'gst': store.gstCode ?? '',
       'minimum_delivery_charge': store.minimumShippingCharge.toString(),
       'per_km_delivery_charge': store.perKmShippingCharge.toString(),
       'delivery_price': store.deliveryPrice.toString(),
       'veg': store.veg.toString(),
       'non_veg': store.nonVeg.toString(),
-      'halal_tag_status': store.isHalalActive! ? '1' : '0',
+      'halal_tag_status': (store.isHalalActive ?? false) ? '1' : '0',
       'order_place_to_schedule_interval': store.orderPlaceToScheduleInterval
           .toString(),
       'minimum_delivery_time': min,
       'maximum_delivery_time': max,
       'delivery_time_type': type,
-      'prescription_order': store.prescriptionStatus! ? '1' : '0',
-      'cutlery': store.cutlery! ? '1' : '0',
-      'free_delivery': store.freeDelivery! ? '1' : '0',
-      'extra_packaging_status': store.extraPackagingStatus! ? '1' : '0',
-      'extra_packaging_amount': store.extraPackagingAmount!.toString(),
-      'minimum_stock_for_warning': store.minimumStockForWarning.toString(),
+      'prescription_order': (store.prescriptionStatus ?? false) ? '1' : '0',
+      'cutlery': (store.cutlery ?? false) ? '1' : '0',
+      'free_delivery': (store.freeDelivery ?? false) ? '1' : '0',
+      'extra_packaging_status': (store.extraPackagingStatus ?? false) ? '1' : '0',
+      'extra_packaging_amount': (store.extraPackagingAmount ?? 0.0).toString(),
+      'minimum_stock_for_warning': (store.minimumStockForWarning ?? 0.0).toString(),
       'defalut_banner': (store.defaultBanner ?? 0).toString(),
       'default_banner': (store.defaultBanner ?? 0).toString(),
     });
@@ -535,8 +547,16 @@ class StoreRepository implements StoreRepositoryInterface {
   }
 
   @override
-  Future<Response> stockUpdate(Map<String, String> data) async {
-    return await apiClient.postData(AppConstants.itemStockUpdateUri, data);
+  Future<Response> stockUpdate(Map<String, dynamic> data) async {
+    Map<String, dynamic> body = data.containsKey('products')
+        ? data
+        : {'products': [data]};
+    return await apiClient.postData(AppConstants.itemStockUpdateUri, body);
+  }
+
+  @override
+  Future<Response> bulkStockUpdate(Map<String, dynamic> body) async {
+    return await apiClient.postData(AppConstants.itemStockUpdateUri, body);
   }
 
   @override
@@ -565,6 +585,17 @@ class StoreRepository implements StoreRepositoryInterface {
   ) async {
     Response response = await apiClient.getData(
       '${AppConstants.updateProductRecommendedUri}?id=$productID&status=$status',
+    );
+    return (response.statusCode == 200);
+  }
+
+  @override
+  Future<bool> updateBestSellerProductStatus(
+    int? productID,
+    int status,
+  ) async {
+    Response response = await apiClient.getData(
+      '${AppConstants.updateProductBestSellerUri}?id=$productID&status=$status',
     );
     return (response.statusCode == 200);
   }
@@ -708,5 +739,17 @@ class StoreRepository implements StoreRepositoryInterface {
       AppConstants.bulkAssignUri,
       {'products': products},
     );
+  }
+
+  @override
+  Future<Response> getStoreSections() async {
+    return await apiClient.getData(AppConstants.storeSectionsUri);
+  }
+
+  @override
+  Future<Response> updateStoreSections(List<Map<String, dynamic>> sections) async {
+    return await apiClient.postData(AppConstants.updateStoreSectionsUri, {
+      'sections': sections,
+    });
   }
 }

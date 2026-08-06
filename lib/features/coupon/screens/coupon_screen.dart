@@ -231,7 +231,7 @@ class _CouponScreenState extends State<CouponScreen> {
                       ),
                     ),
                   );
-            }) : Center(child: Text('no_coupon_found'.tr)) : const Center(child: CircularProgressIndicator());
+            }) : Center(child: Text('no_coupon_found'.tr)) : Center(child: CircularProgressIndicator());
           }
         ),
       ),

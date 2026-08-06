@@ -525,9 +525,9 @@
     },
     {
       "name": "fluttertoast",
-      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/fluttertoast-9.1.0",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/fluttertoast-9.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.11"
+      "languageVersion": "2.12"
     },
     {
       "name": "gbk_codec",
@@ -1203,9 +1203,9 @@
     },
     {
       "name": "synchronized",
-      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/synchronized-3.4.0+1",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/synchronized-3.4.0",
       "packageUri": "lib/",
-      "languageVersion": "3.11"
+      "languageVersion": "3.8"
     },
     {
       "name": "term_glyph",
@@ -1311,9 +1311,9 @@
     },
     {
       "name": "vibration",
-      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/vibration-3.2.0",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/vibration-3.1.8",
       "packageUri": "lib/",
-      "languageVersion": "3.11"
+      "languageVersion": "3.0"
     },
     {
       "name": "vibration_platform_interface",
@@ -1365,9 +1365,9 @@
     },
     {
       "name": "wakelock_plus_platform_interface",
-      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/wakelock_plus_platform_interface-1.6.0",
+      "rootUri": "file:///C:/Users/chime/AppData/Local/Pub/Cache/hosted/pub.dev/wakelock_plus_platform_interface-1.5.1",
       "packageUri": "lib/",
-      "languageVersion": "3.11"
+      "languageVersion": "3.10"
     },
     {
       "name": "web",
