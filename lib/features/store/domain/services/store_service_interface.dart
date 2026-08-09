@@ -76,6 +76,8 @@ abstract class StoreServiceInterface {
     List<FoodVariation>? variationList,
   );
   Future<List<BrandModel>?> getBrandList();
+  Future<Response> updateBrandStatus(int brandId, int status);
+  Future<ItemModel?> getBrandItemList({required String offset, required int brandId});
   int? setBrandIndex(List<BrandModel>? brands, Item? item);
   Future<bool> updateReply(int reviewID, String reply);
   Future<List<String?>?> getNutritionSuggestionList();

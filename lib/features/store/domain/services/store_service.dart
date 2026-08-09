@@ -194,6 +194,16 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
+  Future<Response> updateBrandStatus(int brandId, int status) async {
+    return await storeRepositoryInterface.updateBrandStatus(brandId, status);
+  }
+
+  @override
+  Future<ItemModel?> getBrandItemList({required String offset, required int brandId}) async {
+    return await storeRepositoryInterface.getBrandItemList(offset: offset, brandId: brandId);
+  }
+
+  @override
   Future<List<SuitableTagModel>?> getSuitableTagList() async {
     return await storeRepositoryInterface.getSuitableTagList();
   }

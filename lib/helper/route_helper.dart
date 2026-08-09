@@ -55,6 +55,9 @@ import 'package:shoplancer_vendor/features/profile/screens/update_profile_screen
 import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 import 'package:shoplancer_vendor/features/store/screens/add_item_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/all_items_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/brand_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/brand_product_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/inactive_products_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_search_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/announcement_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/image_viewer_screen.dart';
@@ -175,6 +178,8 @@ class RouteHelper {
       '/product-price-update-categories';
   static const String productStatus = '/product-status';
   static const String productManagement = '/product-management';
+  static const String inactiveProducts = '/inactive-products';
+  static const String brands = '/brands';
   static const String socialMedia = '/social-media';
   static const String alternativeItemSelection = '/alternative-item-selection';
 
@@ -395,6 +400,8 @@ class RouteHelper {
       productPriceUpdateCategories;
   static String getProductStatusRoute() => productStatus;
   static String getProductManagementRoute() => productManagement;
+  static String getInactiveProductsRoute() => inactiveProducts;
+  static String getBrandsRoute() => brands;
   static String getSocialMediaRoute() => socialMedia;
   static String getAlternativeItemSelectionRoute(int orderId) =>
       '$alternativeItemSelection?order_id=$orderId';
@@ -815,6 +822,14 @@ class RouteHelper {
     GetPage(
       name: productManagement,
       page: () => const ProductManagementScreen(),
+    ),
+    GetPage(
+      name: inactiveProducts,
+      page: () => const InactiveProductsScreen(),
+    ),
+    GetPage(
+      name: brands,
+      page: () => const BrandScreen(),
     ),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
     GetPage(
