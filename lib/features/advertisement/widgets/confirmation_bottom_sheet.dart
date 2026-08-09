@@ -22,6 +22,7 @@ class ConfirmationBottomSheet extends StatefulWidget {
 }
 
 class _ConfirmationBottomSheetState extends State<ConfirmationBottomSheet> {
+  final GlobalKey<FormState> _noteFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -72,7 +73,7 @@ class _ConfirmationBottomSheetState extends State<ConfirmationBottomSheet> {
 
 
               widget.status == 'cancel_ads' || widget.status == 'pause_ads' ? Form(
-                key: advertisementController.noteFormKey,
+                key: _noteFormKey,
                 child: CustomTextFieldWidget(
                   inputType: TextInputType.text,
                   controller: advertisementController.noteController,
@@ -104,7 +105,17 @@ class _ConfirmationBottomSheetState extends State<ConfirmationBottomSheet> {
 
                 Expanded(flex: 2, child: advertisementController.isLoading ? const Center(child: CircularProgressIndicator()) : CustomButtonWidget(
                   buttonText: widget.confirmButtonText?.tr ?? "yes".tr,
-                  onPressed: !advertisementController.isLoading? widget.yesButtonPressed : (){},
+                  onPressed: () {
+                    if (!advertisementController.isLoading) {
+                      if (widget.status == 'cancel_ads' || widget.status == 'pause_ads') {
+                        if (_noteFormKey.currentState != null && _noteFormKey.currentState!.validate()) {
+                          widget.yesButtonPressed?.call();
+                        }
+                      } else {
+                        widget.yesButtonPressed?.call();
+                      }
+                    }
+                  },
                   color: widget.yesTestColor ?? Theme.of(context).colorScheme.error,
                 )),
 

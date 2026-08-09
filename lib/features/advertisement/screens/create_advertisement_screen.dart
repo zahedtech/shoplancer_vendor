@@ -54,7 +54,6 @@ class _CreateAdvertisementScreenState extends State<CreateAdvertisementScreen>
   @override
   void initState() {
     super.initState();
-
     _getPromotionList();
 
     for (var language in _languageList!) {

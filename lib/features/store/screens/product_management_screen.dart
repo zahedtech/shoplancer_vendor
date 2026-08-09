@@ -12,6 +12,7 @@ import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_details_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/quick_add_item_screen.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
@@ -129,8 +130,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
           appBar: const CustomAppBarWidget(title: 'إدارة المنتجات'),
           floatingActionButton: FloatingActionButton(
             heroTag: 'product_mgmt_add_item_fab',
-            onPressed: () =>
-                Get.toNamed(RouteHelper.getAddItemRoute(null, isSimple: true)),
+            onPressed: () => Get.to(() => const QuickAddItemScreen()),
             backgroundColor: Theme.of(context).primaryColor,
             child: const Icon(Icons.add, color: Colors.white, size: 28),
           ),
@@ -687,7 +687,10 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                           );
                           Navigator.of(context).pop();
                         },
-                        child: Text('إعادة ضبط', style: robotoRegular.copyWith(color: Colors.red)),
+                        child: Text(
+                          'إعادة ضبط',
+                          style: robotoRegular.copyWith(color: Colors.red),
+                        ),
                       ),
                     ],
                   ),

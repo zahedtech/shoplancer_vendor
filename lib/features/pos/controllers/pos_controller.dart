@@ -1,10 +1,61 @@
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/api/api_checker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:shoplancer_vendor/features/pos/data/local/pos_local_db.dart';
+import 'package:shoplancer_vendor/features/pos/data/local/pos_offline_repository.dart';
+import 'package:shoplancer_vendor/features/pos/data/local/pos_sync_service.dart';
 import 'package:shoplancer_vendor/features/pos/domain/models/pos_cart_model.dart';
 import 'package:shoplancer_vendor/features/pos/domain/models/pos_customer_model.dart';
 import 'package:shoplancer_vendor/features/pos/domain/services/pos_service_interface.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/util/app_constants.dart';
+
+/// A snapshot of an in-progress order that was set aside ("held") so the
+/// cashier could start a new order without losing it — e.g. a customer
+/// steps away mid-order. Shown in the desktop sidebar to resume later.
+class PosHeldOrder {
+  final String id;
+  final DateTime heldAt;
+  final List<PosCartModel> cartList;
+  final PosCustomerModel? customer;
+  final String orderType;
+  final String paymentMethod;
+  final String paymentStatus;
+  final double discountAmount;
+  final double couponDiscountAmount;
+  final String? couponCode;
+  final double deliveryCharge;
+  final String? label;
+
+  PosHeldOrder({
+    required this.id,
+    required this.heldAt,
+    required this.cartList,
+    required this.customer,
+    required this.orderType,
+    required this.paymentMethod,
+    required this.paymentStatus,
+    required this.discountAmount,
+    required this.couponDiscountAmount,
+    required this.couponCode,
+    required this.deliveryCharge,
+    this.label,
+  });
+
+  double get total {
+    double t = 0;
+    for (final c in cartList) {
+      t += c.price * c.quantity;
+      if (c.addOns != null) {
+        for (final a in c.addOns!) {
+          t += (a.price ?? 0);
+        }
+      }
+    }
+    t = t - discountAmount - couponDiscountAmount + (orderType == 'delivery' ? deliveryCharge : 0);
+    return t < 0 ? 0 : t;
+  }
+}
 
 class PosController extends GetxController implements GetxService {
   final PosServiceInterface posServiceInterface;
@@ -39,6 +90,84 @@ class PosController extends GetxController implements GetxService {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  // ---- Held ("parked") orders ------------------------------------------
+  // Lets the cashier start a fresh order without losing the current one:
+  // hold it, work on the new order, and come back to any held order later.
+  final List<PosHeldOrder> _heldOrders = [];
+  List<PosHeldOrder> get heldOrders => _heldOrders;
+  int _heldOrderCounter = 0;
+
+  /// Sets the current in-progress order aside and clears the active cart so
+  /// a brand new order can be started. Returns false (and shows a message)
+  /// if there is nothing to hold.
+  bool holdCurrentOrderAndStartNew() {
+    if (_cartList.isEmpty) {
+      showCustomSnackBar('السلة فارغة، لا يوجد طلب لتعليقه'.tr);
+      return false;
+    }
+    _heldOrderCounter++;
+    _heldOrders.add(PosHeldOrder(
+      id: 'held_${DateTime.now().microsecondsSinceEpoch}',
+      heldAt: DateTime.now(),
+      cartList: List<PosCartModel>.from(_cartList),
+      customer: _selectedCustomer,
+      orderType: _orderType,
+      paymentMethod: _paymentMethod,
+      paymentStatus: _paymentStatus,
+      discountAmount: _discountAmount,
+      couponDiscountAmount: _couponDiscountAmount,
+      couponCode: _couponCode,
+      deliveryCharge: _deliveryCharge,
+      label: 'طلب معلّق $_heldOrderCounter',
+    ));
+    _startFreshOrderState();
+    showCustomSnackBar('تم تعليق الطلب، يمكنك استئنافه لاحقًا'.tr, isError: false);
+    update();
+    return true;
+  }
+
+  /// Restores a held order as the active one. If there is already an
+  /// unsaved order in progress, it is held first so nothing is lost.
+  void resumeHeldOrder(String heldOrderId) {
+    final int index = _heldOrders.indexWhere((o) => o.id == heldOrderId);
+    if (index == -1) return;
+
+    if (_cartList.isNotEmpty) {
+      holdCurrentOrderAndStartNew();
+    }
+
+    final PosHeldOrder held = _heldOrders.removeAt(index);
+    _cartList
+      ..clear()
+      ..addAll(held.cartList);
+    _selectedCustomer = held.customer;
+    _orderType = held.orderType;
+    _paymentMethod = held.paymentMethod;
+    _paymentStatus = held.paymentStatus;
+    _discountAmount = held.discountAmount;
+    _couponDiscountAmount = held.couponDiscountAmount;
+    _couponCode = held.couponCode;
+    _deliveryCharge = held.deliveryCharge;
+    update();
+  }
+
+  void deleteHeldOrder(String heldOrderId) {
+    _heldOrders.removeWhere((o) => o.id == heldOrderId);
+    update();
+  }
+
+  /// Resets the active-order fields without touching the held-orders list.
+  void _startFreshOrderState() {
+    _cartList.clear();
+    _discountAmount = 0.0;
+    _couponDiscountAmount = 0.0;
+    _couponCode = null;
+    _selectedCustomer = null;
+    // Deliberately NOT resetting _deliveryCharge: the same delivery fee
+    // commonly applies to the next order too, so it's kept until the
+    // cashier changes it.
+  }
 
   double _deliveryCharge = 0.0;
   double get deliveryCharge => _deliveryCharge;
@@ -108,12 +237,7 @@ class PosController extends GetxController implements GetxService {
   }
 
   void clearCart() {
-    _cartList.clear();
-    _discountAmount = 0.0;
-    _couponDiscountAmount = 0.0;
-    _deliveryCharge = 0.0;
-    _couponCode = null;
-    _selectedCustomer = null;
+    _startFreshOrderState();
     update();
   }
 
@@ -290,6 +414,27 @@ class PosController extends GetxController implements GetxService {
           : 'تم تقديم الطلب بنجاح'.tr;
 
       showCustomSnackBar(message, isError: false);
+      clearCart();
+      update();
+      return true;
+    } else if (response.statusCode == 1 && PosLocalDb.instance.isSupportedPlatform) {
+      // No internet connection on desktop: queue the order locally instead
+      // of losing it. It will be pushed automatically once back online.
+      final String queueId = await PosOfflineRepository.instance.enqueue(
+        type: PosQueueActionType.placeOrder,
+        endpoint: AppConstants.placeOrderUri,
+        body: body,
+      );
+      await PosOfflineRepository.instance.recordLocalOrder(
+        queueId: queueId,
+        total: grandTotal,
+        itemCount: cartPayload.length,
+        customerLabel: _selectedCustomer?.fullName,
+      );
+      if (Get.isRegistered<PosSyncService>()) {
+        Get.find<PosSyncService>().syncNow();
+      }
+      showCustomSnackBar('لا يوجد اتصال بالإنترنت، تم حفظ الطلب محلياً وسيُرسل تلقائياً عند عودة الاتصال'.tr, isError: false);
       clearCart();
       update();
       return true;

@@ -17,12 +17,10 @@ import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/features/payment/screens/wallet_screen.dart';
 import 'package:shoplancer_vendor/features/pos/screens/pos_screen.dart';
-import 'package:shoplancer_vendor/features/disbursement/screens/disbursement_screen.dart';
 import 'package:shoplancer_vendor/features/dashboard/widgets/bottom_nav_item_widget.dart';
 import 'package:shoplancer_vendor/features/home/screens/home_screen.dart';
 import 'package:shoplancer_vendor/features/menu/screens/menu_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/order_history_screen.dart';
-import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
@@ -105,10 +103,16 @@ class DashboardScreenState extends State<DashboardScreen> {
     _pageController = PageController(initialPage: widget.pageIndex);
 
     _screens = [
-      authController.getModuleType() == 'rental' ? const TaxiHomeScreen() : const HomeScreen(),
-      authController.getModuleType() == 'rental' ? const TripHistoryScreen() : const OrderHistoryScreen(),
+      authController.getModuleType() == 'rental'
+          ? const TaxiHomeScreen()
+          : const HomeScreen(),
+      authController.getModuleType() == 'rental'
+          ? const TripHistoryScreen()
+          : const OrderHistoryScreen(),
       const PosScreen(),
-      authController.getModuleType() == 'rental' ? const ProviderScreen() : const WalletScreen(),
+      authController.getModuleType() == 'rental'
+          ? const ProviderScreen()
+          : const WalletScreen(),
       Container(),
     ];
 
@@ -118,23 +122,26 @@ class DashboardScreenState extends State<DashboardScreen> {
 
     showDisbursementWarningMessage();
 
-    if(Get.find<SubscriptionController>().isTrialEndModalShown){
+    if (Get.find<SubscriptionController>().isTrialEndModalShown) {
       Get.find<SubscriptionController>().trialEndBottomSheet();
     }
 
     outOfStockBottomSheet();
-
   }
 
-  Future<void> showDisbursementWarningMessage() async{
+  Future<void> showDisbursementWarningMessage() async {
     disbursementHelper.enableDisbursementWarningMessage(true);
   }
 
   Future<void> outOfStockBottomSheet() async {
     Future.delayed(const Duration(seconds: 1), () {
-      if(Get.find<ProfileController>().profileModel != null && Get.find<ProfileController>().profileModel!.outOfStockCount! > 0 && Get.find<ProfileController>().showLowStockWarning) {
+      if (Get.find<ProfileController>().profileModel != null &&
+          Get.find<ProfileController>().profileModel!.outOfStockCount! > 0 &&
+          Get.find<ProfileController>().showLowStockWarning) {
         showModalBottomSheet(
-          context: Get.context!, isScrollControlled: true, backgroundColor: Colors.transparent,
+          context: Get.context!,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
           builder: (con) => const OutOfStockWarningBottomSheet(),
         ).then((v) {
           Get.find<ProfileController>().hideLowStockWarning();
@@ -143,11 +150,8 @@ class DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     bool keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return ShowCaseWidget(
@@ -159,24 +163,29 @@ class DashboardScreenState extends State<DashboardScreen> {
 
         return PopScope(
           canPop: false,
-          onPopInvokedWithResult: (didPop, result) async{
-            if(_pageIndex != 0) {
+          onPopInvokedWithResult: (didPop, result) async {
+            if (_pageIndex != 0) {
               _setPage(0);
-            }else {
-              if(_canExit) {
+            } else {
+              if (_canExit) {
                 if (GetPlatform.isAndroid) {
                   SystemNavigator.pop();
                 } else if (GetPlatform.isIOS) {
                   exit(0);
                 }
               }
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('back_press_again_to_exit'.tr, style: robotoRegular.copyWith(color: Colors.white)),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-                margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              ));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'back_press_again_to_exit'.tr,
+                    style: robotoRegular.copyWith(color: Colors.white),
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                ),
+              );
               _canExit = true;
 
               Timer(const Duration(seconds: 2), () {
@@ -187,94 +196,127 @@ class DashboardScreenState extends State<DashboardScreen> {
           child: SafeArea(
             top: false,
             child: Scaffold(
+              floatingActionButton: !GetPlatform.isMobile || keyboardVisible
+                  ? null
+                  : _buildShowcaseItem(
+                      key: _createOrderKey,
+                      title: 'إنشاء طلب جديد (POS)'.tr,
+                      description: 'إنشاء طلب جديد بسرعة عبر نظام النقطة'.tr,
+                      isCircle: true,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).cardColor,
+                            width: 5,
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 5,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: FloatingActionButton(
+                          heroTag: null,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          onPressed: () {
+                            _setPage(2);
+                          },
+                          child: const Icon(
+                            Icons.add,
+                            size: 30,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+              floatingActionButtonLocation: !GetPlatform.isMobile
+                  ? null
+                  : FloatingActionButtonLocation.centerDocked,
 
-              floatingActionButton: !GetPlatform.isMobile || keyboardVisible ? null : _buildShowcaseItem(
-                key: _createOrderKey,
-                title: 'إنشاء طلب جديد (POS)'.tr,
-                description: 'إنشاء طلب جديد بسرعة عبر نظام النقطة'.tr,
-                isCircle: true,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).cardColor, width: 5),
-                    shape: BoxShape.circle,
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
-                  ),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    onPressed: () {
-                      _setPage(2);
-                    },
-                    child: const Icon(
-                      Icons.add,
-                      size: 30,
-                      color: Colors.white,
+              bottomNavigationBar: !GetPlatform.isMobile
+                  ? const SizedBox()
+                  : Container(
+                      height: 65,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(Dimensions.radiusLarge),
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 5,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(
+                          Dimensions.paddingSizeExtraSmall,
+                        ),
+                        child: Row(
+                          children: [
+                            BottomNavItemWidget(
+                              title: 'home'.tr,
+                              selectedIcon: Images.homeSelect,
+                              unSelectedIcon: Images.homeUnselect,
+                              isSelected: _pageIndex == 0,
+                              onTap: () => _setPage(0),
+                              showcaseKey: _homeKey,
+                              showcaseTitle: 'showcase_home_title'.tr,
+                              showcaseDescription: 'showcase_home_desc'.tr,
+                            ),
+                            BottomNavItemWidget(
+                              title:
+                                  Get.find<AuthController>().getModuleType() ==
+                                      'rental'
+                                  ? 'trips'.tr
+                                  : 'orders'.tr,
+                              selectedIcon: Images.orderSelect,
+                              unSelectedIcon: Images.orderUnselect,
+                              isSelected: _pageIndex == 1,
+                              onTap: () => _setPage(1),
+                              showcaseKey: _ordersKey,
+                              showcaseTitle: 'showcase_orders_title'.tr,
+                              showcaseDescription: 'showcase_orders_desc'.tr,
+                            ),
+                            const Expanded(child: SizedBox()),
+                            BottomNavItemWidget(
+                              title: 'wallet'.tr,
+                              selectedIcon: Images.walletSelect,
+                              unSelectedIcon: Images.walletUnSelect,
+                              isSelected: _pageIndex == 3,
+                              onTap: () => _setPage(3),
+                              showcaseKey: _financeKey,
+                              showcaseTitle: 'wallet'.tr,
+                              showcaseDescription: 'showcase_wallet_desc'.tr,
+                            ),
+                            BottomNavItemWidget(
+                              title: 'menu'.tr,
+                              selectedIcon: Images.menu,
+                              unSelectedIcon: Images.menu,
+                              isSelected: _pageIndex == 4,
+                              onTap: () {
+                                Get.to(
+                                  () =>
+                                      Get.find<AuthController>()
+                                              .getModuleType() ==
+                                          'rental'
+                                      ? const TaxiMenuScreen()
+                                      : const MenuScreen(),
+                                );
+                              },
+                              showcaseKey: _menuKey,
+                              showcaseTitle: 'showcase_menu_title'.tr,
+                              showcaseDescription: 'showcase_menu_desc'.tr,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              floatingActionButtonLocation: !GetPlatform.isMobile ? null : FloatingActionButtonLocation.centerDocked,
-
-              bottomNavigationBar: !GetPlatform.isMobile ? const SizedBox() : Container(
-                height: 65,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(Dimensions.radiusLarge)),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                  child: Row(children: [
-                    BottomNavItemWidget(
-                      title: 'home'.tr,
-                      selectedIcon: Images.homeSelect,
-                      unSelectedIcon: Images.homeUnselect,
-                      isSelected: _pageIndex == 0,
-                      onTap: () => _setPage(0),
-                      showcaseKey: _homeKey,
-                      showcaseTitle: 'showcase_home_title'.tr,
-                      showcaseDescription: 'showcase_home_desc'.tr,
-                    ),
-                    BottomNavItemWidget(
-                      title: Get.find<AuthController>().getModuleType() == 'rental' ? 'trips'.tr : 'orders'.tr,
-                      selectedIcon: Images.orderSelect,
-                      unSelectedIcon: Images.orderUnselect,
-                      isSelected: _pageIndex == 1,
-                      onTap: () => _setPage(1),
-                      showcaseKey: _ordersKey,
-                      showcaseTitle: 'showcase_orders_title'.tr,
-                      showcaseDescription: 'showcase_orders_desc'.tr,
-                    ),
-                    const Expanded(child: SizedBox()),
-                    BottomNavItemWidget(
-                      title: 'wallet'.tr,
-                      selectedIcon: Images.walletSelect,
-                      unSelectedIcon: Images.walletUnSelect,
-                      isSelected: _pageIndex == 3,
-                      onTap: () => _setPage(3),
-                      showcaseKey: _financeKey,
-                      showcaseTitle: 'wallet'.tr,
-                      showcaseDescription: 'showcase_wallet_desc'.tr,
-                    ),
-                    BottomNavItemWidget(
-                      title: 'menu'.tr,
-                      selectedIcon: Images.menu,
-                      unSelectedIcon: Images.menu,
-                      isSelected: _pageIndex == 4,
-                      onTap: () {
-                        Get.to(
-                          () => Get.find<AuthController>().getModuleType() == 'rental'
-                              ? const TaxiMenuScreen()
-                              : const MenuScreen(),
-                        );
-                      },
-                      showcaseKey: _menuKey,
-                      showcaseTitle: 'showcase_menu_title'.tr,
-                      showcaseDescription: 'showcase_menu_desc'.tr,
-                    ),
-                  ]),
-                ),
-              ),
               body: PageView.builder(
                 controller: _pageController,
                 itemCount: _screens.length,

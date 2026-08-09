@@ -59,6 +59,18 @@ class AuthRepository implements AuthRepositoryInterface {
   @override
   Future<Response> updateToken() async {
     String? deviceToken;
+    // Desktop (Windows/macOS/Linux) builds don't ship Firebase config and
+    // don't need push notifications for the POS flow, so skip Firebase
+    // Messaging there instead of crashing with "No Firebase App '[DEFAULT]'".
+    if (!GetPlatform.isMobile && !GetPlatform.isWeb) {
+      // Desktop has no push notifications; server validation just requires
+      // a non-empty value here, so send a placeholder instead of ''.
+      return await apiClient.postData(AppConstants.tokenUri, {
+        "_method": "put",
+        "token": getUserToken(),
+        "fcm_token": 'desktop-no-push-support',
+      }, handleError: false);
+    }
     if (GetPlatform.isIOS) {
       FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
         alert: true,
@@ -96,7 +108,7 @@ class AuthRepository implements AuthRepositoryInterface {
 
   Future<String?> _saveDeviceToken() async {
     String? deviceToken = '';
-    if (!GetPlatform.isWeb) {
+    if (!GetPlatform.isWeb && GetPlatform.isMobile) {
       deviceToken = (await FirebaseMessaging.instance.getToken())!;
     }
     if (kDebugMode) {
@@ -140,9 +152,12 @@ class AuthRepository implements AuthRepositoryInterface {
         "token": getUserToken(),
         "fcm_token": '@',
       }, handleError: false);
-      FirebaseMessaging.instance.unsubscribeFromTopic(
-        sharedPreferences.getString(AppConstants.zoneTopic)!,
-      );
+      // Firebase isn't configured/initialized on desktop builds.
+      if (GetPlatform.isMobile) {
+        FirebaseMessaging.instance.unsubscribeFromTopic(
+          sharedPreferences.getString(AppConstants.zoneTopic)!,
+        );
+      }
     }
     await sharedPreferences.remove(AppConstants.token);
     await sharedPreferences.remove(AppConstants.userAddress);
@@ -207,10 +222,13 @@ class AuthRepository implements AuthRepositoryInterface {
           "token": getUserToken(),
           "fcm_token": '@',
         }, handleError: false);
-        FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-        FirebaseMessaging.instance.unsubscribeFromTopic(
-          sharedPreferences.getString(AppConstants.zoneTopic)!,
-        );
+        // Firebase isn't configured/initialized on desktop builds.
+        if (GetPlatform.isMobile) {
+          FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
+          FirebaseMessaging.instance.unsubscribeFromTopic(
+            sharedPreferences.getString(AppConstants.zoneTopic)!,
+          );
+        }
       }
     }
     sharedPreferences.setBool(AppConstants.notification, isActive);

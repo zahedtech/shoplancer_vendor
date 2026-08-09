@@ -44,7 +44,7 @@ class MenuScreen extends StatelessWidget {
           icon: '',
           iconData: Icons.price_change_rounded,
           title: 'تعديل الأسعار السريع',
-          route: RouteHelper.getProductPriceUpdateRoute(),
+          route: RouteHelper.getProductPriceUpdateCategoriesRoute(),
           isBlocked: !(store?.itemSection ?? false),
         ),
       );

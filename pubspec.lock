@@ -321,6 +321,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.3.10"
+  file_selector:
+    dependency: "direct main"
+    description:
+      name: file_selector
+      sha256: bd15e43e9268db636b53eeaca9f56324d1622af30e5c34d6e267649758c84d9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  file_selector_android:
+    dependency: transitive
+    description:
+      name: file_selector_android
+      sha256: "89243030ea4b3463fb402b44d5eeacc4ccb1c46a88870cb2a5080d693200c1ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.2+6"
+  file_selector_ios:
+    dependency: transitive
+    description:
+      name: file_selector_ios
+      sha256: e2ecf2885c121691ce13b60db3508f53c01f869fb6e8dc5c1cfa771e4c46aeca
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3+5"
   file_selector_linux:
     dependency: transitive
     description:
@@ -345,6 +369,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.0"
+  file_selector_web:
+    dependency: transitive
+    description:
+      name: file_selector_web
+      sha256: "73181fbc5257776d8ecaa6a94ab3c8e920ad143b9132a6d984a9271dfc6928d3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.5"
   file_selector_windows:
     dependency: transitive
     description:
@@ -776,6 +808,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.7.3"
+  glob:
+    dependency: transitive
+    description:
+      name: glob
+      sha256: c3f1ee72c96f8f78935e18aa8cecced9ab132419e8625dc187e1c2408efc20de
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.3"
   google_maps:
     dependency: transitive
     description:
@@ -952,6 +992,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.3"
+  jiffy:
+    dependency: transitive
+    description:
+      name: jiffy
+      sha256: cabced5ddea4612f5e0c498df065ee8a1bd810f7ed757db910e95d2aba80161d
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.4.5"
   jni:
     dependency: transitive
     description:
@@ -968,6 +1016,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.12.0"
   just_the_tooltip:
     dependency: "direct main"
     description:
@@ -1072,6 +1128,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.4.0"
+  native_toolchain_c:
+    dependency: transitive
+    description:
+      name: native_toolchain_c
+      sha256: f9c168717100ae6d9fee9ffb0be379bf1f8b26b0f6bcbd4fdddcd931993a6a72
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.19.2"
   nested:
     dependency: transitive
     description:
@@ -1368,6 +1432,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.2"
   record_use:
     dependency: transitive
     description:
@@ -1392,6 +1464,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      sha256: ace919117a7520c13a50a6259e60c4a0d4cbe98809468792a91b5c5adada2aa6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  screen_retriever_linux:
+    dependency: transitive
+    description:
+      name: screen_retriever_linux
+      sha256: "7b52006a5ceae1f3d5af7f77188c3290d6e7d8ded16d99809bea84967c65c257"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  screen_retriever_macos:
+    dependency: transitive
+    description:
+      name: screen_retriever_macos
+      sha256: a1489b99cce597c45a54b9aae1cd94c8d4705353b7e0bb2457a6e4de44e0ad8a
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  screen_retriever_platform_interface:
+    dependency: transitive
+    description:
+      name: screen_retriever_platform_interface
+      sha256: "94a5535277510a63184ca178ce12a1449bc0b38618879aa1c18bf57369c5064a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+  screen_retriever_windows:
+    dependency: transitive
+    description:
+      name: screen_retriever_windows
+      sha256: dafc6922b0bfbf1d48cf3ccbf519b4fff47bdcb820da1728ea6db675fecc9324
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   screenshot:
     dependency: "direct main"
     description:
@@ -1525,6 +1637,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.8"
+  sqflite_common_ffi:
+    dependency: "direct main"
+    description:
+      name: sqflite_common_ffi
+      sha256: cd0c7f7de39a08f2d54ef144d9058c46eca8461879aaa648025643455c1e5a20
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0+3"
   sqflite_darwin:
     dependency: transitive
     description:
@@ -1541,6 +1661,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  sqlite3:
+    dependency: transitive
+    description:
+      name: sqlite3
+      sha256: "64b2c63c8232dd20d14b34105a81ebfd74320442e8451f836179ec89986aa478"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.1"
   stack_trace:
     dependency: transitive
     description:
@@ -1586,6 +1714,22 @@ packages:
     description:
       name: syncfusion_flutter_datepicker
       sha256: eb7858ceab2b4ef0e36a1c27c44ff714d924d33acfece07336823f0921458bfd
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.2.18"
+  syncfusion_flutter_xlsio:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_xlsio
+      sha256: be08b37a9f76a4ee5cc6504b1d2634713994a865bcaa5e8995185c7782d52df7
+      url: "https://pub.dev"
+    source: hosted
+    version: "31.2.18"
+  syncfusion_officecore:
+    dependency: transitive
+    description:
+      name: syncfusion_officecore
+      sha256: "385b7ec41254bfcf3d225fe6338bb0e2897027b22c76fdc9309a481c2191a852"
       url: "https://pub.dev"
     source: hosted
     version: "31.2.18"
@@ -1694,7 +1838,7 @@ packages:
     source: hosted
     version: "3.1.5"
   uuid:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: uuid
       sha256: "9b129329f58692f6e6578329498a8fe9fbe98f090beb764ffbb8ee2eadd01dcd"
@@ -1845,6 +1989,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      sha256: "732896e1416297c63c9e3fb95aea72d0355f61390263982a47fd519169dc5059"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.3"
   xdg_directories:
     dependency: transitive
     description:
