@@ -1629,283 +1629,291 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             ],
                                           )
                                         : const SizedBox(),
+                                    if (order.deliveryAddress != null) ...[
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraSmall,
+                                      ),
+                                      // / Customer details
+                                      Text(
+                                        'customer_details'.tr,
+                                        style: robotoRegular,
+                                      ),
+                                      const SizedBox(
+                                        height:
+                                            Dimensions.paddingSizeExtraSmall,
+                                      ),
 
-                                    // / Customer details
-                                    Text(
-                                      'customer_details'.tr,
-                                      style: robotoRegular,
-                                    ),
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeExtraSmall,
-                                    ),
-
-                                    order.deliveryAddress != null
-                                        ? Row(
-                                            children: [
-                                              SizedBox(
-                                                height: 35,
-                                                width: 35,
-                                                child: ClipOval(
-                                                  child: CustomImageWidget(
-                                                    image:
-                                                        '${order.customer != null ? order.customer!.imageFullUrl : ''}',
-                                                    height: 35,
-                                                    width: 35,
-                                                    fit: BoxFit.cover,
+                                      order.deliveryAddress != null
+                                          ? Row(
+                                              children: [
+                                                SizedBox(
+                                                  height: 35,
+                                                  width: 35,
+                                                  child: ClipOval(
+                                                    child: CustomImageWidget(
+                                                      image:
+                                                          '${order.customer != null ? order.customer!.imageFullUrl : ''}',
+                                                      height: 35,
+                                                      width: 35,
+                                                      fit: BoxFit.cover,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                width:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      order
-                                                          .deliveryAddress!
-                                                          .contactPersonName!,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: robotoRegular
-                                                          .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                          ),
-                                                    ),
-                                                    Text(
-                                                      order
-                                                              .deliveryAddress!
-                                                              .address ??
-                                                          '',
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: robotoRegular
-                                                          .copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeSmall,
-                                                            color: Theme.of(
-                                                              context,
-                                                            ).disabledColor,
-                                                          ),
-                                                    ),
-
-                                                    Wrap(
-                                                      children: [
-                                                        (order.deliveryAddress!.streetNumber !=
-                                                                    null &&
-                                                                order
-                                                                    .deliveryAddress!
-                                                                    .streetNumber!
-                                                                    .isNotEmpty)
-                                                            ? Text(
-                                                                '${'street_number'.tr}: ${order.deliveryAddress!.streetNumber!}, ',
-                                                                style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeExtraSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).disabledColor,
-                                                                ),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              )
-                                                            : const SizedBox(),
-
-                                                        (order.deliveryAddress!.house !=
-                                                                    null &&
-                                                                order
-                                                                    .deliveryAddress!
-                                                                    .house!
-                                                                    .isNotEmpty)
-                                                            ? Text(
-                                                                '${'house'.tr}: ${order.deliveryAddress!.house!}, ',
-                                                                style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeExtraSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).disabledColor,
-                                                                ),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              )
-                                                            : const SizedBox(),
-
-                                                        (order.deliveryAddress!.floor !=
-                                                                    null &&
-                                                                order
-                                                                    .deliveryAddress!
-                                                                    .floor!
-                                                                    .isNotEmpty)
-                                                            ? Text(
-                                                                '${'floor'.tr}: ${order.deliveryAddress!.floor!}',
-                                                                style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeExtraSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).disabledColor,
-                                                                ),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              )
-                                                            : const SizedBox(),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                const SizedBox(
+                                                  width: Dimensions
+                                                      .paddingSizeSmall,
                                                 ),
-                                              ),
-
-                                              (order.orderType == 'take_away' &&
-                                                      (order.orderStatus ==
-                                                              'pending' ||
-                                                          order.orderStatus ==
-                                                              'confirmed' ||
-                                                          order.orderStatus ==
-                                                              'processing'))
-                                                  ? TextButton.icon(
-                                                      onPressed: () async {
-                                                        String url =
-                                                            'https://www.google.com/maps/dir/?api=1&destination=${order.deliveryAddress!.latitude}'
-                                                            ',${order.deliveryAddress!.longitude}&mode=d';
-                                                        if (await canLaunchUrlString(
-                                                          url,
-                                                        )) {
-                                                          await launchUrlString(
-                                                            url,
-                                                            mode: LaunchMode
-                                                                .externalApplication,
-                                                          );
-                                                        } else {
-                                                          showCustomSnackBar(
-                                                            'unable_to_launch_google_map'
-                                                                .tr,
-                                                          );
-                                                        }
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.directions,
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        order
+                                                            .deliveryAddress!
+                                                            .contactPersonName!,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: robotoRegular
+                                                            .copyWith(
+                                                              fontSize: Dimensions
+                                                                  .fontSizeSmall,
+                                                            ),
                                                       ),
-                                                      label: Text(
-                                                        'direction'.tr,
-                                                      ),
-                                                    )
-                                                  : const SizedBox(),
-                                              const SizedBox(
-                                                width:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-
-                                              (order.orderStatus !=
-                                                          'delivered' &&
-                                                      order.orderStatus !=
-                                                          'failed' &&
-                                                      Get.find<
-                                                            ProfileController
-                                                          >()
-                                                          .modulePermission!
-                                                          .chat! &&
-                                                      order.orderStatus !=
-                                                          'canceled' &&
-                                                      order.orderStatus !=
-                                                          'refunded')
-                                                  ? order.isGuest!
-                                                        ? const SizedBox()
-                                                        : TextButton.icon(
-                                                            onPressed: () async {
-                                                              if (Get.find<
-                                                                            ProfileController
-                                                                          >()
-                                                                          .profileModel!
-                                                                          .subscription !=
-                                                                      null &&
-                                                                  Get.find<
-                                                                            ProfileController
-                                                                          >()
-                                                                          .profileModel!
-                                                                          .subscription!
-                                                                          .chat ==
-                                                                      0 &&
-                                                                  Get.find<
-                                                                            ProfileController
-                                                                          >()
-                                                                          .profileModel!
-                                                                          .stores![0]
-                                                                          .storeBusinessModel ==
-                                                                      'subscription') {
-                                                                showCustomSnackBar(
-                                                                  'you_have_no_available_subscription'
-                                                                      .tr,
-                                                                );
-                                                              } else {
-                                                                _timer
-                                                                    ?.cancel();
-                                                                await Get.toNamed(
-                                                                  RouteHelper.getChatRoute(
-                                                                    notificationBody: NotificationBodyModel(
-                                                                      orderId:
-                                                                          order
-                                                                              .id,
-                                                                      customerId: order
-                                                                          .customer!
-                                                                          .id,
-                                                                    ),
-                                                                    user: User(
-                                                                      id: order
-                                                                          .customer!
-                                                                          .id,
-                                                                      fName: order
-                                                                          .customer!
-                                                                          .fName,
-                                                                      lName: order
-                                                                          .customer!
-                                                                          .lName,
-                                                                      imageFullUrl: order
-                                                                          .customer!
-                                                                          .imageFullUrl,
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                                _startApiCalling();
-                                                              }
-                                                            },
-                                                            icon: Icon(
-                                                              Icons.message,
+                                                      Text(
+                                                        order
+                                                                .deliveryAddress!
+                                                                .address ??
+                                                            '',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: robotoRegular
+                                                            .copyWith(
+                                                              fontSize: Dimensions
+                                                                  .fontSizeSmall,
                                                               color: Theme.of(
                                                                 context,
-                                                              ).primaryColor,
-                                                              size: 20,
+                                                              ).disabledColor,
                                                             ),
-                                                            label: Text(
-                                                              'chat'.tr,
-                                                              style: robotoRegular.copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
+                                                      ),
+
+                                                      Wrap(
+                                                        children: [
+                                                          (order.deliveryAddress!.streetNumber !=
+                                                                      null &&
+                                                                  order
+                                                                      .deliveryAddress!
+                                                                      .streetNumber!
+                                                                      .isNotEmpty)
+                                                              ? Text(
+                                                                  '${'street_number'.tr}: ${order.deliveryAddress!.streetNumber!}, ',
+                                                                  style: robotoRegular.copyWith(
+                                                                    fontSize:
+                                                                        Dimensions
+                                                                            .fontSizeExtraSmall,
+                                                                    color: Theme.of(
+                                                                      context,
+                                                                    ).disabledColor,
+                                                                  ),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                )
+                                                              : const SizedBox(),
+
+                                                          (order.deliveryAddress!.house !=
+                                                                      null &&
+                                                                  order
+                                                                      .deliveryAddress!
+                                                                      .house!
+                                                                      .isNotEmpty)
+                                                              ? Text(
+                                                                  '${'house'.tr}: ${order.deliveryAddress!.house!}, ',
+                                                                  style: robotoRegular.copyWith(
+                                                                    fontSize:
+                                                                        Dimensions
+                                                                            .fontSizeExtraSmall,
+                                                                    color: Theme.of(
+                                                                      context,
+                                                                    ).disabledColor,
+                                                                  ),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                )
+                                                              : const SizedBox(),
+
+                                                          (order.deliveryAddress!.floor !=
+                                                                      null &&
+                                                                  order
+                                                                      .deliveryAddress!
+                                                                      .floor!
+                                                                      .isNotEmpty)
+                                                              ? Text(
+                                                                  '${'floor'.tr}: ${order.deliveryAddress!.floor!}',
+                                                                  style: robotoRegular.copyWith(
+                                                                    fontSize:
+                                                                        Dimensions
+                                                                            .fontSizeExtraSmall,
+                                                                    color: Theme.of(
+                                                                      context,
+                                                                    ).disabledColor,
+                                                                  ),
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                )
+                                                              : const SizedBox(),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                (order.orderType ==
+                                                            'take_away' &&
+                                                        (order.orderStatus ==
+                                                                'pending' ||
+                                                            order.orderStatus ==
+                                                                'confirmed' ||
+                                                            order.orderStatus ==
+                                                                'processing'))
+                                                    ? TextButton.icon(
+                                                        onPressed: () async {
+                                                          String url =
+                                                              'https://www.google.com/maps/dir/?api=1&destination=${order.deliveryAddress!.latitude}'
+                                                              ',${order.deliveryAddress!.longitude}&mode=d';
+                                                          if (await canLaunchUrlString(
+                                                            url,
+                                                          )) {
+                                                            await launchUrlString(
+                                                              url,
+                                                              mode: LaunchMode
+                                                                  .externalApplication,
+                                                            );
+                                                          } else {
+                                                            showCustomSnackBar(
+                                                              'unable_to_launch_google_map'
+                                                                  .tr,
+                                                            );
+                                                          }
+                                                        },
+                                                        icon: const Icon(
+                                                          Icons.directions,
+                                                        ),
+                                                        label: Text(
+                                                          'direction'.tr,
+                                                        ),
+                                                      )
+                                                    : const SizedBox(),
+                                                const SizedBox(
+                                                  width: Dimensions
+                                                      .paddingSizeSmall,
+                                                ),
+
+                                                (order.orderStatus !=
+                                                            'delivered' &&
+                                                        order.orderStatus !=
+                                                            'failed' &&
+                                                        Get.find<
+                                                              ProfileController
+                                                            >()
+                                                            .modulePermission!
+                                                            .chat! &&
+                                                        order.orderStatus !=
+                                                            'canceled' &&
+                                                        order.orderStatus !=
+                                                            'refunded')
+                                                    ? order.isGuest!
+                                                          ? const SizedBox()
+                                                          : TextButton.icon(
+                                                              onPressed: () async {
+                                                                if (Get.find<
+                                                                              ProfileController
+                                                                            >()
+                                                                            .profileModel!
+                                                                            .subscription !=
+                                                                        null &&
+                                                                    Get.find<
+                                                                              ProfileController
+                                                                            >()
+                                                                            .profileModel!
+                                                                            .subscription!
+                                                                            .chat ==
+                                                                        0 &&
+                                                                    Get.find<
+                                                                              ProfileController
+                                                                            >()
+                                                                            .profileModel!
+                                                                            .stores![0]
+                                                                            .storeBusinessModel ==
+                                                                        'subscription') {
+                                                                  showCustomSnackBar(
+                                                                    'you_have_no_available_subscription'
+                                                                        .tr,
+                                                                  );
+                                                                } else {
+                                                                  _timer
+                                                                      ?.cancel();
+                                                                  await Get.toNamed(
+                                                                    RouteHelper.getChatRoute(
+                                                                      notificationBody: NotificationBodyModel(
+                                                                        orderId:
+                                                                            order.id,
+                                                                        customerId: order
+                                                                            .customer!
+                                                                            .id,
+                                                                      ),
+                                                                      user: User(
+                                                                        id: order
+                                                                            .customer!
+                                                                            .id,
+                                                                        fName: order
+                                                                            .customer!
+                                                                            .fName,
+                                                                        lName: order
+                                                                            .customer!
+                                                                            .lName,
+                                                                        imageFullUrl: order
+                                                                            .customer!
+                                                                            .imageFullUrl,
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                  _startApiCalling();
+                                                                }
+                                                              },
+                                                              icon: Icon(
+                                                                Icons.message,
                                                                 color: Theme.of(
                                                                   context,
                                                                 ).primaryColor,
+                                                                size: 20,
                                                               ),
-                                                            ),
-                                                          )
-                                                  : const SizedBox(),
-                                            ],
-                                          )
-                                        : const SizedBox(),
+                                                              label: Text(
+                                                                'chat'.tr,
+                                                                style: robotoRegular.copyWith(
+                                                                  fontSize:
+                                                                      Dimensions
+                                                                          .fontSizeSmall,
+                                                                  color: Theme.of(
+                                                                    context,
+                                                                  ).primaryColor,
+                                                                ),
+                                                              ),
+                                                            )
+                                                    : const SizedBox(),
+                                              ],
+                                            )
+                                          : const SizedBox(),
+                                    ],
                                     const SizedBox(
                                       height: Dimensions.paddingSizeLarge,
                                     ),
@@ -2784,22 +2792,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                   order!.additionalCharge! > 0)
                                               ? const SizedBox(height: 10)
                                               : const SizedBox(),
-
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'delivery_fee'.tr,
-                                                style: robotoRegular,
-                                              ),
-                                              Text(
-                                                '(+) ${PriceConverterHelper.convertPrice(deliveryCharge)}',
-                                                style: robotoRegular,
-                                              ),
-                                            ],
-                                          ),
-
+                                          if (deliveryCharge > 0) ...[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'delivery_fee'.tr,
+                                                  style: robotoRegular,
+                                                ),
+                                                Text(
+                                                  '(+) ${PriceConverterHelper.convertPrice(deliveryCharge)}',
+                                                  style: robotoRegular,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                           // if(order!.orderStatus != 'pending')
                                           Padding(
                                             padding: const EdgeInsets.symmetric(

@@ -7,6 +7,8 @@ import 'package:shoplancer_vendor/features/pos/data/local/pos_sync_service.dart'
 import 'package:shoplancer_vendor/features/pos/domain/models/pos_cart_model.dart';
 import 'package:shoplancer_vendor/features/pos/domain/models/pos_customer_model.dart';
 import 'package:shoplancer_vendor/features/pos/domain/services/pos_service_interface.dart';
+import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
 
@@ -52,7 +54,11 @@ class PosHeldOrder {
         }
       }
     }
-    t = t - discountAmount - couponDiscountAmount + (orderType == 'delivery' ? deliveryCharge : 0);
+    t =
+        t -
+        discountAmount -
+        couponDiscountAmount +
+        (orderType == 'delivery' ? deliveryCharge : 0);
     return t < 0 ? 0 : t;
   }
 }
@@ -73,10 +79,11 @@ class PosController extends GetxController implements GetxService {
   String _orderType = 'take_away'; // delivery | take_away | dine_in
   String get orderType => _orderType;
 
-  String _paymentMethod = 'cash_on_delivery'; // cash_on_delivery | digital_payment | card | wallet
+  String _paymentMethod =
+      'cash_on_delivery'; // cash_on_delivery | digital_payment | card | wallet
   String get paymentMethod => _paymentMethod;
 
-  String _paymentStatus = 'paid'; // paid | unpaid
+  String _paymentStatus = 'unpaid'; // paid | unpaid
   String get paymentStatus => _paymentStatus;
 
   double _discountAmount = 0.0;
@@ -107,22 +114,27 @@ class PosController extends GetxController implements GetxService {
       return false;
     }
     _heldOrderCounter++;
-    _heldOrders.add(PosHeldOrder(
-      id: 'held_${DateTime.now().microsecondsSinceEpoch}',
-      heldAt: DateTime.now(),
-      cartList: List<PosCartModel>.from(_cartList),
-      customer: _selectedCustomer,
-      orderType: _orderType,
-      paymentMethod: _paymentMethod,
-      paymentStatus: _paymentStatus,
-      discountAmount: _discountAmount,
-      couponDiscountAmount: _couponDiscountAmount,
-      couponCode: _couponCode,
-      deliveryCharge: _deliveryCharge,
-      label: 'طلب معلّق $_heldOrderCounter',
-    ));
+    _heldOrders.add(
+      PosHeldOrder(
+        id: 'held_${DateTime.now().microsecondsSinceEpoch}',
+        heldAt: DateTime.now(),
+        cartList: List<PosCartModel>.from(_cartList),
+        customer: _selectedCustomer,
+        orderType: _orderType,
+        paymentMethod: _paymentMethod,
+        paymentStatus: _paymentStatus,
+        discountAmount: _discountAmount,
+        couponDiscountAmount: _couponDiscountAmount,
+        couponCode: _couponCode,
+        deliveryCharge: _deliveryCharge,
+        label: 'طلب معلّق $_heldOrderCounter',
+      ),
+    );
     _startFreshOrderState();
-    showCustomSnackBar('تم تعليق الطلب، يمكنك استئنافه لاحقًا'.tr, isError: false);
+    showCustomSnackBar(
+      'تم تعليق الطلب، يمكنك استئنافه لاحقًا'.tr,
+      isError: false,
+    );
     update();
     return true;
   }
@@ -197,7 +209,12 @@ class PosController extends GetxController implements GetxService {
     update();
   }
 
-  void addToCart(Item item, {int quantity = 1, List<AddOns>? addOns, String? selectedVariant}) {
+  void addToCart(
+    Item item, {
+    int quantity = 1,
+    List<AddOns>? addOns,
+    String? selectedVariant,
+  }) {
     int index = _cartList.indexWhere((element) => element.item.id == item.id);
     double itemPrice = item.price ?? 0.0;
     double itemDiscount = item.discount ?? 0.0;
@@ -205,14 +222,16 @@ class PosController extends GetxController implements GetxService {
     if (index != -1) {
       _cartList[index].quantity += quantity;
     } else {
-      _cartList.add(PosCartModel(
-        item: item,
-        price: itemPrice,
-        discountAmount: itemDiscount,
-        quantity: quantity,
-        addOns: addOns,
-        selectedVariant: selectedVariant,
-      ));
+      _cartList.add(
+        PosCartModel(
+          item: item,
+          price: itemPrice,
+          discountAmount: itemDiscount,
+          quantity: quantity,
+          addOns: addOns,
+          selectedVariant: selectedVariant,
+        ),
+      );
     }
     showCustomSnackBar('تم إضافة ${item.name} إلى السلة'.tr, isError: false);
     update();
@@ -256,7 +275,8 @@ class PosController extends GetxController implements GetxService {
 
   double get grandTotal {
     double deliveryFee = _orderType == 'delivery' ? _deliveryCharge : 0.0;
-    double total = subTotal - _discountAmount - _couponDiscountAmount + deliveryFee;
+    double total =
+        subTotal - _discountAmount - _couponDiscountAmount + deliveryFee;
     return total < 0 ? 0 : total;
   }
 
@@ -274,17 +294,31 @@ class PosController extends GetxController implements GetxService {
   bool _isCustomerLoading = false;
   bool get isCustomerLoading => _isCustomerLoading;
 
-  Future<bool> addCustomer(String fName, String lName, String phone, String? email) async {
+  Future<bool> addCustomer(
+    String fName,
+    String lName,
+    String phone,
+    String? email,
+  ) async {
     _isCustomerLoading = true;
     update();
 
-    PosCustomerModel customer = PosCustomerModel(fName: fName, lName: lName, phone: phone, email: email);
+    PosCustomerModel customer = PosCustomerModel(
+      fName: fName,
+      lName: lName,
+      phone: phone,
+      email: email,
+    );
     Response response = await posServiceInterface.addCustomer(customer);
     _isCustomerLoading = false;
 
-    if ((response.statusCode == 200 || response.statusCode == 201) && response.body != null) {
+    if ((response.statusCode == 200 || response.statusCode == 201) &&
+        response.body != null) {
       if (response.body is Map && response.body['status'] == false) {
-        showCustomSnackBar(response.body['message'] ?? 'فشلت إضافة العميل'.tr, isError: true);
+        showCustomSnackBar(
+          response.body['message'] ?? 'فشلت إضافة العميل'.tr,
+          isError: true,
+        );
         update();
         return false;
       }
@@ -297,7 +331,9 @@ class PosController extends GetxController implements GetxService {
       showCustomSnackBar(message, isError: false);
 
       if (response.body is Map && response.body['data'] != null) {
-        PosCustomerModel createdCustomer = PosCustomerModel.fromJson(response.body['data']);
+        PosCustomerModel createdCustomer = PosCustomerModel.fromJson(
+          response.body['data'],
+        );
         selectCustomer(createdCustomer);
       } else if (response.body is Map && response.body['id'] != null) {
         customer.id = response.body['id'];
@@ -322,11 +358,16 @@ class PosController extends GetxController implements GetxService {
     }
     _isLoading = true;
     update();
-    Response response = await posServiceInterface.applyCoupon(code, _selectedCustomer?.id, subTotal);
+    Response response = await posServiceInterface.applyCoupon(
+      code,
+      _selectedCustomer?.id,
+      subTotal,
+    );
     _isLoading = false;
     if (response.statusCode == 200 && response.body != null) {
       _couponCode = code;
-      _couponDiscountAmount = double.tryParse(response.body['discount'].toString()) ?? 0.0;
+      _couponDiscountAmount =
+          double.tryParse(response.body['discount'].toString()) ?? 0.0;
       showCustomSnackBar('تم تطبيق الكوبون بنجاح'.tr, isError: false);
       update();
       return true;
@@ -337,12 +378,18 @@ class PosController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool> placeOrder({String? address, String? note, String? house, String? floor}) async {
+  Future<bool> placeOrder({
+    String? address,
+    String? note,
+    String? house,
+    String? floor,
+  }) async {
     if (_cartList.isEmpty) {
       showCustomSnackBar('السلة فارغة، أضف منتجات أولاً'.tr);
       return false;
     }
-    if (_orderType == 'delivery' && (address == null || address.trim().isEmpty)) {
+    if (_orderType == 'delivery' &&
+        (address == null || address.trim().isEmpty)) {
       showCustomSnackBar('يرجى كتابة عنوان التوصيل'.tr);
       return false;
     }
@@ -355,11 +402,7 @@ class PosController extends GetxController implements GetxService {
       List<Map<String, dynamic>> addOnsList = [];
       if (cart.addOns != null) {
         for (var addOn in cart.addOns!) {
-          addOnsList.add({
-            'id': addOn.id,
-            'quantity': 1,
-            'price': addOn.price,
-          });
+          addOnsList.add({'id': addOn.id, 'quantity': 1, 'price': addOn.price});
         }
       }
 
@@ -382,6 +425,15 @@ class PosController extends GetxController implements GetxService {
       finalAddress += ', شقة: $floor';
     }
 
+    ProfileModel? profile = Get.isRegistered<ProfileController>()
+        ? Get.find<ProfileController>().profileModel
+        : null;
+    String? creatorName = profile != null
+        ? '${profile.fName ?? ''} ${profile.lName ?? ''}'.trim()
+        : null;
+    int? creatorId = profile?.employeeInfo?.id ?? profile?.id;
+    bool isEmployee = profile?.employeeInfo != null;
+
     Map<String, dynamic> body = {
       'customer_id': _selectedCustomer?.id,
       'order_type': _orderType,
@@ -397,19 +449,34 @@ class PosController extends GetxController implements GetxService {
       'floor': floor,
       'order_note': note,
       'cart': cartPayload,
+      'created_by': creatorId,
+      'creator_type': isEmployee ? 'employee' : 'vendor',
+      'creator_name': (creatorName != null && creatorName.isNotEmpty)
+          ? creatorName
+          : null,
+      'created_by_name': (creatorName != null && creatorName.isNotEmpty)
+          ? creatorName
+          : null,
+      'employee_id': profile?.employeeInfo?.id,
+      'seller_id': profile?.id,
     };
 
     Response response = await posServiceInterface.placeOrder(body);
     _isLoading = false;
 
-    if ((response.statusCode == 200 || response.statusCode == 201) && response.body != null) {
+    if ((response.statusCode == 200 || response.statusCode == 201) &&
+        response.body != null) {
       if (response.body is Map && response.body['status'] == false) {
-        showCustomSnackBar(response.body['message'] ?? 'فشلت عملية إنشاء الطلب'.tr, isError: true);
+        showCustomSnackBar(
+          response.body['message'] ?? 'فشلت عملية إنشاء الطلب'.tr,
+          isError: true,
+        );
         update();
         return false;
       }
 
-      String message = (response.body is Map && response.body['message'] != null)
+      String message =
+          (response.body is Map && response.body['message'] != null)
           ? response.body['message']
           : 'تم تقديم الطلب بنجاح'.tr;
 
@@ -417,7 +484,8 @@ class PosController extends GetxController implements GetxService {
       clearCart();
       update();
       return true;
-    } else if (response.statusCode == 1 && PosLocalDb.instance.isSupportedPlatform) {
+    } else if (response.statusCode == 1 &&
+        PosLocalDb.instance.isSupportedPlatform) {
       // No internet connection on desktop: queue the order locally instead
       // of losing it. It will be pushed automatically once back online.
       final String queueId = await PosOfflineRepository.instance.enqueue(
@@ -434,7 +502,11 @@ class PosController extends GetxController implements GetxService {
       if (Get.isRegistered<PosSyncService>()) {
         Get.find<PosSyncService>().syncNow();
       }
-      showCustomSnackBar('لا يوجد اتصال بالإنترنت، تم حفظ الطلب محلياً وسيُرسل تلقائياً عند عودة الاتصال'.tr, isError: false);
+      showCustomSnackBar(
+        'لا يوجد اتصال بالإنترنت، تم حفظ الطلب محلياً وسيُرسل تلقائياً عند عودة الاتصال'
+            .tr,
+        isError: false,
+      );
       clearCart();
       update();
       return true;

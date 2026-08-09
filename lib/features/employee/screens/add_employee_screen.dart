@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/features/employee/controllers/employee_controller.dart';
@@ -24,13 +22,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   final TextEditingController _fNameController = TextEditingController();
   final TextEditingController _lNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final FocusNode _fNameNode = FocusNode();
   final FocusNode _lNameNode = FocusNode();
   final FocusNode _phoneNode = FocusNode();
-  final FocusNode _emailNode = FocusNode();
   final FocusNode _passwordNode = FocusNode();
 
   EmployeeRoleModel? _selectedRole;
@@ -45,9 +41,21 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       _fNameController.text = widget.employee!.fName ?? '';
       _lNameController.text = widget.employee!.lName ?? '';
       _phoneController.text = widget.employee!.phone ?? '';
-      _emailController.text = widget.employee!.email ?? '';
       _selectedRole = widget.employee!.role;
     }
+  }
+
+  @override
+  void dispose() {
+    _fNameController.dispose();
+    _lNameController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _fNameNode.dispose();
+    _lNameNode.dispose();
+    _phoneNode.dispose();
+    _passwordNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -68,42 +76,24 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Profile Picture Picker
+                      // Header Card with Avatar Icon
                       Center(
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: controller.pickedImage != null
-                                  ? Image.file(
-                                      File(controller.pickedImage!.path),
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : CustomImageWidget(
-                                      image: widget.employee?.imageFullUrl ?? '',
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
+                        child: Container(
+                          width: 85,
+                          height: 85,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).primaryColor.withOpacity(0.3),
+                              width: 2,
                             ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: InkWell(
-                                onTap: () => controller.pickImage(),
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            size: 48,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -136,21 +126,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                       CustomTextFieldWidget(
                         controller: _phoneController,
                         focusNode: _phoneNode,
-                        nextFocus: _emailNode,
-                        inputType: TextInputType.phone,
-                        hintText: 'مثال: +201000000000'.tr,
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                      // Email
-                      Text('البريد الإلكتروني *'.tr, style: robotoRegular),
-                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                      CustomTextFieldWidget(
-                        controller: _emailController,
-                        focusNode: _emailNode,
                         nextFocus: _passwordNode,
-                        inputType: TextInputType.emailAddress,
-                        hintText: 'example@domain.com'.tr,
+                        inputType: TextInputType.phone,
+                        hintText: 'مثال: 01000000000'.tr,
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -225,7 +203,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     String fName = _fNameController.text.trim();
     String lName = _lNameController.text.trim();
     String phone = _phoneController.text.trim();
-    String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
     if (fName.isEmpty) {
@@ -238,10 +215,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     }
     if (phone.isEmpty) {
       showCustomSnackBar('يرجى إدخال رقم الهاتف'.tr);
-      return;
-    }
-    if (email.isEmpty || !GetUtils.isEmail(email)) {
-      showCustomSnackBar('يرجى إدخال بريد إلكتروني صحيح'.tr);
       return;
     }
     if (_selectedRole == null) {
@@ -258,7 +231,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       fName: fName,
       lName: lName,
       phone: phone,
-      email: email,
+      email: widget.employee?.email ?? '',
       roleId: _selectedRole!.id,
     );
 

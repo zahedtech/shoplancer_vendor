@@ -94,13 +94,18 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   elevation: 2,
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
-                      child: CustomImageWidget(
-                        image: employee.imageFullUrl ?? '',
-                        height: 55,
-                        width: 55,
-                        fit: BoxFit.cover,
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.person,
+                        size: 28,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     title: Text(
@@ -128,7 +133,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           ),
                         const SizedBox(height: 4),
                         Text(
-                          '${employee.phone ?? ''} ${employee.email != null ? '• ${employee.email}' : ''}',
+                          '${employee.phone ?? ''}',
                           style: robotoRegular.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
                             color: Theme.of(context).disabledColor,

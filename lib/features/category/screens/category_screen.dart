@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/api/api_client.dart';
@@ -8,6 +8,7 @@ import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:shoplancer_vendor/features/category/screens/category_product_screen.dart';
+import 'package:shoplancer_vendor/features/category/screens/sub_category_screen.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
@@ -111,9 +112,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               child: InkWell(
                                 onTap: () {
                                   Get.to(
-                                    () => CategoryProductScreen(
-                                      categoryId: category.id!,
-                                      categoryName: category.name ?? '',
+                                    () => SubCategoryScreen(
+                                      parentCategory: category,
                                     ),
                                   );
                                 },

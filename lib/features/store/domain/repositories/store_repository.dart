@@ -646,6 +646,26 @@ class StoreRepository implements StoreRepositoryInterface {
   }
 
   @override
+  Future<Response> updateBrandStatus(int brandId, int status) async {
+    return await apiClient.postData(AppConstants.brandStatusUri, {
+      'brand_id': brandId,
+      'status': status,
+    });
+  }
+
+  @override
+  Future<ItemModel?> getBrandItemList({required String offset, required int brandId}) async {
+    ItemModel? itemModel;
+    Response response = await apiClient.getData(
+      '${AppConstants.itemListUri}?offset=$offset&limit=10&brand_id=$brandId',
+    );
+    if (response.statusCode == 200) {
+      itemModel = ItemModel.fromJson(response.body);
+    }
+    return itemModel;
+  }
+
+  @override
   Future<List<SuitableTagModel>?> getSuitableTagList() async {
     List<SuitableTagModel>? suitableTagList;
     Response response = await apiClient.getData(AppConstants.suitableTagUri);

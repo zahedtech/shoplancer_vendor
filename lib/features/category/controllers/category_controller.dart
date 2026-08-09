@@ -70,6 +70,12 @@ class CategoryController extends GetxController implements GetxService {
           _categoryList![index].status = status;
         }
       }
+      if (_subCategoryList != null) {
+        int subIndex = _subCategoryList!.indexWhere((element) => element.id == categoryId);
+        if (subIndex != -1) {
+          _subCategoryList![subIndex].status = status;
+        }
+      }
       String message = response.body != null && response.body['message'] != null
           ? response.body['message']
           : (status == 1 ? 'تم تفعيل الفئة بنجاح' : 'تم إيقاف الفئة بنجاح');

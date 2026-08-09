@@ -20,9 +20,11 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _buildingController = TextEditingController();
   final TextEditingController _apartmentController = TextEditingController();
-  final TextEditingController _deliveryChargeController = TextEditingController();
+  final TextEditingController _deliveryChargeController =
+      TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-  final TextEditingController _customerSearchController = TextEditingController();
+  final TextEditingController _customerSearchController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,12 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('سلة الطلب اليدوي (${posController.cartList.length})', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                  Text(
+                    'سلة الطلب اليدوي (${posController.cartList.length})',
+                    style: robotoBold.copyWith(
+                      fontSize: Dimensions.fontSizeLarge,
+                    ),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Get.back(),
@@ -63,21 +70,35 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                           Expanded(
                             child: posController.selectedCustomer != null
                                 ? Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                      color: Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           '${posController.selectedCustomer!.fullName}${posController.selectedCustomer!.phone != null ? ' (${posController.selectedCustomer!.phone})' : ''}',
-                                          style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
+                                          style: robotoMedium.copyWith(
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor,
+                                          ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.clear, size: 18),
-                                          onPressed: () => posController.selectCustomer(null),
+                                          icon: const Icon(
+                                            Icons.clear,
+                                            size: 18,
+                                          ),
+                                          onPressed: () => posController
+                                              .selectCustomer(null),
                                         ),
                                       ],
                                     ),
@@ -104,13 +125,19 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                           ),
                         ],
                       ),
-                      if (posController.selectedCustomer == null && (posController.customerList != null && posController.customerList!.isNotEmpty))
+                      if (posController.selectedCustomer == null &&
+                          (posController.customerList != null &&
+                              posController.customerList!.isNotEmpty))
                         Container(
                           constraints: const BoxConstraints(maxHeight: 150),
                           margin: const EdgeInsets.only(top: 4),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
-                            border: Border.all(color: Theme.of(context).disabledColor.withOpacity(0.3)),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).disabledColor.withOpacity(0.3),
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: ListView.builder(
@@ -121,7 +148,9 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                               return ListTile(
                                 dense: true,
                                 title: Text(c.fullName),
-                                subtitle: c.phone != null ? Text(c.phone!) : null,
+                                subtitle: c.phone != null
+                                    ? Text(c.phone!)
+                                    : null,
                                 onTap: () {
                                   posController.selectCustomer(c);
                                   _customerSearchController.clear();
@@ -139,7 +168,12 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: Center(
-                            child: Text('لم يتم إضافة أي منتجات بعد', style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+                            child: Text(
+                              'لم يتم إضافة أي منتجات بعد',
+                              style: robotoRegular.copyWith(
+                                color: Theme.of(context).disabledColor,
+                              ),
+                            ),
                           ),
                         )
                       else
@@ -154,29 +188,58 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(cart.item.name ?? '', style: robotoMedium),
+                                      Text(
+                                        cart.item.name ?? '',
+                                        style: robotoMedium,
+                                      ),
                                       if (cart.selectedVariant != null)
-                                        Text('النوع: ${cart.selectedVariant}', style: robotoRegular.copyWith(fontSize: 12, color: Theme.of(context).disabledColor)),
-                                      Text('${cart.price} ج.م', style: robotoBold.copyWith(color: Theme.of(context).primaryColor, fontSize: 13)),
+                                        Text(
+                                          'النوع: ${cart.selectedVariant}',
+                                          style: robotoRegular.copyWith(
+                                            fontSize: 12,
+                                            color: Theme.of(
+                                              context,
+                                            ).disabledColor,
+                                          ),
+                                        ),
+                                      Text(
+                                        '${cart.price} ج.م',
+                                        style: robotoBold.copyWith(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 13,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.remove_circle_outline),
-                                      onPressed: () => posController.updateQuantity(index, false),
+                                      icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                      ),
+                                      onPressed: () => posController
+                                          .updateQuantity(index, false),
                                     ),
                                     Text('${cart.quantity}', style: robotoBold),
                                     IconButton(
-                                      icon: const Icon(Icons.add_circle_outline),
-                                      onPressed: () => posController.updateQuantity(index, true),
+                                      icon: const Icon(
+                                        Icons.add_circle_outline,
+                                      ),
+                                      onPressed: () => posController
+                                          .updateQuantity(index, true),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                                      onPressed: () => posController.removeFromCart(index),
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed: () =>
+                                          posController.removeFromCart(index),
                                     ),
                                   ],
                                 ),
@@ -193,9 +256,17 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            _orderTypeChip('استلام بنفسه (Takeaway)', 'take_away', posController),
+                            _orderTypeChip(
+                              'استلام بنفسه (Takeaway)',
+                              'take_away',
+                              posController,
+                            ),
                             const SizedBox(width: 8),
-                            _orderTypeChip('توصيل (Delivery)', 'delivery', posController),
+                            _orderTypeChip(
+                              'توصيل (Delivery)',
+                              'delivery',
+                              posController,
+                            ),
                           ],
                         ),
                       ),
@@ -269,8 +340,16 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                       Wrap(
                         spacing: 8,
                         children: [
-                          _paymentChip('كاش عند الاستلام', 'cash_on_delivery', posController),
-                          _paymentChip('دفع إلكتروني', 'digital_payment', posController),
+                          _paymentChip(
+                            'كاش عند الاستلام',
+                            'cash_on_delivery',
+                            posController,
+                          ),
+                          _paymentChip(
+                            'دفع إلكتروني',
+                            'digital_payment',
+                            posController,
+                          ),
                         ],
                       ),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -283,28 +362,39 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                           children: [
                             ChoiceChip(
                               label: Text(
-                                'تم الدفع (Paid)'.tr,
-                                style: robotoMedium.copyWith(
-                                  fontSize: 12,
-                                  color: posController.paymentStatus == 'paid' ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
-                                ),
-                              ),
-                              selected: posController.paymentStatus == 'paid',
-                              selectedColor: Colors.green,
-                              onSelected: (val) => posController.setPaymentStatus('paid'),
-                            ),
-                            const SizedBox(width: 12),
-                            ChoiceChip(
-                              label: Text(
                                 'لم يتم الدفع (Unpaid)'.tr,
                                 style: robotoMedium.copyWith(
                                   fontSize: 12,
-                                  color: posController.paymentStatus == 'unpaid' ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                                  color: posController.paymentStatus == 'unpaid'
+                                      ? Colors.white
+                                      : Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color,
                                 ),
                               ),
                               selected: posController.paymentStatus == 'unpaid',
                               selectedColor: Colors.amber.shade800,
-                              onSelected: (val) => posController.setPaymentStatus('unpaid'),
+                              onSelected: (val) =>
+                                  posController.setPaymentStatus('unpaid'),
+                            ),
+
+                            const SizedBox(width: 12),
+                            ChoiceChip(
+                              label: Text(
+                                'تم الدفع (Paid)'.tr,
+                                style: robotoMedium.copyWith(
+                                  fontSize: 12,
+                                  color: posController.paymentStatus == 'paid'
+                                      ? Colors.white
+                                      : Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                              selected: posController.paymentStatus == 'paid',
+                              selectedColor: Colors.green,
+                              onSelected: (val) =>
+                                  posController.setPaymentStatus('paid'),
                             ),
                           ],
                         ),
@@ -315,7 +405,9 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).disabledColor.withOpacity(0.05),
+                          color: Theme.of(
+                            context,
+                          ).disabledColor.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -323,17 +415,31 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('المجموع الفرعي:'.tr, style: robotoRegular),
-                                Text('${posController.subTotal.toStringAsFixed(2)} ج.م', style: robotoMedium),
+                                Text(
+                                  'المجموع الفرعي:'.tr,
+                                  style: robotoRegular,
+                                ),
+                                Text(
+                                  '${posController.subTotal.toStringAsFixed(2)} ج.م',
+                                  style: robotoMedium,
+                                ),
                               ],
                             ),
-                            if (posController.orderType == 'delivery' && posController.deliveryCharge > 0) ...[
+                            if (posController.orderType == 'delivery' &&
+                                posController.deliveryCharge > 0) ...[
                               const SizedBox(height: 4),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('رسوم التوصيل:'.tr, style: robotoRegular),
-                                  Text('+ ${posController.deliveryCharge.toStringAsFixed(2)} ج.م', style: robotoMedium),
+                                  Text(
+                                    'رسوم التوصيل:'.tr,
+                                    style: robotoRegular,
+                                  ),
+                                  Text(
+                                    '+ ${posController.deliveryCharge.toStringAsFixed(2)} ج.م',
+                                    style: robotoMedium,
+                                  ),
                                 ],
                               ),
                             ],
@@ -341,10 +447,18 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('الإجمالي الكلي:'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                                Text(
+                                  'الإجمالي الكلي:'.tr,
+                                  style: robotoBold.copyWith(
+                                    fontSize: Dimensions.fontSizeLarge,
+                                  ),
+                                ),
                                 Text(
                                   '${posController.grandTotal.toStringAsFixed(2)} ج.م',
-                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),
+                                  style: robotoBold.copyWith(
+                                    fontSize: Dimensions.fontSizeLarge,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
                                 ),
                               ],
                             ),
@@ -358,7 +472,9 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
 
               // Submit Button
               Padding(
-                padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
+                padding: const EdgeInsets.only(
+                  top: Dimensions.paddingSizeSmall,
+                ),
                 child: CustomButtonWidget(
                   isLoading: posController.isLoading,
                   buttonText: 'تأكيد وإرسال الطلب'.tr,
@@ -389,7 +505,9 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
         label,
         style: robotoMedium.copyWith(
           fontSize: 12,
-          color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+          color: isSelected
+              ? Colors.white
+              : Theme.of(context).textTheme.bodyLarge?.color,
         ),
       ),
       selected: isSelected,
@@ -405,7 +523,9 @@ class _PosCartBottomSheetState extends State<PosCartBottomSheet> {
         label,
         style: robotoMedium.copyWith(
           fontSize: 12,
-          color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+          color: isSelected
+              ? Colors.white
+              : Theme.of(context).textTheme.bodyLarge?.color,
         ),
       ),
       selected: isSelected,

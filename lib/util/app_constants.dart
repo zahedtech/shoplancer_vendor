@@ -158,6 +158,8 @@ class AppConstants {
   static const String topupRequestsUri = '/api/v1/vendor/wallet/topup-requests';
   static const String walletInfoUri = '/api/v1/vendor/wallet/info';
   static const String getBrandsUri = '/api/v1/brand';
+  static const String brandStatusUri = '/api/v1/vendor/brand/toggle-status';
+  static const String brandWiseProductsUri = '/api/v1/vendor/brand/products';
   static const String updateReplyUri = '/api/v1/vendor/item/reply-update';
   static const String checkZoneUri = '/api/v1/zone/check';
   static const String getNutritionSuggestionUri =
