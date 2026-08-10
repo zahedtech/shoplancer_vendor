@@ -56,6 +56,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.1.3
+  speech_to_text: ^7.3.0
 
   #Rental Module
   dropdown_button2: ^2.3.9

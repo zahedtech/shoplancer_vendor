@@ -57,6 +57,7 @@
         "shared_preferences",
         "shimmer_animation",
         "showcaseview",
+        "speech_to_text",
         "sqflite_common_ffi",
         "syncfusion_flutter_datepicker",
         "syncfusion_flutter_xlsio",
@@ -2394,6 +2395,37 @@
       "version": "2.2.0",
       "dependencies": [
         "path"
+      ]
+    },
+    {
+      "name": "speech_to_text",
+      "version": "7.4.0",
+      "dependencies": [
+        "clock",
+        "flutter",
+        "flutter_web_plugins",
+        "json_annotation",
+        "meta",
+        "speech_to_text_platform_interface",
+        "speech_to_text_windows",
+        "web"
+      ]
+    },
+    {
+      "name": "speech_to_text_windows",
+      "version": "1.0.1",
+      "dependencies": [
+        "flutter",
+        "speech_to_text_platform_interface"
+      ]
+    },
+    {
+      "name": "speech_to_text_platform_interface",
+      "version": "2.4.0",
+      "dependencies": [
+        "flutter",
+        "meta",
+        "plugin_platform_interface"
       ]
     }
   ],

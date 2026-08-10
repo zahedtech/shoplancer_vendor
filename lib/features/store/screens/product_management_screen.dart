@@ -16,6 +16,8 @@ import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class ProductManagementScreen extends StatefulWidget {
   const ProductManagementScreen({super.key});
@@ -29,11 +31,14 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final MobileScannerController _scannerController = MobileScannerController();
+  final SpeechToText _speechToText = SpeechToText();
   final Map<int, double> _updatedPrices = {};
   final Map<int, Item> _editedItems = {};
 
   String? _barcodeSearch;
   bool _showScanner = false;
+  bool _speechEnabled = false;
+  bool _isListening = false;
   bool _isSaving = false;
 
   @override
@@ -43,10 +48,76 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
 
   @override
   void dispose() {
+    _speechToText.cancel();
     _searchController.dispose();
     _scrollController.dispose();
     _scannerController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initSpeech() async {
+    final bool available = await _speechToText.initialize(
+      onStatus: (status) {
+        if (!mounted) return;
+        final bool listening = status == 'listening';
+        if (_isListening != listening) {
+          setState(() => _isListening = listening);
+        }
+      },
+      onError: (error) {
+        if (!mounted) return;
+        setState(() => _isListening = false);
+        showCustomSnackBar('تعذر تشغيل البحث الصوتي'.tr);
+      },
+    );
+
+    if (!mounted) return;
+    setState(() => _speechEnabled = available);
+  }
+
+  Future<void> _toggleVoiceSearch() async {
+    if (_isListening) {
+      await _speechToText.stop();
+      if (mounted) setState(() => _isListening = false);
+      return;
+    }
+
+    if (!_speechEnabled) {
+      await _initSpeech();
+    }
+
+    if (!_speechEnabled) {
+      showCustomSnackBar('يرجى السماح باستخدام الميكروفون للبحث الصوتي'.tr);
+      return;
+    }
+
+    setState(() => _isListening = true);
+    await _speechToText.listen(
+      onResult: _onSpeechResult,
+      listenOptions: SpeechListenOptions(
+        localeId: Get.locale?.languageCode == 'ar' ? 'ar' : 'en_US',
+        listenMode: ListenMode.search,
+        partialResults: true,
+        cancelOnError: true,
+      ),
+    );
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    final String recognizedWords = result.recognizedWords.trim();
+    if (recognizedWords.isEmpty) return;
+
+    _searchController.text = recognizedWords;
+    _searchController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _searchController.text.length),
+    );
+
+    if (result.finalResult) {
+      setState(() => _isListening = false);
+      _submitSearch(recognizedWords);
+    } else {
+      setState(() {});
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -531,6 +602,21 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
+                                        tooltip: _isListening
+                                            ? 'إيقاف البحث الصوتي'.tr
+                                            : 'البحث بالصوت'.tr,
+                                        icon: Icon(
+                                          _isListening
+                                              ? Icons.mic
+                                              : Icons.mic_none,
+                                          size: 20,
+                                          color: _isListening
+                                              ? Colors.red
+                                              : Theme.of(context).primaryColor,
+                                        ),
+                                        onPressed: _toggleVoiceSearch,
+                                      ),
+                                      IconButton(
                                         tooltip: 'search'.tr,
                                         icon: Icon(
                                           Icons.search,
@@ -551,13 +637,17 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                     ],
                                   )
                                 : IconButton(
-                                    tooltip: 'search'.tr,
+                                    tooltip: _isListening
+                                        ? 'إيقاف البحث الصوتي'.tr
+                                        : 'البحث بالصوت'.tr,
                                     icon: Icon(
-                                      Icons.search,
+                                      _isListening ? Icons.mic : Icons.mic_none,
                                       size: 20,
-                                      color: Theme.of(context).primaryColor,
+                                      color: _isListening
+                                          ? Colors.red
+                                          : Theme.of(context).primaryColor,
                                     ),
-                                    onPressed: _submitSearch,
+                                    onPressed: _toggleVoiceSearch,
                                   ),
                             onChanged: (val) => _onSearchChanged(val),
                             onSubmit: (val) => _submitSearch(val),
