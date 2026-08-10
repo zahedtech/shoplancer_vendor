@@ -42,7 +42,6 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     with TickerProviderStateMixin {
   final List<TextEditingController> _nameController = [];
   final List<TextEditingController> _addressController = [];
-  //final TextEditingController _vatController = TextEditingController();
   final TextEditingController tinNumberController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();

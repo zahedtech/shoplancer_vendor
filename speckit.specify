@@ -1,0 +1,364 @@
+# Spec Kit Plan: Full Project Feature & Page Explanation
+
+**Created**: 2026-08-10
+**Status**: Draft
+**Scope**: شرح كل feature وكل صفحة في تطبيق `shoplancer_vendor`
+**Primary Language**: Arabic
+
+## الهدف
+
+إنشاء توثيق منظم يشرح المشروع صفحة صفحة وميزة ميزة، بحيث يستطيع أي مطور أو صاحب منتج أو دعم فني فهم:
+
+- ما وظيفة كل feature.
+- ما الصفحات الموجودة داخل كل feature.
+- ماذا يظهر في كل صفحة.
+- ما الأزرار والإجراءات الأساسية.
+- ما البيانات والـ APIs أو controllers المرتبطة بها.
+- كيف ينتقل المستخدم من صفحة إلى صفحة.
+- ما الحالات الخاصة: تحميل، خطأ، قائمة فارغة، صلاحيات، اختلاف موبايل/ديسكتوب.
+
+هذا الملف هو خطة العمل العامة. الناتج النهائي المقترح يكون ملف/ملفات توثيق داخل `docs/` أو `specs/` حسب حجم الشرح.
+
+## طريقة التوثيق الموحدة لكل صفحة
+
+لكل صفحة يتم إنشاء قسم بنفس القالب:
+
+```md
+## [Feature] - [Screen Name]
+
+**Path**: `lib/features/.../screens/...`
+**Route / Entry Point**: اسم الراوت أو من أين تفتح الصفحة
+**Purpose**: هدف الصفحة بجملة واضحة
+
+### ماذا يظهر للمستخدم
+- العناصر الرئيسية في الشاشة
+- الأزرار
+- حقول الإدخال
+- القوائم أو البطاقات
+- bottom sheets / dialogs / scanners إن وجدت
+
+### ماذا يستطيع المستخدم أن يفعل
+- الإجراء 1
+- الإجراء 2
+- الإجراء 3
+
+### البيانات والمنطق
+- Controller المستخدم
+- Model أو API الأساسي
+- شروط الظهور أو الفلاتر
+
+### الحالات
+- Loading
+- Empty state
+- Error / validation
+- Permission أو camera/location إن وجد
+
+### الانتقال
+- من أين تأتي لهذه الصفحة
+- إلى أين يمكن أن تذهب منها
+```
+
+## خطة التنفيذ
+
+1. **Inventory كامل**
+   استخراج كل features والصفحات من `lib/features/**/screens`.
+
+2. **ربط الصفحات بالراوت**
+   مراجعة `lib/helper/route_helper.dart` لمعرفة أسماء routes ونقاط الدخول.
+
+3. **قراءة controllers**
+   لكل feature، نقرأ controller الرئيسي ونلخص:
+   - الحالة المخزنة
+   - أهم functions
+   - متى يتم تحميل البيانات
+
+4. **قراءة services/repositories عند الحاجة**
+   نربط الشاشة بالـ API أو repository بدون الدخول بتفاصيل implementation الزائدة.
+
+5. **كتابة شرح feature**
+   لكل feature نكتب overview: الهدف، المستخدم المستهدف، الصفحات، الاعتمادات.
+
+6. **كتابة شرح الصفحات**
+   لكل screen نملأ القالب الموحد أعلاه.
+
+7. **مراجعة الرحلات الأساسية**
+   نعمل توثيق end-to-end لأهم الرحلات:
+   - تسجيل الدخول والتسجيل
+   - إدارة المنتجات
+   - إنشاء الطلب / POS
+   - الطلبات
+   - المحفظة والمدفوعات
+   - الاشتراك
+   - الموظفين والصلاحيات
+
+8. **فحص التوثيق**
+   نراجع أن كل screen داخل inventory لها قسم توثيق، وأن كل section واضح لشخص لا يقرأ الكود.
+
+## ملفات التوثيق المقترحة
+
+- `docs/project_overview.md`: نظرة عامة على التطبيق والبنية.
+- `docs/features_inventory.md`: قائمة كل features والصفحات.
+- `docs/feature_guides/auth_dashboard_home.md`
+- `docs/feature_guides/store_management.md`
+- `docs/feature_guides/store_deep_dive.md`
+- `docs/feature_guides/pos_order.md`
+- `docs/feature_guides/finance_subscription.md`
+- `docs/feature_guides/catalog_operations.md`
+- `docs/feature_guides/people_ads.md`
+- `docs/feature_guides/support_settings.md`
+- `docs/feature_guides/menu_rental_module.md`
+- `docs/network_flow.md`
+
+أو، إذا أردنا الالتزام أكثر بأسلوب Spec Kit:
+
+- `specs/003-full-project-documentation/spec.md`
+- `specs/003-full-project-documentation/plan.md`
+- `specs/003-full-project-documentation/tasks.md`
+
+## أولوية الشرح
+
+### P1 - أهم رحلات العمل اليومية
+
+- `auth`: تسجيل الدخول وتسجيل المتجر.
+- `dashboard`: الشاشة الرئيسية والتنقل.
+- `home`: ملخص المتجر والطلبات والإحصائيات.
+- `store`: إدارة المنتجات والمتجر.
+- `pos`: إنشاء الطلب والكاشير.
+- `order`: متابعة الطلبات وتفاصيل الطلب.
+- `payment`: المحفظة، السحب، الدفع.
+
+### P2 - إدارة وتشغيل
+
+- `addon`: الإضافات.
+- `category`: الفئات.
+- `banner`: البنرات.
+- `coupon`: الكوبونات.
+- `campaign`: الحملات.
+- `employee`: الموظفين.
+- `deliveryman`: مندوبي التوصيل.
+- `disbursement`: السحب والتحويلات.
+- `subscription`: الاشتراكات.
+
+### P3 - مساعدة وإعدادات وتجارب جانبية
+
+- `advertisement`: الإعلانات.
+- `chat`: المحادثات.
+- `notification`: الإشعارات.
+- `profile`: الملف الشخصي والإعدادات.
+- `reports`: التقارير.
+- `review`: تقييمات العملاء.
+- `language`: اللغة.
+- `html`: صفحات HTML.
+- `splash`: الإقلاع والتهيئة.
+- `update`: التحديث الإجباري.
+- `address`: الموقع والعنوان.
+- `ai`: أدوات الذكاء الاصطناعي.
+- `business`: الدفع/نجاح الاشتراك التجاري.
+
+## Inventory الصفحات حسب الـ Feature
+
+### addon
+
+- `add_addon_screen.dart`: إضافة أو تعديل addon.
+- `addon_screen.dart`: قائمة وإدارة الإضافات.
+
+### address
+
+- لا توجد screens مباشرة، لكن توجد widgets مهمة لتحديد الموقع والمنطقة:
+  - `location_search_dialog_widget.dart`
+  - `select_location_module_view_widget.dart`
+  - `zone_selection_widget.dart`
+
+### advertisement
+
+- `advertisement_list_screen.dart`: قائمة الإعلانات.
+- `advertisement_details_screen.dart`: تفاصيل الإعلان.
+- `create_advertisement_screen.dart`: إنشاء إعلان.
+
+### ai
+
+- لا توجد screens مباشرة، لكن توجد bottom sheets:
+  - `ai_generator_bottom_sheet.dart`
+  - `generate_title_bottom_sheet.dart`
+  - `image_analyze_bottom_sheet.dart`
+
+### auth
+
+- `sign_in_screen.dart`: تسجيل الدخول.
+- `store_registration_screen.dart`: تسجيل متجر جديد.
+
+### banner
+
+- `banner_list_screen.dart`: قائمة البنرات.
+- `add_banner_screen.dart`: إضافة أو تعديل بنر.
+
+### business
+
+- `subscription_payment_screen.dart`: دفع الاشتراك.
+- `subscription_success_or_failed_screen.dart`: نتيجة الدفع.
+
+### campaign
+
+- `campaign_screen.dart`: قائمة الحملات.
+- `campaign_details_screen.dart`: تفاصيل الحملة.
+
+### category
+
+- `category_screen.dart`: إدارة الفئات الرئيسية.
+- `sub_category_screen.dart`: إدارة الفئات الفرعية.
+- `category_product_screen.dart`: منتجات الفئة.
+
+### chat
+
+- `conversation_screen.dart`: قائمة المحادثات.
+- `chat_screen.dart`: شاشة الرسائل.
+
+### coupon
+
+- `coupon_screen.dart`: قائمة الكوبونات.
+- `add_coupon_screen.dart`: إضافة أو تعديل كوبون.
+
+### dashboard
+
+- `dashboard_screen.dart`: الحاوية الرئيسية للتبويبات والتنقل.
+
+### deliveryman
+
+- `delivery_man_screen.dart`: قائمة مندوبي التوصيل.
+- `add_delivery_man_screen.dart`: إضافة مندوب.
+- `delivery_man_details_screen.dart`: تفاصيل المندوب.
+
+### disbursement
+
+- `disbursement_menu_screen.dart`: قائمة خيارات السحب.
+- `disbursement_screen.dart`: صفحة السحوبات.
+- `withdraw_method_screen.dart`: طرق السحب.
+- `add_withdraw_method_screen.dart`: إضافة طريقة سحب.
+
+### employee
+
+- `employee_screen.dart`: قائمة الموظفين وإدارة حالتهم.
+- `add_employee_screen.dart`: إضافة أو تعديل موظف.
+
+### forgot_password
+
+- `forget_pass_screen.dart`: طلب استعادة كلمة المرور.
+- `verification_screen.dart`: التحقق.
+- `new_pass_screen.dart`: تعيين كلمة مرور جديدة.
+
+### home
+
+- `home_screen.dart`: الصفحة الرئيسية للمتجر والإحصائيات والطلبات السريعة.
+
+### html
+
+- `html_viewer_screen.dart`: عرض محتوى HTML مثل الشروط أو الخصوصية.
+
+### language
+
+- `language_screen.dart`: اختيار اللغة.
+
+### menu
+
+- `menu_screen.dart`: القائمة الجانبية/قائمة الإعدادات والتنقل.
+
+### notification
+
+- `notification_screen.dart`: قائمة الإشعارات.
+
+### order
+
+- `order_history_screen.dart`: سجل الطلبات.
+- `order_details_screen.dart`: تفاصيل الطلب وإجراءاته.
+- `invoice_print_screen.dart`: طباعة الفاتورة.
+- `alternative_item_selection_screen.dart`: اختيار بديل للمنتج.
+
+### payment
+
+- `payment_screen.dart`: مدخل الدفع.
+- `wallet_screen.dart`: المحفظة.
+- `prepaid_wallet_screen.dart`: المحفظة المسبقة.
+- `payment_history_screen.dart`: سجل المدفوعات.
+- `withdraw_history_screen.dart`: سجل السحوبات.
+- `bank_info_screen.dart`: بيانات البنك.
+- `payment_successful_screen.dart`: نجاح الدفع.
+
+### pos
+
+- `pos_screen.dart`: شاشة POS على الموبايل.
+- `desktop_pos_screen.dart`: شاشة POS للديسكتوب.
+- `pos_barcode_scanner_screen.dart`: ماسح باركود POS.
+- `desktop_settings_screen.dart`: إعدادات POS للديسكتوب.
+
+### profile
+
+- `profile_screen.dart`: الملف الشخصي.
+- `update_profile_screen.dart`: تعديل الملف.
+- `setting_screen.dart`: الإعدادات.
+
+### reports
+
+- `reports_screen.dart`: التقارير.
+
+### review
+
+- `customer_review_screen.dart`: تقييمات العملاء.
+- `review_reply_screen.dart`: الرد على تقييم.
+
+### splash
+
+- `splash_screen.dart`: شاشة الإقلاع وتحميل الإعدادات.
+
+### store
+
+- `store_screen.dart`: صفحة المتجر.
+- `store_edit_screen.dart`: تعديل بيانات المتجر.
+- `store_settings_screen.dart`: إعدادات المتجر.
+- `store_sections_screen.dart`: أقسام المتجر.
+- `store_link_screen.dart`: رابط المتجر.
+- `social_media_screen.dart`: روابط السوشيال.
+- `announcement_screen.dart`: الإعلانات/التنبيهات.
+- `payment_methods_screen.dart`: طرق الدفع.
+- `add_item_screen.dart`: إضافة أو تعديل منتج كامل.
+- `quick_add_item_screen.dart`: إضافة منتجات بسرعة.
+- `all_items_screen.dart`: كل المنتجات.
+- `item_details_screen.dart`: تفاصيل المنتج.
+- `item_search_screen.dart`: البحث عن المنتجات.
+- `pending_item_screen.dart`: المنتجات المعلقة.
+- `pending_item_details_screen.dart`: تفاصيل منتج معلق.
+- `inactive_products_screen.dart`: المنتجات غير النشطة.
+- `low_stock_screen.dart`: المنتجات قليلة المخزون.
+- `product_management_screen.dart`: إدارة المنتجات والأسعار والباركود.
+- `product_price_management_screen.dart`: إدارة أسعار المنتجات.
+- `product_price_category_selection_screen.dart`: اختيار فئة لإدارة الأسعار.
+- `product_status_screen.dart`: إدارة حالة المنتجات.
+- `brand_screen.dart`: البراندات.
+- `brand_product_screen.dart`: منتجات البراند.
+- `image_viewer_screen.dart`: عرض الصور.
+
+### subscription
+
+- `my_subscription_screen.dart`: الاشتراك الحالي والمعاملات.
+
+### update
+
+- `update_screen.dart`: شاشة طلب تحديث التطبيق.
+
+## تعريف "منتهي" لهذا التوثيق
+
+يعتبر العمل منتهيًا عندما:
+
+- كل feature أعلاه لديها overview.
+- كل screen أعلاه لديها section مستقل.
+- كل section يذكر path والغرض والمحتوى والإجراءات والحالات والانتقالات.
+- الرحلات الأساسية P1 موثقة end-to-end.
+- لا توجد شاشة داخل `lib/features/**/screens` غير مذكورة في inventory.
+- عملية network موثقة من الشاشة حتى `ApiClient` ومعالجة الأخطاء.
+
+## ملاحظات تنفيذ
+
+- التوثيق لا يغير سلوك التطبيق.
+- أسماء الملفات البرمجية تبقى بالإنجليزية، والشرح بالعربية.
+- عند وجود اختلاف بين الموبايل والديسكتوب، نوثقه داخل نفس section.
+- أي dialog أو bottom sheet مهم للمستخدم يوثق كـ "سطح فرعي" تحت الصفحة التي تفتحه.
+- عند الشك في وظيفة صفحة، نقرأ controller والـ route قبل الكتابة.

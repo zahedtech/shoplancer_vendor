@@ -56,7 +56,6 @@ import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart
 import 'package:shoplancer_vendor/features/store/screens/add_item_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/all_items_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/brand_screen.dart';
-import 'package:shoplancer_vendor/features/store/screens/brand_product_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/inactive_products_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_search_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/announcement_screen.dart';
@@ -73,7 +72,6 @@ import 'package:shoplancer_vendor/features/store/screens/product_price_managemen
 import 'package:shoplancer_vendor/features/store/screens/product_price_category_selection_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
-
 import 'package:shoplancer_vendor/features/employee/screens/employee_screen.dart';
 import 'package:shoplancer_vendor/features/employee/screens/add_employee_screen.dart';
 import 'package:shoplancer_vendor/features/pos/screens/desktop_pos_screen.dart';
@@ -411,7 +409,9 @@ class RouteHelper {
       name: initial,
       // Desktop (Windows/macOS) builds land straight on the cashier/POS
       // home screen instead of the mobile dashboard with bottom nav.
-      page: () => GetPlatform.isDesktop ? const DesktopPosScreen() : const DashboardScreen(pageIndex: 0),
+      page: () => GetPlatform.isDesktop
+          ? const DesktopPosScreen()
+          : const DashboardScreen(pageIndex: 0),
     ),
     GetPage(
       name: splash,
@@ -823,14 +823,8 @@ class RouteHelper {
       name: productManagement,
       page: () => const ProductManagementScreen(),
     ),
-    GetPage(
-      name: inactiveProducts,
-      page: () => const InactiveProductsScreen(),
-    ),
-    GetPage(
-      name: brands,
-      page: () => const BrandScreen(),
-    ),
+    GetPage(name: inactiveProducts, page: () => const InactiveProductsScreen()),
+    GetPage(name: brands, page: () => const BrandScreen()),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
     GetPage(
       name: alternativeItemSelection,

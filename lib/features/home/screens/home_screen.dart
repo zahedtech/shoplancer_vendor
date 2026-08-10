@@ -47,11 +47,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadData() async {
-    await Get.find<ProfileController>().getProfile();
-    await Get.find<PaymentController>().getWalletInfo();
-    await Get.find<OrderController>().getCurrentOrders();
-    await Get.find<NotificationController>().getNotificationList();
+  Future<void> _loadData({bool refreshProfile = false}) async {
+    final ProfileController profileController = Get.find<ProfileController>();
+
+    if (refreshProfile || profileController.profileModel == null) {
+      await profileController.getProfile();
+    }
+
+    await Future.wait([
+      Get.find<PaymentController>().getWalletInfo(),
+      Get.find<OrderController>().getCurrentOrders(),
+      Get.find<NotificationController>().getNotificationList(),
+    ]);
   }
 
   Future<void> _checkSystemNotification() async {
@@ -212,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: RefreshIndicator(
         onRefresh: () async {
-          await _loadData();
+          await _loadData(refreshProfile: true);
         },
         child: GetBuilder<ProfileController>(
           builder: (profileController) {

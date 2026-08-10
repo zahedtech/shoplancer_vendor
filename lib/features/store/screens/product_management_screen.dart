@@ -51,34 +51,65 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
 
   void _onSearchChanged(String query) {
     final String clean = query.trim();
-    _barcodeSearch = null;
-    setState(() {});
+
+    if (_isBarcodeQuery(clean)) {
+      _searchByBarcode(clean);
+      return;
+    }
+
+    if (_barcodeSearch != null) {
+      _barcodeSearch = null;
+      setState(() {});
+    }
 
     if (clean.length >= 3) {
-      Get.find<StoreController>().getItemList(
-        offset: '1',
-        type: 'active',
-        search: clean,
-      );
+      _searchByName(clean);
     }
   }
 
-  void _fetchPage(int? offset) {
+  void _submitSearch([String? query]) {
+    final String clean = (query ?? _searchController.text).trim();
+
+    if (clean.isEmpty) {
+      showCustomSnackBar('اكتب اسم المنتج أو رقم الباركود للبحث'.tr);
+      return;
+    }
+
+    if (_isNumericQuery(clean)) {
+      _searchByBarcode(clean);
+      return;
+    }
+
+    if (clean.length < 3) {
+      showCustomSnackBar('اكتب 3 أحرف على الأقل للبحث عن المنتجات'.tr);
+      return;
+    }
+
+    _searchByName(clean);
+  }
+
+  bool _isNumericQuery(String query) => RegExp(r'^[0-9]+$').hasMatch(query);
+
+  bool _isBarcodeQuery(String query) =>
+      query.length >= 4 && _isNumericQuery(query);
+
+  void _searchByName(String name) {
+    _barcodeSearch = null;
+    setState(() {});
     Get.find<StoreController>().getItemList(
-      offset: offset?.toString() ?? '1',
+      offset: '1',
       type: 'active',
-      search: _searchController.text.trim(),
-      barcode: _barcodeSearch,
+      search: name,
     );
   }
 
-  Future<void> _onBarcodeScanned(String barcode) async {
+  Future<void> _searchByBarcode(String barcode) async {
     final String cleanBarcode = barcode.trim();
+    if (cleanBarcode.isEmpty) return;
+
     _barcodeSearch = cleanBarcode;
     _searchController.text = cleanBarcode;
-    setState(() {
-      _showScanner = false;
-    });
+    setState(() {});
 
     await Get.find<StoreController>().getItemList(
       offset: '1',
@@ -86,6 +117,24 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: '',
       barcode: cleanBarcode,
     );
+  }
+
+  void _fetchPage(int? offset) {
+    Get.find<StoreController>().getItemList(
+      offset: offset?.toString() ?? '1',
+      type: 'active',
+      search: _barcodeSearch == null ? _searchController.text.trim() : '',
+      barcode: _barcodeSearch,
+    );
+  }
+
+  Future<void> _onBarcodeScanned(String barcode) async {
+    final String cleanBarcode = barcode.trim();
+    setState(() {
+      _showScanner = false;
+    });
+
+    await _searchByBarcode(cleanBarcode);
   }
 
   void _setUpdatedPrice(Item item, double newPrice) {
@@ -436,8 +485,11 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isQueryValid =
-        _searchController.text.trim().length >= 3 || _barcodeSearch != null;
+    final String query = _searchController.text.trim();
+    final bool isQueryValid =
+        _barcodeSearch != null ||
+        _isBarcodeQuery(query) ||
+        (!_isNumericQuery(query) && query.length >= 3);
 
     return GetBuilder<StoreController>(
       builder: (storeController) {
@@ -471,20 +523,44 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                         Expanded(
                           child: CustomTextFieldWidget(
                             controller: _searchController,
-                            hintText:
-                                'ابحث عن منتج بالاسم (3 أحرف على الأقل)...'.tr,
+                            hintText: 'ابحث بالاسم أو رقم الباركود...'.tr,
                             prefixIcon: Icons.search,
+                            inputAction: TextInputAction.search,
                             suffixChild: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, size: 18),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      _barcodeSearch = null;
-                                      setState(() {});
-                                    },
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        tooltip: 'search'.tr,
+                                        icon: Icon(
+                                          Icons.search,
+                                          size: 20,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                        onPressed: _submitSearch,
+                                      ),
+                                      IconButton(
+                                        tooltip: 'clear'.tr,
+                                        icon: const Icon(Icons.clear, size: 18),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          _barcodeSearch = null;
+                                          setState(() {});
+                                        },
+                                      ),
+                                    ],
                                   )
-                                : null,
+                                : IconButton(
+                                    tooltip: 'search'.tr,
+                                    icon: Icon(
+                                      Icons.search,
+                                      size: 20,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    onPressed: _submitSearch,
+                                  ),
                             onChanged: (val) => _onSearchChanged(val),
+                            onSubmit: (val) => _submitSearch(val),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -605,7 +681,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                 height: Dimensions.paddingSizeDefault,
                               ),
                               Text(
-                                'اكتب 3 أحرف على الأقل للبحث عن المنتجات'.tr,
+                                'اكتب 3 أحرف على الأقل أو أدخل رقم الباركود'.tr,
                                 textAlign: TextAlign.center,
                                 style: robotoBold.copyWith(
                                   fontSize: Dimensions.fontSizeDefault,
@@ -618,7 +694,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                 height: Dimensions.paddingSizeSmall,
                               ),
                               Text(
-                                'أو استخدم قارئ الباركود لمسح المنتج وعرضه مباشرة هنا'
+                                'استخدم قارئ الباركود بالأعلى أو ابحث بالرقم يدويًا'
                                     .tr,
                                 textAlign: TextAlign.center,
                                 style: robotoRegular.copyWith(
@@ -875,7 +951,13 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                           ),
                         ],
                         const SizedBox(width: 4),
-                        Icon(Icons.edit_note_rounded, size: 14, color: Theme.of(context).primaryColor.withOpacity(0.6)),
+                        Icon(
+                          Icons.edit_note_rounded,
+                          size: 14,
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withOpacity(0.6),
+                        ),
                       ],
                     ),
                   ),

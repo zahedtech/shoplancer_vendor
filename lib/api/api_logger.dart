@@ -2,8 +2,17 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 class ApiLogger {
+  static const bool _logBodies = bool.fromEnvironment(
+    'API_LOG_BODY',
+    defaultValue: false,
+  );
+
   // Header names whose values must never be printed in full (auth/session secrets).
-  static const Set<String> _sensitiveHeaderKeys = {'cookie', 'set-cookie'};
+  static const Set<String> _sensitiveHeaderKeys = {
+    'authorization',
+    'cookie',
+    'set-cookie',
+  };
 
   // Body field names that carry secrets and should be redacted from logs.
   static const Set<String> _sensitiveBodyKeys = {
@@ -25,22 +34,22 @@ class ApiLogger {
     dynamic body,
   }) {
     if (kDebugMode) {
-      print(
+      debugPrint(
         '╔════════════════════════════════════════════════════════════════════════════',
       );
-      print('║ 🚀 Request: $method');
-      print('║ 🔗 URL: $url');
+      debugPrint('║ 🚀 Request: $method');
+      debugPrint('║ 🔗 URL: $url');
       if (headers != null && headers.isNotEmpty) {
-        print('║ 📄 Headers:');
+        debugPrint('║ 📄 Headers:');
         headers.forEach((key, value) {
-          print('║    $key: ${_redactHeader(key, value)}');
+          debugPrint('║    $key: ${_redactHeader(key, value)}');
         });
       }
-      if (body != null) {
-        print('║ 📦 Body:');
+      if (_logBodies && body != null) {
+        debugPrint('║ 📦 Body:');
         _logJson(_redactBody(body));
       }
-      print(
+      debugPrint(
         '╚════════════════════════════════════════════════════════════════════════════',
       );
     }
@@ -54,22 +63,22 @@ class ApiLogger {
   }) {
     if (kDebugMode) {
       String statusIcon = statusCode >= 200 && statusCode < 300 ? '✅' : '❌';
-      print(
+      debugPrint(
         '╔════════════════════════════════════════════════════════════════════════════',
       );
-      print('║ $statusIcon Response: $statusCode');
-      print('║ 🔗 URL: $url');
+      debugPrint('║ $statusIcon Response: $statusCode');
+      debugPrint('║ 🔗 URL: $url');
       if (headers != null && headers.isNotEmpty) {
-        print('║ 📄 Headers:');
+        debugPrint('║ 📄 Headers:');
         headers.forEach((key, value) {
-          print('║    $key: ${_redactHeader(key, value)}');
+          debugPrint('║    $key: ${_redactHeader(key, value)}');
         });
       }
-      if (body != null) {
-        print('║ 📦 Body:');
+      if (_logBodies && body != null) {
+        debugPrint('║ 📦 Body:');
         _logJson(_redactBody(body));
       }
-      print(
+      debugPrint(
         '╚════════════════════════════════════════════════════════════════════════════',
       );
     }
@@ -105,10 +114,10 @@ class ApiLogger {
       String prettyJson = encoder.convert(json);
       List<String> lines = prettyJson.split('\n');
       for (String line in lines) {
-        print('║    $line');
+        debugPrint('║    $line');
       }
     } catch (e) {
-      print('║    $json');
+      debugPrint('║    $json');
     }
   }
 }
