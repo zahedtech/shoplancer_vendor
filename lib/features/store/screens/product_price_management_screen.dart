@@ -54,52 +54,88 @@ class _ProductPriceManagementScreenState
   int? _selectedSubCategoryId;
   bool _isSaving = false;
 
+  int get _activeCategoryId {
+    if (_selectedSubCategoryId != null) {
+      return _selectedSubCategoryId!;
+    }
+    if (widget.initialCategoryId != null && widget.initialCategoryId != 0) {
+      return widget.initialCategoryId!;
+    }
+    final storeController = Get.find<StoreController>();
+    return storeController.categoryId ?? 0;
+  }
+
   @override
   void initState() {
     super.initState();
     final storeController = Get.find<StoreController>();
+    final categoryController = Get.find<CategoryController>();
 
-    if (widget.initialCategoryId != null && widget.initialCategoryId != 0) {
-      _selectedSubCategoryId = null;
+    _selectedSubCategoryId = null;
+
+    final int? initialCatId = widget.initialCategoryId;
+    final int targetCategoryId =
+        (initialCatId != null && initialCatId != 0) ? initialCatId : 0;
+
+    // Synchronize category lists if already fetched
+    if (categoryController.categoryList != null &&
+        categoryController.categoryList!.isNotEmpty) {
+      storeController.setCategoriesFromExternal(
+        categoryController.categoryList!,
+      );
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _loadLocalDraft();
-      await storeController.getStoreCategories();
+    // Immediately set category index/id in store controller
+    if (targetCategoryId != 0) {
+      final int index =
+          storeController.categoryIdList?.indexOf(targetCategoryId) ?? -1;
+      if (index >= 0) {
+        storeController.setCategoryForSearch(index: index);
+      }
+    } else {
+      if (storeController.categoryIdList != null &&
+          storeController.categoryIdList!.isNotEmpty) {
+        storeController.setCategoryForSearch(index: 0);
+      }
+    }
 
-      final int? initialCategoryId = widget.initialCategoryId;
-      if (initialCategoryId != null && initialCategoryId != 0) {
-        final int index =
-            storeController.categoryIdList?.indexOf(initialCategoryId) ?? -1;
-        if (index > 0) {
-          // Selects the matching chip in the category bar and loads its items.
-          storeController.setCategory(index: index, foodType: 'all');
-          Get.find<CategoryController>().getSubCategoryList(initialCategoryId);
-        } else {
-          // Category isn't in the store's own category bar (edge case) —
-          // still filter the item list directly by its id.
-          storeController.getItemList(
-            offset: '1',
-            type: 'all',
-            search: '',
-            categoryId: initialCategoryId,
-            willUpdate: true,
-          );
-        }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadLocalDraft();
+
+      // 1. Immediately fetch the products for this target category without waiting for categories request!
+      storeController.getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: targetCategoryId,
+        willUpdate: true,
+      );
+
+      // 2. Fetch subcategories if a specific category was chosen
+      if (targetCategoryId != 0) {
+        categoryController.getSubCategoryList(targetCategoryId);
       } else {
-        storeController.getItemList(
-          offset: '1',
-          type: 'all',
-          search: '',
-          categoryId: 0,
-          willUpdate: true,
-        );
+        categoryController.subCategoryList?.clear();
+      }
+
+      // 3. If categories list was not loaded yet, fetch in background without blocking
+      if (categoryController.categoryList == null ||
+          categoryController.categoryList!.isEmpty) {
+        storeController.getStoreCategories(isUpdate: false).then((_) {
+          if (mounted && targetCategoryId != 0) {
+            final int index =
+                storeController.categoryIdList?.indexOf(targetCategoryId) ?? -1;
+            if (index >= 0) {
+              storeController.setCategoryForSearch(index: index);
+            }
+          }
+        });
       }
     });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent &&
+              _scrollController.position.maxScrollExtent - 200 &&
           storeController.itemList != null &&
           !storeController.isLoading) {
         final int totalItems = storeController.itemSize ?? 0;
@@ -113,7 +149,7 @@ class _ProductPriceManagementScreenState
             offset: storeController.offset.toString(),
             type: storeController.type,
             search: _searchController.text.trim(),
-            categoryId: _selectedSubCategoryId ?? storeController.categoryId,
+            categoryId: _activeCategoryId,
             barcode: _barcodeSearch,
           );
         }
@@ -321,7 +357,7 @@ class _ProductPriceManagementScreenState
       offset: '1',
       type: 'all',
       search: '',
-      categoryId: _selectedSubCategoryId ?? storeController.categoryId,
+      categoryId: _activeCategoryId,
       barcode: barcode,
     );
   }
@@ -336,7 +372,7 @@ class _ProductPriceManagementScreenState
         offset: '1',
         type: 'all',
         search: '',
-        categoryId: _selectedSubCategoryId ?? storeController.categoryId,
+        categoryId: _activeCategoryId,
       );
     } else {
       setState(() {});
@@ -532,7 +568,10 @@ class _ProductPriceManagementScreenState
       }
 
       if (updates.isNotEmpty) {
-        await storeController.bulkItemsUpdate(updates);
+        await storeController.bulkItemsUpdate(
+          updates,
+          categoryId: _activeCategoryId,
+        );
         if (mounted) {
           setState(() {
             _stagedPrices.clear();
@@ -974,19 +1013,21 @@ class _ProductPriceManagementScreenState
                           return InkWell(
                             onTap: () {
                               _currentIndex = 0;
+                              final int? newSubCatId = isAll ? null : subCat?.id;
                               setState(() {
-                                _selectedSubCategoryId = isAll
-                                    ? null
-                                    : subCat?.id;
+                                _selectedSubCategoryId = newSubCatId;
                               });
+                              final int targetCatId = newSubCatId ??
+                                  (widget.initialCategoryId != null &&
+                                          widget.initialCategoryId != 0
+                                      ? widget.initialCategoryId!
+                                      : (storeController.categoryId ?? 0));
                               storeController.setOffset(1);
                               storeController.getItemList(
                                 offset: '1',
                                 type: 'all',
                                 search: _searchController.text.trim(),
-                                categoryId: isAll
-                                    ? storeController.categoryId
-                                    : subCat?.id,
+                                categoryId: targetCatId,
                                 barcode: _barcodeSearch,
                               );
                             },

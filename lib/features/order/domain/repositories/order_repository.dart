@@ -93,12 +93,19 @@ class OrderRepository implements OrderRepositoryInterface {
     Response response = await apiClient.getData(
       '${AppConstants.orderDetailsUri}$orderID',
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body != null) {
       orderDetailsModel = [];
-      response.body.forEach(
-        (orderDetails) =>
-            orderDetailsModel!.add(OrderDetailsModel.fromJson(orderDetails)),
-      );
+      if (response.body is List) {
+        for (var orderDetails in response.body) {
+          if (orderDetails != null && orderDetails is Map) {
+            orderDetailsModel.add(
+              OrderDetailsModel.fromJson(
+                Map<String, dynamic>.from(orderDetails),
+              ),
+            );
+          }
+        }
+      }
     }
     return orderDetailsModel;
   }

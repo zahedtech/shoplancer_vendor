@@ -106,7 +106,7 @@ class ProfileController extends GetxController implements GetxService {
 
   void _allowModulePermission(List<String>? roles) {
     debugPrint('---permission--->> $roles');
-    if (roles != null && roles.isNotEmpty) {
+    if (roles != null && roles.isNotEmpty && !roles.contains('owner')) {
       List<String> module = roles;
       if (kDebugMode) {
         print(module);

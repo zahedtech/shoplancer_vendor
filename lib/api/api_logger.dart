@@ -4,12 +4,11 @@ import 'package:flutter/foundation.dart';
 class ApiLogger {
   static const bool _logBodies = bool.fromEnvironment(
     'API_LOG_BODY',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   // Header names whose values must never be printed in full (auth/session secrets).
   static const Set<String> _sensitiveHeaderKeys = {
-    'authorization',
     'cookie',
     'set-cookie',
   };
@@ -19,9 +18,6 @@ class ApiLogger {
     'password',
     'confirm_password',
     'old_password',
-    'token',
-    'access_token',
-    'refresh_token',
     'card_number',
     'cvv',
     'pin',

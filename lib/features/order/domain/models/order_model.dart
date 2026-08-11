@@ -159,15 +159,15 @@ class OrderModel {
         return null;
       }
 
-      if (value is Map<String, dynamic>) {
-        return DeliveryAddress.fromJson(value);
+      if (value is Map) {
+        return DeliveryAddress.fromJson(Map<String, dynamic>.from(value));
       }
 
       if (value is String && value.trim().isNotEmpty) {
         try {
           final dynamic decoded = jsonDecode(value);
-          if (decoded is Map<String, dynamic>) {
-            return DeliveryAddress.fromJson(decoded);
+          if (decoded is Map) {
+            return DeliveryAddress.fromJson(Map<String, dynamic>.from(decoded));
           }
         } catch (_) {}
       }
@@ -232,19 +232,19 @@ class OrderModel {
       });
     }
     moduleType = json['module_type'];
-    prescriptionOrder = json['prescription_order'];
-    customer = json['customer'] != null
-        ? Customer.fromJson(json['customer'])
+    prescriptionOrder = json['prescription_order'] == true || json['prescription_order'] == 1;
+    customer = json['customer'] != null && json['customer'] is Map
+        ? Customer.fromJson(Map<String, dynamic>.from(json['customer']))
         : null;
     dmTips = json['dm_tips'] != null
         ? double.tryParse(json['dm_tips'].toString())
         : 0.0;
     processingTime = json['processing_time'];
-    deliveryMan = json['delivery_man'] != null
-        ? DeliveryMan.fromJson(json['delivery_man'])
+    deliveryMan = json['delivery_man'] != null && json['delivery_man'] is Map
+        ? DeliveryMan.fromJson(Map<String, dynamic>.from(json['delivery_man']))
         : null;
     taxStatus = json['tax_status'] == 'included' ? true : false;
-    cutlery = json['cutlery'];
+    cutlery = json['cutlery'] == true || json['cutlery'] == 1;
     unavailableItemNote = json['unavailable_item_note'];
     deliveryInstruction = json['delivery_instruction'];
     if (json['order_proof_full_url'] != null) {
@@ -258,13 +258,15 @@ class OrderModel {
     if (json['payments'] != null) {
       payments = <Payments>[];
       json['payments'].forEach((v) {
-        payments!.add(Payments.fromJson(v));
+        if (v != null && v is Map) {
+          payments!.add(Payments.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     additionalCharge = json['additional_charge'] != null
         ? double.tryParse(json['additional_charge'].toString())
         : 0.0;
-    isGuest = json['is_guest'];
+    isGuest = json['is_guest'] == true || json['is_guest'] == 1;
     flashAdminDiscountAmount = json['flash_admin_discount_amount'] != null
         ? double.tryParse(json['flash_admin_discount_amount'].toString())
         : 0.0;
