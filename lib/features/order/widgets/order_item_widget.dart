@@ -22,36 +22,37 @@ class OrderItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String addOnText = '';
-    for (var addOn in orderDetails.addOns!) {
+    for (var addOn in (orderDetails.addOns ?? [])) {
       addOnText =
-          '$addOnText${(addOnText.isEmpty) ? '' : ',  '}${addOn.name} (${addOn.quantity})';
+          '$addOnText${(addOnText.isEmpty) ? '' : ',  '}${addOn.name ?? ''} (${addOn.quantity ?? 1})';
     }
 
     String variationText = '';
-    if (orderDetails.variation!.isNotEmpty) {
-      if (orderDetails.variation!.isNotEmpty) {
-        List<String> variationTypes = orderDetails.variation![0].type!.split(
-          '-',
-        );
-        if (variationTypes.length ==
-            orderDetails.itemDetails!.choiceOptions!.length) {
+    if (orderDetails.variation != null && orderDetails.variation!.isNotEmpty) {
+      String? rawType = orderDetails.variation![0].type;
+      if (rawType != null && rawType.isNotEmpty) {
+        List<String> variationTypes = rawType.split('-');
+        int choiceLen = orderDetails.itemDetails?.choiceOptions?.length ?? 0;
+        if (variationTypes.length == choiceLen && choiceLen > 0) {
           int index = 0;
           for (var choice in orderDetails.itemDetails!.choiceOptions!) {
             variationText =
-                '$variationText${(index == 0) ? '' : ',  '}${choice.title} - ${variationTypes[index]}';
+                '$variationText${(index == 0) ? '' : ',  '}${choice.title ?? ''} - ${variationTypes[index]}';
             index = index + 1;
           }
-        } else {
-          variationText = orderDetails.itemDetails!.variations![0].type!;
+        } else if (orderDetails.itemDetails?.variations != null &&
+            orderDetails.itemDetails!.variations!.isNotEmpty) {
+          variationText = orderDetails.itemDetails!.variations![0].type ?? '';
         }
       }
-    } else if (orderDetails.foodVariation!.isNotEmpty) {
+    } else if (orderDetails.foodVariation != null &&
+        orderDetails.foodVariation!.isNotEmpty) {
       for (FoodVariation variation in orderDetails.foodVariation!) {
         variationText +=
-            '${variationText.isNotEmpty ? ', ' : ''}${variation.name} (';
-        for (VariationValue value in variation.variationValues!) {
+            '${variationText.isNotEmpty ? ', ' : ''}${variation.name ?? ''} (';
+        for (VariationValue value in (variation.variationValues ?? [])) {
           variationText +=
-              '${variationText.endsWith('(') ? '' : ', '}${value.level}';
+              '${variationText.endsWith('(') ? '' : ', '}${value.level ?? ''}';
         }
         variationText += ')';
       }
@@ -94,7 +95,7 @@ class OrderItemWidget extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          orderDetails.itemDetails!.name!,
+                          orderDetails.itemDetails?.name ?? '',
                           style: robotoBold.copyWith(
                             color: Theme.of(context).hintColor,
                           ),

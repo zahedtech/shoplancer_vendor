@@ -13,6 +13,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/features/order/controllers/order_controller.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 import 'package:shoplancer_vendor/features/order/domain/models/order_details_model.dart';
 import 'package:shoplancer_vendor/features/order/domain/models/order_model.dart';
@@ -350,35 +351,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               OrderModel? order = controllerOrderModel;
               if (order != null && orderController.orderDetailsModel != null) {
                 if (order.orderType == 'delivery') {
-                  deliveryCharge = order.deliveryCharge;
-                  isPrescriptionOrder = order.prescriptionOrder;
+                  deliveryCharge = order.deliveryCharge ?? 0;
+                  isPrescriptionOrder = order.prescriptionOrder ?? false;
                 }
                 discount =
-                    order.storeDiscountAmount! +
-                    order.flashAdminDiscountAmount! +
-                    order.flashStoreDiscountAmount!;
-                tax = order.totalTaxAmount;
-                taxIncluded = order.taxStatus;
-                additionalCharge = order.additionalCharge!;
-                extraPackagingAmount = order.extraPackagingAmount!;
-                referrerBonusAmount = order.referrerBonusAmount!;
-                couponDiscount = order.couponDiscountAmount;
-                if (isPrescriptionOrder!) {
+                    (order.storeDiscountAmount ?? 0) +
+                    (order.flashAdminDiscountAmount ?? 0) +
+                    (order.flashStoreDiscountAmount ?? 0);
+                tax = order.totalTaxAmount ?? 0;
+                taxIncluded = order.taxStatus ?? false;
+                additionalCharge = order.additionalCharge ?? 0;
+                extraPackagingAmount = order.extraPackagingAmount ?? 0;
+                referrerBonusAmount = order.referrerBonusAmount ?? 0;
+                couponDiscount = order.couponDiscountAmount ?? 0;
+                if (isPrescriptionOrder ?? false) {
                   double orderAmount = order.orderAmount ?? 0;
                   itemsPrice =
                       (orderAmount + discount) -
-                      ((taxIncluded! ? 0 : tax!) +
-                          deliveryCharge! +
+                      (((taxIncluded ?? false) ? 0 : (tax ?? 0)) +
+                          (deliveryCharge ?? 0) +
                           additionalCharge);
                 } else {
                   for (OrderDetailsModel orderDetails
                       in orderController.orderDetailsModel!) {
-                    for (AddOn addOn in orderDetails.addOns!) {
-                      addOns = addOns + (addOn.price! * addOn.quantity!);
+                    for (AddOn addOn in (orderDetails.addOns ?? [])) {
+                      addOns =
+                          addOns + ((addOn.price ?? 0) * (addOn.quantity ?? 0));
                     }
                     itemsPrice =
                         itemsPrice +
-                        (orderDetails.price! * orderDetails.quantity!);
+                        ((orderDetails.price ?? 0) *
+                            (orderDetails.quantity ?? 1));
                   }
                 }
               }
@@ -386,10 +389,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               double total =
                   itemsPrice +
                   addOns -
-                  discount +
-                  (taxIncluded! ? 0 : tax!) +
-                  deliveryCharge! -
-                  couponDiscount! +
+                  (discount ?? 0) +
+                  ((taxIncluded ?? false) ? 0 : (tax ?? 0)) +
+                  (deliveryCharge ?? 0) -
+                  (couponDiscount ?? 0) +
                   additionalCharge +
                   extraPackagingAmount -
                   referrerBonusAmount;
@@ -1096,13 +1099,44 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                   style: robotoBold,
                                                 ),
                                                 const Spacer(),
-                                                Text(
-                                                  order.orderType == 'delivery'
-                                                      ? 'home_delivery'.tr
-                                                      : (order.orderType ?? '')
-                                                            .tr,
-                                                  style: robotoMedium.copyWith(
-                                                    color: Colors.blueAccent,
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        (order.orderType ==
+                                                                    'delivery'
+                                                                ? Colors
+                                                                      .blueAccent
+                                                                : Colors.orange)
+                                                            .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          Dimensions
+                                                              .radiusSmall,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    order.orderType ==
+                                                            'delivery'
+                                                        ? 'home_delivery'.tr
+                                                        : (order.orderType ??
+                                                                  '')
+                                                              .tr,
+                                                    style: robotoMedium
+                                                        .copyWith(
+                                                          color:
+                                                              order.orderType ==
+                                                                  'delivery'
+                                                              ? Colors
+                                                                    .blueAccent
+                                                              : Colors.orange,
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                        ),
                                                   ),
                                                 ),
                                               ],
@@ -1114,7 +1148,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                               ).hintColor.withOpacity(0.1),
                                             ),
 
-                                            // Customer Info
+                                            // Customer Info & Actions
                                             Builder(
                                               builder: (context) {
                                                 String cName = '';
@@ -1127,7 +1161,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                     order
                                                             .deliveryAddress
                                                             ?.contactPersonName !=
-                                                        null) {
+                                                        null &&
+                                                    order
+                                                        .deliveryAddress!
+                                                        .contactPersonName!
+                                                        .isNotEmpty) {
                                                   cName = order
                                                       .deliveryAddress!
                                                       .contactPersonName!;
@@ -1143,16 +1181,73 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         ?.contactPersonNumber ??
                                                     '';
 
+                                                bool canChat =
+                                                    (order.orderStatus !=
+                                                        'delivered' &&
+                                                    order.orderStatus !=
+                                                        'failed' &&
+                                                    (Get.find<
+                                                              ProfileController
+                                                            >()
+                                                            .modulePermission
+                                                            ?.chat ??
+                                                        false) &&
+                                                    order.orderStatus !=
+                                                        'canceled' &&
+                                                    order.orderStatus !=
+                                                        'refunded' &&
+                                                    !(order.isGuest ?? false) &&
+                                                    order.customer != null);
+
+                                                bool hasLocation =
+                                                    (order
+                                                            .deliveryAddress
+                                                            ?.latitude !=
+                                                        null &&
+                                                    order
+                                                            .deliveryAddress
+                                                            ?.longitude !=
+                                                        null &&
+                                                    order
+                                                        .deliveryAddress!
+                                                        .latitude!
+                                                        .isNotEmpty &&
+                                                    order
+                                                        .deliveryAddress!
+                                                        .longitude!
+                                                        .isNotEmpty);
+
                                                 return Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Row(
                                                       children: [
-                                                        Image.asset(
-                                                          Images.userIcon,
-                                                          width: 14,
-                                                          height: 14,
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                6,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .primaryColor
+                                                                    .withOpacity(
+                                                                      0.1,
+                                                                    ),
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                          child: Image.asset(
+                                                            Images.userIcon,
+                                                            width: 16,
+                                                            height: 16,
+                                                            color: Theme.of(
+                                                              context,
+                                                            ).primaryColor,
+                                                          ),
                                                         ),
                                                         const SizedBox(
                                                           width: Dimensions
@@ -1165,12 +1260,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                 .copyWith(
                                                                   fontSize:
                                                                       Dimensions
-                                                                          .fontSizeSmall,
+                                                                          .fontSizeDefault,
                                                                 ),
                                                           ),
                                                         ),
                                                         if (cPhone.isNotEmpty)
                                                           IconButton(
+                                                            tooltip: 'اتصال',
                                                             onPressed: () async {
                                                               if (await canLaunchUrlString(
                                                                 'tel:$cPhone',
@@ -1188,8 +1284,105 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                             },
                                                             icon: Image.asset(
                                                               Images.callIcon,
-                                                              width: 22,
-                                                              height: 22,
+                                                              width: 26,
+                                                              height: 26,
+                                                            ),
+                                                          ),
+                                                        if (canChat)
+                                                          IconButton(
+                                                            tooltip: 'محادثة',
+                                                            onPressed: () async {
+                                                              ProfileModel?
+                                                              profile =
+                                                                  Get.find<
+                                                                        ProfileController
+                                                                      >()
+                                                                      .profileModel;
+                                                              if (profile?.subscription !=
+                                                                      null &&
+                                                                  profile
+                                                                          ?.subscription
+                                                                          ?.chat ==
+                                                                      0 &&
+                                                                  profile
+                                                                          ?.stores
+                                                                          ?.firstOrNull
+                                                                          ?.storeBusinessModel ==
+                                                                      'subscription') {
+                                                                showCustomSnackBar(
+                                                                  'you_have_no_available_subscription'
+                                                                      .tr,
+                                                                );
+                                                              } else if (order
+                                                                      .customer !=
+                                                                  null) {
+                                                                _timer
+                                                                    ?.cancel();
+                                                                await Get.toNamed(
+                                                                  RouteHelper.getChatRoute(
+                                                                    notificationBody: NotificationBodyModel(
+                                                                      orderId:
+                                                                          order
+                                                                              .id,
+                                                                      customerId: order
+                                                                          .customer
+                                                                          ?.id,
+                                                                    ),
+                                                                    user: User(
+                                                                      id: order
+                                                                          .customer
+                                                                          ?.id,
+                                                                      fName: order
+                                                                          .customer
+                                                                          ?.fName,
+                                                                      lName: order
+                                                                          .customer
+                                                                          ?.lName,
+                                                                      imageFullUrl: order
+                                                                          .customer
+                                                                          ?.imageFullUrl,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                                _startApiCalling();
+                                                              }
+                                                            },
+                                                            icon: Icon(
+                                                              Icons
+                                                                  .chat_bubble_outline_rounded,
+                                                              color: Theme.of(
+                                                                context,
+                                                              ).primaryColor,
+                                                              size: 22,
+                                                            ),
+                                                          ),
+                                                        if (hasLocation)
+                                                          IconButton(
+                                                            tooltip: 'الموقع',
+                                                            onPressed: () async {
+                                                              String url =
+                                                                  'https://www.google.com/maps/dir/?api=1&destination=${order.deliveryAddress!.latitude},${order.deliveryAddress!.longitude}&mode=d';
+                                                              if (await canLaunchUrlString(
+                                                                url,
+                                                              )) {
+                                                                await launchUrlString(
+                                                                  url,
+                                                                  mode: LaunchMode
+                                                                      .externalApplication,
+                                                                );
+                                                              } else {
+                                                                showCustomSnackBar(
+                                                                  'unable_to_launch_google_map'
+                                                                      .tr,
+                                                                );
+                                                              }
+                                                            },
+                                                            icon: const Icon(
+                                                              Icons
+                                                                  .directions_outlined,
+                                                              color: Colors
+                                                                  .blueAccent,
+                                                              size: 24,
                                                             ),
                                                           ),
                                                       ],
@@ -1209,7 +1402,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                           ),
                                                           Text(
                                                             cPhone,
-                                                            style: robotoMedium
+                                                            style: robotoRegular
                                                                 .copyWith(
                                                                   color: Theme.of(
                                                                     context,
@@ -1222,39 +1415,102 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         ],
                                                       ),
                                                     ],
-                                                    // Address if available
+                                                    // Address details if available
                                                     if (order
-                                                            .deliveryAddress
-                                                            ?.address !=
-                                                        null) ...[
+                                                                .deliveryAddress
+                                                                ?.address !=
+                                                            null &&
+                                                        order
+                                                            .deliveryAddress!
+                                                            .address!
+                                                            .isNotEmpty) ...[
                                                       const SizedBox(height: 8),
                                                       Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           Image.asset(
                                                             Images.markerIcon,
-                                                            width: 12,
-                                                            height: 12,
+                                                            width: 14,
+                                                            height: 14,
                                                           ),
                                                           const SizedBox(
                                                             width: Dimensions
                                                                 .paddingSizeSmall,
                                                           ),
                                                           Expanded(
-                                                            child: Text(
-                                                              order
-                                                                  .deliveryAddress!
-                                                                  .address!,
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: robotoMedium.copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).hintColor,
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                              ),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Text(
+                                                                  order
+                                                                      .deliveryAddress!
+                                                                      .address!,
+                                                                  style: robotoRegular.copyWith(
+                                                                    color: Theme.of(
+                                                                      context,
+                                                                    ).hintColor,
+                                                                    fontSize:
+                                                                        Dimensions
+                                                                            .fontSizeSmall,
+                                                                  ),
+                                                                ),
+                                                                Wrap(
+                                                                  children: [
+                                                                    if (order.deliveryAddress?.streetNumber !=
+                                                                            null &&
+                                                                        order
+                                                                            .deliveryAddress!
+                                                                            .streetNumber!
+                                                                            .isNotEmpty)
+                                                                      Text(
+                                                                        '${'street_number'.tr}: ${order.deliveryAddress!.streetNumber!}, ',
+                                                                        style: robotoRegular.copyWith(
+                                                                          fontSize:
+                                                                              Dimensions.fontSizeExtraSmall,
+                                                                          color: Theme.of(
+                                                                            context,
+                                                                          ).disabledColor,
+                                                                        ),
+                                                                      ),
+                                                                    if (order.deliveryAddress?.house !=
+                                                                            null &&
+                                                                        order
+                                                                            .deliveryAddress!
+                                                                            .house!
+                                                                            .isNotEmpty)
+                                                                      Text(
+                                                                        '${'house'.tr}: ${order.deliveryAddress!.house!}, ',
+                                                                        style: robotoRegular.copyWith(
+                                                                          fontSize:
+                                                                              Dimensions.fontSizeExtraSmall,
+                                                                          color: Theme.of(
+                                                                            context,
+                                                                          ).disabledColor,
+                                                                        ),
+                                                                      ),
+                                                                    if (order.deliveryAddress?.floor !=
+                                                                            null &&
+                                                                        order
+                                                                            .deliveryAddress!
+                                                                            .floor!
+                                                                            .isNotEmpty)
+                                                                      Text(
+                                                                        '${'floor'.tr}: ${order.deliveryAddress!.floor!}',
+                                                                        style: robotoRegular.copyWith(
+                                                                          fontSize:
+                                                                              Dimensions.fontSizeExtraSmall,
+                                                                          color: Theme.of(
+                                                                            context,
+                                                                          ).disabledColor,
+                                                                        ),
+                                                                      ),
+                                                                  ],
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ],
@@ -1270,9 +1526,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                     ],
 
                                     /// cutlery
-                                    Get.find<SplashController>()
-                                            .getModuleConfig(order.moduleType)
-                                            .newVariation!
+                                    (Get.find<SplashController>()
+                                                .getModuleConfig(
+                                                  order.moduleType,
+                                                )
+                                                .newVariation ??
+                                            false)
                                         ? Column(
                                             children: [
                                               const Divider(
@@ -1473,11 +1732,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                         : const SizedBox(),
 
                                     // / prescription
-                                    (Get.find<SplashController>()
-                                                .getModuleConfig(
-                                                  order.moduleType,
-                                                )
-                                                .orderAttachment! &&
+                                    ((Get.find<SplashController>()
+                                                    .getModuleConfig(
+                                                      order.moduleType,
+                                                    )
+                                                    .orderAttachment ??
+                                                false) &&
                                             order.orderAttachmentFullUrl !=
                                                 null &&
                                             order
@@ -1629,295 +1889,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             ],
                                           )
                                         : const SizedBox(),
-                                    if (order.deliveryAddress != null) ...[
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraSmall,
-                                      ),
-                                      // / Customer details
-                                      Text(
-                                        'customer_details'.tr,
-                                        style: robotoRegular,
-                                      ),
-                                      const SizedBox(
-                                        height:
-                                            Dimensions.paddingSizeExtraSmall,
-                                      ),
-
-                                      order.deliveryAddress != null
-                                          ? Row(
-                                              children: [
-                                                SizedBox(
-                                                  height: 35,
-                                                  width: 35,
-                                                  child: ClipOval(
-                                                    child: CustomImageWidget(
-                                                      image:
-                                                          '${order.customer != null ? order.customer!.imageFullUrl : ''}',
-                                                      height: 35,
-                                                      width: 35,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        order
-                                                            .deliveryAddress!
-                                                            .contactPersonName!,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                            ),
-                                                      ),
-                                                      Text(
-                                                        order
-                                                                .deliveryAddress!
-                                                                .address ??
-                                                            '',
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeSmall,
-                                                              color: Theme.of(
-                                                                context,
-                                                              ).disabledColor,
-                                                            ),
-                                                      ),
-
-                                                      Wrap(
-                                                        children: [
-                                                          (order.deliveryAddress!.streetNumber !=
-                                                                      null &&
-                                                                  order
-                                                                      .deliveryAddress!
-                                                                      .streetNumber!
-                                                                      .isNotEmpty)
-                                                              ? Text(
-                                                                  '${'street_number'.tr}: ${order.deliveryAddress!.streetNumber!}, ',
-                                                                  style: robotoRegular.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeExtraSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).disabledColor,
-                                                                  ),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                )
-                                                              : const SizedBox(),
-
-                                                          (order.deliveryAddress!.house !=
-                                                                      null &&
-                                                                  order
-                                                                      .deliveryAddress!
-                                                                      .house!
-                                                                      .isNotEmpty)
-                                                              ? Text(
-                                                                  '${'house'.tr}: ${order.deliveryAddress!.house!}, ',
-                                                                  style: robotoRegular.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeExtraSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).disabledColor,
-                                                                  ),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                )
-                                                              : const SizedBox(),
-
-                                                          (order.deliveryAddress!.floor !=
-                                                                      null &&
-                                                                  order
-                                                                      .deliveryAddress!
-                                                                      .floor!
-                                                                      .isNotEmpty)
-                                                              ? Text(
-                                                                  '${'floor'.tr}: ${order.deliveryAddress!.floor!}',
-                                                                  style: robotoRegular.copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeExtraSmall,
-                                                                    color: Theme.of(
-                                                                      context,
-                                                                    ).disabledColor,
-                                                                  ),
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                )
-                                                              : const SizedBox(),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-
-                                                (order.orderType ==
-                                                            'take_away' &&
-                                                        (order.orderStatus ==
-                                                                'pending' ||
-                                                            order.orderStatus ==
-                                                                'confirmed' ||
-                                                            order.orderStatus ==
-                                                                'processing'))
-                                                    ? TextButton.icon(
-                                                        onPressed: () async {
-                                                          String url =
-                                                              'https://www.google.com/maps/dir/?api=1&destination=${order.deliveryAddress!.latitude}'
-                                                              ',${order.deliveryAddress!.longitude}&mode=d';
-                                                          if (await canLaunchUrlString(
-                                                            url,
-                                                          )) {
-                                                            await launchUrlString(
-                                                              url,
-                                                              mode: LaunchMode
-                                                                  .externalApplication,
-                                                            );
-                                                          } else {
-                                                            showCustomSnackBar(
-                                                              'unable_to_launch_google_map'
-                                                                  .tr,
-                                                            );
-                                                          }
-                                                        },
-                                                        icon: const Icon(
-                                                          Icons.directions,
-                                                        ),
-                                                        label: Text(
-                                                          'direction'.tr,
-                                                        ),
-                                                      )
-                                                    : const SizedBox(),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-
-                                                (order.orderStatus !=
-                                                            'delivered' &&
-                                                        order.orderStatus !=
-                                                            'failed' &&
-                                                        Get.find<
-                                                              ProfileController
-                                                            >()
-                                                            .modulePermission!
-                                                            .chat! &&
-                                                        order.orderStatus !=
-                                                            'canceled' &&
-                                                        order.orderStatus !=
-                                                            'refunded')
-                                                    ? order.isGuest!
-                                                          ? const SizedBox()
-                                                          : TextButton.icon(
-                                                              onPressed: () async {
-                                                                if (Get.find<
-                                                                              ProfileController
-                                                                            >()
-                                                                            .profileModel!
-                                                                            .subscription !=
-                                                                        null &&
-                                                                    Get.find<
-                                                                              ProfileController
-                                                                            >()
-                                                                            .profileModel!
-                                                                            .subscription!
-                                                                            .chat ==
-                                                                        0 &&
-                                                                    Get.find<
-                                                                              ProfileController
-                                                                            >()
-                                                                            .profileModel!
-                                                                            .stores![0]
-                                                                            .storeBusinessModel ==
-                                                                        'subscription') {
-                                                                  showCustomSnackBar(
-                                                                    'you_have_no_available_subscription'
-                                                                        .tr,
-                                                                  );
-                                                                } else {
-                                                                  _timer
-                                                                      ?.cancel();
-                                                                  await Get.toNamed(
-                                                                    RouteHelper.getChatRoute(
-                                                                      notificationBody: NotificationBodyModel(
-                                                                        orderId:
-                                                                            order.id,
-                                                                        customerId: order
-                                                                            .customer!
-                                                                            .id,
-                                                                      ),
-                                                                      user: User(
-                                                                        id: order
-                                                                            .customer!
-                                                                            .id,
-                                                                        fName: order
-                                                                            .customer!
-                                                                            .fName,
-                                                                        lName: order
-                                                                            .customer!
-                                                                            .lName,
-                                                                        imageFullUrl: order
-                                                                            .customer!
-                                                                            .imageFullUrl,
-                                                                      ),
-                                                                    ),
-                                                                  );
-                                                                  _startApiCalling();
-                                                                }
-                                                              },
-                                                              icon: Icon(
-                                                                Icons.message,
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).primaryColor,
-                                                                size: 20,
-                                                              ),
-                                                              label: Text(
-                                                                'chat'.tr,
-                                                                style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeSmall,
-                                                                  color: Theme.of(
-                                                                    context,
-                                                                  ).primaryColor,
-                                                                ),
-                                                              ),
-                                                            )
-                                                    : const SizedBox(),
-                                              ],
-                                            )
-                                          : const SizedBox(),
-                                    ],
-                                    const SizedBox(
-                                      height: Dimensions.paddingSizeLarge,
-                                    ),
-
                                     // / Delivery man details
                                     order.deliveryMan != null
                                         ? Column(
@@ -2541,11 +2512,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             height: Dimensions.paddingSizeSmall,
                                           ),
 
-                                          Get.find<SplashController>()
-                                                  .getModuleConfig(
-                                                    order!.moduleType,
-                                                  )
-                                                  .addOn!
+                                          (Get.find<SplashController>()
+                                                      .getModuleConfig(
+                                                        order?.moduleType,
+                                                      )
+                                                      .addOn ??
+                                                  false)
                                               ? Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -2563,11 +2535,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                 )
                                               : const SizedBox(),
 
-                                          Get.find<SplashController>()
-                                                  .getModuleConfig(
-                                                    order!.moduleType,
-                                                  )
-                                                  .addOn!
+                                          (Get.find<SplashController>()
+                                                      .getModuleConfig(
+                                                        order?.moduleType,
+                                                      )
+                                                      .addOn ??
+                                                  false)
                                               ? Divider(
                                                   thickness: 1,
                                                   color: Theme.of(
@@ -2576,11 +2549,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                 )
                                               : const SizedBox(),
 
-                                          Get.find<SplashController>()
-                                                  .getModuleConfig(
-                                                    order!.moduleType,
-                                                  )
-                                                  .addOn!
+                                          (Get.find<SplashController>()
+                                                      .getModuleConfig(
+                                                        order?.moduleType,
+                                                      )
+                                                      .addOn ??
+                                                  false)
                                               ? Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
@@ -3446,10 +3420,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                   .confirmed !=
                                                               null))) {
                                                 if (Get.find<SplashController>()
-                                                    .getModuleConfig(
-                                                      order!.moduleType,
-                                                    )
-                                                    .newVariation!) {
+                                                        .getModuleConfig(
+                                                          order?.moduleType,
+                                                        )
+                                                        .newVariation ??
+                                                    false) {
                                                   Get.dialog(
                                                     InputDialogWidget(
                                                       icon: Images.warning,

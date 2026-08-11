@@ -330,7 +330,9 @@ class _GlobalCategorySelectionSheetState
         );
     if (mounted) {
       setState(() => _requestingId = null);
-      if (success) Get.back();
+      if (success) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

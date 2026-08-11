@@ -384,7 +384,10 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> bulkItemsUpdate(List<Map<String, dynamic>> updates) async {
+  Future<void> bulkItemsUpdate(
+    List<Map<String, dynamic>> updates, {
+    int? categoryId,
+  }) async {
     _isLoading = true;
     update();
     Response response = await storeServiceInterface.bulkStockUpdate({
@@ -401,7 +404,7 @@ class StoreController extends GetxController implements GetxService {
         offset: '1',
         type: 'all',
         search: '',
-        categoryId: 0,
+        categoryId: categoryId ?? _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       getLimitedStockItemList('1', willUpdate: false);

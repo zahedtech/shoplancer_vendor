@@ -45,8 +45,8 @@ class OrderDetailsModel {
     itemId = json['item_id'];
     orderId = json['order_id'];
     price = json['price'] != null ? double.tryParse(json['price'].toString()) : 0.0;
-    if (json['item_details'] != null && json['item_details'] is Map<String, dynamic>) {
-      itemDetails = Item.fromJson(json['item_details']);
+    if (json['item_details'] != null && json['item_details'] is Map) {
+      itemDetails = Item.fromJson(Map<String, dynamic>.from(json['item_details']));
     }
     variation = [];
     foodVariation = [];
@@ -71,11 +71,11 @@ class OrderDetailsModel {
         }
       }
     }
+    addOns = [];
     if (json['add_ons'] != null && json['add_ons'] is List) {
-      addOns = [];
       for (var v in json['add_ons']) {
-        if (v is Map<String, dynamic>) {
-          addOns!.add(AddOn.fromJson(v));
+        if (v != null && v is Map) {
+          addOns!.add(AddOn.fromJson(Map<String, dynamic>.from(v)));
         }
       }
     }

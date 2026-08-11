@@ -117,10 +117,23 @@ class ProfileModel {
     holderName = json['holder_name'];
     accountNo = json['account_no'];
     imageFullUrl = json['image_full_url'];
-    orderCount = json['order_count'];
-    todaysOrderCount = json['todays_order_count'];
-    thisWeekOrderCount = json['this_week_order_count'];
-    thisMonthOrderCount = json['this_month_order_count'];
+    orderCount = int.tryParse(json['order_count']?.toString() ?? '') ??
+        int.tryParse(json['orders_count']?.toString() ?? '') ??
+        int.tryParse(json['total_orders']?.toString() ?? '') ??
+        int.tryParse(json['total_order']?.toString() ?? '');
+    todaysOrderCount = int.tryParse(json['todays_order_count']?.toString() ?? '') ??
+        int.tryParse(json['today_order_count']?.toString() ?? '') ??
+        int.tryParse(json['todays_orders_count']?.toString() ?? '') ??
+        int.tryParse(json['today_orders_count']?.toString() ?? '') ??
+        int.tryParse(json['todays_orders']?.toString() ?? '');
+    thisWeekOrderCount = int.tryParse(json['this_week_order_count']?.toString() ?? '') ??
+        int.tryParse(json['this_week_orders_count']?.toString() ?? '') ??
+        int.tryParse(json['week_order_count']?.toString() ?? '') ??
+        int.tryParse(json['week_orders_count']?.toString() ?? '');
+    thisMonthOrderCount = int.tryParse(json['this_month_order_count']?.toString() ?? '') ??
+        int.tryParse(json['this_month_orders_count']?.toString() ?? '') ??
+        int.tryParse(json['month_order_count']?.toString() ?? '') ??
+        int.tryParse(json['month_orders_count']?.toString() ?? '');
     memberSinceDays = int.tryParse(json['member_since_days'].toString()) ?? 0;
     cashInHands = double.tryParse(json['cash_in_hands']?.toString() ?? '');
     balance = double.tryParse(json['balance']?.toString() ?? '');
@@ -192,9 +205,9 @@ class ProfileModel {
       json['withdraw_able_balance']?.toString() ?? '',
     );
     payableBalance = double.tryParse(json['Payable_Balance']?.toString() ?? '');
-    adjustable = json['adjust_able'];
-    overFlowWarning = json['over_flow_warning'];
-    overFlowBlockWarning = json['over_flow_block_warning'];
+    adjustable = json['adjust_able'] == true || json['adjust_able'] == 1;
+    overFlowWarning = json['over_flow_warning'] == true || json['over_flow_warning'] == 1;
+    overFlowBlockWarning = json['over_flow_block_warning'] == true || json['over_flow_block_warning'] == 1;
     pendingWithdraw = double.tryParse(
       json['pending_withdraw']?.toString() ?? '',
     );
@@ -203,7 +216,7 @@ class ProfileModel {
     );
     dynamicBalanceType = json['dynamic_balance_type'];
     dynamicBalance = double.tryParse(json['dynamic_balance']?.toString() ?? '');
-    showPayNowButton = json['show_pay_now_button'];
+    showPayNowButton = json['show_pay_now_button'] == true || json['show_pay_now_button'] == 1;
     if (json['subscription'] != null) {
       subscription = Subscription.fromJson(json['subscription']);
     }
@@ -445,8 +458,11 @@ class Store {
     itemSection = json['item_section'];
     avgRating = json['avg_rating']?.toDouble();
     ratingCount = json['rating_count'];
-    totalItems = json['total_items'];
-    totalOrder = json['total_order'];
+    totalItems = int.tryParse(json['total_items']?.toString() ?? '');
+    totalOrder = int.tryParse(json['total_order']?.toString() ?? '') ??
+        int.tryParse(json['total_orders']?.toString() ?? '') ??
+        int.tryParse(json['order_count']?.toString() ?? '') ??
+        int.tryParse(json['orders_count']?.toString() ?? '');
     active =
         json['active'] == true || json['active'] == 1 || json['active'] == '1';
     gstStatus = json['gst_status'];

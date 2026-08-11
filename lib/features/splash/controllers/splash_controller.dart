@@ -89,8 +89,11 @@ class SplashController extends GetxController implements GetxService {
   Future<void> setModule(int? moduleID, String? moduleType) async {
     _moduleID = moduleID;
     _moduleType = moduleType;
-    if (moduleType != null) {
-      _configModel!.moduleConfig!.module = Module.fromJson(
+    if (moduleType != null &&
+        _data != null &&
+        _data!['module_config'] != null &&
+        _data!['module_config'][moduleType] != null) {
+      _configModel?.moduleConfig?.module = Module.fromJson(
         _data!['module_config'][moduleType],
       );
     }
@@ -98,31 +101,45 @@ class SplashController extends GetxController implements GetxService {
   }
 
   Module getModuleConfig(String? moduleType) {
-    Module module = Module.fromJson(_data!['module_config'][moduleType]);
-    moduleType == 'food'
-        ? module.newVariation = true
-        : module.newVariation = false;
+    String? type = moduleType ??
+        _moduleType ??
+        Get.find<ProfileController>()
+            .profileModel
+            ?.stores
+            ?.firstOrNull
+            ?.module
+            ?.moduleType;
+    if (_data != null &&
+        _data!['module_config'] != null &&
+        type != null &&
+        _data!['module_config'][type] != null) {
+      Module module = Module.fromJson(_data!['module_config'][type]);
+      module.newVariation = (type == 'food');
+      return module;
+    }
+    Module module = Module();
+    module.newVariation = (type == 'food');
     return module;
   }
 
   Module getStoreModuleConfig() {
-    Module module = Module.fromJson(
-      _data!['module_config'][Get.find<ProfileController>()
-          .profileModel!
-          .stores!
-          .first
-          .module!
-          .moduleType],
-    );
-    Get.find<ProfileController>()
-                .profileModel!
-                .stores!
-                .first
-                .module!
-                .moduleType ==
-            'food'
-        ? module.newVariation = true
-        : module.newVariation = false;
+    String? type = _moduleType ??
+        Get.find<ProfileController>()
+            .profileModel
+            ?.stores
+            ?.firstOrNull
+            ?.module
+            ?.moduleType;
+    if (_data != null &&
+        _data!['module_config'] != null &&
+        type != null &&
+        _data!['module_config'][type] != null) {
+      Module module = Module.fromJson(_data!['module_config'][type]);
+      module.newVariation = (type == 'food');
+      return module;
+    }
+    Module module = Module();
+    module.newVariation = (type == 'food');
     return module;
   }
 }

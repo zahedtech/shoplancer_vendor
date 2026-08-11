@@ -227,7 +227,9 @@ class Item {
       }
       if (categories is List) {
         categories.forEach((v) {
-          categoryIds!.add(CategoryIds.fromJson(v));
+          if (v != null && v is Map) {
+            categoryIds!.add(CategoryIds.fromJson(Map<String, dynamic>.from(v)));
+          }
         });
       }
     }
@@ -249,7 +251,9 @@ class Item {
       }
       if (variationsData is List) {
         variationsData.forEach((v) {
-          foodVariations!.add(FoodVariation.fromJson(v));
+          if (v != null && v is Map) {
+            foodVariations!.add(FoodVariation.fromJson(Map<String, dynamic>.from(v)));
+          }
         });
       }
     } else if (json['variations'] != null) {
@@ -268,7 +272,9 @@ class Item {
       }
       if (variationsData is List) {
         variationsData.forEach((v) {
-          variations!.add(Variation.fromJson(v));
+          if (v != null && v is Map) {
+            variations!.add(Variation.fromJson(Map<String, dynamic>.from(v)));
+          }
         });
       }
     }
@@ -288,8 +294,8 @@ class Item {
       }
       if (addOnsData is List) {
         addOnsData.forEach((v) {
-          if (v != null && v != "") {
-            addOns!.add(AddOns.fromJson(v));
+          if (v != null && v is Map) {
+            addOns!.add(AddOns.fromJson(Map<String, dynamic>.from(v)));
           }
         });
       }
@@ -330,7 +336,9 @@ class Item {
       }
       if (choiceOptionsData is List) {
         choiceOptionsData.forEach((v) {
-          choiceOptions!.add(ChoiceOptions.fromJson(v));
+          if (v != null && v is Map) {
+            choiceOptions!.add(ChoiceOptions.fromJson(Map<String, dynamic>.from(v)));
+          }
         });
       }
     }
@@ -384,7 +392,9 @@ class Item {
     if (json['translations'] != null && json['translations'].isNotEmpty) {
       translations = [];
       json['translations'].forEach((v) {
-        translations!.add(Translation.fromJson(v));
+        if (v != null && v is Map) {
+          translations!.add(Translation.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     } else {
       translations = [];
@@ -441,7 +451,9 @@ class Item {
     if (json['tags'] != null) {
       tags = [];
       json['tags'].forEach((v) {
-        tags!.add(Tag.fromJson(v));
+        if (v != null && v is Map) {
+          tags!.add(Tag.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     recommendedStatus = json['recommended'] != null
@@ -486,19 +498,25 @@ class Item {
     if (json['nutritions_data'] != null) {
       nutritionsData = <NutritionsData>[];
       json['nutritions_data'].forEach((v) {
-        nutritionsData!.add(NutritionsData.fromJson(v));
+        if (v != null && v is Map) {
+          nutritionsData!.add(NutritionsData.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     if (json['allergies_data'] != null) {
       allergiesData = <AllergiesData>[];
       json['allergies_data'].forEach((v) {
-        allergiesData!.add(AllergiesData.fromJson(v));
+        if (v != null && v is Map) {
+          allergiesData!.add(AllergiesData.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     if (json['generic_name_data'] != null) {
       genericNameData = <GenericData>[];
       json['generic_name_data'].forEach((v) {
-        genericNameData!.add(GenericData.fromJson(v));
+        if (v != null && v is Map) {
+          genericNameData!.add(GenericData.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     if (json['tax_ids'] != null) {
@@ -512,14 +530,16 @@ class Item {
     if (json['tax_data'] != null) {
       taxData = <TaxData>[];
       json['tax_data'].forEach((v) {
-        taxData!.add(TaxData.fromJson(v));
+        if (v != null && v is Map) {
+          taxData!.add(TaxData.fromJson(Map<String, dynamic>.from(v)));
+        }
       });
     }
     metaTitle = json['meta_title'];
     metaDescription = json['meta_description'];
     metaImageFullUrl = json['meta_image'];
-    metaData = json['meta_data'] != null
-        ? MetaSeoData.fromJson(json['meta_data'])
+    metaData = json['meta_data'] != null && json['meta_data'] is Map
+        ? MetaSeoData.fromJson(Map<String, dynamic>.from(json['meta_data']))
         : null;
   }
 
