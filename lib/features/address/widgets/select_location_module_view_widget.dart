@@ -45,7 +45,7 @@ class SelectLocationAndModuleViewWidget extends StatefulWidget {
 class _SelectLocationAndModuleViewWidgetState
     extends State<SelectLocationAndModuleViewWidget> {
   late CameraPosition _cameraPosition;
-  Set<Polygon> _polygons = {};
+  Set<Polygon> polygons = {};
   GoogleMapController? _mapController;
 
   @override
@@ -561,7 +561,7 @@ class _SelectLocationAndModuleViewWidgetState
       ),
     );
 
-    _polygons = HashSet<Polygon>.of(polygonList);
+    polygons = HashSet<Polygon>.of(polygonList);
 
     Future.delayed(const Duration(milliseconds: 500), () {
       _mapController?.animateCamera(

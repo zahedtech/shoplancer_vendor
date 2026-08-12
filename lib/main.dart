@@ -27,12 +27,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Map<String, Map<String, String>> languages = await di.init();
 
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    if (!e.toString().contains('duplicate-app')) rethrow;
+  // Desktop (Windows/macOS/Linux) builds don't ship Firebase config yet and
+  // don't need push notifications for the POS flow, so skip Firebase there
+  // instead of crashing on DefaultFirebaseOptions.currentPlatform.
+  if (GetPlatform.isMobile || GetPlatform.isWeb) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      if (!e.toString().contains('duplicate-app')) rethrow;
+    }
   }
 
   NotificationBodyModel? body;

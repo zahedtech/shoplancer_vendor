@@ -44,7 +44,17 @@ class MenuScreen extends StatelessWidget {
           icon: '',
           iconData: Icons.price_change_rounded,
           title: 'تعديل الأسعار السريع',
-          route: RouteHelper.getProductPriceUpdateRoute(),
+          route: RouteHelper.getProductPriceUpdateCategoriesRoute(),
+          isBlocked: !(store?.itemSection ?? false),
+        ),
+      );
+
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.pause_circle_outline_rounded,
+          title: 'المنتجات غير النشطة',
+          route: RouteHelper.getInactiveProductsRoute(),
           isBlocked: !(store?.itemSection ?? false),
         ),
       );
@@ -68,6 +78,15 @@ class MenuScreen extends StatelessWidget {
           icon: Images.categories,
           title: 'categories'.tr,
           route: RouteHelper.getCategoriesRoute(),
+        ),
+      );
+
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.branding_watermark_rounded,
+          title: 'الماركات',
+          route: RouteHelper.getBrandsRoute(),
         ),
       );
     }
@@ -190,14 +209,14 @@ class MenuScreen extends StatelessWidget {
       //     route: RouteHelper.getPosRoute(),
       //   ),
       // );
-      // menuList.add(
-      //   MenuModel(
-      //     icon: '',
-      //     iconData: Icons.people_outline,
-      //     title: 'إدارة الموظفين'.tr,
-      //     route: RouteHelper.getEmployeeRoute(),
-      //   ),
-      // );
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.people_outline,
+          title: 'إدارة الموظفين'.tr,
+          route: RouteHelper.getEmployeeRoute(),
+        ),
+      );
       // menuList.add(
       //   MenuModel(
       //     icon: '',

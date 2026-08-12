@@ -24,6 +24,9 @@ class ApiClient extends GetxService {
   String? token;
   String? type;
   late Map<String, String> _mainHeaders;
+  static DateTime? _firstRequestAt;
+  static int _requestSequence = 0;
+  static int _activeRequests = 0;
 
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
     token = sharedPreferences.getString(AppConstants.token);
@@ -58,6 +61,7 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('GET', appBaseUrl + uri);
     try {
       ApiLogger.logRequest(
         method: 'GET',
@@ -67,8 +71,9 @@ class ApiClient extends GetxService {
       http.Response response = await http
           .get(Uri.parse(appBaseUrl + uri), headers: headers ?? _mainHeaders)
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -79,6 +84,7 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('POST', appBaseUrl + uri);
     try {
       ApiLogger.logRequest(
         method: 'POST',
@@ -93,8 +99,9 @@ class ApiClient extends GetxService {
             headers: headers ?? _mainHeaders,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -107,6 +114,7 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('POST (Multipart)', appBaseUrl + uri);
     try {
       ApiLogger.logRequest(
         method: 'POST (Multipart)',
@@ -163,8 +171,9 @@ class ApiClient extends GetxService {
       http.Response response = await http.Response.fromStream(
         await request.send(),
       );
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -175,6 +184,7 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('PUT', appBaseUrl + uri);
     try {
       ApiLogger.logRequest(
         method: 'PUT',
@@ -189,8 +199,9 @@ class ApiClient extends GetxService {
             headers: headers ?? _mainHeaders,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -201,6 +212,7 @@ class ApiClient extends GetxService {
     Map<String, String>? headers,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('PUT (Form)', appBaseUrl + uri);
     final Map<String, String> requestHeaders = {
       ..._mainHeaders,
       if (headers != null) ...headers,
@@ -216,8 +228,9 @@ class ApiClient extends GetxService {
       http.Response response = await http
           .put(Uri.parse(appBaseUrl + uri), body: body, headers: requestHeaders)
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -228,6 +241,7 @@ class ApiClient extends GetxService {
     dynamic body,
     bool handleError = true,
   }) async {
+    final timing = _startTiming('DELETE', appBaseUrl + uri);
     try {
       ApiLogger.logRequest(
         method: 'DELETE',
@@ -242,8 +256,9 @@ class ApiClient extends GetxService {
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(response, uri, handleError);
+      return handleResponse(response, uri, handleError, timing: timing);
     } catch (e) {
+      _finishTiming(timing, label: 'ERROR', statusCode: 1);
       return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
@@ -251,8 +266,9 @@ class ApiClient extends GetxService {
   Response handleResponse(
     http.Response response,
     String uri,
-    bool handleError,
-  ) {
+    bool handleError, {
+    ApiRequestTiming? timing,
+  }) {
     dynamic body;
     try {
       body = jsonDecode(response.body);
@@ -264,13 +280,12 @@ class ApiClient extends GetxService {
       statusCode: response.statusCode,
       statusText: response.reasonPhrase,
     );
-    bool isSuccess = response0.statusCode != null &&
+    bool isSuccess =
+        response0.statusCode != null &&
         response0.statusCode! >= 200 &&
         response0.statusCode! < 300;
 
-    if (!isSuccess &&
-        response0.body != null &&
-        response0.body is! String) {
+    if (!isSuccess && response0.body != null && response0.body is! String) {
       if (response0.body.toString().startsWith('{errors: [{code:')) {
         ErrorResponse errorResponse = ErrorResponse.fromJson(response0.body);
         response0 = Response(
@@ -288,6 +303,12 @@ class ApiClient extends GetxService {
     } else if (!isSuccess && response0.body == null) {
       response0 = const Response(statusCode: 0, statusText: noInternetMessage);
     }
+    _finishTiming(
+      timing,
+      label: 'DONE',
+      statusCode: response0.statusCode,
+      responseBytes: response.bodyBytes.length,
+    );
     ApiLogger.logResponse(
       url: appBaseUrl + uri,
       statusCode: response0.statusCode!,
@@ -305,6 +326,80 @@ class ApiClient extends GetxService {
       return response0;
     }
   }
+
+  ApiRequestTiming _startTiming(String method, String url) {
+    if (!foundation.kDebugMode) {
+      return ApiRequestTiming.empty();
+    }
+
+    _firstRequestAt ??= DateTime.now();
+    _activeRequests++;
+    final timing = ApiRequestTiming(
+      id: ++_requestSequence,
+      method: method,
+      url: url,
+      startedAt: DateTime.now(),
+    );
+
+    foundation.debugPrint(
+      '[API-TIME] #${timing.id} START +${_sinceFirstRequest()}ms '
+      'active=$_activeRequests $method ${_shortUrl(url)}',
+    );
+    return timing;
+  }
+
+  void _finishTiming(
+    ApiRequestTiming? timing, {
+    required String label,
+    required int? statusCode,
+    int? responseBytes,
+  }) {
+    if (!foundation.kDebugMode || timing == null || timing.isEmpty) return;
+
+    _activeRequests = _activeRequests > 0 ? _activeRequests - 1 : 0;
+    foundation.debugPrint(
+      '[API-TIME] #${timing.id} $label +${_sinceFirstRequest()}ms '
+      'duration=${DateTime.now().difference(timing.startedAt).inMilliseconds}ms '
+      'active=$_activeRequests status=${statusCode ?? '-'} '
+      'bytes=${responseBytes ?? '-'} '
+      '${timing.method} ${_shortUrl(timing.url)}',
+    );
+  }
+
+  static int _sinceFirstRequest() {
+    final firstRequestAt = _firstRequestAt;
+    if (firstRequestAt == null) return 0;
+    return DateTime.now().difference(firstRequestAt).inMilliseconds;
+  }
+
+  static String _shortUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    final path = uri.path.isEmpty ? url : uri.path;
+    return uri.query.isEmpty ? path : '$path?${uri.query}';
+  }
+}
+
+class ApiRequestTiming {
+  final int id;
+  final String method;
+  final String url;
+  final DateTime startedAt;
+  final bool isEmpty;
+
+  ApiRequestTiming({
+    required this.id,
+    required this.method,
+    required this.url,
+    required this.startedAt,
+  }) : isEmpty = false;
+
+  ApiRequestTiming.empty()
+    : id = 0,
+      method = '',
+      url = '',
+      startedAt = DateTime.fromMillisecondsSinceEpoch(0),
+      isEmpty = true;
 }
 
 class MultipartBody {

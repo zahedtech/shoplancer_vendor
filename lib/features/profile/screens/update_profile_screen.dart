@@ -32,6 +32,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final FocusNode _firstNameFocus = FocusNode();
   final FocusNode _lastNameFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -328,101 +329,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                           height: Dimensions.paddingSizeLarge,
                                         ),
 
-                                        // TextFieldWidget(
-                                        //   hintText: 'email'.tr,
-                                        //   labelText: 'email'.tr,
-                                        //   controller: _emailController,
-                                        //   focusNode: _emailFocus,
-                                        //   inputAction: TextInputAction.done,
-                                        //   inputType: TextInputType.emailAddress,
-                                        //   isEnabled: false,
-                                        //   showLabelText: true,
-                                        //   showTitle: false,
-                                        // ),
-                                        Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            CustomToolTip(
-                                              message:
-                                                  'email_can_not_be_edited'.tr,
-                                              preferredDirection:
-                                                  AxisDirection.up,
-                                              child: Container(
-                                                height: 50,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).cardColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        Dimensions
-                                                            .radiusDefault,
-                                                      ),
-                                                  border: Border.all(
-                                                    color: Theme.of(context)
-                                                        .hintColor
-                                                        .withValues(alpha: 0.5),
-                                                    width: 1,
-                                                  ),
-                                                ),
-                                                padding: const EdgeInsets.only(
-                                                  left: Dimensions
-                                                      .paddingSizeDefault,
-                                                  right: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    // Icon(CupertinoIcons.mail_solid, color: Theme.of(context).hintColor.withValues(alpha: 0.5), size: 17),
-                                                    const SizedBox(width: 15),
-                                                    Flexible(
-                                                      fit: FlexFit
-                                                          .loose, // Use Flexible with FlexFit.loose
-                                                      child: Text(
-                                                        _emailController.text,
-                                                        style: robotoRegular
-                                                            .copyWith(
-                                                              color: Theme.of(
-                                                                context,
-                                                              ).hintColor,
-                                                              fontSize: Dimensions
-                                                                  .fontSizeDefault,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-
-                                            Positioned(
-                                              left: 10,
-                                              top: -15,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).cardColor,
-                                                ),
-                                                padding: const EdgeInsets.all(
-                                                  5,
-                                                ),
-                                                child: Text(
-                                                  'email'.tr,
-                                                  style: robotoRegular.copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).hintColor,
-                                                    fontSize: Dimensions
-                                                        .fontSizeSmall,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                        TextFieldWidget(
+                                          hintText: 'email'.tr,
+                                          labelText: 'email'.tr,
+                                          controller: _emailController,
+                                          focusNode: _emailFocus,
+                                          inputAction: TextInputAction.done,
+                                          inputType: TextInputType.emailAddress,
+                                          required: true,
+                                          showLabelText: true,
+                                          showTitle: false,
                                         ),
                                       ],
                                     ),

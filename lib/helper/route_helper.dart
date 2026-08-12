@@ -55,6 +55,8 @@ import 'package:shoplancer_vendor/features/profile/screens/update_profile_screen
 import 'package:shoplancer_vendor/features/store/domain/models/review_model.dart';
 import 'package:shoplancer_vendor/features/store/screens/add_item_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/all_items_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/brand_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/inactive_products_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_search_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/announcement_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/image_viewer_screen.dart';
@@ -62,17 +64,18 @@ import 'package:shoplancer_vendor/features/store/screens/item_details_screen.dar
 import 'package:shoplancer_vendor/features/store/screens/low_stock_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/pending_item_details_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/pending_item_screen.dart';
-import 'package:shoplancer_vendor/features/store/screens/store_edit_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_price_category_selection_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/social_media_screen.dart';
 import 'package:shoplancer_vendor/features/order/screens/alternative_item_selection_screen.dart';
-
 import 'package:shoplancer_vendor/features/employee/screens/employee_screen.dart';
 import 'package:shoplancer_vendor/features/employee/screens/add_employee_screen.dart';
+import 'package:shoplancer_vendor/features/pos/screens/desktop_pos_screen.dart';
+import 'package:shoplancer_vendor/features/pos/screens/desktop_settings_screen.dart';
 import 'package:shoplancer_vendor/features/pos/screens/pos_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_sections_screen.dart';
 import 'package:shoplancer_vendor/features/pos/screens/pos_barcode_scanner_screen.dart';
@@ -150,12 +153,14 @@ class RouteHelper {
   static const String addEmployee = '/add-employee';
   static const String pos = '/pos';
   static const String posBarcode = '/pos-barcode';
+  static const String desktopSettings = '/desktop-settings';
   static const String storeSections = '/store-sections';
 
   static String getEmployeeRoute() => employee;
   static String getAddEmployeeRoute() => addEmployee;
   static String getPosRoute() => pos;
   static String getPosBarcodeRoute() => posBarcode;
+  static String getDesktopSettingsRoute() => desktopSettings;
   static String getStoreSectionsRoute() => storeSections;
   static const String lowStock = '/low-stock';
   static const String reports = '/reports';
@@ -167,8 +172,12 @@ class RouteHelper {
   static const String storeEdit = '/store-edit';
   static const String setting = '/setting';
   static const String productPriceUpdate = '/product-price-update';
+  static const String productPriceUpdateCategories =
+      '/product-price-update-categories';
   static const String productStatus = '/product-status';
   static const String productManagement = '/product-management';
+  static const String inactiveProducts = '/inactive-products';
+  static const String brands = '/brands';
   static const String socialMedia = '/social-media';
   static const String alternativeItemSelection = '/alternative-item-selection';
 
@@ -385,14 +394,25 @@ class RouteHelper {
 
   static String getSettingRoute() => setting;
   static String getProductPriceUpdateRoute() => productPriceUpdate;
+  static String getProductPriceUpdateCategoriesRoute() =>
+      productPriceUpdateCategories;
   static String getProductStatusRoute() => productStatus;
   static String getProductManagementRoute() => productManagement;
+  static String getInactiveProductsRoute() => inactiveProducts;
+  static String getBrandsRoute() => brands;
   static String getSocialMediaRoute() => socialMedia;
   static String getAlternativeItemSelectionRoute(int orderId) =>
       '$alternativeItemSelection?order_id=$orderId';
 
   static List<GetPage> routes = [
-    GetPage(name: initial, page: () => const DashboardScreen(pageIndex: 0)),
+    GetPage(
+      name: initial,
+      // Desktop (Windows/macOS) builds land straight on the cashier/POS
+      // home screen instead of the mobile dashboard with bottom nav.
+      page: () => GetPlatform.isDesktop
+          ? const DesktopPosScreen()
+          : const DashboardScreen(pageIndex: 0),
+    ),
     GetPage(
       name: splash,
       page: () {
@@ -422,11 +442,14 @@ class RouteHelper {
       page: () => DashboardScreen(
         pageIndex: Get.parameters['page'] == 'home'
             ? 0
-            : (Get.parameters['page'] == 'favourite' || Get.parameters['page'] == 'orders')
+            : (Get.parameters['page'] == 'favourite' ||
+                  Get.parameters['page'] == 'orders')
             ? 1
-            : (Get.parameters['page'] == 'cart' || Get.parameters['page'] == 'store')
+            : (Get.parameters['page'] == 'cart' ||
+                  Get.parameters['page'] == 'store')
             ? 2
-            : (Get.parameters['page'] == 'order' || Get.parameters['page'] == 'wallet')
+            : (Get.parameters['page'] == 'order' ||
+                  Get.parameters['page'] == 'wallet')
             ? 3
             : Get.parameters['page'] == 'menu'
             ? 4
@@ -791,11 +814,17 @@ class RouteHelper {
       name: productPriceUpdate,
       page: () => const ProductPriceManagementScreen(),
     ),
+    GetPage(
+      name: productPriceUpdateCategories,
+      page: () => const ProductPriceCategorySelectionScreen(),
+    ),
     GetPage(name: productStatus, page: () => const ProductManagementScreen()),
     GetPage(
       name: productManagement,
       page: () => const ProductManagementScreen(),
     ),
+    GetPage(name: inactiveProducts, page: () => const InactiveProductsScreen()),
+    GetPage(name: brands, page: () => const BrandScreen()),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),
     GetPage(
       name: alternativeItemSelection,
@@ -804,8 +833,12 @@ class RouteHelper {
       ),
     ),
     GetPage(name: employee, page: () => const EmployeeScreen()),
-    GetPage(name: addEmployee, page: () => AddEmployeeScreen(employee: Get.arguments)),
+    GetPage(
+      name: addEmployee,
+      page: () => AddEmployeeScreen(employee: Get.arguments),
+    ),
     GetPage(name: pos, page: () => const PosScreen()),
+    GetPage(name: desktopSettings, page: () => const DesktopSettingsScreen()),
     GetPage(name: posBarcode, page: () => const PosBarcodeScannerScreen()),
     GetPage(name: storeSections, page: () => const StoreSectionsScreen()),
   ];

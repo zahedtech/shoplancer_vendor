@@ -70,6 +70,12 @@ class CategoryController extends GetxController implements GetxService {
           _categoryList![index].status = status;
         }
       }
+      if (_subCategoryList != null) {
+        int subIndex = _subCategoryList!.indexWhere((element) => element.id == categoryId);
+        if (subIndex != -1) {
+          _subCategoryList![subIndex].status = status;
+        }
+      }
       String message = response.body != null && response.body['message'] != null
           ? response.body['message']
           : (status == 1 ? 'تم تفعيل الفئة بنجاح' : 'تم إيقاف الفئة بنجاح');
@@ -91,24 +97,35 @@ class CategoryController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool> requestCategoryAddition({int? categoryId, String? customCategoryName, String? note}) async {
+  Future<bool> requestCategoryAddition({
+    int? categoryId,
+    String? customCategoryName,
+    String? note,
+  }) async {
     _isLoading = true;
     update();
     try {
-      Response response = await categoryServiceInterface.requestCategoryAddition(
-        categoryId: categoryId,
-        customCategoryName: customCategoryName,
-        note: note,
-      );
+      Response response = await categoryServiceInterface
+          .requestCategoryAddition(
+            categoryId: categoryId,
+            customCategoryName: customCategoryName,
+            note: note,
+          );
       _isLoading = false;
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Refresh vendor categories because the category is actually added
         getCategoryList();
 
-        String message = 'تم إضافة الفئة بنجاح';
+        String message = 'تم إرسال طلب إضافة الفئة بنجاح';
         try {
           if (response.body is Map && response.body['message'] != null) {
-            message = response.body['message'].toString();
+            String rawMsg = response.body['message'].toString();
+            if (rawMsg.contains('category_products_submitted_for_admin_approval') ||
+                rawMsg == 'messages.category_products_submitted_for_admin_approval') {
+              message = 'تم إرسال طلب إضافة الفئة للأدمن بنجاح';
+            } else if (rawMsg.isNotEmpty) {
+              message = rawMsg.tr;
+            }
           }
           if (response.body is Map &&
               response.body['data'] is Map &&

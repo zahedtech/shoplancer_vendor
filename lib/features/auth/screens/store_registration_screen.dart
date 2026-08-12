@@ -2,15 +2,12 @@
 import 'dart:async';
 import 'package:shoplancer_vendor/common/models/response_model.dart';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/confirmation_dialog_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_tool_tip_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/address/controllers/address_controller.dart';
 import 'package:shoplancer_vendor/features/business/domain/models/package_model.dart';
@@ -45,8 +42,7 @@ class _StoreRegistrationScreenState extends State<StoreRegistrationScreen>
     with TickerProviderStateMixin {
   final List<TextEditingController> _nameController = [];
   final List<TextEditingController> _addressController = [];
-  //final TextEditingController _vatController = TextEditingController();
-  final TextEditingController _tinNumberController = TextEditingController();
+  final TextEditingController tinNumberController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

@@ -11,12 +11,12 @@ import 'package:shoplancer_vendor/features/profile/controllers/profile_controlle
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
-import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/features/store/widgets/item_view_widget.dart';
+import 'package:shoplancer_vendor/features/store/screens/quick_add_item_screen.dart';
 import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -392,12 +392,8 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                 color: Theme.of(context).primaryColor,
                                 size: 27,
                               ),
-                              onPressed: () => Get.toNamed(
-                                RouteHelper.getAddItemRoute(
-                                  null,
-                                  isSimple: true,
-                                ),
-                              ),
+                              onPressed: () =>
+                                  Get.to(() => const QuickAddItemScreen()),
                             ),
                           ],
                         ),

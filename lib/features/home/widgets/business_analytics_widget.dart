@@ -30,29 +30,26 @@ class _BusinessAnalyticsWidgetState extends State<BusinessAnalyticsWidget> {
     double totalEarning = 0.0;
     int totalOrders = 0;
     if (widget.profileController.profileModel != null) {
+      final profile = widget.profileController.profileModel!;
+      final storeTotalOrders = (profile.stores != null && profile.stores!.isNotEmpty)
+          ? profile.stores!.first.totalOrder
+          : null;
       switch (index) {
         case 0:
-          totalEarning =
-              widget.profileController.profileModel!.totalEarning ?? 0;
-          totalOrders = widget.profileController.profileModel!.orderCount ?? 0;
+          totalEarning = profile.totalEarning ?? 0;
+          totalOrders = profile.orderCount ?? storeTotalOrders ?? 0;
           break;
         case 1:
-          totalEarning =
-              widget.profileController.profileModel!.todaysEarning ?? 0;
-          totalOrders =
-              widget.profileController.profileModel!.todaysOrderCount ?? 0;
+          totalEarning = profile.todaysEarning ?? 0;
+          totalOrders = profile.todaysOrderCount ?? 0;
           break;
         case 2:
-          totalEarning =
-              widget.profileController.profileModel!.thisWeekEarning ?? 0;
-          totalOrders =
-              widget.profileController.profileModel!.thisWeekOrderCount ?? 0;
+          totalEarning = profile.thisWeekEarning ?? 0;
+          totalOrders = profile.thisWeekOrderCount ?? 0;
           break;
         case 3:
-          totalEarning =
-              widget.profileController.profileModel!.thisMonthEarning ?? 0;
-          totalOrders =
-              widget.profileController.profileModel!.thisMonthOrderCount ?? 0;
+          totalEarning = profile.thisMonthEarning ?? 0;
+          totalOrders = profile.thisMonthOrderCount ?? 0;
           break;
       }
     }

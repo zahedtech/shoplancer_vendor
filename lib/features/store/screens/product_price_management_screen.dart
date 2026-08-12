@@ -14,12 +14,22 @@ import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
+import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 
 class ProductPriceManagementScreen extends StatefulWidget {
-  const ProductPriceManagementScreen({super.key});
+  /// When provided (e.g. coming from the category selection screen), the
+  /// editor opens pre-filtered to this category instead of showing all items.
+  final int? initialCategoryId;
+  final String? initialCategoryName;
+
+  const ProductPriceManagementScreen({
+    super.key,
+    this.initialCategoryId,
+    this.initialCategoryName,
+  });
 
   @override
   State<ProductPriceManagementScreen> createState() =>
@@ -31,7 +41,6 @@ class _ProductPriceManagementScreenState
   static const String _draftKey = 'express_price_editor_draft';
 
   final ScrollController _scrollController = ScrollController();
-  final ScrollController _categoryScrollController = ScrollController();
   final ScrollController _subCategoryScrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -45,26 +54,88 @@ class _ProductPriceManagementScreenState
   int? _selectedSubCategoryId;
   bool _isSaving = false;
 
+  int get _activeCategoryId {
+    if (_selectedSubCategoryId != null) {
+      return _selectedSubCategoryId!;
+    }
+    if (widget.initialCategoryId != null && widget.initialCategoryId != 0) {
+      return widget.initialCategoryId!;
+    }
+    final storeController = Get.find<StoreController>();
+    return storeController.categoryId ?? 0;
+  }
+
   @override
   void initState() {
     super.initState();
     final storeController = Get.find<StoreController>();
+    final categoryController = Get.find<CategoryController>();
+
+    _selectedSubCategoryId = null;
+
+    final int? initialCatId = widget.initialCategoryId;
+    final int targetCategoryId =
+        (initialCatId != null && initialCatId != 0) ? initialCatId : 0;
+
+    // Synchronize category lists if already fetched
+    if (categoryController.categoryList != null &&
+        categoryController.categoryList!.isNotEmpty) {
+      storeController.setCategoriesFromExternal(
+        categoryController.categoryList!,
+      );
+    }
+
+    // Immediately set category index/id in store controller
+    if (targetCategoryId != 0) {
+      final int index =
+          storeController.categoryIdList?.indexOf(targetCategoryId) ?? -1;
+      if (index >= 0) {
+        storeController.setCategoryForSearch(index: index);
+      }
+    } else {
+      if (storeController.categoryIdList != null &&
+          storeController.categoryIdList!.isNotEmpty) {
+        storeController.setCategoryForSearch(index: 0);
+      }
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadLocalDraft();
-      storeController.getStoreCategories();
+
+      // 1. Immediately fetch the products for this target category without waiting for categories request!
       storeController.getItemList(
         offset: '1',
         type: 'all',
         search: '',
-        categoryId: 0,
+        categoryId: targetCategoryId,
         willUpdate: true,
       );
+
+      // 2. Fetch subcategories if a specific category was chosen
+      if (targetCategoryId != 0) {
+        categoryController.getSubCategoryList(targetCategoryId);
+      } else {
+        categoryController.subCategoryList?.clear();
+      }
+
+      // 3. If categories list was not loaded yet, fetch in background without blocking
+      if (categoryController.categoryList == null ||
+          categoryController.categoryList!.isEmpty) {
+        storeController.getStoreCategories(isUpdate: false).then((_) {
+          if (mounted && targetCategoryId != 0) {
+            final int index =
+                storeController.categoryIdList?.indexOf(targetCategoryId) ?? -1;
+            if (index >= 0) {
+              storeController.setCategoryForSearch(index: index);
+            }
+          }
+        });
+      }
     });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent &&
+              _scrollController.position.maxScrollExtent - 200 &&
           storeController.itemList != null &&
           !storeController.isLoading) {
         final int totalItems = storeController.itemSize ?? 0;
@@ -78,7 +149,7 @@ class _ProductPriceManagementScreenState
             offset: storeController.offset.toString(),
             type: storeController.type,
             search: _searchController.text.trim(),
-            categoryId: _selectedSubCategoryId ?? storeController.categoryId,
+            categoryId: _activeCategoryId,
             barcode: _barcodeSearch,
           );
         }
@@ -89,7 +160,6 @@ class _ProductPriceManagementScreenState
   @override
   void dispose() {
     _scrollController.dispose();
-    _categoryScrollController.dispose();
     _subCategoryScrollController.dispose();
     _searchController.dispose();
     for (var controller in _priceInputControllers.values) {
@@ -262,18 +332,32 @@ class _ProductPriceManagementScreenState
     }
   }
 
-  void _searchProducts(
-    StoreController storeController, {
-    String? search,
-    String? barcode,
-  }) {
+  /// Filters within the already-loaded item list only (no network call) —
+  /// full catalog search lives in the dedicated global search screen instead.
+  void _applyLocalSearch() {
+    setState(() {
+      _currentIndex = 0;
+    });
+  }
+
+  List<Item> _filterLocally(List<Item>? sourceItems) {
+    if (sourceItems == null) return [];
+    final String query = _searchController.text.trim().toLowerCase();
+    if (query.isEmpty) return sourceItems;
+    return sourceItems
+        .where((item) => (item.name ?? '').toLowerCase().contains(query))
+        .toList();
+  }
+
+  void _searchByBarcode(StoreController storeController, String barcode) {
     _currentIndex = 0;
+    _barcodeSearch = barcode;
     storeController.setOffset(1);
     storeController.getItemList(
       offset: '1',
       type: 'all',
-      search: search ?? '',
-      categoryId: _selectedSubCategoryId ?? storeController.categoryId,
+      search: '',
+      categoryId: _activeCategoryId,
       barcode: barcode,
     );
   }
@@ -281,14 +365,18 @@ class _ProductPriceManagementScreenState
   void _clearSearch(StoreController storeController) {
     _currentIndex = 0;
     _searchController.clear();
-    _barcodeSearch = null;
-    storeController.setOffset(1);
-    storeController.getItemList(
-      offset: '1',
-      type: 'all',
-      search: '',
-      categoryId: _selectedSubCategoryId ?? storeController.categoryId,
-    );
+    if (_barcodeSearch != null) {
+      _barcodeSearch = null;
+      storeController.setOffset(1);
+      storeController.getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: _activeCategoryId,
+      );
+    } else {
+      setState(() {});
+    }
   }
 
   void _showReviewBottomSheet(StoreController storeController) {
@@ -480,7 +568,10 @@ class _ProductPriceManagementScreenState
       }
 
       if (updates.isNotEmpty) {
-        await storeController.bulkItemsUpdate(updates);
+        await storeController.bulkItemsUpdate(
+          updates,
+          categoryId: _activeCategoryId,
+        );
         if (mounted) {
           setState(() {
             _stagedPrices.clear();
@@ -511,9 +602,8 @@ class _ProductPriceManagementScreenState
           () => const BarcodeScannerScreen(),
         );
         if (barcode != null && barcode.isNotEmpty) {
-          _barcodeSearch = barcode;
           _searchController.text = barcode;
-          _searchProducts(storeController, barcode: barcode);
+          _searchByBarcode(storeController, barcode);
         }
       },
       borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
@@ -525,6 +615,73 @@ class _ProductPriceManagementScreenState
           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
         ),
         child: const Icon(Icons.barcode_reader, color: Colors.white, size: 24),
+      ),
+    );
+  }
+
+  /// Footer row on each product card with a switch to show/hide the
+  /// product on the storefront, without leaving the price editor.
+  Widget _buildItemVisibilityRow(
+    BuildContext context,
+    StoreController storeController,
+    Item item,
+  ) {
+    final bool isItemVisible = (item.status ?? 1) == 1;
+    final bool isStatusLoading = storeController.loadingItemsList.contains(
+      item.id,
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).disabledColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isItemVisible
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 15,
+                color: isItemVisible ? Colors.green : Colors.red,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                isItemVisible ? 'ظاهر في الموقع' : 'مخفي عن الموقع',
+                style: robotoRegular.copyWith(
+                  fontSize: Dimensions.fontSizeExtraSmall,
+                  color: isItemVisible ? Colors.green[700] : Colors.red,
+                ),
+              ),
+            ],
+          ),
+          isStatusLoading
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CupertinoActivityIndicator(radius: 8),
+                  ),
+                )
+              : Transform.scale(
+                  scale: 0.7,
+                  child: CupertinoSwitch(
+                    value: isItemVisible,
+                    activeColor: Theme.of(context).primaryColor,
+                    onChanged: (bool value) {
+                      storeController.updateItemStatusForProduct(
+                        item.id,
+                        value,
+                      );
+                    },
+                  ),
+                ),
+        ],
       ),
     );
   }
@@ -664,8 +821,8 @@ class _ProductPriceManagementScreenState
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    _numKey('.', items),
-                    _numKey('0', items),
+                    // Placed first so it renders on the right in the app's
+                    // RTL (Arabic) layout, instead of the left.
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -692,6 +849,8 @@ class _ProductPriceManagementScreenState
                         ),
                       ),
                     ),
+                    _numKey('.', items),
+                    _numKey('0', items),
                   ],
                 ),
               ],
@@ -736,13 +895,33 @@ class _ProductPriceManagementScreenState
   Widget build(BuildContext context) {
     return GetBuilder<StoreController>(
       builder: (storeController) {
-        final List<Item>? items = storeController.itemList;
+        final List<Item>? rawItems = storeController.itemList;
+        final List<Item>? items = rawItems == null
+            ? null
+            : _filterLocally(rawItems);
+        final bool hasSearchQuery = _searchController.text.trim().isNotEmpty;
 
         return Scaffold(
           appBar: CustomAppBarWidget(
-            title: 'محرر أسعار المنتجات',
-            menuWidget: _stagedPrices.isNotEmpty
-                ? Padding(
+            title:
+                widget.initialCategoryName != null &&
+                    widget.initialCategoryName!.isNotEmpty
+                ? 'محرر الأسعار - ${widget.initialCategoryName}'
+                : 'محرر أسعار المنتجات',
+            menuWidget: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  tooltip: 'بحث في كل منتجات المتجر',
+                  onPressed: () =>
+                      Get.toNamed(RouteHelper.getItemSearchRoute()),
+                ),
+                if (_stagedPrices.isNotEmpty)
+                  Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: TextButton.icon(
                       onPressed: () => _showReviewBottomSheet(storeController),
@@ -756,8 +935,9 @@ class _ProductPriceManagementScreenState
                         style: robotoBold.copyWith(color: Colors.white),
                       ),
                     ),
-                  )
-                : null,
+                  ),
+              ],
+            ),
           ),
           body: Column(
             children: [
@@ -775,28 +955,18 @@ class _ProductPriceManagementScreenState
                             fromReview: true,
                             controller: _searchController,
                             hint: '${'search_by_item_name'.tr}...',
-                            suffixIcon:
-                                storeController.isSearching ||
-                                    _searchController.text.isNotEmpty
+                            suffixIcon: hasSearchQuery
                                 ? CupertinoIcons.clear_thick
                                 : CupertinoIcons.search,
                             iconPressed: () {
-                              if (storeController.isSearching ||
-                                  _searchController.text.isNotEmpty) {
+                              if (hasSearchQuery) {
                                 _clearSearch(storeController);
                               } else {
-                                _searchProducts(
-                                  storeController,
-                                  search: _searchController.text.trim(),
-                                );
+                                _applyLocalSearch();
                               }
                             },
-                            onSubmit: (String text) {
-                              _searchProducts(
-                                storeController,
-                                search: text.trim(),
-                              );
-                            },
+                            onSubmit: (String text) => _applyLocalSearch(),
+                            onChanged: (String text) => _applyLocalSearch(),
                           ),
                         ),
                       ),
@@ -807,87 +977,10 @@ class _ProductPriceManagementScreenState
                 ),
               ),
 
-              // Main Category Selector Bar
-              if (storeController.categoryNameList != null)
-                Container(
-                  height: 44,
-                  color: Theme.of(context).cardColor,
-                  child: ListView.builder(
-                    controller: _categoryScrollController,
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.paddingSizeDefault,
-                    ),
-                    itemCount: storeController.categoryNameList!.length,
-                    itemBuilder: (context, index) {
-                      final bool isSelected =
-                          index == storeController.categoryIndex;
-                      return InkWell(
-                        onTap: () {
-                          _currentIndex = 0;
-                          _selectedSubCategoryId = null;
-                          _searchController.clear();
-                          _barcodeSearch = null;
-                          storeController.setCategory(
-                            index: index,
-                            foodType: 'all',
-                          );
-                          final int selectedCatId =
-                              (storeController.categoryIdList != null &&
-                                  index <
-                                      storeController.categoryIdList!.length)
-                              ? storeController.categoryIdList![index]
-                              : 0;
-                          if (selectedCatId != 0) {
-                            Get.find<CategoryController>().getSubCategoryList(
-                              selectedCatId,
-                            );
-                          } else {
-                            Get.find<CategoryController>().update();
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            right: Dimensions.paddingSizeSmall,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Dimensions.paddingSizeDefault,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(
-                              Dimensions.radiusExtraLarge,
-                            ),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(
-                                      context,
-                                    ).disabledColor.withOpacity(0.3),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            index == 0
-                                ? 'all'.tr
-                                : storeController.categoryNameList![index],
-                            style: robotoMedium.copyWith(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge?.color,
-                              fontSize: Dimensions.fontSizeSmall,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              // Note: the main category selector bar was intentionally
+              // removed from this screen — category selection now happens
+              // on the dedicated category-picker screen shown before
+              // entering the price editor.
 
               // Subcategories Bar (shown under main category)
               GetBuilder<CategoryController>(
@@ -920,19 +1013,21 @@ class _ProductPriceManagementScreenState
                           return InkWell(
                             onTap: () {
                               _currentIndex = 0;
+                              final int? newSubCatId = isAll ? null : subCat?.id;
                               setState(() {
-                                _selectedSubCategoryId = isAll
-                                    ? null
-                                    : subCat?.id;
+                                _selectedSubCategoryId = newSubCatId;
                               });
+                              final int targetCatId = newSubCatId ??
+                                  (widget.initialCategoryId != null &&
+                                          widget.initialCategoryId != 0
+                                      ? widget.initialCategoryId!
+                                      : (storeController.categoryId ?? 0));
                               storeController.setOffset(1);
                               storeController.getItemList(
                                 offset: '1',
                                 type: 'all',
                                 search: _searchController.text.trim(),
-                                categoryId: isAll
-                                    ? storeController.categoryId
-                                    : subCat?.id,
+                                categoryId: targetCatId,
                                 barcode: _barcodeSearch,
                               );
                             },
@@ -999,7 +1094,9 @@ class _ProductPriceManagementScreenState
                               height: Dimensions.paddingSizeDefault,
                             ),
                             Text(
-                              'no_item_available'.tr,
+                              hasSearchQuery
+                                  ? 'لا توجد نتائج مطابقة ضمن المنتجات المحمّلة'
+                                  : 'no_item_available'.tr,
                               style: robotoMedium.copyWith(
                                 color: Theme.of(context).disabledColor,
                               ),
@@ -1073,202 +1170,233 @@ class _ProductPriceManagementScreenState
                                   ),
                                 ],
                               ),
-                              child: Row(
+                              child: Column(
                                 children: [
-                                  // Item Image
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      Dimensions.radiusSmall,
-                                    ),
-                                    child: CustomImageWidget(
-                                      image: '${item.imageFullUrl}',
-                                      height: 60,
-                                      width: 60,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: Dimensions.paddingSizeSmall,
-                                  ),
+                                  Row(
+                                    children: [
+                                      // Item Image
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          Dimensions.radiusSmall,
+                                        ),
+                                        child: CustomImageWidget(
+                                          image: '${item.imageFullUrl}',
+                                          height: 60,
+                                          width: 60,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: Dimensions.paddingSizeSmall,
+                                      ),
 
-                                  // Item Name & Original Price
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                                      // Item Name & Original Price
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Text(
-                                                item.name ?? '',
-                                                style: robotoBold.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeSmall,
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    item.name ?? '',
+                                                    style: robotoBold.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeSmall,
+                                                      color: isActive
+                                                          ? Theme.of(
+                                                              context,
+                                                            ).primaryColor
+                                                          : null,
+                                                    ),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                if (isStaged)
+                                                  Container(
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          left: 4,
+                                                        ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.green
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors.green,
+                                                        width: 0.5,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      'مُعدّل',
+                                                      style: robotoBold.copyWith(
+                                                        fontSize: Dimensions
+                                                            .fontSizeExtraSmall,
+                                                        color:
+                                                            Colors.green[700],
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'السعر الحالي: ',
+                                                  style: robotoRegular.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeExtraSmall,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).disabledColor,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  PriceConverterHelper.convertPrice(
+                                                    item.price,
+                                                  ),
+                                                  style: robotoMedium.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeSmall,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).disabledColor,
+                                                    decoration: isStaged
+                                                        ? TextDecoration
+                                                              .lineThrough
+                                                        : null,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      const SizedBox(
+                                        width: Dimensions.paddingSizeSmall,
+                                      ),
+
+                                      // Price Input Box
+                                      SizedBox(
+                                        width: 105,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                color: isStaged
+                                                    ? Theme.of(context)
+                                                          .primaryColor
+                                                          .withOpacity(0.08)
+                                                    : Theme.of(
+                                                        context,
+                                                      ).cardColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      Dimensions.radiusSmall,
+                                                    ),
+                                                border: Border.all(
                                                   color: isActive
                                                       ? Theme.of(
                                                           context,
                                                         ).primaryColor
-                                                      : null,
+                                                      : isStaged
+                                                      ? Colors.green
+                                                      : Theme.of(context)
+                                                            .disabledColor
+                                                            .withOpacity(0.4),
+                                                  width: isActive ? 2 : 1,
                                                 ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              child: TextField(
+                                                controller: controller,
+                                                keyboardType:
+                                                    TextInputType.none,
+                                                readOnly: true,
+                                                showCursor: false,
+                                                enableInteractiveSelection:
+                                                    false,
+                                                textAlign: TextAlign.center,
+                                                style: robotoBold.copyWith(
+                                                  fontSize: Dimensions
+                                                      .fontSizeDefault,
+                                                  color: isStaged
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).primaryColor
+                                                      : Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge
+                                                            ?.color,
+                                                ),
+                                                decoration:
+                                                    const InputDecoration(
+                                                      border: InputBorder.none,
+                                                      isDense: true,
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 4,
+                                                          ),
+                                                    ),
+                                                onTap: () {
+                                                  setState(() {
+                                                    _currentIndex = index;
+                                                  });
+                                                },
+                                                onChanged: (val) =>
+                                                    _onItemPriceChanged(
+                                                      item,
+                                                      val,
+                                                    ),
                                               ),
                                             ),
                                             if (isStaged)
-                                              Container(
-                                                margin: const EdgeInsets.only(
-                                                  left: 4,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.green
-                                                      .withOpacity(0.1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                  border: Border.all(
-                                                    color: Colors.green,
-                                                    width: 0.5,
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  'مُعدّل',
-                                                  style: robotoBold.copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeExtraSmall,
-                                                    color: Colors.green[700],
+                                              InkWell(
+                                                onTap: () =>
+                                                    _resetItemPrice(item),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top: 2,
+                                                      ),
+                                                  child: Text(
+                                                    'إلغاء التعديل',
+                                                    style: robotoRegular
+                                                        .copyWith(
+                                                          fontSize: 10,
+                                                          color: Colors.red,
+                                                        ),
                                                   ),
                                                 ),
                                               ),
                                           ],
                                         ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'السعر الحالي: ',
-                                              style: robotoRegular.copyWith(
-                                                fontSize: Dimensions
-                                                    .fontSizeExtraSmall,
-                                                color: Theme.of(
-                                                  context,
-                                                ).disabledColor,
-                                              ),
-                                            ),
-                                            Text(
-                                              PriceConverterHelper.convertPrice(
-                                                item.price,
-                                              ),
-                                              style: robotoMedium.copyWith(
-                                                fontSize:
-                                                    Dimensions.fontSizeSmall,
-                                                color: Theme.of(
-                                                  context,
-                                                ).disabledColor,
-                                                decoration: isStaged
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-
                                   const SizedBox(
-                                    width: Dimensions.paddingSizeSmall,
+                                    height: Dimensions.paddingSizeExtraSmall,
                                   ),
-
-                                  // Price Input Box
-                                  SizedBox(
-                                    width: 105,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Container(
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: isStaged
-                                                ? Theme.of(context).primaryColor
-                                                      .withOpacity(0.08)
-                                                : Theme.of(context).cardColor,
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusSmall,
-                                            ),
-                                            border: Border.all(
-                                              color: isActive
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).primaryColor
-                                                  : isStaged
-                                                  ? Colors.green
-                                                  : Theme.of(context)
-                                                        .disabledColor
-                                                        .withOpacity(0.4),
-                                              width: isActive ? 2 : 1,
-                                            ),
-                                          ),
-                                          child: TextField(
-                                            controller: controller,
-                                            keyboardType: TextInputType.none,
-                                            readOnly: true,
-                                            showCursor: false,
-                                            enableInteractiveSelection: false,
-                                            textAlign: TextAlign.center,
-                                            style: robotoBold.copyWith(
-                                              fontSize:
-                                                  Dimensions.fontSizeDefault,
-                                              color: isStaged
-                                                  ? Theme.of(
-                                                      context,
-                                                    ).primaryColor
-                                                  : Theme.of(context)
-                                                        .textTheme
-                                                        .bodyLarge
-                                                        ?.color,
-                                            ),
-                                            decoration: const InputDecoration(
-                                              border: InputBorder.none,
-                                              isDense: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 4,
-                                                  ),
-                                            ),
-                                            onTap: () {
-                                              setState(() {
-                                                _currentIndex = index;
-                                              });
-                                            },
-                                            onChanged: (val) =>
-                                                _onItemPriceChanged(item, val),
-                                          ),
-                                        ),
-                                        if (isStaged)
-                                          InkWell(
-                                            onTap: () => _resetItemPrice(item),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 2,
-                                              ),
-                                              child: Text(
-                                                'إلغاء التعديل',
-                                                style: robotoRegular.copyWith(
-                                                  fontSize: 10,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+                                  _buildItemVisibilityRow(
+                                    context,
+                                    storeController,
+                                    item,
                                   ),
                                 ],
                               ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
+
 import 'package:shoplancer_vendor/features/employee/controllers/employee_controller.dart';
 import 'package:shoplancer_vendor/features/employee/domain/models/employee_model.dart';
 import 'package:shoplancer_vendor/helper/route_helper.dart';
@@ -42,7 +41,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           Get.toNamed(RouteHelper.getAddEmployeeRoute());
         },
         icon: const Icon(Icons.person_add, color: Colors.white),
-        label: Text('إضافة موظف'.tr, style: robotoBold.copyWith(color: Colors.white)),
+        label: Text(
+          'إضافة موظف'.tr,
+          style: robotoBold.copyWith(color: Colors.white),
+        ),
       ),
       body: GetBuilder<EmployeeController>(
         builder: (controller) {
@@ -50,12 +52,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (controller.employeeList == null || controller.employeeList!.isEmpty) {
+          if (controller.employeeList == null ||
+              controller.employeeList!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.people_outline, size: 80, color: Theme.of(context).disabledColor),
+                  Icon(
+                    Icons.people_outline,
+                    size: 80,
+                    color: Theme.of(context).disabledColor,
+                  ),
                   const SizedBox(height: Dimensions.paddingSizeSmall),
                   Text(
                     'لا يوجد موظفين مضافين حالياً',
@@ -66,7 +73,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   ),
                   const SizedBox(height: Dimensions.paddingSizeDefault),
                   ElevatedButton.icon(
-                    onPressed: () => Get.toNamed(RouteHelper.getAddEmployeeRoute()),
+                    onPressed: () =>
+                        Get.toNamed(RouteHelper.getAddEmployeeRoute()),
                     icon: const Icon(Icons.add),
                     label: const Text('إضافة موظف جديد'),
                   ),
@@ -87,25 +95,38 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 final bool isActive = employee.status == 1;
 
                 return Card(
-                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                  margin: const EdgeInsets.only(
+                    bottom: Dimensions.paddingSizeSmall,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.radiusDefault,
+                    ),
                   ),
                   elevation: 2,
                   child: ListTile(
-                    contentPadding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
-                      child: CustomImageWidget(
-                        image: employee.imageFullUrl ?? '',
-                        height: 55,
-                        width: 55,
-                        fit: BoxFit.cover,
+                    contentPadding: const EdgeInsets.all(
+                      Dimensions.paddingSizeSmall,
+                    ),
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.person,
+                        size: 28,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     title: Text(
                       '${employee.fName ?? ''} ${employee.lName ?? ''}'.trim(),
-                      style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                      style: robotoBold.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,9 +134,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         const SizedBox(height: 4),
                         if (employee.role?.title != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -128,7 +154,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           ),
                         const SizedBox(height: 4),
                         Text(
-                          '${employee.phone ?? ''} ${employee.email != null ? '• ${employee.email}' : ''}',
+                          '${employee.phone ?? ''}',
                           style: robotoRegular.copyWith(
                             fontSize: Dimensions.fontSizeSmall,
                             color: Theme.of(context).disabledColor,
@@ -143,7 +169,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                           value: isActive,
                           activeColor: Theme.of(context).primaryColor,
                           onChanged: (bool value) {
-                            controller.toggleEmployeeStatus(employee.id!, employee.status ?? 0);
+                            controller.toggleEmployeeStatus(
+                              employee.id!,
+                              employee.status ?? 0,
+                            );
                           },
                         ),
                         PopupMenuButton<String>(
@@ -154,7 +183,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                 arguments: employee,
                               );
                             } else if (value == 'delete') {
-                              _showDeleteConfirmationDialog(context, controller, employee);
+                              _showDeleteConfirmationDialog(
+                                context,
+                                controller,
+                                employee,
+                              );
                             }
                           },
                           itemBuilder: (context) => [
@@ -162,7 +195,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                               value: 'edit',
                               child: Row(
                                 children: [
-                                  const Icon(Icons.edit, color: Colors.blue, size: 20),
+                                  const Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text('تعديل'.tr),
                                 ],
@@ -172,7 +209,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  const Icon(Icons.delete, color: Colors.red, size: 20),
+                                  const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 8),
                                   Text('حذف'.tr),
                                 ],
@@ -200,12 +241,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     Get.dialog(
       AlertDialog(
         title: Text('تأكيد الحذف'.tr, style: robotoBold),
-        content: Text('هل أنت تأكد من رغبتك في حذف الموظف "${employee.fName ?? ''}"؟'),
+        content: Text(
+          'هل أنت تأكد من رغبتك في حذف الموظف "${employee.fName ?? ''}"؟',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('إلغاء'.tr),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('إلغاء'.tr)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {

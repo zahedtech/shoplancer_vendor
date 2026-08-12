@@ -127,6 +127,8 @@ import 'package:shoplancer_vendor/features/employee/domain/repositories/employee
 import 'package:shoplancer_vendor/features/employee/domain/services/employee_service.dart';
 import 'package:shoplancer_vendor/features/employee/domain/services/employee_service_interface.dart';
 import 'package:shoplancer_vendor/features/pos/controllers/pos_controller.dart';
+import 'package:shoplancer_vendor/features/pos/data/local/pos_local_db.dart';
+import 'package:shoplancer_vendor/features/pos/data/local/pos_sync_service.dart';
 import 'package:shoplancer_vendor/features/pos/domain/repositories/pos_repository.dart';
 import 'package:shoplancer_vendor/features/pos/domain/repositories/pos_repository_interface.dart';
 import 'package:shoplancer_vendor/features/pos/domain/services/pos_service.dart';
@@ -566,6 +568,12 @@ Future<Map<String, Map<String, String>>> init() async {
   PosServiceInterface posServiceInterface = PosService(posRepositoryInterface: Get.find());
   Get.lazyPut(() => posServiceInterface);
   Get.lazyPut(() => PosController(posServiceInterface: Get.find()));
+
+  // Desktop-only offline sync engine (Windows/macOS/Linux). Safe to skip on
+  // mobile/web where PosLocalDb.isSupportedPlatform is false.
+  if (PosLocalDb.instance.isSupportedPlatform) {
+    Get.putAsync(() => PosSyncService(apiClient: Get.find()).init());
+  }
 
   ///Taxi module Controllers
   Get.lazyPut(() => ProviderController(providerServiceInterface: Get.find()));

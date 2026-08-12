@@ -292,14 +292,12 @@ class _AdvertisementListScreenState extends State<AdvertisementListScreen>{
                                         image: Images.pauseDialogIcon, title: "pause_dialog_title",
                                         description: "pause_dialog_description", status: option.title,
                                         yesButtonPressed: () async{
-                                          if(adsController.noteFormKey.currentState!.validate()){
-                                            await Get.find<AdvertisementController>().changeAdvertisementStatus(id: advertisementList[index].id!, status: 'paused').then((success) {
-                                              if(success) {
-                                                Get.back();
-                                                showCustomSnackBar('advertisement_paused_successfully'.tr, isError: false);
-                                              }
-                                            });
-                                          }
+                                          await Get.find<AdvertisementController>().changeAdvertisementStatus(id: advertisementList[index].id!, status: 'paused').then((success) {
+                                            if(success) {
+                                              Get.back();
+                                              showCustomSnackBar('advertisement_paused_successfully'.tr, isError: false);
+                                            }
+                                          });
                                         },
                                       ), isScrollControlled: true);
                                     }

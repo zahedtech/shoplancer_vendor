@@ -29,7 +29,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
   static const String _bannerTypeImage = 'image';
   static const String _bannerTypeText = 'text';
   static const String _defaultBackgroundColor = '#00A082';
-  static const List<String> _backgroundColorOptions = [
+  static const List<String> backgroundColorOptions = [
     '#00A082',
     '#FF8A00',
     '#EF4444',
@@ -333,11 +333,11 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                if (false)
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeLarge,
-                                  ),
 
+                                // if (false)
+                                //   const SizedBox(
+                                //     height: Dimensions.paddingSizeLarge,
+                                //   ),
                                 Text('subtitle'.tr, style: robotoBold),
                                 const SizedBox(
                                   height: Dimensions.paddingSizeSmall,
@@ -368,178 +368,178 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     },
                                   ),
                                 ),
-                                if (false)
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeLarge,
-                                  ),
+                                // if (false)
+                                //   const SizedBox(
+                                //     height: Dimensions.paddingSizeLarge,
+                                //   ),
 
-                                if (false)
-                                  Text(
-                                    'banner_background_color'.tr,
-                                    style: robotoBold,
-                                  ),
-                                if (false)
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeSmall,
-                                  ),
-                                if (false)
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(
-                                      Dimensions.paddingSizeDefault,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                        Dimensions.radiusDefault,
-                                      ),
-                                      border: Border.all(
-                                        color: Theme.of(
-                                          context,
-                                        ).disabledColor.withValues(alpha: 0.2),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Wrap(
-                                          spacing: Dimensions.paddingSizeSmall,
-                                          runSpacing:
-                                              Dimensions.paddingSizeSmall,
-                                          children: _backgroundColorOptions.map(
-                                            (colorHex) {
-                                              final bool isSelected =
-                                                  _backgroundColorHex ==
-                                                  colorHex;
-                                              final Color color = _colorFromHex(
-                                                colorHex,
-                                              );
+                                // if (false)
+                                //   Text(
+                                //     'banner_background_color'.tr,
+                                //     style: robotoBold,
+                                //   ),
+                                // if (false)
+                                //   const SizedBox(
+                                //     height: Dimensions.paddingSizeSmall,
+                                //   ),
+                                // if (false)
+                                //   Container(
+                                //     width: double.infinity,
+                                //     padding: const EdgeInsets.all(
+                                //       Dimensions.paddingSizeDefault,
+                                //     ),
+                                //     decoration: BoxDecoration(
+                                //       borderRadius: BorderRadius.circular(
+                                //         Dimensions.radiusDefault,
+                                //       ),
+                                //       border: Border.all(
+                                //         color: Theme.of(
+                                //           context,
+                                //         ).disabledColor.withValues(alpha: 0.2),
+                                //       ),
+                                //     ),
+                                //     child: Column(
+                                //       crossAxisAlignment:
+                                //           CrossAxisAlignment.start,
+                                //       children: [
+                                //         Wrap(
+                                //           spacing: Dimensions.paddingSizeSmall,
+                                //           runSpacing:
+                                //               Dimensions.paddingSizeSmall,
+                                //           children: _backgroundColorOptions.map(
+                                //             (colorHex) {
+                                //               final bool isSelected =
+                                //                   _backgroundColorHex ==
+                                //                   colorHex;
+                                //               final Color color = _colorFromHex(
+                                //                 colorHex,
+                                //               );
 
-                                              return InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _backgroundColorHex =
-                                                        colorHex;
-                                                    _customColorController
-                                                            .text =
-                                                        colorHex;
-                                                  });
-                                                },
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      Dimensions.radiusDefault,
-                                                    ),
-                                                child: Container(
-                                                  height: 42,
-                                                  width: 42,
-                                                  alignment: Alignment.center,
-                                                  decoration: BoxDecoration(
-                                                    color: color,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          Dimensions
-                                                              .radiusDefault,
-                                                        ),
-                                                    border: Border.all(
-                                                      color: isSelected
-                                                          ? Theme.of(context)
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .color!
-                                                          : Colors.white
-                                                                .withValues(
-                                                                  alpha: 0.5,
-                                                                ),
-                                                      width: isSelected ? 2 : 1,
-                                                    ),
-                                                  ),
-                                                  child: isSelected
-                                                      ? const Icon(
-                                                          Icons.check,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        )
-                                                      : null,
-                                                ),
-                                              );
-                                            },
-                                          ).toList(),
-                                        ),
-                                        const SizedBox(
-                                          height: Dimensions.paddingSizeDefault,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: CustomTextFieldWidget(
-                                                hintText: '#00A082',
-                                                labelText:
-                                                    'custom_color_hex'.tr,
-                                                controller:
-                                                    _customColorController,
-                                                inputType: TextInputType.text,
-                                                showLabelText: true,
-                                                onChanged: (text) {
-                                                  if (text.startsWith('#') &&
-                                                      text.length == 7) {
-                                                    setState(() {
-                                                      _backgroundColorHex =
-                                                          text;
-                                                    });
-                                                  } else if (!text.startsWith(
-                                                        '#',
-                                                      ) &&
-                                                      text.length == 6) {
-                                                    setState(() {
-                                                      _backgroundColorHex =
-                                                          '#$text';
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-                                            InkWell(
-                                              onTap: () {
-                                                _openColorPickerDialog();
-                                              },
-                                              child: Container(
-                                                height: 50,
-                                                width: 50,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        Dimensions
-                                                            .radiusDefault,
-                                                      ),
-                                                  color: _colorFromHex(
-                                                    _backgroundColorHex,
-                                                  ),
-                                                  border: Border.all(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).primaryColor,
-                                                    width: 2,
-                                                  ),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.colorize,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (false)
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeLarge,
-                                  ),
+                                //               return InkWell(
+                                //                 onTap: () {
+                                //                   setState(() {
+                                //                     _backgroundColorHex =
+                                //                         colorHex;
+                                //                     _customColorController
+                                //                             .text =
+                                //                         colorHex;
+                                //                   });
+                                //                 },
+                                //                 borderRadius:
+                                //                     BorderRadius.circular(
+                                //                       Dimensions.radiusDefault,
+                                //                     ),
+                                //                 child: Container(
+                                //                   height: 42,
+                                //                   width: 42,
+                                //                   alignment: Alignment.center,
+                                //                   decoration: BoxDecoration(
+                                //                     color: color,
+                                //                     borderRadius:
+                                //                         BorderRadius.circular(
+                                //                           Dimensions
+                                //                               .radiusDefault,
+                                //                         ),
+                                //                     border: Border.all(
+                                //                       color: isSelected
+                                //                           ? Theme.of(context)
+                                //                                 .textTheme
+                                //                                 .bodyLarge!
+                                //                                 .color!
+                                //                           : Colors.white
+                                //                                 .withValues(
+                                //                                   alpha: 0.5,
+                                //                                 ),
+                                //                       width: isSelected ? 2 : 1,
+                                //                     ),
+                                //                   ),
+                                //                   child: isSelected
+                                //                       ? const Icon(
+                                //                           Icons.check,
+                                //                           color: Colors.white,
+                                //                           size: 20,
+                                //                         )
+                                //                       : null,
+                                //                 ),
+                                //               );
+                                //             },
+                                //           ).toList(),
+                                //         ),
+                                //         const SizedBox(
+                                //           height: Dimensions.paddingSizeDefault,
+                                //         ),
+                                //         Row(
+                                //           children: [
+                                //             Expanded(
+                                //               child: CustomTextFieldWidget(
+                                //                 hintText: '#00A082',
+                                //                 labelText:
+                                //                     'custom_color_hex'.tr,
+                                //                 controller:
+                                //                     _customColorController,
+                                //                 inputType: TextInputType.text,
+                                //                 showLabelText: true,
+                                //                 onChanged: (text) {
+                                //                   if (text.startsWith('#') &&
+                                //                       text.length == 7) {
+                                //                     setState(() {
+                                //                       _backgroundColorHex =
+                                //                           text;
+                                //                     });
+                                //                   } else if (!text.startsWith(
+                                //                         '#',
+                                //                       ) &&
+                                //                       text.length == 6) {
+                                //                     setState(() {
+                                //                       _backgroundColorHex =
+                                //                           '#$text';
+                                //                     });
+                                //                   }
+                                //                 },
+                                //               ),
+                                //             ),
+                                //             const SizedBox(
+                                //               width:
+                                //                   Dimensions.paddingSizeSmall,
+                                //             ),
+                                //             InkWell(
+                                //               onTap: () {
+                                //                 _openColorPickerDialog();
+                                //               },
+                                //               child: Container(
+                                //                 height: 50,
+                                //                 width: 50,
+                                //                 decoration: BoxDecoration(
+                                //                   borderRadius:
+                                //                       BorderRadius.circular(
+                                //                         Dimensions
+                                //                             .radiusDefault,
+                                //                       ),
+                                //                   color: _colorFromHex(
+                                //                     _backgroundColorHex,
+                                //                   ),
+                                //                   border: Border.all(
+                                //                     color: Theme.of(
+                                //                       context,
+                                //                     ).primaryColor,
+                                //                     width: 2,
+                                //                   ),
+                                //                 ),
+                                //                 child: const Icon(
+                                //                   Icons.colorize,
+                                //                   color: Colors.white,
+                                //                 ),
+                                //               ),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // if (false)
+                                //   const SizedBox(
+                                //     height: Dimensions.paddingSizeLarge,
+                                //   ),
 
                                 // Real-Time Preview
                                 Text('live_preview'.tr, style: robotoBold),
@@ -705,10 +705,10 @@ class _AddBannerScreenState extends State<AddBannerScreen>
                                     ],
                                   ),
                                 ),
-                                if (false)
-                                  const SizedBox(
-                                    height: Dimensions.paddingSizeLarge,
-                                  ),
+                                // if (false)
+                                //   const SizedBox(
+                                //     height: Dimensions.paddingSizeLarge,
+                                //   ),
                               ],
 
                               if (_bannerType == _bannerTypeImage) ...[
@@ -1012,7 +1012,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
     }
   }
 
-  void _openColorPickerDialog() {
+  void openColorPickerDialog() {
     final List<String> pickerColors = [
       '#FF1744',
       '#F50057',

@@ -61,7 +61,9 @@ class OrderWidget extends StatelessWidget {
                 ),
 
                 Text(
-                  DateConverterHelper.orderCardDate(orderModel.createdAt!),
+                  orderModel.createdAt != null
+                      ? DateConverterHelper.orderCardDate(orderModel.createdAt!)
+                      : '',
                   style: robotoRegular.copyWith(
                     fontSize: Dimensions.fontSizeSmall,
                     color: Theme.of(context).hintColor,
@@ -72,93 +74,106 @@ class OrderWidget extends StatelessWidget {
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
             //Customer name
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "customer_name".tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge!.color!.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                      Flexible(
-                        child: Text(
-                          orderModel.customer?.fName ??
-                              orderModel.deliveryAddress!.contactPersonName ??
-                              "Unknown",
-                          style: robotoMedium.copyWith(
-                            fontSize: Dimensions.fontSizeSmall,
-                            color: Theme.of(context).textTheme.bodyLarge!.color!
-                                .withValues(alpha: 0.5),
+            Builder(
+              builder: (context) {
+                String customerName = '';
+                if (orderModel.customer != null) {
+                  customerName = '${orderModel.customer?.fName ?? ''} ${orderModel.customer?.lName ?? ''}'.trim();
+                }
+                if (customerName.isEmpty) {
+                  customerName = orderModel.deliveryAddress?.contactPersonName ?? "Unknown";
+                }
+                if (customerName.isEmpty) {
+                  customerName = "Unknown";
+                }
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "customer_name".tr,
+                            style: robotoMedium.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.color?.withValues(alpha: 0.5),
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                          Flexible(
+                            child: Text(
+                              customerName,
+                              style: robotoMedium.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                                color: Theme.of(context).textTheme.bodyLarge?.color
+                                    ?.withValues(alpha: 0.5),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: Dimensions.paddingSizeSmall),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingSizeSmall,
-                    vertical: Dimensions.paddingSizeExtraSmall,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        (orderModel.orderStatus == 'pending' ||
-                            (orderModel.moduleType == 'grocery' &&
-                                (orderModel.orderStatus == 'confirmed' ||
-                                    orderModel.orderStatus == 'processing' ||
-                                    orderModel.orderStatus == 'cooking')))
-                        ? Colors.blueAccent.withValues(alpha: 0.1)
-                        : (orderModel.orderStatus == 'confirmed' ||
-                              orderModel.orderStatus == 'processing' ||
-                              orderModel.orderStatus == 'cooking')
-                        ? Colors.teal.withValues(alpha: 0.1)
-                        : orderModel.orderStatus == 'delivered'
-                        ? Colors.indigo.withValues(alpha: 0.1)
-                        : Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    orderModel.orderStatus! == 'picked_up'
-                        ? 'item'.tr + ' ' + 'on_the_way'.tr
-                        : (orderModel.moduleType == 'grocery' &&
-                              (orderModel.orderStatus == 'confirmed' ||
+                    ),
+                    const SizedBox(width: Dimensions.paddingSizeSmall),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dimensions.paddingSizeSmall,
+                        vertical: Dimensions.paddingSizeExtraSmall,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            (orderModel.orderStatus == 'pending' ||
+                                (orderModel.moduleType == 'grocery' &&
+                                    (orderModel.orderStatus == 'confirmed' ||
+                                        orderModel.orderStatus == 'processing' ||
+                                        orderModel.orderStatus == 'cooking')))
+                            ? Colors.blueAccent.withValues(alpha: 0.1)
+                            : (orderModel.orderStatus == 'confirmed' ||
                                   orderModel.orderStatus == 'processing' ||
-                                  orderModel.orderStatus == 'cooking'))
-                        ? 'pending'.tr
-                        : orderModel.orderStatus!.tr,
-                    style: robotoMedium.copyWith(
-                      fontSize: Dimensions.fontSizeExtraSmall,
-                      color:
-                          (orderModel.orderStatus == 'pending' ||
-                              (orderModel.moduleType == 'grocery' &&
+                                  orderModel.orderStatus == 'cooking')
+                            ? Colors.teal.withValues(alpha: 0.1)
+                            : orderModel.orderStatus == 'delivered'
+                            ? Colors.indigo.withValues(alpha: 0.1)
+                            : Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        orderModel.orderStatus == 'picked_up'
+                            ? 'item'.tr + ' ' + 'on_the_way'.tr
+                            : (orderModel.moduleType == 'grocery' &&
                                   (orderModel.orderStatus == 'confirmed' ||
                                       orderModel.orderStatus == 'processing' ||
-                                      orderModel.orderStatus == 'cooking')))
-                          ? Colors.blueAccent
-                          : (orderModel.orderStatus == 'confirmed' ||
-                                orderModel.orderStatus == 'processing' ||
-                                orderModel.orderStatus == 'cooking')
-                          ? Colors.teal
-                          : orderModel.orderStatus == 'delivered'
-                          ? Colors.indigo
-                          : Colors.red,
+                                      orderModel.orderStatus == 'cooking'))
+                            ? 'pending'.tr
+                            : (orderModel.orderStatus ?? '').tr,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeExtraSmall,
+                          color:
+                              (orderModel.orderStatus == 'pending' ||
+                                  (orderModel.moduleType == 'grocery' &&
+                                      (orderModel.orderStatus == 'confirmed' ||
+                                          orderModel.orderStatus == 'processing' ||
+                                          orderModel.orderStatus == 'cooking')))
+                              ? Colors.blueAccent
+                              : (orderModel.orderStatus == 'confirmed' ||
+                                    orderModel.orderStatus == 'processing' ||
+                                    orderModel.orderStatus == 'cooking')
+                              ? Colors.teal
+                              : orderModel.orderStatus == 'delivered'
+                              ? Colors.indigo
+                              : Colors.red,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ],
         ),

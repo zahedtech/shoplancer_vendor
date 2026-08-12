@@ -784,17 +784,11 @@ class _WalletScreenState extends State<WalletScreen> {
                                   ),
                                 ),
 
-                                (profileController
-                                            .profileModel!
-                                            .overFlowWarning! ||
-                                        profileController
-                                            .profileModel!
-                                            .overFlowBlockWarning!)
+                                ((profileController.profileModel?.overFlowWarning ?? false) ||
+                                        (profileController.profileModel?.overFlowBlockWarning ?? false))
                                     ? WalletAttentionAlertWidget(
                                         isOverFlowBlockWarning:
-                                            profileController
-                                                .profileModel!
-                                                .overFlowBlockWarning!,
+                                            profileController.profileModel?.overFlowBlockWarning ?? false,
                                       )
                                     : const SizedBox(),
                               ],

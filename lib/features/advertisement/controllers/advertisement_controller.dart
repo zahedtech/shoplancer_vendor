@@ -98,7 +98,6 @@ class AdvertisementController extends GetxController implements GetxService {
 
 
   TextEditingController? noteController = TextEditingController();
-  final GlobalKey<FormState> noteFormKey = GlobalKey<FormState>();
 
   // @override
   // void onInit() {

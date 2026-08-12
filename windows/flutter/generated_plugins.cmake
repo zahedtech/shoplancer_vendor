@@ -11,8 +11,11 @@ list(APPEND FLUTTER_PLUGIN_LIST
   geolocator_windows
   permission_handler_windows
   print_bluetooth_thermal
+  screen_retriever_windows
   share_plus
+  speech_to_text_windows
   url_launcher_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

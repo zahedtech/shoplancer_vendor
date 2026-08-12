@@ -42,7 +42,8 @@ class AppConstants {
   static const String globalCategoryUri = '/api/v1/categories';
   static const String subCategoryUri = '/api/v1/vendor/categories/childes/';
   static const String categoryRequestUri = '/api/v1/vendor/category-request';
-  static const String categoryStatusUri = '/api/v1/vendor/category/toggle-status';
+  static const String categoryStatusUri =
+      '/api/v1/vendor/category/toggle-status';
   static const String addonUri = '/api/v1/vendor/addon';
   static const String addAddonUri = '/api/v1/vendor/addon/store';
   static const String updateAddonUri = '/api/v1/vendor/addon/update';
@@ -74,10 +75,12 @@ class AppConstants {
   static const String addEmployeeUri = '/api/v1/vendor/employee/store';
   static const String updateEmployeeUri = '/api/v1/vendor/employee/update';
   static const String deleteEmployeeUri = '/api/v1/vendor/employee/delete';
-  static const String updateEmployeeStatusUri = '/api/v1/vendor/employee/status';
+  static const String updateEmployeeStatusUri =
+      '/api/v1/vendor/employee/status';
 
   static const String storeSectionsUri = '/api/v1/vendor/store/sections';
-  static const String updateStoreSectionsUri = '/api/v1/vendor/store/sections/update';
+  static const String updateStoreSectionsUri =
+      '/api/v1/vendor/store/sections/update';
 
   static const String dmListUri = '/api/v1/vendor/delivery-man/list';
   static const String addDmUri = '/api/v1/vendor/delivery-man/store';
@@ -158,6 +161,8 @@ class AppConstants {
   static const String topupRequestsUri = '/api/v1/vendor/wallet/topup-requests';
   static const String walletInfoUri = '/api/v1/vendor/wallet/info';
   static const String getBrandsUri = '/api/v1/brand';
+  static const String brandStatusUri = '/api/v1/vendor/brand/toggle-status';
+  static const String brandWiseProductsUri = '/api/v1/vendor/brand/products';
   static const String updateReplyUri = '/api/v1/vendor/item/reply-update';
   static const String checkZoneUri = '/api/v1/zone/check';
   static const String getNutritionSuggestionUri =

@@ -384,7 +384,10 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> bulkItemsUpdate(List<Map<String, dynamic>> updates) async {
+  Future<void> bulkItemsUpdate(
+    List<Map<String, dynamic>> updates, {
+    int? categoryId,
+  }) async {
     _isLoading = true;
     update();
     Response response = await storeServiceInterface.bulkStockUpdate({
@@ -401,7 +404,7 @@ class StoreController extends GetxController implements GetxService {
         offset: '1',
         type: 'all',
         search: '',
-        categoryId: 0,
+        categoryId: categoryId ?? _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       getLimitedStockItemList('1', willUpdate: false);
@@ -1440,6 +1443,24 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  Future<bool> deleteItemDirectly(int? itemID) async {
+    if (itemID == null) return false;
+    _loadingItemsList.add(itemID);
+    update();
+    bool isSuccess = await storeServiceInterface.deleteItem(itemID, false);
+    if (isSuccess) {
+      if (_itemList != null) {
+        _itemList!.removeWhere((item) => item.id == itemID);
+      }
+      showCustomSnackBar('product_deleted_successfully'.tr, isError: false);
+    } else {
+      showCustomSnackBar('فشل حذف المنتج'.tr, isError: true);
+    }
+    _loadingItemsList.remove(itemID);
+    update();
+    return isSuccess;
+  }
+
   void generateVariantTypes(Item? item) {
     _variantTypeList = storeServiceInterface.variationTypeList(
       _attributeList,
@@ -1490,6 +1511,51 @@ class StoreController extends GetxController implements GetxService {
       _brandList = [];
       _brandList!.addAll(brands);
       _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
+    }
+    update();
+  }
+
+  Future<bool> updateBrandStatus(int brandId, int status) async {
+    _isLoading = true;
+    update();
+    Response response = await storeServiceInterface.updateBrandStatus(brandId, status);
+    _isLoading = false;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (_brandList != null) {
+        int index = _brandList!.indexWhere((b) => b.id == brandId);
+        if (index != -1) {
+          _brandList![index].status = status;
+        }
+      }
+      String message = response.body != null && response.body['message'] != null
+          ? response.body['message']
+          : (status == 1 ? 'تم تفعيل الماركة بنجاح' : 'تم إيقاف الماركة بنجاح');
+      showCustomSnackBar(message, isError: false);
+      update();
+      return true;
+    } else {
+      ApiChecker.checkApi(response);
+      update();
+      return false;
+    }
+  }
+
+  List<Item>? _brandItemList;
+  List<Item>? get brandItemList => _brandItemList;
+
+  Future<void> getBrandItemList({required String offset, required int brandId, bool willUpdate = true}) async {
+    if (offset == '1') {
+      _brandItemList = null;
+      if (willUpdate) update();
+    }
+    ItemModel? itemModel = await storeServiceInterface.getBrandItemList(offset: offset, brandId: brandId);
+    if (itemModel != null) {
+      if (offset == '1') {
+        _brandItemList = [];
+      }
+      _brandItemList!.addAll(itemModel.items ?? []);
+      _itemSize = itemModel.totalSize;
+      _offset = int.parse(offset);
     }
     update();
   }
@@ -2222,6 +2288,31 @@ class StoreController extends GetxController implements GetxService {
   void removeGenericName(int index) {
     _selectedGenericNameList!.removeAt(index);
     update();
+  }
+
+  Future<bool> updateItemPriceOnly(int itemId, double newPrice, {Item? item}) async {
+    Item? targetItem = item;
+    if (targetItem == null && _itemList != null) {
+      targetItem = _itemList!.firstWhereOrNull((i) => i.id == itemId);
+    }
+    if (targetItem == null) return false;
+
+    Map<String, dynamic> data = buildStockUpdateData(targetItem, price: newPrice);
+    Response response = await storeServiceInterface.stockUpdate(data);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (_itemList != null) {
+        int idx = _itemList!.indexWhere((i) => i.id == itemId);
+        if (idx != -1) {
+          _itemList![idx].price = newPrice;
+        }
+      }
+      update();
+      return true;
+    } else {
+      ApiChecker.checkApi(response);
+      return false;
+    }
   }
 
   Future<bool> stockUpdate(
