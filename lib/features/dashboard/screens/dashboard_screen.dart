@@ -16,6 +16,7 @@ import 'package:shoplancer_vendor/features/rental_module/trips/screens/trip_hist
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/features/payment/screens/wallet_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_management_screen.dart';
 import 'package:shoplancer_vendor/features/pos/screens/pos_screen.dart';
 import 'package:shoplancer_vendor/features/dashboard/widgets/bottom_nav_item_widget.dart';
 import 'package:shoplancer_vendor/features/home/screens/home_screen.dart';
@@ -98,6 +99,7 @@ class DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     AuthController authController = Get.find<AuthController>();
+    bool isEmployee = authController.getUserType() == 'employee';
 
     _pageIndex = widget.pageIndex;
     _pageController = PageController(initialPage: widget.pageIndex);
@@ -110,9 +112,11 @@ class DashboardScreenState extends State<DashboardScreen> {
           ? const TripHistoryScreen()
           : const OrderHistoryScreen(),
       const PosScreen(),
-      authController.getModuleType() == 'rental'
-          ? const ProviderScreen()
-          : const WalletScreen(),
+      isEmployee
+          ? const ProductManagementScreen(isBackButtonExist: false)
+          : (authController.getModuleType() == 'rental'
+              ? const ProviderScreen()
+              : const WalletScreen()),
       Container(),
     ];
 
@@ -120,7 +124,9 @@ class DashboardScreenState extends State<DashboardScreen> {
       setState(() {});
     });
 
-    showDisbursementWarningMessage();
+    if (!isEmployee) {
+      showDisbursementWarningMessage();
+    }
 
     if (Get.find<SubscriptionController>().isTrialEndModalShown) {
       Get.find<SubscriptionController>().trialEndBottomSheet();
@@ -284,16 +290,28 @@ class DashboardScreenState extends State<DashboardScreen> {
                               showcaseDescription: 'showcase_orders_desc'.tr,
                             ),
                             const Expanded(child: SizedBox()),
-                            BottomNavItemWidget(
-                              title: 'wallet'.tr,
-                              selectedIcon: Images.walletSelect,
-                              unSelectedIcon: Images.walletUnSelect,
-                              isSelected: _pageIndex == 3,
-                              onTap: () => _setPage(3),
-                              showcaseKey: _financeKey,
-                              showcaseTitle: 'wallet'.tr,
-                              showcaseDescription: 'showcase_wallet_desc'.tr,
-                            ),
+                            Get.find<AuthController>().getUserType() == 'employee'
+                                ? BottomNavItemWidget(
+                                    title: 'إدارة المنتجات',
+                                    iconData: Icons.inventory_2_rounded,
+                                    isSelected: _pageIndex == 3,
+                                    onTap: () => _setPage(3),
+                                    showcaseKey: _financeKey,
+                                    showcaseTitle: 'إدارة المنتجات',
+                                    showcaseDescription:
+                                        'إدارة واستعراض وتعديل منتجات المتجر'.tr,
+                                  )
+                                : BottomNavItemWidget(
+                                    title: 'wallet'.tr,
+                                    selectedIcon: Images.walletSelect,
+                                    unSelectedIcon: Images.walletUnSelect,
+                                    isSelected: _pageIndex == 3,
+                                    onTap: () => _setPage(3),
+                                    showcaseKey: _financeKey,
+                                    showcaseTitle: 'wallet'.tr,
+                                    showcaseDescription:
+                                        'showcase_wallet_desc'.tr,
+                                  ),
                             BottomNavItemWidget(
                               title: 'menu'.tr,
                               selectedIcon: Images.menu,

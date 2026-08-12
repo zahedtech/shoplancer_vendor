@@ -29,6 +29,7 @@ class _AddBannerScreenState extends State<AddBannerScreen>
   static const String _bannerTypeImage = 'image';
   static const String _bannerTypeText = 'text';
   static const String _defaultBackgroundColor = '#00A082';
+  // ignore: unused_field
   static const List<String> backgroundColorOptions = [
     '#00A082',
     '#FF8A00',

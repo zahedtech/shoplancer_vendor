@@ -4,8 +4,9 @@ import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
 
 class BottomNavItemWidget extends StatelessWidget {
-  final String selectedIcon;
-  final String unSelectedIcon;
+  final String? selectedIcon;
+  final String? unSelectedIcon;
+  final IconData? iconData;
   final String title;
   final Function? onTap;
   final bool isSelected;
@@ -18,8 +19,9 @@ class BottomNavItemWidget extends StatelessWidget {
     this.onTap,
     this.isSelected = false,
     required this.title,
-    required this.selectedIcon,
-    required this.unSelectedIcon,
+    this.selectedIcon,
+    this.unSelectedIcon,
+    this.iconData,
     this.showcaseKey,
     this.showcaseTitle,
     this.showcaseDescription,
@@ -32,14 +34,23 @@ class BottomNavItemWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            isSelected ? selectedIcon : unSelectedIcon,
-            height: 25,
-            width: 25,
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).textTheme.bodyMedium!.color!,
-          ),
+          if (iconData != null)
+            Icon(
+              iconData,
+              size: 25,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).textTheme.bodyMedium!.color!,
+            )
+          else if (selectedIcon != null && unSelectedIcon != null)
+            Image.asset(
+              isSelected ? selectedIcon! : unSelectedIcon!,
+              height: 25,
+              width: 25,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).textTheme.bodyMedium!.color!,
+            ),
 
           SizedBox(
             height: isSelected

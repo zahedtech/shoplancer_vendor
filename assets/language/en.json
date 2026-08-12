@@ -1,6 +1,8 @@
 {
   "products_assigned_successfully": "Products added from catalog successfully",
   "add_selected_to_store": "Add Selected to Store",
+  "visit_store": "Visit Store",
+  "over_4_hours": "+4 hrs ago",
   "go_to_control_panel": "Go to control panel",
   "check_all_items_before_updating_status": "Please check all items before updating status",
   "payment_reference": "Payment Reference",
@@ -1699,6 +1701,7 @@
   "showcase_store_desc": "Manage your products, update prices, inventory, and your store status here",
   "showcase_wallet_title": "Wallet",
   "showcase_wallet_desc": "View your financial balance, transactions, and withdrawal requests here",
+  "showcase_product_management_desc": "Manage your store products, update prices, barcodes, and add new products here",
   "showcase_menu_title": "Menu",
   "showcase_menu_desc": "Access settings, manage branches, language preferences, and notifications here",
   "search_products": "Search products...",

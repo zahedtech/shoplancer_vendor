@@ -40,6 +40,20 @@ class OrderWidget extends StatelessWidget {
       }
     }
 
+    DateTime? orderCreatedAt;
+    if (orderModel.createdAt != null && orderModel.createdAt!.isNotEmpty) {
+      orderCreatedAt = DateTime.tryParse(orderModel.createdAt!)?.toLocal();
+    }
+
+    final bool isCompletedOrCanceled = orderModel.orderStatus == 'delivered' ||
+        orderModel.orderStatus == 'canceled' ||
+        orderModel.orderStatus == 'refunded' ||
+        orderModel.orderStatus == 'failed';
+
+    final bool isOver4Hours = orderCreatedAt != null &&
+        !isCompletedOrCanceled &&
+        DateTime.now().difference(orderCreatedAt).inMinutes >= 240;
+
     Widget childWidget = Column(
       children: [
         Column(
@@ -53,21 +67,75 @@ class OrderWidget extends StatelessWidget {
                     Text(
                       'order'.tr,
                       style: robotoRegular.copyWith(
-                        color: Theme.of(context).hintColor,
+                        color: isOver4Hours
+                            ? Colors.red.shade700
+                            : Theme.of(context).hintColor,
                       ),
                     ),
-                    Text(' # ${orderModel.id}', style: robotoBold),
+                    Text(
+                      ' # ${orderModel.id}',
+                      style: robotoBold.copyWith(
+                        color: isOver4Hours ? Colors.red.shade700 : null,
+                      ),
+                    ),
                   ],
                 ),
 
-                Text(
-                  orderModel.createdAt != null
-                      ? DateConverterHelper.orderCardDate(orderModel.createdAt!)
-                      : '',
-                  style: robotoRegular.copyWith(
-                    fontSize: Dimensions.fontSizeSmall,
-                    color: Theme.of(context).hintColor,
-                  ),
+                Row(
+                  children: [
+                    if (isOver4Hours) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusSmall,
+                          ),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.access_time_filled,
+                              size: 11,
+                              color: Colors.red,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'over_4_hours'.tr,
+                              style: robotoBold.copyWith(
+                                fontSize: 10,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                    ],
+                    Text(
+                      orderModel.createdAt != null
+                          ? DateConverterHelper.orderCardDate(
+                              orderModel.createdAt!,
+                            )
+                          : '',
+                      style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeSmall,
+                        color: isOver4Hours
+                            ? Colors.red.shade700
+                            : Theme.of(context).hintColor,
+                        fontWeight: isOver4Hours
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -126,8 +194,9 @@ class OrderWidget extends StatelessWidget {
                         vertical: Dimensions.paddingSizeExtraSmall,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            (orderModel.orderStatus == 'pending' ||
+                        color: isOver4Hours
+                            ? Colors.red.withValues(alpha: 0.15)
+                            : (orderModel.orderStatus == 'pending' ||
                                 (orderModel.moduleType == 'grocery' &&
                                     (orderModel.orderStatus == 'confirmed' ||
                                         orderModel.orderStatus == 'processing' ||
@@ -141,6 +210,11 @@ class OrderWidget extends StatelessWidget {
                             ? Colors.indigo.withValues(alpha: 0.1)
                             : Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                        border: isOver4Hours
+                            ? Border.all(
+                                color: Colors.red.withValues(alpha: 0.4),
+                              )
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
@@ -154,8 +228,9 @@ class OrderWidget extends StatelessWidget {
                             : (orderModel.orderStatus ?? '').tr,
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.fontSizeExtraSmall,
-                          color:
-                              (orderModel.orderStatus == 'pending' ||
+                          color: isOver4Hours
+                              ? Colors.red
+                              : (orderModel.orderStatus == 'pending' ||
                                   (orderModel.moduleType == 'grocery' &&
                                       (orderModel.orderStatus == 'confirmed' ||
                                           orderModel.orderStatus == 'processing' ||
@@ -209,7 +284,9 @@ class OrderWidget extends StatelessWidget {
                               .tr,
                     style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeSmall,
-                      color: Theme.of(context).primaryColor,
+                      color: isOver4Hours
+                          ? Colors.red.shade700
+                          : Theme.of(context).primaryColor,
                     ),
                   ),
                 ],
@@ -244,7 +321,9 @@ class OrderWidget extends StatelessWidget {
               'view_details'.tr,
               style: robotoMedium.copyWith(
                 fontSize: Dimensions.fontSizeSmall,
-                color: Theme.of(context).primaryColor,
+                color: isOver4Hours
+                    ? Colors.red.shade700
+                    : Theme.of(context).primaryColor,
               ),
             ),
             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
@@ -253,7 +332,9 @@ class OrderWidget extends StatelessWidget {
                   ? Icons.arrow_back_ios
                   : Icons.arrow_forward_ios,
               size: 13,
-              color: Theme.of(context).primaryColor,
+              color: isOver4Hours
+                  ? Colors.red.shade700
+                  : Theme.of(context).primaryColor,
             ),
           ],
         ),
@@ -272,13 +353,22 @@ class OrderWidget extends StatelessWidget {
       padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        color: Theme.of(context).cardColor,
+        color: isOver4Hours
+            ? (Get.isDarkMode
+                ? Colors.red.withValues(alpha: 0.08)
+                : const Color(0xFFFFF5F5))
+            : Theme.of(context).cardColor,
         border: Border.all(
-          color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+          color: isOver4Hours
+              ? Colors.red.shade400
+              : Theme.of(context).hintColor.withValues(alpha: 0.3),
+          width: isOver4Hours ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.04),
+            color: isOver4Hours
+                ? Colors.red.withValues(alpha: 0.08)
+                : Colors.white.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

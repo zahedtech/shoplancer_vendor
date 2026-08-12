@@ -49,16 +49,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData({bool refreshProfile = false}) async {
     final ProfileController profileController = Get.find<ProfileController>();
+    final bool isEmployee =
+        Get.find<AuthController>().getUserType() == 'employee';
 
     if (refreshProfile || profileController.profileModel == null) {
       await profileController.getProfile();
     }
 
-    await Future.wait([
-      Get.find<PaymentController>().getWalletInfo(),
+    List<Future> futures = [
       Get.find<OrderController>().getCurrentOrders(),
       Get.find<NotificationController>().getNotificationList(),
-    ]);
+    ];
+
+    if (!isEmployee) {
+      futures.add(Get.find<PaymentController>().getWalletInfo());
+    }
+
+    await Future.wait(futures);
   }
 
   Future<void> _checkSystemNotification() async {
@@ -149,6 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEmployee =
+        Get.find<AuthController>().getUserType() == 'employee';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).cardColor,
@@ -311,15 +321,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             StoreQrWidget(profileController: profileController),
 
-                            profileController.modulePermission != null &&
+                            !isEmployee &&
+                                    profileController.modulePermission != null &&
                                     profileController.modulePermission!.wallet!
                                 ? BusinessAnalyticsWidget(
                                     profileController: profileController,
                                   )
                                 : const SizedBox(),
                             SizedBox(
-                              height:
-                                  profileController.modulePermission != null &&
+                              height: !isEmployee &&
+                                      profileController.modulePermission !=
+                                          null &&
                                       profileController
                                           .modulePermission!
                                           .wallet!

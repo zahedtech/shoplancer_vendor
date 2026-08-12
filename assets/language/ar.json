@@ -1,6 +1,8 @@
 {
   "products_assigned_successfully": "تمت إضافة المنتجات من الكتالوج بنجاح",
   "add_selected_to_store": "إضافة المحدد إلى المتجر",
+  "visit_store": "الانتقال للمتجر",
+  "over_4_hours": "منذ +4 ساعات",
   "go_to_control_panel": "الانتقال للوحه التحكم",
   "check_all_items_before_updating_status": "يرجى تحديد جميع العناصر قبل تحديث الحالة",
   "payment_reference": "مرجع الدفع",
@@ -1659,6 +1661,7 @@
   "showcase_store_desc": "من هنا يمكنك إدارة منتجاتك، وتحديث الأسعار والمخزون وحالة متجرك",
   "showcase_wallet_title": "المحفظة",
   "showcase_wallet_desc": "هنا تجد رصيدك المالي، والعمليات الحسابية، وطلبات السحب المالي",
+  "showcase_product_management_desc": "من هنا يمكنك إدارة منتجاتك، وتحديث الأسعار والباركود وإضافة منتجات جديدة",
   "showcase_menu_title": "القائمة الإضافية",
   "showcase_menu_desc": "من هنا يمكنك الوصول للإعدادات، وإدارة الفروع، وتغيير اللغة والتنبيهات",
   "search_products": "ابحث عن المنتجات...",

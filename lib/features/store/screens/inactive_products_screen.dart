@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
@@ -25,7 +26,6 @@ class InactiveProductsScreen extends StatefulWidget {
 class _InactiveProductsScreenState extends State<InactiveProductsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final MobileScannerController _scannerController = MobileScannerController();
   bool _showScanner = false;
 
   @override
@@ -44,7 +44,6 @@ class _InactiveProductsScreenState extends State<InactiveProductsScreen> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
-    _scannerController.dispose();
     super.dispose();
   }
 
@@ -157,7 +156,7 @@ class _InactiveProductsScreenState extends State<InactiveProductsScreen> {
                           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                         ),
                         child: Icon(
-                          Icons.qr_code_scanner,
+                          Icons.barcode_reader,
                           color: _showScanner ? Colors.white : Theme.of(context).primaryColor,
                           size: 24,
                         ),
@@ -167,44 +166,11 @@ class _InactiveProductsScreenState extends State<InactiveProductsScreen> {
                 ),
                 if (_showScanner) ...[
                   const SizedBox(height: Dimensions.paddingSizeSmall),
-                  Container(
-                    height: 180,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).primaryColor, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.black,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Stack(
-                        children: [
-                          MobileScanner(
-                            controller: _scannerController,
-                            onDetect: (capture) {
-                              for (final barcode in capture.barcodes) {
-                                final raw = barcode.rawValue?.trim();
-                                if (raw != null && raw.isNotEmpty) {
-                                  _onBarcodeScanned(raw);
-                                  break;
-                                }
-                              }
-                            },
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: InkWell(
-                              onTap: () => setState(() => _showScanner = false),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                                child: const Icon(Icons.close, color: Colors.white, size: 18),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  PosStyleBarcodeScannerWidget(
+                    onBarcodeScanned: (barcode) {
+                      _onBarcodeScanned(barcode);
+                    },
+                    onClose: () => setState(() => _showScanner = false),
                   ),
                 ],
               ],
