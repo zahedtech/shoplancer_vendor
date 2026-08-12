@@ -358,172 +358,536 @@ class ItemWidget extends StatelessWidget {
     final double currentPrice = item.price ?? 0;
     final int currentStock = item.stock ?? 0;
 
-    final TextEditingController priceController = TextEditingController(
-      text: currentPrice > 0 ? (currentPrice % 1 == 0 ? currentPrice.toInt().toString() : currentPrice.toString()) : '',
-    );
-    final TextEditingController stockController = TextEditingController(
-      text: currentStock > 0 ? currentStock.toString() : '',
-    );
-
+    String priceStr = currentPrice > 0
+        ? (currentPrice % 1 == 0
+            ? currentPrice.toInt().toString()
+            : currentPrice.toString())
+        : '';
+    String stockStr = currentStock > 0 ? currentStock.toString() : '100';
     bool enableStock = currentStock > 0;
 
     Get.dialog(
-      StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text(inStore ? 'edit'.tr : 'add'.tr, style: robotoMedium),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'price'.tr),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('manage_stock'.tr, style: robotoRegular),
-                    Switch(
-                      value: enableStock,
-                      onChanged: (val) {
-                        setState(() {
-                          enableStock = val;
-                        });
-                      },
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            void onNumPress(String val) {
+              if (val == '.') {
+                if (!priceStr.contains('.')) {
+                  priceStr = priceStr.isEmpty ? '0.' : '$priceStr.';
+                }
+              } else {
+                if (priceStr == '0' || priceStr.isEmpty) {
+                  priceStr = val;
+                } else {
+                  priceStr += val;
+                }
+              }
+              setState(() {});
+            }
+
+            void onBackspace() {
+              if (priceStr.isNotEmpty) {
+                priceStr = priceStr.substring(0, priceStr.length - 1);
+                setState(() {});
+              }
+            }
+
+            void onQuickAdd(double amount) {
+              final double current = double.tryParse(priceStr) ?? 0.0;
+              final double updated = current + amount;
+              priceStr = updated % 1 == 0
+                  ? updated.toInt().toString()
+                  : updated.toString();
+              setState(() {});
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header: Product Info
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radiusSmall),
+                        child: CustomImageWidget(
+                          image: item.imageFullUrl ?? '',
+                          height: 48,
+                          width: 48,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              inStore ? 'تعديل سعر ومخزون المنتج' : 'إضافة المنتج للمتجر',
+                              style: robotoBold.copyWith(
+                                fontSize: Dimensions.fontSizeSmall,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.name ?? '',
+                              style: robotoMedium.copyWith(
+                                fontSize: Dimensions.fontSizeDefault,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20),
+
+                  // Price Display Box
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.06),
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusDefault),
+                      border: Border.all(
+                        color: Theme.of(context).primaryColor.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'سعر البيع:',
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                        ),
+                        Text(
+                          priceStr.isEmpty
+                              ? '0.00'
+                              : '$priceStr ${Get.find<SplashController>().configModel?.currencySymbol ?? 'ج.م'}',
+                          style: robotoBold.copyWith(
+                            fontSize: 22,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Quick chips
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [5, 10, 20, 50, 100].map((amt) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 6.0),
+                          child: ActionChip(
+                            label: Text('+$amt'),
+                            onPressed: () => onQuickAdd(amt.toDouble()),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 3x4 Numpad Keypad Grid
+                  ...[
+                    ['1', '2', '3'],
+                    ['4', '5', '6'],
+                    ['7', '8', '9'],
+                  ].map((row) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6.0),
+                      child: Row(
+                        children: row.map((key) {
+                          return Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 3),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).cardColor,
+                                  foregroundColor: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color,
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(
+                                      color: Theme.of(context)
+                                          .disabledColor
+                                          .withOpacity(0.15),
+                                    ),
+                                  ),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                onPressed: () => onNumPress(key),
+                                child: Text(
+                                  key,
+                                  style: robotoBold.copyWith(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }),
+
+                  // Bottom Row: Backspace, 0, dot
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red.withOpacity(0.08),
+                                foregroundColor: Colors.red,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              onPressed: onBackspace,
+                              child: const Icon(Icons.backspace_outlined, size: 20),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .disabledColor
+                                        .withOpacity(0.15),
+                                  ),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              onPressed: () => onNumPress('0'),
+                              child: Text('0',
+                                  style: robotoBold.copyWith(fontSize: 18)),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .disabledColor
+                                        .withOpacity(0.15),
+                                  ),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              onPressed: () => onNumPress('.'),
+                              child: Text('.',
+                                  style: robotoBold.copyWith(fontSize: 20)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Stock Management Row
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).disabledColor.withOpacity(0.05),
+                      borderRadius:
+                          BorderRadius.circular(Dimensions.radiusSmall),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('manage_stock'.tr, style: robotoRegular),
+                        Switch(
+                          value: enableStock,
+                          onChanged: (val) {
+                            setState(() {
+                              enableStock = val;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (enableStock) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text('المخزون:', style: robotoRegular),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextFormField(
+                            initialValue: stockStr,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                            ),
+                            onChanged: (v) => stockStr = v,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                if (enableStock) ...[
-                  const SizedBox(height: Dimensions.paddingSizeSmall),
-                  TextField(
-                    controller: stockController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: 'stock'.tr),
+                  const SizedBox(height: 14),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () => Get.back(),
+                          child: Text('cancel'.tr),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 2,
+                        child: GetBuilder<StoreController>(
+                          builder: (storeController) {
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: storeController.isLoading
+                                  ? null
+                                  : () {
+                                      final double? price =
+                                          double.tryParse(priceStr.trim());
+                                      final int? stock = enableStock
+                                          ? int.tryParse(stockStr.trim())
+                                          : null;
+
+                                      if (price == null || price <= 0) {
+                                        showCustomSnackBar('enter_price'.tr);
+                                        return;
+                                      }
+                                      if (enableStock) {
+                                        if (stock == null || stock <= 0) {
+                                          showCustomSnackBar(
+                                              'stock_cannot_be_zero'.tr);
+                                          return;
+                                        }
+                                      }
+
+                                      if (!inStore) {
+                                        final Map<String, dynamic>
+                                            productData = {
+                                          'product_id': item.id,
+                                          'price': price,
+                                          if (enableStock &&
+                                              stock != null &&
+                                              stock > 0)
+                                            'stock': stock,
+                                          'manage_stock': enableStock,
+                                          if (item.discount != null &&
+                                              item.discount! > 0)
+                                            'discount': item.discount,
+                                          if (item.discountType != null &&
+                                              item.discountType!.isNotEmpty)
+                                            'discount_type':
+                                                item.discountType == 'amount'
+                                                    ? 'flat'
+                                                    : item.discountType,
+                                          'status': true,
+                                        };
+
+                                        storeController
+                                            .bulkAssignProducts([productData])
+                                            .then((isSuccess) {
+                                          if (isSuccess) {
+                                            if (Get.isDialogOpen ?? false) {
+                                              Get.back();
+                                            }
+                                            item.price = price;
+                                            item.stock =
+                                                enableStock ? stock : 0;
+                                            if (Get.isRegistered<
+                                                CategoryController>()) {
+                                              final catController = Get.find<
+                                                  CategoryController>();
+                                              if (catController.itemList !=
+                                                  null) {
+                                                int idx = catController
+                                                    .itemList!
+                                                    .indexWhere((element) =>
+                                                        element.id == item.id);
+                                                if (idx != -1) {
+                                                  catController
+                                                      .itemList![idx]
+                                                      .price = price;
+                                                  catController
+                                                      .itemList![idx]
+                                                      .stock = enableStock
+                                                      ? stock
+                                                      : 0;
+                                                }
+                                              }
+                                              catController.update();
+                                            }
+                                          }
+                                        });
+                                      } else {
+                                        final Map<String, String> data = {
+                                          '_method': 'post',
+                                          'id': item.id.toString(),
+                                          'product_id': item.id.toString(),
+                                          if (enableStock)
+                                            'current_stock': stockStr,
+                                          'price': priceStr,
+                                          'unit_price': priceStr,
+                                          'discount':
+                                              item.discount?.toString() ?? '0',
+                                          'discount_type':
+                                              item.discountType == 'flat'
+                                                  ? 'amount'
+                                                  : (item.discountType ??
+                                                      'amount'),
+                                          'store_id': Get.find<
+                                                      ProfileController>()
+                                                  .profileModel
+                                                  ?.stores?[0]
+                                                  .id
+                                                  .toString() ??
+                                              '',
+                                          'category_id':
+                                              item.categoryId?.toString() ?? '',
+                                        };
+
+                                        storeController
+                                            .stockUpdate(data, item.id!)
+                                            .then((isSuccess) {
+                                          if (isSuccess) {
+                                            if (Get.isDialogOpen ?? false) {
+                                              Get.back();
+                                            }
+                                            item.price = price;
+                                            item.stock =
+                                                enableStock ? stock : 0;
+                                            if (Get.isRegistered<
+                                                CategoryController>()) {
+                                              final catController = Get.find<
+                                                  CategoryController>();
+                                              if (catController.itemList !=
+                                                  null) {
+                                                int idx = catController
+                                                    .itemList!
+                                                    .indexWhere((element) =>
+                                                        element.id == item.id);
+                                                if (idx != -1) {
+                                                  catController
+                                                      .itemList![idx]
+                                                      .price = price;
+                                                  catController
+                                                      .itemList![idx]
+                                                      .stock = enableStock
+                                                      ? stock
+                                                      : 0;
+                                                }
+                                              }
+                                              catController.update();
+                                            }
+                                          }
+                                        });
+                                      }
+                                    },
+                              child: storeController.isLoading
+                                  ? const SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(inStore ? 'update'.tr : 'add'.tr),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ],
-            ),
-            actions: [
-              TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
-              GetBuilder<StoreController>(
-                builder: (storeController) {
-                  return storeController.isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Dimensions.paddingSizeSmall,
-                          ),
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : TextButton(
-                          onPressed: () {
-                            final String priceText = priceController.text.trim();
-                            final String stockText = stockController.text.trim();
-
-                            final double? price = double.tryParse(priceText);
-                            final int? stock = enableStock ? int.tryParse(stockText) : null;
-
-                            if (price == null || price <= 0) {
-                              showCustomSnackBar('enter_price'.tr);
-                              return;
-                            }
-                            if (enableStock) {
-                              if (stock == null || stock <= 0) {
-                                showCustomSnackBar('stock_cannot_be_zero'.tr);
-                                return;
-                              }
-                            }
-
-                            if (!inStore) {
-                              final Map<String, dynamic> productData = {
-                                'product_id': item.id,
-                                'price': price,
-                                if (enableStock && stock != null && stock > 0) 'stock': stock,
-                                'manage_stock': enableStock,
-                                if (item.discount != null && item.discount! > 0)
-                                  'discount': item.discount,
-                                if (item.discountType != null &&
-                                    item.discountType!.isNotEmpty)
-                                  'discount_type': item.discountType == 'amount'
-                                      ? 'flat'
-                                      : item.discountType,
-                                'status': true,
-                              };
-
-                              storeController.bulkAssignProducts([productData]).then((isSuccess) {
-                                if (isSuccess) {
-                                  if (Get.isDialogOpen ?? false) {
-                                    Get.back();
-                                  }
-                                  item.price = price;
-                                  item.stock = enableStock ? stock : 0;
-                                  if (Get.isRegistered<CategoryController>()) {
-                                    final catController = Get.find<CategoryController>();
-                                    if (catController.itemList != null) {
-                                      int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
-                                      if (idx != -1) {
-                                        catController.itemList![idx].price = price;
-                                        catController.itemList![idx].stock = enableStock ? stock : 0;
-                                      }
-                                    }
-                                    catController.update();
-                                  }
-                                }
-                              });
-                            } else {
-                              final Map<String, String> data = {
-                                '_method': 'post',
-                                'id': item.id.toString(),
-                                'product_id': item.id.toString(),
-                                if (enableStock) 'current_stock': stockText,
-                                'price': priceText,
-                                'unit_price': priceText,
-                                'discount': item.discount?.toString() ?? '0',
-                                'discount_type': item.discountType == 'flat' ? 'amount' : (item.discountType ?? 'amount'),
-                                'store_id':
-                                    Get.find<ProfileController>()
-                                        .profileModel
-                                        ?.stores?[0]
-                                        .id
-                                        .toString() ??
-                                    '',
-                                'category_id': item.categoryId?.toString() ?? '',
-                              };
-
-                              storeController.stockUpdate(data, item.id!).then((isSuccess) {
-                                if (isSuccess) {
-                                  if (Get.isDialogOpen ?? false) {
-                                    Get.back();
-                                  }
-                                  item.price = price;
-                                  item.stock = enableStock ? stock : 0;
-                                  if (Get.isRegistered<CategoryController>()) {
-                                    final catController = Get.find<CategoryController>();
-                                    if (catController.itemList != null) {
-                                      int idx = catController.itemList!.indexWhere((element) => element.id == item.id);
-                                      if (idx != -1) {
-                                        catController.itemList![idx].price = price;
-                                        catController.itemList![idx].stock = enableStock ? stock : 0;
-                                      }
-                                    }
-                                    catController.update();
-                                  }
-                                }
-                              });
-                            }
-                          },
-                          child: Text(inStore ? 'update'.tr : 'add'.tr),
-                        );
-                },
               ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
       barrierDismissible: false,
     );

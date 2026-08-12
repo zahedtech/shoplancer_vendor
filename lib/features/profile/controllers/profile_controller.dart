@@ -106,39 +106,48 @@ class ProfileController extends GetxController implements GetxService {
 
   void _allowModulePermission(List<String>? roles) {
     debugPrint('---permission--->> $roles');
+    bool isEmployee = false;
+    if (Get.isRegistered<AuthController>()) {
+      isEmployee = Get.find<AuthController>().getUserType() == 'employee';
+    }
     if (roles != null && roles.isNotEmpty && !roles.contains('owner')) {
-      List<String> module = roles;
+      isEmployee = true;
+    }
+
+    if (isEmployee) {
+      List<String> module = roles ?? [];
       if (kDebugMode) {
         print(module);
       }
+      bool hasExplicitRoles = module.isNotEmpty;
       _modulePermissionBody = ModulePermissionModel(
-        dashboard: module.contains('dashboard'),
-        profile: module.contains('profile'),
-        order: module.contains('order'),
-        pos: module.contains('pos'),
-        item: module.contains('item'),
-        addon: module.contains('addon'),
-        category: module.contains('category'),
-        campaign: module.contains('campaign'),
-        coupon: module.contains('coupon'),
-        banner: module.contains('banner'),
-        advertisement: module.contains('advertisement'),
-        advertisementList: module.contains('advertisement_list'),
-        deliveryman: module.contains('deliveryman'),
-        deliverymanList: module.contains('deliveryman_list'),
-        wallet: module.contains('wallet'),
-        walletMethod: module.contains('wallet_method'),
-        role: module.contains('role'),
-        employee: module.contains('employee'),
-        expenseReport: module.contains('expense_report'),
-        disbursementReport: module.contains('disbursement_report'),
-        vatReport: module.contains('vat_report'),
-        storeSetup: module.contains('store_setup'),
-        notificationSetup: module.contains('notification_setup'),
-        myShop: module.contains('my_shop'),
-        businessPlan: module.contains('business_plan'),
-        reviews: module.contains('reviews'),
-        chat: module.contains('chat'),
+        dashboard: hasExplicitRoles ? module.contains('dashboard') : true,
+        profile: hasExplicitRoles ? module.contains('profile') : true,
+        order: hasExplicitRoles ? module.contains('order') : true,
+        pos: hasExplicitRoles ? module.contains('pos') : true,
+        item: hasExplicitRoles ? module.contains('item') : true,
+        addon: hasExplicitRoles ? module.contains('addon') : true,
+        category: hasExplicitRoles ? module.contains('category') : true,
+        campaign: hasExplicitRoles ? module.contains('campaign') : true,
+        coupon: hasExplicitRoles ? module.contains('coupon') : true,
+        banner: hasExplicitRoles ? module.contains('banner') : true,
+        advertisement: hasExplicitRoles ? module.contains('advertisement') : true,
+        advertisementList: hasExplicitRoles ? module.contains('advertisement_list') : true,
+        deliveryman: hasExplicitRoles ? module.contains('deliveryman') : true,
+        deliverymanList: hasExplicitRoles ? module.contains('deliveryman_list') : true,
+        wallet: false,
+        walletMethod: false,
+        role: false,
+        employee: false,
+        expenseReport: false,
+        disbursementReport: false,
+        vatReport: false,
+        storeSetup: hasExplicitRoles ? module.contains('store_setup') : false,
+        notificationSetup: hasExplicitRoles ? module.contains('notification_setup') : true,
+        myShop: hasExplicitRoles ? module.contains('my_shop') : true,
+        businessPlan: false,
+        reviews: hasExplicitRoles ? module.contains('reviews') : true,
+        chat: hasExplicitRoles ? module.contains('chat') : true,
       );
     } else {
       _modulePermissionBody = ModulePermissionModel(

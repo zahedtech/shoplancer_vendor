@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
@@ -35,6 +36,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
   final ScrollController _categoryScrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   String? _barcodeSearch;
+  bool _showScanner = false;
 
   @override
   void initState() {
@@ -43,26 +45,22 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
     final StoreController storeController = Get.find<StoreController>();
     final ProfileController profileController = Get.find<ProfileController>();
 
-    void loadData() {
-      final int? mId = profileController.profileModel?.stores?[0].module?.id;
-      storeController.getItemList(
-        offset: '1',
-        type: 'all',
-        search: '',
-        categoryId: 0,
-        willUpdate: false,
-        moduleId: mId,
-      );
-      _fetchPublicCategories(storeController);
-    }
+    _barcodeSearch = null;
+    _searchController.clear();
+    storeController.resetFilters(reload: false);
+    storeController.setCategoryForSearch(index: 0);
 
-    if (profileController.profileModel != null) {
-      loadData();
-    }
+    final int? mId = profileController.profileModel?.stores?[0].module?.id;
+    storeController.getItemList(
+      offset: '1',
+      type: 'all',
+      search: '',
+      categoryId: 0,
+      willUpdate: false,
+      moduleId: mId,
+    );
 
-    profileController.getProfile().then((_) {
-      loadData();
-    });
+    _fetchPublicCategories(storeController);
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -97,19 +95,16 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
           ? profile.stores![0]
           : null;
       final int? moduleId = store?.module?.id;
+      final int? zoneId = store?.zoneId;
       final String? latitude = store?.latitude;
       final String? longitude = store?.longitude;
 
       final Map<String, String> headers = {
         'X-localization': Get.locale?.languageCode ?? 'ar',
-        'zoneId': '[6]',
-        'moduleId': moduleId != null ? moduleId.toString() : '1',
-        'latitude': latitude != null && latitude.isNotEmpty
-            ? latitude
-            : '29.909732664744325',
-        'longitude': longitude != null && longitude.isNotEmpty
-            ? longitude
-            : '31.05635669520862',
+        'zoneId': zoneId != null ? '[$zoneId]' : '[1]',
+        'moduleId': moduleId != null ? moduleId.toString() : '3',
+        if (latitude != null && latitude.isNotEmpty) 'latitude': latitude,
+        if (longitude != null && longitude.isNotEmpty) 'longitude': longitude,
         'Accept': 'application/json',
       };
 
@@ -125,6 +120,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
             .toList();
 
         storeController.setCategoriesFromExternal(categories);
+        storeController.setCategoryForSearch(index: 0);
       }
     } catch (e) {
       debugPrint('Error fetching public categories in AllItemsScreen: $e');
@@ -529,6 +525,23 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                     height: Dimensions.paddingSizeSmall,
                                   ),
 
+                                  if (_showScanner) ...[
+                                    PosStyleBarcodeScannerWidget(
+                                      onBarcodeScanned: (barcode) {
+                                        _searchController.text = barcode;
+                                        _searchItems(
+                                          storeController,
+                                          search: barcode,
+                                          barcode: barcode,
+                                        );
+                                      },
+                                      onClose: () =>
+                                          setState(() => _showScanner = false),
+                                    ),
+                                    const SizedBox(
+                                      height: Dimensions.paddingSizeSmall,
+                                    ),
+                                  ],
                                   SizedBox(
                                     height: 50,
                                     child: Row(
@@ -755,29 +768,22 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
     );
   }
 
-  Future<void> _scanAndSearch(StoreController storeController) async {
-    final String? code = await Get.to<String>(
-      () => const BarcodeScannerScreen(),
-    );
-    if (code == null || code.trim().isEmpty) {
-      return;
-    }
-
-    final String barcode = code.trim();
-    _searchController.text = barcode;
-    _searchItems(storeController, search: barcode, barcode: barcode);
-  }
-
   Widget _scanButton(BuildContext context, StoreController storeController) {
     return InkWell(
-      onTap: () => _scanAndSearch(storeController),
+      onTap: () {
+        setState(() {
+          _showScanner = !_showScanner;
+        });
+      },
       borderRadius: BorderRadius.circular(50),
       child: Container(
         height: 50,
         width: 50,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
+          color: _showScanner
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).primaryColor.withValues(alpha: 0.08),
           shape: BoxShape.circle,
           border: Border.all(
             color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
@@ -785,7 +791,7 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
         ),
         child: Icon(
           Icons.barcode_reader,
-          color: Theme.of(context).primaryColor,
+          color: _showScanner ? Colors.white : Theme.of(context).primaryColor,
         ),
       ),
     );

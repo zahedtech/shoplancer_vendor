@@ -387,6 +387,8 @@ class StoreController extends GetxController implements GetxService {
   Future<void> bulkItemsUpdate(
     List<Map<String, dynamic>> updates, {
     int? categoryId,
+    String? type,
+    String? sort,
   }) async {
     _isLoading = true;
     update();
@@ -402,10 +404,11 @@ class StoreController extends GetxController implements GetxService {
       _isSelectionMode = false;
       getItemList(
         offset: '1',
-        type: 'all',
+        type: type ?? _type,
         search: '',
         categoryId: categoryId ?? _categoryId ?? 0,
         moduleId: _currentModuleId,
+        sort: sort,
       );
       getLimitedStockItemList('1', willUpdate: false);
     } else {
@@ -747,7 +750,7 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  void resetFilters() {
+  void resetFilters({bool reload = false, int? moduleId}) {
     _type = 'all';
     _categoryId = 0;
     _categoryIndex = 0;
@@ -755,8 +758,15 @@ class StoreController extends GetxController implements GetxService {
     _isSearchVisible = false;
     _itemSize = null; // Reset item size to show shimmer while reloading
     update();
-    // Reload item list with default filters
-    getItemList(offset: '1', type: 'all', search: '', categoryId: 0);
+    if (reload) {
+      getItemList(
+        offset: '1',
+        type: 'all',
+        search: '',
+        categoryId: 0,
+        moduleId: moduleId,
+      );
+    }
   }
 
   Future<void> getItemList({
@@ -2485,7 +2495,11 @@ class StoreController extends GetxController implements GetxService {
 
   void setCategoryForSearch({required int index}) {
     _categoryIndex = index;
-    _categoryId = _categoryIdList![index];
+    if (_categoryIdList != null && index >= 0 && index < _categoryIdList!.length) {
+      _categoryId = _categoryIdList![index];
+    } else {
+      _categoryId = 0;
+    }
     update();
   }
 

@@ -80,179 +80,195 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             return Container(
                               decoration: BoxDecoration(
                                 color: Theme.of(context).cardColor,
-                                borderRadius: BorderRadius.circular(
-                                  Dimensions.radiusDefault,
-                                ),
+                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                                 border: Border.all(
                                   color: isActive
-                                      ? Theme.of(
-                                          context,
-                                        ).disabledColor.withOpacity(0.2)
+                                      ? Theme.of(context).disabledColor.withOpacity(0.15)
                                       : Colors.red.withOpacity(0.3),
-                                  width: isActive ? 0.5 : 1.0,
+                                  width: isActive ? 0.8 : 1.0,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Get.isDarkMode
-                                        ? Colors.white.withOpacity(0.05)
-                                        : Colors.black.withOpacity(0.05),
-                                    blurRadius: 20,
-                                    spreadRadius: 0,
-                                    offset: const Offset(0, 5),
+                                        ? Colors.white.withOpacity(0.03)
+                                        : Colors.black.withOpacity(0.04),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 3),
                                   ),
                                 ],
                               ),
                               margin: const EdgeInsets.only(
                                 bottom: Dimensions.paddingSizeSmall,
                               ),
-                              padding: const EdgeInsets.all(
-                                Dimensions.paddingSizeSmall,
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Get.to(
-                                    () => SubCategoryScreen(
-                                      parentCategory: category,
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(
-                                        Dimensions.radiusSmall,
-                                      ),
-                                      child: CustomImageWidget(
-                                        image: '${category.imageFullUrl}',
-                                        height: 65,
-                                        width: 65,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: Dimensions.paddingSizeSmall,
-                                    ),
+                              child: Column(
+                                children: [
+                                  // Main category info row
+                                  Padding(
+                                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                                    child: Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                          child: CustomImageWidget(
+                                            image: '${category.imageFullUrl}',
+                                            height: 56,
+                                            width: 56,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Expanded(
-                                                child: Text(
-                                                  category.name ?? '',
-                                                  style: robotoBold.copyWith(
-                                                    color: isActive
-                                                        ? Theme.of(context)
-                                                              .textTheme
-                                                              .bodyLarge
-                                                              ?.color
-                                                        : Theme.of(
-                                                            context,
-                                                          ).disabledColor,
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      category.name ?? '',
+                                                      style: robotoBold.copyWith(
+                                                        fontSize: Dimensions.fontSizeDefault,
+                                                        color: isActive
+                                                            ? Theme.of(context).textTheme.bodyLarge?.color
+                                                            : Theme.of(context).disabledColor,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
                                                   ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              if (!isActive)
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
+                                                  if (!isActive) ...[
+                                                    const SizedBox(width: 4),
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
                                                         horizontal: 6,
                                                         vertical: 2,
                                                       ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.red
-                                                        .withOpacity(0.1),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          Dimensions
-                                                              .radiusSmall,
-                                                        ),
-                                                  ),
-                                                  child: Text(
-                                                    'متوقفة',
-                                                    style: robotoRegular
-                                                        .copyWith(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                                      ),
+                                                      child: Text(
+                                                        'متوقفة',
+                                                        style: robotoRegular.copyWith(
                                                           fontSize: 10,
                                                           color: Colors.red,
                                                         ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    '${'id'.tr}: #${category.id}',
+                                                    style: robotoRegular.copyWith(
+                                                      fontSize: Dimensions.fontSizeSmall,
+                                                      color: Theme.of(context).disabledColor,
+                                                    ),
                                                   ),
-                                                ),
+                                                  const SizedBox(width: 8),
+                                                  Container(
+                                                    width: 3,
+                                                    height: 3,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Theme.of(context).disabledColor,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    '${category.productsCount ?? 0} ${'items'.tr}',
+                                                    style: robotoRegular.copyWith(
+                                                      fontSize: Dimensions.fontSizeSmall,
+                                                      color: Theme.of(context).disabledColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
-                                          const SizedBox(
-                                            height: Dimensions
-                                                .paddingSizeExtraSmall,
-                                          ),
+                                        ),
 
+                                        // Switch for Category Active/Deactive control
+                                        Transform.scale(
+                                          scale: 0.85,
+                                          child: Switch(
+                                            value: isActive,
+                                            activeColor: Theme.of(context).primaryColor,
+                                            onChanged: (bool val) {
+                                              categoryController.updateCategoryStatus(
+                                                category.id!,
+                                                val ? 1 : 0,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Dedicated Subcategory Navigation Action Bar
+                                  InkWell(
+                                    onTap: () {
+                                      Get.to(
+                                        () => SubCategoryScreen(
+                                          parentCategory: category,
+                                        ),
+                                      );
+                                    },
+                                    borderRadius: const BorderRadius.vertical(
+                                      bottom: Radius.circular(Dimensions.radiusDefault),
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: Dimensions.paddingSizeSmall,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).primaryColor.withOpacity(0.05),
+                                        borderRadius: const BorderRadius.vertical(
+                                          bottom: Radius.circular(Dimensions.radiusDefault),
+                                        ),
+                                        border: Border(
+                                          top: BorderSide(
+                                            color: Theme.of(context).disabledColor.withOpacity(0.08),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
                                           Row(
                                             children: [
+                                              Icon(
+                                                Icons.account_tree_outlined,
+                                                size: 15,
+                                                color: Theme.of(context).primaryColor,
+                                              ),
+                                              const SizedBox(width: 6),
                                               Text(
-                                                '${'id'.tr}: #${category.id}',
-                                                style: robotoRegular.copyWith(
-                                                  fontSize:
-                                                      Dimensions.fontSizeSmall,
-                                                  color: Theme.of(
-                                                    context,
-                                                  ).disabledColor,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width:
-                                                    Dimensions.paddingSizeSmall,
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 2,
-                                                      horizontal: 6,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .disabledColor
-                                                      .withOpacity(0.1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        Dimensions.radiusSmall,
-                                                      ),
-                                                ),
-                                                child: Text(
-                                                  '${category.productsCount ?? 0} ${'items'.tr}',
-                                                  style: robotoRegular.copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeExtraSmall,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).disabledColor,
-                                                  ),
+                                                'عرض الفئات الفرعية'.tr,
+                                                style: robotoMedium.copyWith(
+                                                  fontSize: Dimensions.fontSizeSmall,
+                                                  color: Theme.of(context).primaryColor,
                                                 ),
                                               ),
                                             ],
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: 12,
+                                            color: Theme.of(context).primaryColor,
                                           ),
                                         ],
                                       ),
                                     ),
-
-                                    // Switch for Category Active/Deactive control
-                                    Switch(
-                                      value: isActive,
-                                      activeColor: Theme.of(
-                                        context,
-                                      ).primaryColor,
-                                      onChanged: (bool val) {
-                                        categoryController.updateCategoryStatus(
-                                          category.id!,
-                                          val ? 1 : 0,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             );
                           },
@@ -321,7 +337,9 @@ class _GlobalCategorySelectionSheetState
   }) async {
     final requestingId = categoryId ?? -1;
     if (_requestingId != null) return;
-    setState(() => _requestingId = requestingId);
+    if (mounted) {
+      setState(() => _requestingId = requestingId);
+    }
     final bool success = await Get.find<CategoryController>()
         .requestCategoryAddition(
           categoryId: categoryId,
@@ -354,6 +372,8 @@ class _GlobalCategorySelectionSheetState
         headers: headers,
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200 && response.body != null) {
         final List<dynamic> body = response.body is List
             ? response.body
@@ -385,26 +405,32 @@ class _GlobalCategorySelectionSheetState
           }
         }
 
-        setState(() {
-          _globalCategories = categories;
-          _filteredCategories = categories;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _globalCategories = categories;
+            _filteredCategories = categories;
+            _isLoading = false;
+          });
+        }
       } else {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching global categories: $e');
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
-    } catch (e) {
-      debugPrint('Error fetching global categories: $e');
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
   void _filterCategories(String query) {
-    if (_globalCategories == null) return;
+    if (!mounted || _globalCategories == null) return;
     if (query.trim().isEmpty) {
       setState(() {
         _filteredCategories = _globalCategories;
@@ -413,13 +439,7 @@ class _GlobalCategorySelectionSheetState
       final q = query.trim().toLowerCase();
       setState(() {
         _filteredCategories = _globalCategories!.where((cat) {
-          final matchesMain = (cat.name ?? '').toLowerCase().contains(q);
-          final matchesChild =
-              cat.childes?.any(
-                (child) => (child.name ?? '').toLowerCase().contains(q),
-              ) ??
-              false;
-          return matchesMain || matchesChild;
+          return (cat.name ?? '').toLowerCase().contains(q);
         }).toList();
       });
     }
@@ -429,9 +449,10 @@ class _GlobalCategorySelectionSheetState
     final TextEditingController nameController = TextEditingController();
     final TextEditingController noteController = TextEditingController();
 
-    Get.dialog(
-      AlertDialog(
-        title: Text('طلب إضافة فئة خاصة للأدمن', style: robotoBold),
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('طلب إضافة فئة جديدة للأدمن', style: robotoBold),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -454,14 +475,17 @@ class _GlobalCategorySelectionSheetState
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text('cancel'.tr),
+          ),
           ElevatedButton(
             onPressed: () {
               if (nameController.text.trim().isEmpty) {
                 showCustomSnackBar('يرجى إدخال اسم الفئة المطلوبة');
                 return;
               }
-              Get.back();
+              Navigator.of(dialogContext).pop();
               _sendRequest(
                 customCategoryName: nameController.text.trim(),
                 note: noteController.text.trim(),
@@ -566,9 +590,6 @@ class _GlobalCategorySelectionSheetState
                     itemCount: _filteredCategories!.length,
                     itemBuilder: (context, index) {
                       final category = _filteredCategories![index];
-                      final hasChildren =
-                          category.childes != null &&
-                          category.childes!.isNotEmpty;
 
                       return Card(
                         margin: const EdgeInsets.only(
@@ -579,189 +600,64 @@ class _GlobalCategorySelectionSheetState
                             Dimensions.radiusSmall,
                           ),
                         ),
-                        child: hasChildren
-                            ? ExpansionTile(
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusSmall,
-                                  ),
-                                  child: CustomImageWidget(
-                                    image: '${category.imageFullUrl}',
-                                    height: 45,
-                                    width: 45,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                title: Text(
-                                  category.name ?? '',
-                                  style: robotoMedium,
-                                ),
-                                subtitle: Text(
-                                  '#${category.id} • (${category.childes!.length} فئات فرعية)',
-                                  style: robotoRegular.copyWith(
-                                    fontSize: Dimensions.fontSizeSmall,
-                                    color: Theme.of(context).disabledColor,
-                                  ),
-                                ),
-                                trailing: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        Dimensions.radiusSmall,
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: _requestingId != null
-                                      ? null
-                                      : () => _sendRequest(
-                                          categoryId: category.id,
-                                        ),
-                                  icon: _requestingId == category.id
-                                      ? const SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(Icons.send, size: 14),
-                                  label: Text(
-                                    _requestingId == category.id
-                                        ? 'جاري الإرسال...'
-                                        : 'طلب إضافة الفئة',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                                children: category.childes!.map((child) {
-                                  return Container(
-                                    color: Theme.of(
-                                      context,
-                                    ).disabledColor.withOpacity(0.04),
-                                    child: ListTile(
-                                      contentPadding: const EdgeInsets.only(
-                                        right: 60,
-                                        left: 16,
-                                      ),
-                                      title: Text(
-                                        child.name ?? '',
-                                        style: robotoRegular.copyWith(
-                                          fontSize: Dimensions.fontSizeDefault,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        '#${child.id}',
-                                        style: robotoRegular.copyWith(
-                                          fontSize:
-                                              Dimensions.fontSizeExtraSmall,
-                                          color: Theme.of(
-                                            context,
-                                          ).disabledColor,
-                                        ),
-                                      ),
-                                      trailing: OutlinedButton.icon(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              Dimensions.radiusSmall,
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: _requestingId != null
-                                            ? null
-                                            : () => _sendRequest(
-                                                categoryId: child.id,
-                                              ),
-                                        icon: _requestingId == child.id
-                                            ? const SizedBox(
-                                                width: 14,
-                                                height: 14,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                              )
-                                            : const Icon(
-                                                Icons.subdirectory_arrow_right,
-                                                size: 14,
-                                              ),
-                                        label: Text(
-                                          _requestingId == child.id
-                                              ? 'جاري...'
-                                              : 'طلب الفرعية',
-                                          style: const TextStyle(fontSize: 11),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              )
-                            : ListTile(
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    Dimensions.radiusSmall,
-                                  ),
-                                  child: CustomImageWidget(
-                                    image: '${category.imageFullUrl}',
-                                    height: 45,
-                                    width: 45,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                title: Text(
-                                  category.name ?? '',
-                                  style: robotoMedium,
-                                ),
-                                subtitle: Text(
-                                  '#${category.id}',
-                                  style: robotoRegular.copyWith(
-                                    fontSize: Dimensions.fontSizeSmall,
-                                    color: Theme.of(context).disabledColor,
-                                  ),
-                                ),
-                                trailing: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        Dimensions.radiusSmall,
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: _requestingId != null
-                                      ? null
-                                      : () => _sendRequest(
-                                          categoryId: category.id,
-                                        ),
-                                  icon: _requestingId == category.id
-                                      ? const SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(Icons.send, size: 14),
-                                  label: Text(
-                                    _requestingId == category.id
-                                        ? 'جاري الإرسال...'
-                                        : 'طلب إضافة',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
+                        child: ListTile(
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              Dimensions.radiusSmall,
+                            ),
+                            child: CustomImageWidget(
+                              image: '${category.imageFullUrl}',
+                              height: 45,
+                              width: 45,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          title: Text(
+                            category.name ?? '',
+                            style: robotoMedium,
+                          ),
+                          subtitle: Text(
+                            '#${category.id}',
+                            style: robotoRegular.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(context).disabledColor,
+                            ),
+                          ),
+                          trailing: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  Dimensions.radiusSmall,
                                 ),
                               ),
+                            ),
+                            onPressed: _requestingId != null
+                                ? null
+                                : () => _sendRequest(
+                                    categoryId: category.id,
+                                  ),
+                            icon: _requestingId == category.id
+                                ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.send, size: 14),
+                            label: Text(
+                              _requestingId == category.id
+                                  ? 'جاري الإرسال...'
+                                  : 'طلب إضافة',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   )
@@ -791,10 +687,7 @@ class _GlobalCategorySelectionSheetState
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showCustomCategoryRequestDialog();
-                },
+                onPressed: _showCustomCategoryRequestDialog,
                 icon: const Icon(Icons.create_new_folder_outlined),
                 label: const Text('طلب إضافة فئة جديدة'),
                 style: OutlinedButton.styleFrom(

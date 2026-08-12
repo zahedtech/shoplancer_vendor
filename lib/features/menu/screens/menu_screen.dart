@@ -1,4 +1,5 @@
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/auth/domain/models/module_permission_model.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
@@ -22,6 +23,7 @@ class MenuScreen extends StatelessWidget {
         : null;
     ModulePermissionModel? modulePermission =
         Get.find<ProfileController>().modulePermission;
+    bool isOwner = Get.find<AuthController>().getUserType() == 'owner';
 
     final List<MenuModel> menuList = [];
 
@@ -200,15 +202,7 @@ class MenuScreen extends StatelessWidget {
     // }
 
     // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
-    if (modulePermission.storeSetup!) {
-      // menuList.add(
-      //   MenuModel(
-      //     icon: '',
-      //     iconData: Icons.point_of_sale,
-      //     title: 'إنشاء طلب جديد (POS)'.tr,
-      //     route: RouteHelper.getPosRoute(),
-      //   ),
-      // );
+    if (isOwner && modulePermission.storeSetup!) {
       menuList.add(
         MenuModel(
           icon: '',
@@ -217,29 +211,18 @@ class MenuScreen extends StatelessWidget {
           route: RouteHelper.getEmployeeRoute(),
         ),
       );
-      // menuList.add(
-      //   MenuModel(
-      //     icon: '',
-      //     iconData: Icons.view_stream,
-      //     title: 'ترتيب سكاشن الويب'.tr,
-      //     route: RouteHelper.getStoreSectionsRoute(),
-      //   ),
-      // );
-      // if (store != null) {
-      //   menuList.add(
-      //     MenuModel(
-      //       icon: Images.restaurant,
-      //       title: Get.find<SplashController>()
-      //           .configModel!
-      //           .moduleConfig!
-      //           .module!
-      //           .showRestaurantText!
-      //           ? 'restaurant'.tr
-      //           : 'store'.tr,
-      //       route: RouteHelper.getStoreRoute(),
-      //     ),
-      //   );
-      // }
+
+      menuList.add(
+        MenuModel(
+          icon: '',
+          iconData: Icons.group_work_rounded,
+          title: 'إدارة السكاشن'.tr,
+          route: RouteHelper.getStoreSectionsRoute(),
+        ),
+      );
+    }
+
+    if (modulePermission.storeSetup!) {
       menuList.add(
         MenuModel(
           icon: Images.settingIcon,
@@ -254,17 +237,20 @@ class MenuScreen extends StatelessWidget {
           route: RouteHelper.getStoreSettingsRoute(store!),
         ),
       );
-      menuList.add(
-        MenuModel(
-          icon: Images.wallet,
-          title: 'payment_method'.tr,
-          route: '',
-          isPaymentMethods: true,
-        ),
-      );
+
+      if (isOwner) {
+        menuList.add(
+          MenuModel(
+            icon: Images.wallet,
+            title: 'payment_method'.tr,
+            route: '',
+            isPaymentMethods: true,
+          ),
+        );
+      }
     }
 
-    if (modulePermission.wallet!) {
+    if (isOwner && modulePermission.wallet!) {
       menuList.add(
         MenuModel(
           icon: Images.wallet,
@@ -274,7 +260,7 @@ class MenuScreen extends StatelessWidget {
       );
     }
 
-    if (modulePermission.businessPlan! && !GetPlatform.isIOS) {
+    if (isOwner && modulePermission.businessPlan! && !GetPlatform.isIOS) {
       menuList.add(
         MenuModel(
           icon: Images.mySubscriptionIcon,
