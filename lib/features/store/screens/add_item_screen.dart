@@ -4,6 +4,9 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
+import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/label_widget.dart';
@@ -61,9 +64,13 @@ class _AddItemScreenState extends State<AddItemScreen>
       TextEditingController();
   final TextEditingController _maxVideoPreviewController =
       TextEditingController();
+  final TextEditingController _barcodeController = TextEditingController();
   final FocusNode _priceNode = FocusNode();
   final FocusNode _discountNode = FocusNode();
   final FocusNode _genericNameNode = FocusNode();
+  final FocusNode _barcodeNode = FocusNode();
+  MobileScannerController? _scannerController;
+  bool _showScanner = false;
 
   final List<FocusNode> _nameFocusList = [];
   final List<FocusNode> _descriptionFocusList = [];
@@ -180,6 +187,7 @@ class _AddItemScreenState extends State<AddItemScreen>
       _discountController.text = _item.discount.toString();
       _stockController.text = _item.stock.toString();
       _maxOrderQuantityController.text = _item.maxOrderQuantity.toString();
+      _barcodeController.text = _item.barcode ?? '';
       _genericNameSuggestionController.text =
           (_item.genericName != null && _item.genericName!.isNotEmpty)
           ? _item.genericName![0]!
@@ -559,6 +567,9 @@ class _AddItemScreenState extends State<AddItemScreen>
     _priceNode.dispose();
     _discountNode.dispose();
     _genericNameNode.dispose();
+    _barcodeController.dispose();
+    _barcodeNode.dispose();
+    _scannerController?.dispose();
     for (var focusNode in _nameFocusList) {
       focusNode.dispose();
     }
@@ -926,74 +937,139 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                         .selectedCategoryID,
                                               ),
                                             ),
-                                            SizedBox(
-                                              height:
-                                                  (categoryController
-                                                              .subCategoryList !=
-                                                          null &&
-                                                      categoryController
-                                                          .subCategoryList!
-                                                          .isNotEmpty)
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
+                                            CustomTextFieldWidget(
+                                              hintText: Get.find<LocalizationController>().isLtr ? 'Barcode' : 'الباركود',
+                                              labelText: Get.find<LocalizationController>().isLtr ? 'Barcode' : 'الباركود',
+                                              controller: _barcodeController,
+                                              focusNode: _barcodeNode,
+                                              inputType: TextInputType.text,
+                                              inputAction: TextInputAction.next,
+                                              showLabelText: true,
+                                              showTitle: false,
+                                              suffixChild: IconButton(
+                                                icon: Icon(
+                                                  _showScanner ? Icons.close : Icons.camera_alt_outlined,
+                                                  color: Theme.of(context).primaryColor,
+                                                  size: 22,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _showScanner = !_showScanner;
+                                                    if (_showScanner) {
+                                                      _scannerController = MobileScannerController();
+                                                    } else {
+                                                      _scannerController?.dispose();
+                                                      _scannerController = null;
+                                                    }
+                                                  });
+                                                },
+                                              ),
                                             ),
+                                            if (_showScanner && _scannerController != null) ...[
+                                              const SizedBox(height: Dimensions.paddingSizeSmall),
+                                              Container(
+                                                height: 200,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: Theme.of(context).primaryColor, width: 2),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  color: Colors.black,
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: MobileScanner(
+                                                    controller: _scannerController!,
+                                                    onDetect: (capture) {
+                                                      for (final barcode in capture.barcodes) {
+                                                        final raw = barcode.rawValue?.trim();
+                                                        if (raw != null && raw.isNotEmpty) {
+                                                          setState(() {
+                                                            _barcodeController.text = raw;
+                                                            _showScanner = false;
+                                                            _scannerController?.dispose();
+                                                            _scannerController = null;
+                                                          });
+                                                          break;
+                                                        }
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
-                                            categoryController
-                                                            .subCategoryList !=
-                                                        null &&
+                                            LabelWidget(
+                                              labelText: 'category'.tr,
+                                              child: CustomDropdownButton(
+                                                hintText: 'category'.tr,
+                                                dropdownMenuItems: categoryController
+                                                    .categoryList
+                                                    ?.map(
+                                                      (
+                                                        item,
+                                                      ) => DropdownMenuItem<String>(
+                                                        value: item.id
+                                                            .toString(),
+                                                        child: Text(
+                                                          item.name ?? '',
+                                                          style: robotoRegular.copyWith(
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                    .toList(),
+                                                onChanged: (String? value) {
+                                                  categoryController
+                                                      .setSelectedCategory(
+                                                        value!,
+                                                      );
+                                                },
+                                                selectedValue:
                                                     categoryController
-                                                        .subCategoryList!
-                                                        .isNotEmpty
-                                                ? CustomDropdownButton(
-                                                    hintText: 'sub_category'.tr,
-                                                    dropdownMenuItems: categoryController
-                                                        .subCategoryList
-                                                        ?.map(
-                                                          (
-                                                            item,
-                                                          ) => DropdownMenuItem<String>(
-                                                            value: item.id
-                                                                .toString(),
+                                                        .selectedCategoryID,
+                                              ),
+                                            ),
+                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+
+                                            LabelWidget(
+                                              labelText: 'sub_category'.tr,
+                                              child: CustomDropdownButton(
+                                                hintText: 'sub_category'.tr,
+                                                dropdownMenuItems: categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty
+                                                    ? categoryController.subCategoryList!
+                                                        .map(
+                                                          (item) => DropdownMenuItem<String>(
+                                                            value: item.id.toString(),
                                                             child: Text(
                                                               item.name ?? '',
-                                                              style: robotoRegular
-                                                                  .copyWith(
-                                                                    fontSize:
-                                                                        Dimensions
-                                                                            .fontSizeDefault,
-                                                                  ),
+                                                              style: robotoRegular.copyWith(
+                                                                fontSize: Dimensions.fontSizeDefault,
+                                                              ),
                                                             ),
                                                           ),
                                                         )
-                                                        .toList(),
-                                                    onChanged: (String? value) {
-                                                      categoryController
-                                                          .setSelectedSubCategory(
-                                                            value!,
-                                                          );
-                                                    },
-                                                    selectedValue:
-                                                        categoryController
-                                                            .selectedSubCategoryID,
-                                                  )
-                                                : const SizedBox.shrink(),
-                                            SizedBox(
-                                              height:
-                                                  !widget.isSimple &&
-                                                      categoryController
-                                                              .selectedSubCategoryID !=
-                                                          null &&
-                                                      categoryController
-                                                              .subCategoryList !=
-                                                          null &&
-                                                      categoryController
-                                                          .subCategoryList!
-                                                          .isNotEmpty
-                                                  ? Dimensions
-                                                        .paddingSizeExtraLarge
-                                                  : 0,
+                                                        .toList()
+                                                    : [
+                                                        DropdownMenuItem<String>(
+                                                          value: null,
+                                                          child: Text(
+                                                            'no_subcategory_found'.tr,
+                                                            style: robotoRegular.copyWith(color: Colors.grey),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                onChanged: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
+                                                    ? (String? value) {
+                                                        categoryController.setSelectedSubCategory(value!);
+                                                      }
+                                                    : null,
+                                                selectedValue: categoryController.selectedSubCategoryID,
+                                              ),
                                             ),
+                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
                                             !widget.isSimple &&
                                                     isPharmacy &&
@@ -2863,6 +2939,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           storeController.availableTimeEnds;
                                       _item.categoryIds = [];
                                       _item.maxOrderQuantity = maxOrderQuantity;
+                                      _item.barcode = _barcodeController.text.trim();
                                       _item.categoryIds!.add(
                                         CategoryIds(
                                           id: categoryController

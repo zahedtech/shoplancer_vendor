@@ -20,6 +20,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   @override
   void initState() {
     super.initState();
+    Get.find<CategoryController>().clearSubCategoryList();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.parentCategory.id != null) {
         Get.find<CategoryController>().getSubCategoryList(widget.parentCategory.id!);

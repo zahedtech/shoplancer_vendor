@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
@@ -29,6 +32,9 @@ class _StagedQuickItem {
   int stock;
   int categoryId;
   String categoryName;
+  int? subCategoryId;
+  String? subCategoryName;
+  String? barcode;
   XFile? imageFile;
   _StagedStatus status = _StagedStatus.pending;
 
@@ -39,6 +45,9 @@ class _StagedQuickItem {
     required this.stock,
     required this.categoryId,
     required this.categoryName,
+    this.subCategoryId,
+    this.subCategoryName,
+    this.barcode,
     this.imageFile,
   });
 }
@@ -59,13 +68,18 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
+  final TextEditingController _barcodeController = TextEditingController();
+  MobileScannerController? _scannerController;
 
   final List<_StagedQuickItem> _stagedItems = [];
 
   int? _selectedCategoryId;
   String? _selectedCategoryName;
+  int? _selectedSubCategoryId;
+  String? _selectedSubCategoryName;
   XFile? _pickedImage;
   bool _showNumpad = false;
+  bool _showScanner = false;
   bool _isSubmittingAll = false;
 
   bool get _isEcommerce {
@@ -117,6 +131,8 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
     _nameController.dispose();
     _priceController.dispose();
     _stockController.dispose();
+    _barcodeController.dispose();
+    _scannerController?.dispose();
     super.dispose();
   }
 
@@ -183,6 +199,9 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
           stock: stock,
           categoryId: _selectedCategoryId!,
           categoryName: _selectedCategoryName ?? '',
+          subCategoryId: _selectedSubCategoryId,
+          subCategoryName: _selectedSubCategoryName,
+          barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
           imageFile: _pickedImage,
         ),
       );
@@ -192,6 +211,7 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
       _nameController.clear();
       _priceController.clear();
       _stockController.clear();
+      _barcodeController.clear();
       _pickedImage = null;
       _showNumpad = false;
     });
@@ -218,7 +238,11 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
     item.isHalal = 0;
     item.isBasicMedicine = 0;
     item.isPrescriptionRequired = 0;
+    item.barcode = staged.barcode;
     item.categoryIds = [CategoryIds(id: staged.categoryId.toString())];
+    if (staged.subCategoryId != null) {
+      item.categoryIds!.add(CategoryIds(id: staged.subCategoryId.toString()));
+    }
 
     if (_isEcommerce) {
       item.brandId =
@@ -363,6 +387,64 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                             ],
                           ),
                           const SizedBox(height: Dimensions.paddingSizeDefault),
+                          CustomTextFieldWidget(
+                            hintText: 'الباركود',
+                            labelText: 'الباركود',
+                            controller: _barcodeController,
+                            inputType: TextInputType.text,
+                            showTitle: false,
+                            suffixChild: IconButton(
+                              icon: Icon(
+                                _showScanner ? Icons.close : Icons.camera_alt_outlined,
+                                color: Theme.of(context).primaryColor,
+                                size: 22,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showScanner = !_showScanner;
+                                  if (_showScanner) {
+                                    _scannerController = MobileScannerController();
+                                  } else {
+                                    _scannerController?.dispose();
+                                    _scannerController = null;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          if (_showScanner && _scannerController != null) ...[
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Theme.of(context).primaryColor, width: 2),
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.black,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: MobileScanner(
+                                  controller: _scannerController!,
+                                  onDetect: (capture) {
+                                    for (final barcode in capture.barcodes) {
+                                      final raw = barcode.rawValue?.trim();
+                                      if (raw != null && raw.isNotEmpty) {
+                                        setState(() {
+                                          _barcodeController.text = raw;
+                                          _showScanner = false;
+                                          _scannerController?.dispose();
+                                          _scannerController = null;
+                                        });
+                                        break;
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
                           LabelWidget(
                             labelText: 'الفئة',
                             child: CustomDropdownButton(
@@ -390,8 +472,55 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                                 setState(() {
                                   _selectedCategoryId = int.tryParse(value);
                                   _selectedCategoryName = match?.name;
+                                  _selectedSubCategoryId = null;
+                                  _selectedSubCategoryName = null;
                                 });
+                                categoryController.getSubCategoryList(int.parse(value));
                               },
+                            ),
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
+                          LabelWidget(
+                            labelText: 'الفئة الفرعية',
+                            child: CustomDropdownButton(
+                              hintText: 'اختر الفئة الفرعية',
+                              dropdownMenuItems: categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty
+                                  ? categoryController.subCategoryList!
+                                      .map(
+                                        (c) => DropdownMenuItem<String>(
+                                          value: c.id.toString(),
+                                          child: Text(
+                                            c.name ?? '',
+                                            style: robotoRegular.copyWith(
+                                              fontSize: Dimensions.fontSizeDefault,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList()
+                                  : [
+                                      DropdownMenuItem<String>(
+                                        value: null,
+                                        child: Text(
+                                          'no_subcategory_found'.tr,
+                                          style: robotoRegular.copyWith(color: Colors.grey),
+                                        ),
+                                      ),
+                                    ],
+                              selectedValue: _selectedSubCategoryId?.toString(),
+                              onChanged: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
+                                  ? (String? value) {
+                                      if (value == null) return;
+                                      final CategoryModel? match = categoryController.subCategoryList
+                                          ?.firstWhereOrNull(
+                                            (c) => c.id.toString() == value,
+                                          );
+                                      setState(() {
+                                        _selectedSubCategoryId = int.tryParse(value);
+                                        _selectedSubCategoryName = match?.name;
+                                      });
+                                    }
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -704,7 +833,7 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${staged.categoryName} • ${PriceConverterHelper.convertPrice(staged.price)} • مخزون ${staged.stock}',
+                  '${staged.categoryName}${staged.subCategoryName != null && staged.subCategoryName!.isNotEmpty ? ' (${staged.subCategoryName})' : ''} • ${PriceConverterHelper.convertPrice(staged.price)} • مخزون ${staged.stock}${staged.barcode != null ? ' • ${staged.barcode}' : ''}',
                   style: robotoRegular.copyWith(
                     fontSize: Dimensions.fontSizeExtraSmall,
                     color: Theme.of(context).disabledColor,
