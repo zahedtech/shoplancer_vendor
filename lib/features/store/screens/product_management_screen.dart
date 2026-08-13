@@ -10,7 +10,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/paginated_list_widget.dart';
 import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
-import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/features/store/screens/item_details_screen.dart';

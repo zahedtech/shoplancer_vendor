@@ -13,6 +13,12 @@ class CustomImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (image.isEmpty) {
+      return Image.asset(
+        isNotification ? Images.notificationPlaceholder : Images.placeholder,
+        height: height, width: width, fit: fit,
+      );
+    }
     return CachedNetworkImage(
       imageUrl: image, height: height, width: width, fit: fit,
       placeholder: (context, url) => Image.asset(isNotification ? Images.notificationPlaceholder : Images.placeholder, height: height, width: width, fit: fit),

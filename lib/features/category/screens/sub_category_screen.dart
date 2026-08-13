@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/features/category/controllers/category_controller.dart';
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
@@ -23,7 +22,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     Get.find<CategoryController>().clearSubCategoryList();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.parentCategory.id != null) {
-        Get.find<CategoryController>().getSubCategoryList(widget.parentCategory.id!);
+        Get.find<CategoryController>().getSubCategoryList(
+          widget.parentCategory.id!,
+        );
       }
     });
   }
@@ -40,7 +41,8 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final List<CategoryModel> subCategories = categoryController.subCategoryList!;
+          final List<CategoryModel> subCategories =
+              categoryController.subCategoryList!;
 
           if (subCategories.isEmpty) {
             return Center(
@@ -68,7 +70,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               if (widget.parentCategory.id != null) {
-                await categoryController.getSubCategoryList(widget.parentCategory.id!);
+                await categoryController.getSubCategoryList(
+                  widget.parentCategory.id!,
+                );
               }
             },
             child: ListView.builder(
@@ -81,7 +85,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                 return Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.radiusDefault,
+                    ),
                     border: Border.all(
                       color: isActive
                           ? Theme.of(context).disabledColor.withOpacity(0.2)
@@ -99,7 +105,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                       ),
                     ],
                   ),
-                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                  margin: const EdgeInsets.only(
+                    bottom: Dimensions.paddingSizeSmall,
+                  ),
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   child: Row(
                     children: [
@@ -107,8 +115,12 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                         height: 46,
                         width: 46,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusSmall,
+                          ),
                         ),
                         child: Icon(
                           Icons.subdirectory_arrow_right_rounded,
@@ -129,7 +141,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                     subCategory.name ?? '',
                                     style: robotoBold.copyWith(
                                       color: isActive
-                                          ? Theme.of(context).textTheme.bodyLarge?.color
+                                          ? Theme.of(
+                                              context,
+                                            ).textTheme.bodyLarge?.color
                                           : Theme.of(context).disabledColor,
                                       fontSize: Dimensions.fontSizeDefault,
                                     ),
@@ -159,7 +173,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                            const SizedBox(
+                              height: Dimensions.paddingSizeExtraSmall,
+                            ),
 
                             Row(
                               children: [
@@ -170,16 +186,23 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                                     color: Theme.of(context).disabledColor,
                                   ),
                                 ),
-                                if (subCategory.productsCount != null && subCategory.productsCount! > 0) ...[
-                                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                                if (subCategory.productsCount != null &&
+                                    subCategory.productsCount! > 0) ...[
+                                  const SizedBox(
+                                    width: Dimensions.paddingSizeSmall,
+                                  ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 2,
                                       horizontal: 6,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).disabledColor.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(
+                                        Dimensions.radiusSmall,
+                                      ),
                                     ),
                                     child: Text(
                                       '${subCategory.productsCount} ${'items'.tr}',

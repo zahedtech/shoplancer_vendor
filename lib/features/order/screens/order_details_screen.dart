@@ -364,11 +364,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                 extraPackagingAmount = order.extraPackagingAmount ?? 0;
                 referrerBonusAmount = order.referrerBonusAmount ?? 0;
                 couponDiscount = order.couponDiscountAmount ?? 0;
-                if (isPrescriptionOrder ?? false) {
+                if (isPrescriptionOrder) {
                   double orderAmount = order.orderAmount ?? 0;
                   itemsPrice =
                       (orderAmount + discount) -
-                      (((taxIncluded ?? false) ? 0 : (tax ?? 0)) +
+                      (((taxIncluded) ? 0 : (tax ?? 0)) +
                           (deliveryCharge ?? 0) +
                           additionalCharge);
                 } else {
