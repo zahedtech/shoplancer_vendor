@@ -191,6 +191,7 @@
   "amount": "Cantidad",
   "category": "Categoría",
   "sub_category": "Subcategoría",
+  "barcode": "Código de barras",
   "attribute": "Atributo",
   "add": "Agregar",
   "variant": "Variante",

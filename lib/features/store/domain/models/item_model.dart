@@ -66,6 +66,7 @@ class ItemModel {
 
 class Item {
   int? id;
+  String? barcode;
   String? name;
   String? description;
   String? imageFullUrl;
@@ -129,6 +130,7 @@ class Item {
 
   Item({
     this.id,
+    this.barcode,
     this.name,
     this.description,
     this.imageFullUrl,
@@ -199,6 +201,7 @@ class Item {
     }
 
     id = parseInt(json['id']);
+    barcode = json['barcode']?.toString();
     name = json['name'];
     description = json['description'];
     imageFullUrl = json['image_full_url'];
@@ -546,6 +549,7 @@ class Item {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['barcode'] = barcode;
     data['name'] = name;
     data['description'] = description;
     data['image_full_url'] = imageFullUrl;

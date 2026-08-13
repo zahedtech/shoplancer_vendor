@@ -212,6 +212,7 @@
   "amount": "Amount",
   "category": "Category",
   "sub_category": "Sub Category",
+  "barcode": "Barcode",
   "attribute": "Attribute",
   "add": "Add",
   "variant": "Variant",

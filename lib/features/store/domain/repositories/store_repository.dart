@@ -308,6 +308,7 @@ class StoreRepository implements StoreRepositoryInterface {
       'translations': jsonEncode(item.translations),
       'tags': tags,
       'maximum_cart_quantity': item.maxOrderQuantity.toString(),
+      'barcode': item.barcode ?? '',
     });
 
     if (Get.find<ProfileController>()

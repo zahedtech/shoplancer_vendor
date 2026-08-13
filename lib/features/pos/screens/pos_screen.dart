@@ -99,6 +99,7 @@ class _PosScreenState extends State<PosScreen> {
     if (storeController.itemList != null) {
       foundItem = storeController.itemList!.firstWhereOrNull(
         (item) =>
+            item.barcode == barcode ||
             item.id.toString() == barcode ||
             (item.name != null && item.name!.contains(barcode)),
       );

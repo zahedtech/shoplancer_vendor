@@ -102,7 +102,7 @@ class _ProductsSidebarState extends State<_ProductsSidebar> {
     if (code.isEmpty) return false;
     final storeController = Get.find<StoreController>();
     final Item? found = storeController.itemList?.firstWhereOrNull(
-      (item) => item.id.toString() == code || (item.name != null && item.name!.contains(code)),
+      (item) => item.barcode == code || item.id.toString() == code || (item.name != null && item.name!.contains(code)),
     );
     if (found != null) {
       Get.find<PosController>().addToCart(found);
