@@ -42,6 +42,8 @@ class CustomTextFieldWidget extends StatefulWidget {
   final bool hideEnableText;
   final Function? onEditingComplete;
   final String? prefixText;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const CustomTextFieldWidget({
     super.key,
@@ -80,6 +82,8 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.hideEnableText = false,
     this.onEditingComplete,
     this.prefixText,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -135,6 +139,8 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
           cursorColor: Theme.of(context).primaryColor,
           textCapitalization: widget.capitalization,
           enabled: widget.isEnabled,
+          readOnly: widget.readOnly,
+          onTap: widget.onTap,
           autofocus: false,
           maxLength: widget.maxLength,
           autofillHints: widget.inputType == TextInputType.name

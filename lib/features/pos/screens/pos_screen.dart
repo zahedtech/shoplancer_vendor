@@ -140,7 +140,7 @@ class _PosScreenState extends State<PosScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.qr_code_scanner, color: Theme.of(context).primaryColor),
+            Icon(Icons.barcode_reader, color: Theme.of(context).primaryColor),
             const SizedBox(width: 8),
             Text(
               'مسح أو إدخال باركود'.tr,
@@ -166,7 +166,7 @@ class _PosScreenState extends State<PosScreen> {
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 hintText: 'رقم الباركود...'.tr,
-                prefixIcon: const Icon(Icons.qr_code),
+                prefixIcon: const Icon(Icons.barcode_reader),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -311,7 +311,7 @@ class _PosScreenState extends State<PosScreen> {
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.qr_code_scanner,
+                                Icons.barcode_reader,
                                 color: Colors.white,
                                 size: 14,
                               ),
@@ -943,7 +943,7 @@ class _PosScreenState extends State<PosScreen> {
                       ),
                     ),
                     onPressed: _showManualBarcodeDialog,
-                    icon: const Icon(Icons.qr_code_scanner, size: 20),
+                    icon: const Icon(Icons.barcode_reader, size: 20),
                     label: Text(
                       'مسح باركود'.tr,
                       style: robotoBold.copyWith(

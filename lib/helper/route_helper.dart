@@ -449,7 +449,10 @@ class RouteHelper {
                   Get.parameters['page'] == 'store')
             ? 2
             : (Get.parameters['page'] == 'order' ||
-                  Get.parameters['page'] == 'wallet')
+                  Get.parameters['page'] == 'wallet' ||
+                  Get.parameters['page'] == 'product-management' ||
+                  Get.parameters['page'] == 'products' ||
+                  Get.parameters['page'] == 'items')
             ? 3
             : Get.parameters['page'] == 'menu'
             ? 4

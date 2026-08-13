@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
@@ -47,12 +48,15 @@ class _ProductPriceManagementScreenState
   final Map<int, double> _stagedPrices = {};
   final Map<int, Item> _stagedItems = {};
   final Map<int, TextEditingController> _priceInputControllers = {};
+  bool _showScanner = false;
 
   int _currentIndex = 0;
   bool _showNumpad = true;
   String? _barcodeSearch;
   int? _selectedSubCategoryId;
   bool _isSaving = false;
+  bool _isLoadingMore = false;
+  bool _pendingAdvanceNext = false;
 
   int get _activeCategoryId {
     if (_selectedSubCategoryId != null) {
@@ -72,10 +76,12 @@ class _ProductPriceManagementScreenState
     final categoryController = Get.find<CategoryController>();
 
     _selectedSubCategoryId = null;
+    _loadLocalDraft();
 
     final int? initialCatId = widget.initialCategoryId;
-    final int targetCategoryId =
-        (initialCatId != null && initialCatId != 0) ? initialCatId : 0;
+    final int targetCategoryId = (initialCatId != null && initialCatId != 0)
+        ? initialCatId
+        : 0;
 
     // Synchronize category lists if already fetched
     if (categoryController.categoryList != null &&
@@ -100,14 +106,13 @@ class _ProductPriceManagementScreenState
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadLocalDraft();
-
-      // 1. Immediately fetch the products for this target category without waiting for categories request!
+      // 1. Immediately fetch active products sorted by price from API
       storeController.getItemList(
         offset: '1',
-        type: 'all',
+        type: 'active',
         search: '',
         categoryId: targetCategoryId,
+        sort: 'low_to_high',
         willUpdate: true,
       );
 
@@ -138,21 +143,7 @@ class _ProductPriceManagementScreenState
               _scrollController.position.maxScrollExtent - 200 &&
           storeController.itemList != null &&
           !storeController.isLoading) {
-        final int totalItems = storeController.itemSize ?? 0;
-        if (totalItems == 0) return;
-
-        final int pageSize = (totalItems / 10).ceil();
-        if (storeController.offset < pageSize) {
-          storeController.setOffset(storeController.offset + 1);
-          storeController.showBottomLoader();
-          storeController.getItemList(
-            offset: storeController.offset.toString(),
-            type: storeController.type,
-            search: _searchController.text.trim(),
-            categoryId: _activeCategoryId,
-            barcode: _barcodeSearch,
-          );
-        }
+        _loadNextPage(storeController);
       }
     });
   }
@@ -199,31 +190,47 @@ class _ProductPriceManagementScreenState
           final Map<String, dynamic> rawPrices = decoded['prices'];
           final Map<String, dynamic> rawItems = decoded['items'];
 
-          setState(() {
-            _stagedPrices.clear();
-            _stagedItems.clear();
+          _stagedPrices.clear();
+          _stagedItems.clear();
 
-            rawPrices.forEach((key, val) {
-              final int? id = int.tryParse(key);
-              final double? price = double.tryParse(val.toString());
-              if (id != null && price != null) {
-                _stagedPrices[id] = price;
-              }
-            });
-
-            rawItems.forEach((key, itemJson) {
-              final int? id = int.tryParse(key);
-              if (id != null && itemJson is Map<String, dynamic>) {
-                _stagedItems[id] = Item.fromJson(itemJson);
-              }
-            });
+          rawPrices.forEach((key, val) {
+            final int? id = int.tryParse(key);
+            final double? price = double.tryParse(val.toString());
+            if (id != null && price != null) {
+              _stagedPrices[id] = price;
+            }
           });
 
+          rawItems.forEach((key, itemJson) {
+            final int? id = int.tryParse(key);
+            if (id != null && itemJson is Map<String, dynamic>) {
+              _stagedItems[id] = Item.fromJson(itemJson);
+            }
+          });
+
+          // Sync price input controllers
+          _stagedPrices.forEach((id, price) {
+            final String text = price % 1 == 0
+                ? price.toInt().toString()
+                : price.toString();
+            if (_priceInputControllers.containsKey(id)) {
+              _priceInputControllers[id]!.text = text;
+            } else {
+              _priceInputControllers[id] = TextEditingController(text: text);
+            }
+          });
+
+          if (mounted) {
+            setState(() {});
+          }
+
           if (_stagedPrices.isNotEmpty) {
-            showCustomSnackBar(
-              'تم استعادة ${_stagedPrices.length} منتج مُعدّل من مسودة التعديل المحفوظة',
-              isError: false,
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showCustomSnackBar(
+                'تم استعادة ${_stagedPrices.length} منتج مُعدّل من مسودة التعديل المحفوظة',
+                isError: false,
+              );
+            });
           }
         }
       }
@@ -242,14 +249,20 @@ class _ProductPriceManagementScreenState
   }
 
   TextEditingController _getControllerForItem(Item item) {
+    final double targetPrice = _stagedPrices[item.id] ?? (item.price ?? 0);
+    final String targetText = targetPrice % 1 == 0
+        ? targetPrice.toInt().toString()
+        : targetPrice.toString();
+
     if (!_priceInputControllers.containsKey(item.id)) {
-      final double price = _stagedPrices[item.id] ?? (item.price ?? 0);
-      final String initialText = price % 1 == 0
-          ? price.toInt().toString()
-          : price.toString();
       _priceInputControllers[item.id!] = TextEditingController(
-        text: initialText,
+        text: targetText,
       );
+    } else {
+      final controller = _priceInputControllers[item.id!]!;
+      if (_stagedPrices.containsKey(item.id) && controller.text != targetText) {
+        controller.text = targetText;
+      }
     }
     return _priceInputControllers[item.id!]!;
   }
@@ -279,7 +292,7 @@ class _ProductPriceManagementScreenState
       final String text = originalPrice % 1 == 0
           ? originalPrice.toInt().toString()
           : originalPrice.toString();
-      _getControllerForItem(item).text = text;
+      _priceInputControllers[item.id!]?.text = text;
     });
     _saveLocalDraft();
   }
@@ -318,17 +331,99 @@ class _ProductPriceManagementScreenState
     }
   }
 
-  void _goToIndex(int index, List<Item> items) {
+  void _goToIndex(
+    int index,
+    List<Item> items, {
+    StoreController? storeController,
+  }) {
     if (index < 0 || index >= items.length) return;
     setState(() {
       _currentIndex = index;
     });
     if (_scrollController.hasClients) {
+      final double targetOffset = (index * 135.0)
+          .clamp(0.0, _scrollController.position.maxScrollExtent);
       _scrollController.animateTo(
-        (index * 85.0).clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+        targetOffset,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
       );
+    }
+    if (storeController != null && index >= items.length - 3) {
+      _loadNextPage(storeController);
+    }
+  }
+
+  void _loadNextPage(
+    StoreController storeController, {
+    bool autoAdvance = false,
+  }) {
+    if (storeController.isLoading || _isLoadingMore) {
+      if (autoAdvance) {
+        _pendingAdvanceNext = true;
+        setState(() {});
+      }
+      return;
+    }
+    final int totalItems = storeController.itemSize ?? 0;
+    if (totalItems == 0) return;
+
+    final int pageSize = (totalItems / 10).ceil();
+    if (storeController.offset < pageSize) {
+      _isLoadingMore = true;
+      if (autoAdvance) {
+        _pendingAdvanceNext = true;
+      }
+      setState(() {});
+
+      storeController.setOffset(storeController.offset + 1);
+      storeController.showBottomLoader();
+      storeController
+          .getItemList(
+        offset: storeController.offset.toString(),
+        type: 'active',
+        search: _searchController.text.trim(),
+        categoryId: _activeCategoryId,
+        barcode: _barcodeSearch,
+        sort: 'low_to_high',
+      )
+          .then((_) {
+        _isLoadingMore = false;
+        if (mounted) {
+          final List<Item>? currentItems = storeController.itemList != null
+              ? _filterLocally(storeController.itemList!)
+              : null;
+          if (_pendingAdvanceNext &&
+              currentItems != null &&
+              _currentIndex + 1 < currentItems.length) {
+            _pendingAdvanceNext = false;
+            _goToIndex(
+              _currentIndex + 1,
+              currentItems,
+              storeController: storeController,
+            );
+          } else {
+            _pendingAdvanceNext = false;
+            setState(() {});
+          }
+        }
+      }).catchError((e) {
+        _isLoadingMore = false;
+        _pendingAdvanceNext = false;
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  void _onNextPressed(StoreController storeController, List<Item> items) {
+    if (_currentIndex < items.length - 1) {
+      _goToIndex(
+        _currentIndex + 1,
+        items,
+        storeController: storeController,
+      );
+    } else {
+      _loadNextPage(storeController, autoAdvance: true);
     }
   }
 
@@ -343,10 +438,16 @@ class _ProductPriceManagementScreenState
   List<Item> _filterLocally(List<Item>? sourceItems) {
     if (sourceItems == null) return [];
     final String query = _searchController.text.trim().toLowerCase();
-    if (query.isEmpty) return sourceItems;
-    return sourceItems
-        .where((item) => (item.name ?? '').toLowerCase().contains(query))
-        .toList();
+
+    var filtered = sourceItems.where((item) => (item.status ?? 1) == 1);
+
+    if (query.isNotEmpty) {
+      filtered = filtered.where(
+        (item) => (item.name ?? '').toLowerCase().contains(query),
+      );
+    }
+
+    return filtered.toList();
   }
 
   void _searchByBarcode(StoreController storeController, String barcode) {
@@ -355,10 +456,11 @@ class _ProductPriceManagementScreenState
     storeController.setOffset(1);
     storeController.getItemList(
       offset: '1',
-      type: 'all',
+      type: 'active',
       search: '',
       categoryId: _activeCategoryId,
       barcode: barcode,
+      sort: 'low_to_high',
     );
   }
 
@@ -370,9 +472,10 @@ class _ProductPriceManagementScreenState
       storeController.setOffset(1);
       storeController.getItemList(
         offset: '1',
-        type: 'all',
+        type: 'active',
         search: '',
         categoryId: _activeCategoryId,
+        sort: 'low_to_high',
       );
     } else {
       setState(() {});
@@ -571,6 +674,8 @@ class _ProductPriceManagementScreenState
         await storeController.bulkItemsUpdate(
           updates,
           categoryId: _activeCategoryId,
+          type: 'active',
+          sort: 'low_to_high',
         );
         if (mounted) {
           setState(() {
@@ -597,24 +702,29 @@ class _ProductPriceManagementScreenState
 
   Widget _scanButton(BuildContext context, StoreController storeController) {
     return InkWell(
-      onTap: () async {
-        final String? barcode = await Get.to(
-          () => const BarcodeScannerScreen(),
-        );
-        if (barcode != null && barcode.isNotEmpty) {
-          _searchController.text = barcode;
-          _searchByBarcode(storeController, barcode);
-        }
+      onTap: () {
+        setState(() {
+          _showScanner = !_showScanner;
+        });
       },
       borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
       child: Container(
         height: 48,
         width: 48,
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
+          color: _showScanner
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+          border: Border.all(
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+          ),
         ),
-        child: const Icon(Icons.barcode_reader, color: Colors.white, size: 24),
+        child: Icon(
+          Icons.barcode_reader,
+          color: _showScanner ? Colors.white : Theme.of(context).primaryColor,
+          size: 24,
+        ),
       ),
     );
   }
@@ -674,10 +784,7 @@ class _ProductPriceManagementScreenState
                     value: isItemVisible,
                     activeColor: Theme.of(context).primaryColor,
                     onChanged: (bool value) {
-                      storeController.updateItemStatusForProduct(
-                        item.id,
-                        value,
-                      );
+                      _onToggleItemStatus(storeController, item, value);
                     },
                   ),
                 ),
@@ -686,15 +793,47 @@ class _ProductPriceManagementScreenState
     );
   }
 
-  Widget _buildBuiltInNumpad(BuildContext context, List<Item> items) {
+  void _onToggleItemStatus(
+    StoreController storeController,
+    Item item,
+    bool value,
+  ) {
+    if (!value) {
+      // Optimistically mark inactive locally so it immediately disappears from active list smoothly
+      setState(() {
+        item.status = 0;
+        _stagedPrices.remove(item.id);
+        _stagedItems.remove(item.id);
+      });
+      _saveLocalDraft();
+    }
+    // Update status in background without reloading the screen
+    storeController.updateItemStatusForProduct(item.id, value);
+  }
+
+  Widget _buildBuiltInNumpad(
+    BuildContext context,
+    StoreController storeController,
+    List<Item> items,
+  ) {
     if (items.isEmpty) return const SizedBox.shrink();
     if (_currentIndex >= items.length) {
       _currentIndex = items.length - 1;
     }
 
-    final bool isLast = _currentIndex == items.length - 1;
+    final int totalServerItems = storeController.itemSize ?? items.length;
+    final int totalPages = (totalServerItems / 10).ceil();
+    final bool isSearchFiltered = _searchController.text.trim().isNotEmpty;
+    final bool hasMoreServerItems =
+        !isSearchFiltered && storeController.offset < totalPages;
+    final bool isLast =
+        _currentIndex == items.length - 1 && !hasMoreServerItems;
     final bool isFirst = _currentIndex == 0;
     final Item currentItem = items[_currentIndex];
+
+    final int displayTotal = isSearchFiltered
+        ? items.length
+        : (totalServerItems > items.length ? totalServerItems : items.length);
 
     return Container(
       decoration: BoxDecoration(
@@ -736,7 +875,7 @@ class _ProductPriceManagementScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'المنتج المحدد (${_currentIndex + 1}/${items.length}):',
+                      'المنتج المحدد (${_currentIndex + 1}/$displayTotal):',
                       style: robotoRegular.copyWith(
                         fontSize: 11,
                         color: Theme.of(context).disabledColor,
@@ -755,7 +894,11 @@ class _ProductPriceManagementScreenState
               ),
               OutlinedButton.icon(
                 onPressed: !isFirst
-                    ? () => _goToIndex(_currentIndex - 1, items)
+                    ? () => _goToIndex(
+                        _currentIndex - 1,
+                        items,
+                        storeController: storeController,
+                      )
                     : null,
                 icon: const Icon(Icons.arrow_back_rounded, size: 16),
                 label: const Text('السابق'),
@@ -771,10 +914,23 @@ class _ProductPriceManagementScreenState
               const SizedBox(width: 6),
               ElevatedButton.icon(
                 onPressed: !isLast
-                    ? () => _goToIndex(_currentIndex + 1, items)
+                    ? () => _onNextPressed(storeController, items)
                     : null,
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: const Text('التالي'),
+                icon: (_isLoadingMore && _currentIndex == items.length - 1)
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: Text(
+                  (_isLoadingMore && _currentIndex == items.length - 1)
+                      ? 'جاري...'
+                      : 'التالي',
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
@@ -903,44 +1059,79 @@ class _ProductPriceManagementScreenState
 
         return Scaffold(
           appBar: CustomAppBarWidget(
-            title:
-                widget.initialCategoryName != null &&
-                    widget.initialCategoryName!.isNotEmpty
-                ? 'محرر الأسعار - ${widget.initialCategoryName}'
-                : 'محرر أسعار المنتجات',
-            menuWidget: Row(
+            titleWidget: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.search,
-                    color: Theme.of(context).primaryColor,
+                Text(
+                  widget.initialCategoryName != null &&
+                          widget.initialCategoryName!.isNotEmpty
+                      ? widget.initialCategoryName!
+                      : 'محرر أسعار المنتجات',
+                  style: robotoBold.copyWith(
+                    fontSize: Dimensions.fontSizeLarge,
+                    color: Theme.of(context).textTheme.bodyLarge!.color,
                   ),
-                  tooltip: 'بحث في كل منتجات المتجر',
-                  onPressed: () =>
-                      Get.toNamed(RouteHelper.getItemSearchRoute()),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                if (_stagedPrices.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: TextButton.icon(
-                      onPressed: () => _showReviewBottomSheet(storeController),
-                      icon: const Icon(
-                        Icons.check_circle_outline,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      label: Text(
-                        'مراجعة (${_stagedPrices.length})',
-                        style: robotoBold.copyWith(color: Colors.white),
-                      ),
+                if (widget.initialCategoryName != null &&
+                    widget.initialCategoryName!.isNotEmpty)
+                  Text(
+                    'محرر الأسعار السريع',
+                    style: robotoRegular.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall,
+                      color: Theme.of(context).disabledColor,
                     ),
                   ),
               ],
             ),
+            menuWidget: _stagedPrices.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showReviewBottomSheet(storeController),
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        size: 16,
+                      ),
+                      label: Text(
+                        'مراجعة (${_stagedPrices.length})',
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusSmall,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : null,
           ),
           body: Column(
             children: [
+              if (_showScanner) ...[
+                PosStyleBarcodeScannerWidget(
+                  onBarcodeScanned: (barcode) {
+                    _searchController.text = barcode;
+                    _searchByBarcode(storeController, barcode);
+                  },
+                  onClose: () => setState(() => _showScanner = false),
+                ),
+              ],
+
               // Search & Barcode Search Bar
               Padding(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
@@ -1013,11 +1204,14 @@ class _ProductPriceManagementScreenState
                           return InkWell(
                             onTap: () {
                               _currentIndex = 0;
-                              final int? newSubCatId = isAll ? null : subCat?.id;
+                              final int? newSubCatId = isAll
+                                  ? null
+                                  : subCat?.id;
                               setState(() {
                                 _selectedSubCategoryId = newSubCatId;
                               });
-                              final int targetCatId = newSubCatId ??
+                              final int targetCatId =
+                                  newSubCatId ??
                                   (widget.initialCategoryId != null &&
                                           widget.initialCategoryId != 0
                                       ? widget.initialCategoryId!
@@ -1025,10 +1219,11 @@ class _ProductPriceManagementScreenState
                               storeController.setOffset(1);
                               storeController.getItemList(
                                 offset: '1',
-                                type: 'all',
+                                type: 'active',
                                 search: _searchController.text.trim(),
                                 categoryId: targetCatId,
                                 barcode: _barcodeSearch,
+                                sort: 'low_to_high',
                               );
                             },
                             child: Container(
@@ -1408,7 +1603,7 @@ class _ProductPriceManagementScreenState
 
               // Built-in Custom Numpad Keyboard Panel
               if (items != null && items.isNotEmpty)
-                _buildBuiltInNumpad(context, items),
+                _buildBuiltInNumpad(context, storeController, items),
             ],
           ),
 

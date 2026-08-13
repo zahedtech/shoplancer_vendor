@@ -244,6 +244,306 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
   }
 
+  void _showPriceNumpadBottomSheet() {
+    FocusScope.of(context).unfocus();
+    String currentPriceText = _priceController.text.trim();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            void onNumPress(String val) {
+              if (val == '.') {
+                if (!currentPriceText.contains('.')) {
+                  currentPriceText =
+                      currentPriceText.isEmpty ? '0.' : '$currentPriceText.';
+                }
+              } else {
+                if (currentPriceText == '0' || currentPriceText.isEmpty) {
+                  currentPriceText = val;
+                } else {
+                  currentPriceText += val;
+                }
+              }
+              setModalState(() {});
+            }
+
+            void onBackspace() {
+              if (currentPriceText.isNotEmpty) {
+                currentPriceText = currentPriceText.substring(
+                  0,
+                  currentPriceText.length - 1,
+                );
+                setModalState(() {});
+              }
+            }
+
+            void onQuickAdd(double amount) {
+              final double current = double.tryParse(currentPriceText) ?? 0.0;
+              final double updated = current + amount;
+              currentPriceText = updated % 1 == 0
+                  ? updated.toInt().toString()
+                  : updated.toString();
+              setModalState(() {});
+            }
+
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(Dimensions.radiusExtraLarge),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag Handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).disabledColor.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'إدخال سعر المنتج',
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeLarge,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Display Screen Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(
+                        Dimensions.radiusDefault,
+                      ),
+                      border: Border.all(
+                        color: Theme.of(context).primaryColor.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'السعر المطلوب:',
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                        ),
+                        Text(
+                          currentPriceText.isEmpty ? '0.00' : currentPriceText,
+                          style: robotoBold.copyWith(
+                            fontSize: 26,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Quick amount chips (+5, +10, +20, +50, +100)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [5, 10, 20, 50, 100].map((amt) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 6.0),
+                          child: ActionChip(
+                            label: Text('+$amt'),
+                            onPressed: () => onQuickAdd(amt.toDouble()),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 3x4 Numpad Keypad Grid
+                  ...[
+                    ['1', '2', '3'],
+                    ['4', '5', '6'],
+                    ['7', '8', '9'],
+                  ].map((row) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: row.map((key) {
+                          return Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).cardColor,
+                                  foregroundColor: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color,
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(
+                                      color: Theme.of(context)
+                                          .disabledColor
+                                          .withOpacity(0.15),
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                                onPressed: () => onNumPress(key),
+                                child: Text(
+                                  key,
+                                  style: robotoBold.copyWith(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }),
+
+                  // Bottom Row: Backspace, 0, dot
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Colors.red.withOpacity(0.08),
+                                foregroundColor: Colors.red,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
+                              onPressed: onBackspace,
+                              child: const Icon(Icons.backspace_outlined),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .disabledColor
+                                        .withOpacity(0.15),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
+                              onPressed: () => onNumPress('0'),
+                              child: Text(
+                                '0',
+                                style: robotoBold.copyWith(fontSize: 20),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .disabledColor
+                                        .withOpacity(0.15),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
+                              onPressed: () => onNumPress('.'),
+                              child: Text(
+                                '.',
+                                style: robotoBold.copyWith(fontSize: 22),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Confirm button
+                  CustomButtonWidget(
+                    buttonText: 'تأكيد السعر',
+                    onPressed: () {
+                      setState(() {
+                        _priceController.text = currentPriceText;
+                      });
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _priceController.dispose();
@@ -1197,10 +1497,19 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   child: CustomTextFieldWidget(
                                                     hintText: 'price'.tr,
                                                     labelText: 'price'.tr,
-                                                    controller:
-                                                        _priceController,
+                                                    controller: _priceController,
                                                     focusNode: _priceNode,
                                                     isAmount: true,
+                                                    readOnly: true,
+                                                    onTap: _showPriceNumpadBottomSheet,
+                                                    suffixChild: IconButton(
+                                                      icon: Icon(
+                                                        Icons.dialpad,
+                                                        color: Theme.of(context).primaryColor,
+                                                        size: 20,
+                                                      ),
+                                                      onPressed: _showPriceNumpadBottomSheet,
+                                                    ),
                                                   ),
                                                 ),
 

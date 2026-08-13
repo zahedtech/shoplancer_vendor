@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shoplancer_vendor/features/auth/controllers/auth_controller.dart';
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
@@ -414,7 +415,11 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
     }
 
     final String storeName = store?.name ?? profile?.fName ?? '';
+    final bool isEmployee =
+        Get.isRegistered<AuthController>() &&
+        Get.find<AuthController>().getUserType() == 'employee';
     final bool hasWalletPermission =
+        !isEmployee &&
         widget.profileController.modulePermission?.wallet == true &&
         profile != null;
     final double balance = profile?.prepaidBalance ?? 0.0;
@@ -573,42 +578,11 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                     ],
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 InkWell(
                   onTap: () async {
-                    const String dashboardUrl =
-                        'https://dashboard.shoplanser.com/login/vendor';
-                    if (await canLaunchUrl(Uri.parse(dashboardUrl))) {
-                      await launchUrl(
-                        Uri.parse(dashboardUrl),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'go_to_control_panel'.tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(context).primaryColor,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.open_in_new,
-                        size: 14,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-                InkWell(
-                  onTap: () async {
-                    if (await canLaunchUrl(Uri.parse(storeUrl))) {
+                    if (storeUrl.isNotEmpty &&
+                        await canLaunchUrl(Uri.parse(storeUrl))) {
                       await launchUrl(
                         Uri.parse(storeUrl),
                         mode: LaunchMode.externalApplication,
@@ -618,19 +592,25 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.public, size: 14, color: Colors.blue),
+                      Icon(
+                        Icons.storefront_outlined,
+                        size: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
                       const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          storeUrl,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: robotoRegular.copyWith(
-                            fontSize: Dimensions.fontSizeExtraSmall,
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
+                      Text(
+                        'visit_store'.tr,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor,
+                          decoration: TextDecoration.underline,
                         ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.open_in_new,
+                        size: 13,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ],
                   ),

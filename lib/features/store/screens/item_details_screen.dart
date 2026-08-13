@@ -389,7 +389,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          item.name!,
+                                          item.name ?? '',
                                           style: robotoMedium.copyWith(
                                             fontSize: Dimensions.fontSizeLarge,
                                           ),
@@ -485,7 +485,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                                           ),
                                                     ),
                                                     child: Text(
-                                                      module.unit!
+                                                      (module?.unit ?? false)
                                                           ? item.unitType ?? ''
                                                           : item.veg == 0
                                                           ? 'non_veg'.tr
@@ -512,7 +512,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 height: Dimensions.paddingSizeSmall,
                               ),
 
-                              module.itemAvailableTime!
+                               (module?.itemAvailableTime ?? false)
                                   ? Row(
                                       children: [
                                         Text(
@@ -1091,76 +1091,16 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                        Get.find<SplashController>()
-                                .getStoreModuleConfig()
-                                .newVariation!
+                        (Get.find<SplashController>()
+                                    .getStoreModuleConfig()
+                                    .newVariation ??
+                                false)
                             ? FoodVariationView(item: item)
-                            : VariationView(item: item, stock: module.stock),
+                            : VariationView(item: item, stock: module?.stock),
 
-                        /*                (isFood || isGrocery) && item.nutrition!.isNotEmpty ? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(cardRadius),
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [boxShadow],
-                  ),
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                    Text('nutrition'.tr, style: robotoMedium),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Text(
-                      item.nutrition!.join(', '),
-                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                    ),
-
-                  ]),
-                ) : const SizedBox(),*/
-
-                        /*                (isFood || isGrocery) && item.allergies!.isNotEmpty ? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(cardRadius),
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [boxShadow],
-                  ),
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                    Text('allergic_ingredients'.tr, style: robotoMedium),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Text(
-                      item.allergies!.join(', '),
-                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                    ),
-
-                  ]),
-                ) : const SizedBox(),*/
-
-                        /*                isPharmacy && item.genericName!.isNotEmpty ? Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(cardRadius),
-                    color: Theme.of(context).cardColor,
-                    boxShadow: [boxShadow],
-                  ),
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                    Text('generic_name'.tr, style: robotoMedium),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                    Text(item.genericName!.join(', '),
-                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                    ),
-                  ]),
-                ) : const SizedBox(),*/
-                        (item.addOns!.isNotEmpty && module.addOn!)
+                        (item.addOns != null &&
+                                item.addOns!.isNotEmpty &&
+                                (module?.addOn ?? false))
                             ? Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(
@@ -1182,15 +1122,16 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                     ),
 
                                     ListView.builder(
-                                      itemCount: item.addOns!.length,
+                                      itemCount: item.addOns?.length ?? 0,
                                       physics:
                                           const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
+                                        final addon = item.addOns?[index];
                                         return Row(
                                           children: [
                                             Text(
-                                              '${item.addOns![index].name!}:',
+                                              '${addon?.name ?? ''}:',
                                               style: robotoRegular.copyWith(
                                                 fontSize:
                                                     Dimensions.fontSizeSmall,
@@ -1202,7 +1143,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                             ),
                                             Text(
                                               PriceConverterHelper.convertPrice(
-                                                item.addOns![index].price,
+                                                addon?.price,
                                               ),
                                               style: robotoMedium.copyWith(
                                                 fontSize:
@@ -1218,7 +1159,9 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               )
                             : const SizedBox(),
                         SizedBox(
-                          height: item.addOns!.isNotEmpty
+                          height: (item.addOns != null &&
+                                  item.addOns!.isNotEmpty &&
+                                  (module?.addOn ?? false))
                               ? Dimensions.paddingSizeDefault
                               : 0,
                         ),
@@ -1265,7 +1208,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                             ),
 
                                             Text(
-                                              '(${item.taxData![index].taxRate} %)',
+                                              '(${item.taxData?[index].taxRate ?? 0} %)',
                                               style: robotoMedium.copyWith(
                                                 fontSize:
                                                     Dimensions.fontSizeSmall,

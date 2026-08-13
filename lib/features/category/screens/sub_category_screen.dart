@@ -102,13 +102,17 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   child: Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                        child: CustomImageWidget(
-                          image: '${subCategory.imageFullUrl}',
-                          height: 60,
-                          width: 60,
-                          fit: BoxFit.cover,
+                      Container(
+                        height: 46,
+                        width: 46,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                        ),
+                        child: Icon(
+                          Icons.subdirectory_arrow_right_rounded,
+                          color: Theme.of(context).primaryColor,
+                          size: 24,
                         ),
                       ),
                       const SizedBox(width: Dimensions.paddingSizeSmall),
