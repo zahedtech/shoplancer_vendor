@@ -218,6 +218,7 @@
   "amount": "كمية",
   "category": "فئة",
   "sub_category": "الفئة الفرعية",
+  "barcode": "الباركود",
   "attribute": "السمات",
   "add": "إضافة",
   "variant": "البديل",
