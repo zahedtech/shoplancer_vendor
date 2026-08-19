@@ -18,7 +18,6 @@ import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
@@ -512,7 +511,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                                 height: Dimensions.paddingSizeSmall,
                               ),
 
-                               (module?.itemAvailableTime ?? false)
+                              (module?.itemAvailableTime ?? false)
                                   ? Row(
                                       children: [
                                         Text(
@@ -1159,7 +1158,8 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                               )
                             : const SizedBox(),
                         SizedBox(
-                          height: (item.addOns != null &&
+                          height:
+                              (item.addOns != null &&
                                   item.addOns!.isNotEmpty &&
                                   (module?.addOn ?? false))
                               ? Dimensions.paddingSizeDefault

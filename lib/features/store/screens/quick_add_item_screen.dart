@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
@@ -110,7 +108,7 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
         await storeController.getUnitList(null);
       }
       if (_isEcommerce) {
-        await storeController.getBrandList(null);
+        await storeController.getBrandList('1', null);
       }
       if (_isProductWiseTax) {
         await storeController.getVatTaxList();
@@ -201,7 +199,9 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
           categoryName: _selectedCategoryName ?? '',
           subCategoryId: _selectedSubCategoryId,
           subCategoryName: _selectedSubCategoryName,
-          barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
+          barcode: _barcodeController.text.trim().isEmpty
+              ? null
+              : _barcodeController.text.trim(),
           imageFile: _pickedImage,
         ),
       );
@@ -305,7 +305,20 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
           : 'تم رفع $successCount منتج، وفشل $failedCount — تقدر تعيد المحاولة من القائمة',
       isError: failedCount > 0,
     );
+
+    // Reload the parent list (AllItemsScreen) with the active category filter,
+    // so the user sees the updated products when they go back.
+    if (successCount > 0) {
+      storeController.getItemList(
+        offset: '1',
+        type: storeController.type,
+        search: '',
+        categoryId: storeController.categoryId ?? 0,
+        willUpdate: false,
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +408,9 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                             showTitle: false,
                             suffixChild: IconButton(
                               icon: Icon(
-                                _showScanner ? Icons.close : Icons.camera_alt_outlined,
+                                _showScanner
+                                    ? Icons.close
+                                    : Icons.camera_alt_outlined,
                                 color: Theme.of(context).primaryColor,
                                 size: 22,
                               ),
@@ -403,7 +418,8 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                                 setState(() {
                                   _showScanner = !_showScanner;
                                   if (_showScanner) {
-                                    _scannerController = MobileScannerController();
+                                    _scannerController =
+                                        MobileScannerController();
                                   } else {
                                     _scannerController?.dispose();
                                     _scannerController = null;
@@ -418,7 +434,10 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                               height: 200,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                border: Border.all(color: Theme.of(context).primaryColor, width: 2),
+                                border: Border.all(
+                                  color: Theme.of(context).primaryColor,
+                                  width: 2,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                                 color: Colors.black,
                               ),
@@ -475,7 +494,9 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                                   _selectedSubCategoryId = null;
                                   _selectedSubCategoryName = null;
                                 });
-                                categoryController.getSubCategoryList(int.parse(value));
+                                categoryController.getSubCategoryList(
+                                  int.parse(value),
+                                );
                               },
                             ),
                           ),
@@ -484,39 +505,53 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
                             labelText: 'الفئة الفرعية',
                             child: CustomDropdownButton(
                               hintText: 'اختر الفئة الفرعية',
-                              dropdownMenuItems: categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty
+                              dropdownMenuItems:
+                                  categoryController.subCategoryList != null &&
+                                      categoryController
+                                          .subCategoryList!
+                                          .isNotEmpty
                                   ? categoryController.subCategoryList!
-                                      .map(
-                                        (c) => DropdownMenuItem<String>(
-                                          value: c.id.toString(),
-                                          child: Text(
-                                            c.name ?? '',
-                                            style: robotoRegular.copyWith(
-                                              fontSize: Dimensions.fontSizeDefault,
+                                        .map(
+                                          (c) => DropdownMenuItem<String>(
+                                            value: c.id.toString(),
+                                            child: Text(
+                                              c.name ?? '',
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeDefault,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      )
-                                      .toList()
+                                        )
+                                        .toList()
                                   : [
                                       DropdownMenuItem<String>(
                                         value: null,
                                         child: Text(
                                           'no_subcategory_found'.tr,
-                                          style: robotoRegular.copyWith(color: Colors.grey),
+                                          style: robotoRegular.copyWith(
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ),
                                     ],
                               selectedValue: _selectedSubCategoryId?.toString(),
-                              onChanged: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
+                              onChanged:
+                                  (categoryController.subCategoryList != null &&
+                                      categoryController
+                                          .subCategoryList!
+                                          .isNotEmpty)
                                   ? (String? value) {
                                       if (value == null) return;
-                                      final CategoryModel? match = categoryController.subCategoryList
-                                          ?.firstWhereOrNull(
-                                            (c) => c.id.toString() == value,
-                                          );
+                                      final CategoryModel? match =
+                                          categoryController.subCategoryList
+                                              ?.firstWhereOrNull(
+                                                (c) => c.id.toString() == value,
+                                              );
                                       setState(() {
-                                        _selectedSubCategoryId = int.tryParse(value);
+                                        _selectedSubCategoryId = int.tryParse(
+                                          value,
+                                        );
                                         _selectedSubCategoryName = match?.name;
                                       });
                                     }

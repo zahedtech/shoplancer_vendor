@@ -58,7 +58,7 @@ abstract class StoreRepositoryInterface<T>
   Future<dynamic> updateBestSellerProductStatus(int? productID, int status);
   Future<dynamic> updateOrganicProductStatus(int? productID, int status);
   Future<dynamic> updateAnnouncement(int status, String announcement);
-  Future<List<BrandModel>?> getBrandList();
+  Future<BrandListModel?> getBrandList(String offset);
   Future<Response> updateBrandStatus(int brandId, int status);
   Future<ItemModel?> getBrandItemList({required String offset, required int brandId});
   Future<bool> updateReply(int reviewID, String reply);

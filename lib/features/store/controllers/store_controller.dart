@@ -57,6 +57,12 @@ class StoreController extends GetxController implements GetxService {
   List<BrandModel>? _brandList;
   List<BrandModel>? get brandList => _brandList;
 
+  int? _brandSize;
+  int? get brandSize => _brandSize;
+  List<String> _brandOffsetList = [];
+  int _brandOffset = 1;
+  int get brandOffset => _brandOffset;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -421,6 +427,8 @@ class StoreController extends GetxController implements GetxService {
   Future<bool> bulkAssignProducts(
     List<Map<String, dynamic>> products, {
     bool willReload = true,
+    int? categoryId,
+    String? type,
   }) async {
     _isLoading = true;
     update();
@@ -444,9 +452,9 @@ class StoreController extends GetxController implements GetxService {
       if (willReload) {
         getItemList(
           offset: '1',
-          type: 'all',
+          type: type ?? _type,
           search: '',
-          categoryId: 0,
+          categoryId: categoryId ?? _categoryId ?? 0,
           moduleId: _currentModuleId,
         );
       }
@@ -629,9 +637,9 @@ class StoreController extends GetxController implements GetxService {
     if (isSuccess) {
       getItemList(
         offset: '1',
-        type: 'all',
+        type: _type,
         search: '',
-        categoryId: 0,
+        categoryId: _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       _isRecommended = !_isRecommended;
@@ -660,9 +668,9 @@ class StoreController extends GetxController implements GetxService {
     if (isSuccess) {
       getItemList(
         offset: '1',
-        type: 'all',
+        type: _type,
         search: '',
-        categoryId: 0,
+        categoryId: _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       _isBestSeller = !_isBestSeller;
@@ -687,9 +695,9 @@ class StoreController extends GetxController implements GetxService {
     if (isSuccess) {
       getItemList(
         offset: '1',
-        type: 'all',
+        type: _type,
         search: '',
-        categoryId: 0,
+        categoryId: _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       _isOrganic = !_isOrganic;
@@ -782,6 +790,15 @@ class StoreController extends GetxController implements GetxService {
     String? sort,
   }) async {
     _currentModuleId = moduleId;
+    if (categoryId != null) {
+      _categoryId = categoryId;
+      if (_categoryIdList != null) {
+        final int index = _categoryIdList!.indexOf(categoryId);
+        if (index >= 0) {
+          _categoryIndex = index;
+        }
+      }
+    }
 
     if (search.isEmpty) {
       _isSearching = false;
@@ -1173,9 +1190,9 @@ class StoreController extends GetxController implements GetxService {
         await Get.find<ProfileController>().getProfile();
         getItemList(
           offset: '1',
-          type: 'all',
+          type: _type,
           search: '',
-          categoryId: 0,
+          categoryId: _categoryId ?? 0,
           moduleId: _currentModuleId,
         );
         Get.find<StoreController>().getStoreReviewList(
@@ -1410,9 +1427,9 @@ class StoreController extends GetxController implements GetxService {
       if (willRedirect) {
         getItemList(
           offset: '1',
-          type: 'all',
+          type: _type,
           search: '',
-          categoryId: 0,
+          categoryId: _categoryId ?? 0,
           willUpdate: false,
         );
       }
@@ -1441,9 +1458,9 @@ class StoreController extends GetxController implements GetxService {
       } else {
         getItemList(
           offset: '1',
-          type: 'all',
+          type: _type,
           search: '',
-          categoryId: 0,
+          categoryId: _categoryId ?? 0,
           moduleId: _currentModuleId,
         );
         Get.find<CategoryController>().getCategoryList();
@@ -1515,14 +1532,34 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> getBrandList(Item? item) async {
-    List<BrandModel>? brands = await storeServiceInterface.getBrandList();
-    if (brands != null) {
-      _brandList = [];
-      _brandList!.addAll(brands);
-      _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
+  Future<void> getBrandList(String offset, Item? item, {bool willUpdate = true}) async {
+    if (offset == '1') {
+      _brandOffsetList = [];
+      _brandOffset = 1;
+      _brandList = null;
+      if (willUpdate) {
+        Future.microtask(() => update());
+      }
     }
-    update();
+    _brandOffset = int.tryParse(offset) ?? 1;
+    if (!_brandOffsetList.contains(offset)) {
+      _brandOffsetList.add(offset);
+      BrandListModel? brandListModel = await storeServiceInterface.getBrandList(offset);
+      if (brandListModel != null) {
+        if (offset == '1') {
+          _brandList = [];
+        }
+        if (_brandList == null) {
+          _brandList = [];
+        }
+        if (brandListModel.brands != null) {
+          _brandList!.addAll(brandListModel.brands!);
+        }
+        _brandSize = brandListModel.totalSize;
+        _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
+      }
+      update();
+    }
   }
 
   Future<bool> updateBrandStatus(int brandId, int status) async {
@@ -1621,9 +1658,9 @@ class StoreController extends GetxController implements GetxService {
     if (isSuccess) {
       getItemList(
         offset: '1',
-        type: 'all',
+        type: _type,
         search: '',
-        categoryId: 0,
+        categoryId: _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       _isAvailable = !_isAvailable;
@@ -2339,7 +2376,7 @@ class StoreController extends GetxController implements GetxService {
         offset: '1',
         type: _type,
         search: '',
-        categoryId: 0,
+        categoryId: _categoryId ?? 0,
         moduleId: _currentModuleId,
       );
       Get.find<StoreController>().getLimitedStockItemList(
@@ -2462,6 +2499,9 @@ class StoreController extends GetxController implements GetxService {
   }
 
   void setCategoriesFromExternal(List<CategoryModel> categories) {
+    // Preserve the currently selected category before rebuilding the list.
+    final int? previousCategoryId = _categoryId;
+
     _categoryNameList = [];
     _categoryIdList = [];
     _categoryNameList!.add('all');
@@ -2472,6 +2512,20 @@ class StoreController extends GetxController implements GetxService {
         _categoryIdList!.add(categoryModel.id!);
       }
     }
+
+    // Restore the previously selected category index after rebuild.
+    if (previousCategoryId != null && previousCategoryId != 0) {
+      final int restoredIndex = _categoryIdList!.indexOf(previousCategoryId);
+      if (restoredIndex >= 0) {
+        _categoryIndex = restoredIndex;
+        _categoryId = previousCategoryId;
+      } else {
+        // Category no longer exists in the new list — fall back to "All".
+        _categoryIndex = 0;
+        _categoryId = 0;
+      }
+    }
+
     update();
   }
 

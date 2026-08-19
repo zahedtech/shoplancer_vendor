@@ -100,3 +100,35 @@ class Translations {
     return data;
   }
 }
+
+class BrandListModel {
+  int? totalSize;
+  String? limit;
+  String? offset;
+  List<BrandModel>? brands;
+
+  BrandListModel({this.totalSize, this.limit, this.offset, this.brands});
+
+  BrandListModel.fromJson(Map<String, dynamic> json) {
+    totalSize = json['total_size'] ?? (json['brands'] as List?)?.length;
+    limit = json['limit']?.toString();
+    offset = json['offset']?.toString();
+    if (json['brands'] != null) {
+      brands = <BrandModel>[];
+      json['brands'].forEach((v) {
+        brands!.add(BrandModel.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['total_size'] = totalSize;
+    data['limit'] = limit;
+    data['offset'] = offset;
+    if (brands != null) {
+      data['brands'] = brands!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}

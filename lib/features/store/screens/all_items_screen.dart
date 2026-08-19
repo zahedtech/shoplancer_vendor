@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:shoplancer_vendor/features/category/domain/models/category_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
@@ -11,6 +10,7 @@ import 'package:shoplancer_vendor/features/store/controllers/store_controller.da
 import 'package:shoplancer_vendor/features/profile/controllers/profile_controller.dart';
 import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
+import 'package:shoplancer_vendor/features/store/widgets/filter_popup_widget.dart';
 import 'package:shoplancer_vendor/helper/date_converter_helper.dart';
 import 'package:shoplancer_vendor/util/app_constants.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
@@ -21,8 +21,6 @@ import 'package:shoplancer_vendor/features/store/screens/quick_add_item_screen.d
 import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../widgets/filter_popup_widget.dart';
 
 class AllItemsScreen extends StatefulWidget {
   const AllItemsScreen({super.key});
@@ -47,15 +45,13 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
 
     _barcodeSearch = null;
     _searchController.clear();
-    storeController.resetFilters(reload: false);
-    storeController.setCategoryForSearch(index: 0);
 
     final int? mId = profileController.profileModel?.stores?[0].module?.id;
     storeController.getItemList(
       offset: '1',
       type: 'all',
       search: '',
-      categoryId: 0,
+      categoryId: storeController.categoryId ?? 0,
       willUpdate: false,
       moduleId: mId,
     );
@@ -120,7 +116,11 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
             .toList();
 
         storeController.setCategoriesFromExternal(categories);
-        storeController.setCategoryForSearch(index: 0);
+        // Only reset to "All" on the first load; preserve the active filter
+        // when the user returns from QuickAddItemScreen after adding a product.
+        if (storeController.categoryIndex == 0) {
+          storeController.setCategoryForSearch(index: 0);
+        }
       }
     } catch (e) {
       debugPrint('Error fetching public categories in AllItemsScreen: $e');
@@ -227,6 +227,8 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
 
                                 storeController.bulkAssignProducts(
                                   productsPayload,
+                                  categoryId: storeController.categoryId,
+                                  type: storeController.type,
                                 );
                               },
                               tooltip: 'add_selected_to_store'.tr,

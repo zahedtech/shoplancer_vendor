@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_text_field_widget.dart';
 import 'package:shoplancer_vendor/features/pos/controllers/pos_controller.dart';
-import 'package:shoplancer_vendor/features/pos/domain/models/pos_customer_model.dart';
 import 'package:shoplancer_vendor/features/pos/widgets/add_pos_customer_dialog.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/styles.dart';

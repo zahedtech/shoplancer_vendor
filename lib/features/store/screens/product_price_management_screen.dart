@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
-import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_image_widget.dart';
@@ -15,7 +14,6 @@ import 'package:shoplancer_vendor/features/chat/widgets/search_field_widget.dart
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
 import 'package:shoplancer_vendor/features/store/domain/models/item_model.dart';
 import 'package:shoplancer_vendor/helper/price_converter_helper.dart';
-import 'package:shoplancer_vendor/helper/route_helper.dart';
 import 'package:shoplancer_vendor/util/dimensions.dart';
 import 'package:shoplancer_vendor/util/images.dart';
 import 'package:shoplancer_vendor/util/styles.dart';
@@ -341,8 +339,10 @@ class _ProductPriceManagementScreenState
       _currentIndex = index;
     });
     if (_scrollController.hasClients) {
-      final double targetOffset = (index * 135.0)
-          .clamp(0.0, _scrollController.position.maxScrollExtent);
+      final double targetOffset = (index * 135.0).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
       _scrollController.animateTo(
         targetOffset,
         duration: const Duration(milliseconds: 250),
@@ -380,48 +380,45 @@ class _ProductPriceManagementScreenState
       storeController.showBottomLoader();
       storeController
           .getItemList(
-        offset: storeController.offset.toString(),
-        type: 'active',
-        search: _searchController.text.trim(),
-        categoryId: _activeCategoryId,
-        barcode: _barcodeSearch,
-        sort: 'low_to_high',
-      )
+            offset: storeController.offset.toString(),
+            type: 'active',
+            search: _searchController.text.trim(),
+            categoryId: _activeCategoryId,
+            barcode: _barcodeSearch,
+            sort: 'low_to_high',
+          )
           .then((_) {
-        _isLoadingMore = false;
-        if (mounted) {
-          final List<Item>? currentItems = storeController.itemList != null
-              ? _filterLocally(storeController.itemList!)
-              : null;
-          if (_pendingAdvanceNext &&
-              currentItems != null &&
-              _currentIndex + 1 < currentItems.length) {
+            _isLoadingMore = false;
+            if (mounted) {
+              final List<Item>? currentItems = storeController.itemList != null
+                  ? _filterLocally(storeController.itemList!)
+                  : null;
+              if (_pendingAdvanceNext &&
+                  currentItems != null &&
+                  _currentIndex + 1 < currentItems.length) {
+                _pendingAdvanceNext = false;
+                _goToIndex(
+                  _currentIndex + 1,
+                  currentItems,
+                  storeController: storeController,
+                );
+              } else {
+                _pendingAdvanceNext = false;
+                setState(() {});
+              }
+            }
+          })
+          .catchError((e) {
+            _isLoadingMore = false;
             _pendingAdvanceNext = false;
-            _goToIndex(
-              _currentIndex + 1,
-              currentItems,
-              storeController: storeController,
-            );
-          } else {
-            _pendingAdvanceNext = false;
-            setState(() {});
-          }
-        }
-      }).catchError((e) {
-        _isLoadingMore = false;
-        _pendingAdvanceNext = false;
-        if (mounted) setState(() {});
-      });
+            if (mounted) setState(() {});
+          });
     }
   }
 
   void _onNextPressed(StoreController storeController, List<Item> items) {
     if (_currentIndex < items.length - 1) {
-      _goToIndex(
-        _currentIndex + 1,
-        items,
-        storeController: storeController,
-      );
+      _goToIndex(_currentIndex + 1, items, storeController: storeController);
     } else {
       _loadNextPage(storeController, autoAdvance: true);
     }
@@ -1091,10 +1088,7 @@ class _ProductPriceManagementScreenState
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: ElevatedButton.icon(
                       onPressed: () => _showReviewBottomSheet(storeController),
-                      icon: const Icon(
-                        Icons.check_circle_outline,
-                        size: 16,
-                      ),
+                      icon: const Icon(Icons.check_circle_outline, size: 16),
                       label: Text(
                         'مراجعة (${_stagedPrices.length})',
                         style: robotoBold.copyWith(

@@ -4,7 +4,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_drop_down_button.dart.dart';
-import 'package:shoplancer_vendor/common/widgets/barcode_scanner_screen.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shoplancer_vendor/features/language/controllers/language_controller.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_dropdown_widget.dart';
@@ -56,9 +55,9 @@ class _AddItemScreenState extends State<AddItemScreen>
   final TextEditingController _maxOrderQuantityController =
       TextEditingController();
   TextEditingController _c = TextEditingController();
-  TextEditingController _nutritionSuggestionController =
+  final TextEditingController _nutritionSuggestionController =
       TextEditingController();
-  TextEditingController _allergicIngredientsSuggestionController =
+  final TextEditingController _allergicIngredientsSuggestionController =
       TextEditingController();
   final TextEditingController _genericNameSuggestionController =
       TextEditingController();
@@ -161,7 +160,7 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
 
     if (isEcommerce && _update) {
-      storeController.getBrandList(widget.item);
+      storeController.getBrandList('1', widget.item);
       storeController.initializeMetaData(widget.item?.metaData);
 
       if (widget.item?.metaData != null) {
@@ -266,8 +265,9 @@ class _AddItemScreenState extends State<AddItemScreen>
             void onNumPress(String val) {
               if (val == '.') {
                 if (!currentPriceText.contains('.')) {
-                  currentPriceText =
-                      currentPriceText.isEmpty ? '0.' : '$currentPriceText.';
+                  currentPriceText = currentPriceText.isEmpty
+                      ? '0.'
+                      : '$currentPriceText.';
                 }
               } else {
                 if (currentPriceText == '0' || currentPriceText.isEmpty) {
@@ -404,22 +404,22 @@ class _AddItemScreenState extends State<AddItemScreen>
                         children: row.map((key) {
                           return Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).cardColor,
-                                  foregroundColor: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color,
+                                  backgroundColor: Theme.of(context).cardColor,
+                                  foregroundColor: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge?.color,
                                   elevation: 1,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     side: BorderSide(
-                                      color: Theme.of(context)
-                                          .disabledColor
-                                          .withOpacity(0.15),
+                                      color: Theme.of(
+                                        context,
+                                      ).disabledColor.withOpacity(0.15),
                                     ),
                                   ),
                                   padding: const EdgeInsets.symmetric(
@@ -449,8 +449,7 @@ class _AddItemScreenState extends State<AddItemScreen>
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Colors.red.withOpacity(0.08),
+                                backgroundColor: Colors.red.withOpacity(0.08),
                                 foregroundColor: Colors.red,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -470,19 +469,17 @@ class _AddItemScreenState extends State<AddItemScreen>
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).cardColor,
-                                foregroundColor: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color,
+                                backgroundColor: Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
                                 elevation: 1,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   side: BorderSide(
-                                    color: Theme.of(context)
-                                        .disabledColor
-                                        .withOpacity(0.15),
+                                    color: Theme.of(
+                                      context,
+                                    ).disabledColor.withOpacity(0.15),
                                   ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -502,19 +499,17 @@ class _AddItemScreenState extends State<AddItemScreen>
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).cardColor,
-                                foregroundColor: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.color,
+                                backgroundColor: Theme.of(context).cardColor,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
                                 elevation: 1,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   side: BorderSide(
-                                    color: Theme.of(context)
-                                        .disabledColor
-                                        .withOpacity(0.15),
+                                    color: Theme.of(
+                                      context,
+                                    ).disabledColor.withOpacity(0.15),
                                   ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -938,8 +933,20 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               ),
                                             ),
                                             CustomTextFieldWidget(
-                                              hintText: Get.find<LocalizationController>().isLtr ? 'Barcode' : 'الباركود',
-                                              labelText: Get.find<LocalizationController>().isLtr ? 'Barcode' : 'الباركود',
+                                              hintText:
+                                                  Get.find<
+                                                        LocalizationController
+                                                      >()
+                                                      .isLtr
+                                                  ? 'Barcode'
+                                                  : 'الباركود',
+                                              labelText:
+                                                  Get.find<
+                                                        LocalizationController
+                                                      >()
+                                                      .isLtr
+                                                  ? 'Barcode'
+                                                  : 'الباركود',
                                               controller: _barcodeController,
                                               focusNode: _barcodeNode,
                                               inputType: TextInputType.text,
@@ -948,46 +955,75 @@ class _AddItemScreenState extends State<AddItemScreen>
                                               showTitle: false,
                                               suffixChild: IconButton(
                                                 icon: Icon(
-                                                  _showScanner ? Icons.close : Icons.camera_alt_outlined,
-                                                  color: Theme.of(context).primaryColor,
+                                                  _showScanner
+                                                      ? Icons.close
+                                                      : Icons
+                                                            .camera_alt_outlined,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).primaryColor,
                                                   size: 22,
                                                 ),
                                                 onPressed: () {
                                                   setState(() {
-                                                    _showScanner = !_showScanner;
+                                                    _showScanner =
+                                                        !_showScanner;
                                                     if (_showScanner) {
-                                                      _scannerController = MobileScannerController();
+                                                      _scannerController =
+                                                          MobileScannerController();
                                                     } else {
-                                                      _scannerController?.dispose();
+                                                      _scannerController
+                                                          ?.dispose();
                                                       _scannerController = null;
                                                     }
                                                   });
                                                 },
                                               ),
                                             ),
-                                            if (_showScanner && _scannerController != null) ...[
-                                              const SizedBox(height: Dimensions.paddingSizeSmall),
+                                            if (_showScanner &&
+                                                _scannerController != null) ...[
+                                              const SizedBox(
+                                                height:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
                                               Container(
                                                 height: 200,
                                                 width: double.infinity,
                                                 decoration: BoxDecoration(
-                                                  border: Border.all(color: Theme.of(context).primaryColor, width: 2),
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                    width: 2,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                   color: Colors.black,
                                                 ),
                                                 child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                   child: MobileScanner(
-                                                    controller: _scannerController!,
+                                                    controller:
+                                                        _scannerController!,
                                                     onDetect: (capture) {
-                                                      for (final barcode in capture.barcodes) {
-                                                        final raw = barcode.rawValue?.trim();
-                                                        if (raw != null && raw.isNotEmpty) {
+                                                      for (final barcode
+                                                          in capture.barcodes) {
+                                                        final raw = barcode
+                                                            .rawValue
+                                                            ?.trim();
+                                                        if (raw != null &&
+                                                            raw.isNotEmpty) {
                                                           setState(() {
-                                                            _barcodeController.text = raw;
-                                                            _showScanner = false;
-                                                            _scannerController?.dispose();
-                                                            _scannerController = null;
+                                                            _barcodeController
+                                                                    .text =
+                                                                raw;
+                                                            _showScanner =
+                                                                false;
+                                                            _scannerController
+                                                                ?.dispose();
+                                                            _scannerController =
+                                                                null;
                                                           });
                                                           break;
                                                         }
@@ -997,7 +1033,10 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                 ),
                                               ),
                                             ],
-                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                                            const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeExtraLarge,
+                                            ),
 
                                             LabelWidget(
                                               labelText: 'category'.tr,
@@ -1032,44 +1071,81 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                         .selectedCategoryID,
                                               ),
                                             ),
-                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                                            const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeExtraLarge,
+                                            ),
 
                                             LabelWidget(
                                               labelText: 'sub_category'.tr,
                                               child: CustomDropdownButton(
                                                 hintText: 'sub_category'.tr,
-                                                dropdownMenuItems: categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty
-                                                    ? categoryController.subCategoryList!
-                                                        .map(
-                                                          (item) => DropdownMenuItem<String>(
-                                                            value: item.id.toString(),
-                                                            child: Text(
-                                                              item.name ?? '',
-                                                              style: robotoRegular.copyWith(
-                                                                fontSize: Dimensions.fontSizeDefault,
+                                                dropdownMenuItems:
+                                                    categoryController
+                                                                .subCategoryList !=
+                                                            null &&
+                                                        categoryController
+                                                            .subCategoryList!
+                                                            .isNotEmpty
+                                                    ? categoryController
+                                                          .subCategoryList!
+                                                          .map(
+                                                            (
+                                                              item,
+                                                            ) => DropdownMenuItem<String>(
+                                                              value: item.id
+                                                                  .toString(),
+                                                              child: Text(
+                                                                item.name ?? '',
+                                                                style: robotoRegular
+                                                                    .copyWith(
+                                                                      fontSize:
+                                                                          Dimensions
+                                                                              .fontSizeDefault,
+                                                                    ),
                                                               ),
                                                             ),
-                                                          ),
-                                                        )
-                                                        .toList()
+                                                          )
+                                                          .toList()
                                                     : [
-                                                        DropdownMenuItem<String>(
+                                                        DropdownMenuItem<
+                                                          String
+                                                        >(
                                                           value: null,
                                                           child: Text(
-                                                            'no_subcategory_found'.tr,
-                                                            style: robotoRegular.copyWith(color: Colors.grey),
+                                                            'no_subcategory_found'
+                                                                .tr,
+                                                            style: robotoRegular
+                                                                .copyWith(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
                                                           ),
                                                         ),
                                                       ],
-                                                onChanged: (categoryController.subCategoryList != null && categoryController.subCategoryList!.isNotEmpty)
+                                                onChanged:
+                                                    (categoryController
+                                                                .subCategoryList !=
+                                                            null &&
+                                                        categoryController
+                                                            .subCategoryList!
+                                                            .isNotEmpty)
                                                     ? (String? value) {
-                                                        categoryController.setSelectedSubCategory(value!);
+                                                        categoryController
+                                                            .setSelectedSubCategory(
+                                                              value!,
+                                                            );
                                                       }
                                                     : null,
-                                                selectedValue: categoryController.selectedSubCategoryID,
+                                                selectedValue:
+                                                    categoryController
+                                                        .selectedSubCategoryID,
                                               ),
                                             ),
-                                            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                                            const SizedBox(
+                                              height: Dimensions
+                                                  .paddingSizeExtraLarge,
+                                            ),
 
                                             !widget.isSimple &&
                                                     isPharmacy &&
@@ -1573,18 +1649,23 @@ class _AddItemScreenState extends State<AddItemScreen>
                                                   child: CustomTextFieldWidget(
                                                     hintText: 'price'.tr,
                                                     labelText: 'price'.tr,
-                                                    controller: _priceController,
+                                                    controller:
+                                                        _priceController,
                                                     focusNode: _priceNode,
                                                     isAmount: true,
                                                     readOnly: true,
-                                                    onTap: _showPriceNumpadBottomSheet,
+                                                    onTap:
+                                                        _showPriceNumpadBottomSheet,
                                                     suffixChild: IconButton(
                                                       icon: Icon(
                                                         Icons.dialpad,
-                                                        color: Theme.of(context).primaryColor,
+                                                        color: Theme.of(
+                                                          context,
+                                                        ).primaryColor,
                                                         size: 20,
                                                       ),
-                                                      onPressed: _showPriceNumpadBottomSheet,
+                                                      onPressed:
+                                                          _showPriceNumpadBottomSheet,
                                                     ),
                                                   ),
                                                 ),
@@ -2939,7 +3020,8 @@ class _AddItemScreenState extends State<AddItemScreen>
                                           storeController.availableTimeEnds;
                                       _item.categoryIds = [];
                                       _item.maxOrderQuantity = maxOrderQuantity;
-                                      _item.barcode = _barcodeController.text.trim();
+                                      _item.barcode = _barcodeController.text
+                                          .trim();
                                       _item.categoryIds!.add(
                                         CategoryIds(
                                           id: categoryController
