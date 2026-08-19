@@ -160,7 +160,7 @@ class _AddItemScreenState extends State<AddItemScreen>
     }
 
     if (isEcommerce && _update) {
-      storeController.getBrandList(widget.item);
+      storeController.getBrandList('1', widget.item);
       storeController.initializeMetaData(widget.item?.metaData);
 
       if (widget.item?.metaData != null) {

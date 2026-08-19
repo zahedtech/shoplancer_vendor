@@ -634,16 +634,26 @@ class StoreRepository implements StoreRepositoryInterface {
   }
 
   @override
-  Future<List<BrandModel>?> getBrandList() async {
-    List<BrandModel>? brands;
-    Response response = await apiClient.getData(AppConstants.getBrandsUri);
+  Future<BrandListModel?> getBrandList(String offset) async {
+    BrandListModel? brandListModel;
+    Response response = await apiClient.getData('${AppConstants.getBrandsUri}?offset=$offset&limit=10');
     if (response.statusCode == 200) {
-      brands = [];
-      response.body!.forEach((brand) {
-        brands!.add(BrandModel.fromJson(brand));
-      });
+      if (response.body is Map) {
+        brandListModel = BrandListModel.fromJson(response.body);
+      } else if (response.body is List) {
+        List<BrandModel> brands = [];
+        response.body.forEach((brand) {
+          brands.add(BrandModel.fromJson(brand));
+        });
+        brandListModel = BrandListModel(
+          totalSize: brands.length,
+          brands: brands,
+          limit: '10',
+          offset: offset,
+        );
+      }
     }
-    return brands;
+    return brandListModel;
   }
 
   @override

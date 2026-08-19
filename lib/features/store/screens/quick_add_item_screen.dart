@@ -108,7 +108,7 @@ class _QuickAddItemScreenState extends State<QuickAddItemScreen> {
         await storeController.getUnitList(null);
       }
       if (_isEcommerce) {
-        await storeController.getBrandList(null);
+        await storeController.getBrandList('1', null);
       }
       if (_isProductWiseTax) {
         await storeController.getVatTaxList();

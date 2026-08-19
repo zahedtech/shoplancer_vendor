@@ -57,6 +57,12 @@ class StoreController extends GetxController implements GetxService {
   List<BrandModel>? _brandList;
   List<BrandModel>? get brandList => _brandList;
 
+  int? _brandSize;
+  int? get brandSize => _brandSize;
+  List<String> _brandOffsetList = [];
+  int _brandOffset = 1;
+  int get brandOffset => _brandOffset;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -1526,14 +1532,34 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  Future<void> getBrandList(Item? item) async {
-    List<BrandModel>? brands = await storeServiceInterface.getBrandList();
-    if (brands != null) {
-      _brandList = [];
-      _brandList!.addAll(brands);
-      _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
+  Future<void> getBrandList(String offset, Item? item, {bool willUpdate = true}) async {
+    if (offset == '1') {
+      _brandOffsetList = [];
+      _brandOffset = 1;
+      _brandList = null;
+      if (willUpdate) {
+        Future.microtask(() => update());
+      }
     }
-    update();
+    _brandOffset = int.tryParse(offset) ?? 1;
+    if (!_brandOffsetList.contains(offset)) {
+      _brandOffsetList.add(offset);
+      BrandListModel? brandListModel = await storeServiceInterface.getBrandList(offset);
+      if (brandListModel != null) {
+        if (offset == '1') {
+          _brandList = [];
+        }
+        if (_brandList == null) {
+          _brandList = [];
+        }
+        if (brandListModel.brands != null) {
+          _brandList!.addAll(brandListModel.brands!);
+        }
+        _brandSize = brandListModel.totalSize;
+        _brandIndex = storeServiceInterface.setBrandIndex(_brandList, item);
+      }
+      update();
+    }
   }
 
   Future<bool> updateBrandStatus(int brandId, int status) async {

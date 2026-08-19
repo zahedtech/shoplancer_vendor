@@ -202,25 +202,25 @@ class MenuScreen extends StatelessWidget {
     // }
 
     // ------------------- 3. Settings & Account (الإعدادات والحساب والدعم) -------------------
-    if (isOwner && modulePermission.storeSetup!) {
-      menuList.add(
-        MenuModel(
-          icon: '',
-          iconData: Icons.people_outline,
-          title: 'إدارة الموظفين'.tr,
-          route: RouteHelper.getEmployeeRoute(),
-        ),
-      );
+    // if (isOwner && modulePermission.storeSetup!) {
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: '',
+    //       iconData: Icons.people_outline,
+    //       title: 'إدارة الموظفين'.tr,
+    //       route: RouteHelper.getEmployeeRoute(),
+    //     ),
+    //   );
 
-      menuList.add(
-        MenuModel(
-          icon: '',
-          iconData: Icons.group_work_rounded,
-          title: 'إدارة السكاشن'.tr,
-          route: RouteHelper.getStoreSectionsRoute(),
-        ),
-      );
-    }
+    //   menuList.add(
+    //     MenuModel(
+    //       icon: '',
+    //       iconData: Icons.group_work_rounded,
+    //       title: 'إدارة السكاشن'.tr,
+    //       route: RouteHelper.getStoreSectionsRoute(),
+    //     ),
+    //   );
+    // }
 
     if (modulePermission.storeSetup!) {
       menuList.add(

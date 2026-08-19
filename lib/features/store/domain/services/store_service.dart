@@ -189,8 +189,8 @@ class StoreService implements StoreServiceInterface {
   }
 
   @override
-  Future<List<BrandModel>?> getBrandList() async {
-    return await storeRepositoryInterface.getBrandList();
+  Future<BrandListModel?> getBrandList(String offset) async {
+    return await storeRepositoryInterface.getBrandList(offset);
   }
 
   @override
