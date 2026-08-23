@@ -87,7 +87,8 @@ class AuthRepository implements AuthRepositoryInterface {
             provisional: false,
             sound: true,
           );
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
         deviceToken = await _saveDeviceToken();
       }
     } else {
@@ -109,12 +110,18 @@ class AuthRepository implements AuthRepositoryInterface {
   Future<String?> _saveDeviceToken() async {
     String? deviceToken = '';
     if (!GetPlatform.isWeb && GetPlatform.isMobile) {
-      deviceToken = (await FirebaseMessaging.instance.getToken())!;
+      try {
+        deviceToken = await FirebaseMessaging.instance.getToken();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error getting FCM token: $e');
+        }
+      }
     }
     if (kDebugMode) {
       print('-----Device Token----- $deviceToken');
     }
-    return deviceToken;
+    return deviceToken ?? '';
   }
 
   @override

@@ -235,7 +235,9 @@ class OrderController extends GetxController implements GetxService {
       }
       _runningOrderList!.addAll(runningOrderList);
       _campaignOnly = true;
-      _orderIndex = 0;
+      if (_orderIndex >= _runningOrders!.length) {
+        _orderIndex = 0;
+      }
       toggleCampaignOnly();
     }
     update();
