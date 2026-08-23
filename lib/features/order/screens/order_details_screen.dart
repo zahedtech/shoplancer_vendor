@@ -61,7 +61,6 @@ class OrderDetailsScreen extends StatefulWidget {
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     with WidgetsBindingObserver {
-  Timer? _timer;
   bool selfDelivery = false;
   bool _isExpanded = true;
   bool isViewMore = false;
@@ -85,15 +84,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     if (Get.find<OrderController>().showDeliveryImageField) {
       Get.find<OrderController>().changeDeliveryImageStatus(isUpdate: false);
     }
-
-    _startApiCalling();
-  }
-
-  void _startApiCalling() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      Get.find<OrderController>().getOrderDetails(widget.orderId);
-    });
   }
 
   @override
@@ -106,21 +96,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   }
 
   @override
-  void didChangeAppLifecycleState(final AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _startApiCalling();
-    } else if (state == AppLifecycleState.paused) {
-      _timer?.cancel();
-    }
-  }
-
-  @override
   void dispose() {
     super.dispose();
 
     WidgetsBinding.instance.removeObserver(this);
-
-    _timer?.cancel();
   }
 
   void _shareInvoice(OrderController controller) {
@@ -1316,8 +1295,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                               } else if (order
                                                                       .customer !=
                                                                   null) {
-                                                                _timer
-                                                                    ?.cancel();
                                                                 await Get.toNamed(
                                                                   RouteHelper.getChatRoute(
                                                                     notificationBody: NotificationBodyModel(
@@ -1344,7 +1321,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                     ),
                                                                   ),
                                                                 );
-                                                                _startApiCalling();
                                                               }
                                                             },
                                                             icon: Icon(
@@ -2054,7 +2030,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                     .tr,
                                                               );
                                                             } else {
-                                                              _timer?.cancel();
                                                               await Get.toNamed(
                                                                 RouteHelper.getChatRoute(
                                                                   notificationBody: NotificationBodyModel(
@@ -2083,7 +2058,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                   ),
                                                                 ),
                                                               );
-                                                              _startApiCalling();
                                                             }
                                                           },
                                                           icon: Icon(
