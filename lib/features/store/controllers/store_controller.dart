@@ -384,9 +384,19 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  void enableSelectionMode(int itemId) {
+  void enableSelectionMode([int? itemId]) {
     _isSelectionMode = true;
-    _selectedItemList = [itemId];
+    if (itemId != null) {
+      _selectedItemList = [itemId];
+    }
+    update();
+  }
+
+  void toggleSelectionMode() {
+    _isSelectionMode = !_isSelectionMode;
+    if (!_isSelectionMode) {
+      _selectedItemList = [];
+    }
     update();
   }
 

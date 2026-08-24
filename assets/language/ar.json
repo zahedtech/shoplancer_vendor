@@ -280,9 +280,11 @@
   "product_updated_successfully": "تم تحديث المنتج بنجاح",
   "product_deleted_successfully": "تم حذف المنتج بنجاح",
   "are_you_sure_want_to_delete_this_product": "هل أنت متأكد أنك تريد حذف هذا المنتج؟",
-  "swipe_to_deliver_order": "سحب لتوصيل الطلب",
+  "swipe_to_deliver_order": "اسحب لتأكيد تسليم الطلب",
   "swipe_to_confirm_order": "اسحب لتأكيد الطلب",
-  "swipe_to_picked_up": "سحب لتأكيد الاستلام",
+  "swipe_to_picked_up": "اسحب لتسليم الطلب للمندوب",
+  "swipe_if_ready_for_pickup": "اسحب إذا كان الطلب جاهزاً لاستلام العميل",
+  "swipe_to_handover_to_customer": "اسحب لتسليم الطلب للعميل",
   "are_you_sure_to_confirm": "هل أنت متأكد من التأكيد؟",
   "you_want_to_confirm_this_order": "هل تريد تأكيد هذا الطلب؟",
   "only_for_restaurant_owner": "فقط لصاحب المطعم",
@@ -1710,5 +1712,9 @@
   "gallery": "المعرض",
   "camera": "الكاميرا",
   "store_suspended_prepaid_desc": "لقد تجاوزت حد السحب بالسالب المسموح به. يرجى شحن رصيد المحفظة لإعادة تفعيل المتجر ومتابعة الطلبات.",
-  "recharge_now": "شحن الرصيد الآن"
+  "recharge_now": "شحن الرصيد الآن",
+  "bulk_add_from_catalog": "إضافة بالجملة من الكتالوج",
+  "edit_and_add_selected": "تعديل وإضافة المحدد",
+  "quick_add_selected": "إضافة سريعة للمحدد",
+  "items_selected": "منتجات محددة"
 }

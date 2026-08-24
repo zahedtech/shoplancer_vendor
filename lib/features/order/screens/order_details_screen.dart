@@ -152,16 +152,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   bool _canStoreCancelOrder(OrderModel order, bool? cancelPermission) {
     final String status = order.orderStatus ?? '';
 
-    // يسمح بالإلغاء فقط في حالتي pending أو confirmed
-    if (status != AppConstants.pending && status != AppConstants.confirmed) {
-      return false;
-    }
-
-    // لا يسمح بالإلغاء إذا كان الطلب قد سُلّم أو ألغي أو استُرد بالفعل
+    // لا يسمح بالإلغاء إذا كان الطلب قد سُلّم أو ألغي أو استُرد أو فشل بالفعل
     bool hasStatusDate(String? value) =>
         value != null && value.trim().isNotEmpty;
 
-    if (hasStatusDate(order.delivered) ||
+    if (status == AppConstants.delivered ||
+        status == AppConstants.canceled ||
+        status == AppConstants.failed ||
+        status == AppConstants.refunded ||
+        hasStatusDate(order.delivered) ||
         hasStatusDate(order.canceled) ||
         hasStatusDate(order.refunded) ||
         hasStatusDate(order.refundRequested)) {
@@ -240,39 +239,120 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           ),
           menuWidget: GetBuilder<OrderController>(
             builder: (controller) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      if (controller.orderModel != null &&
-                          controller.orderDetailsModel != null) {
-                        _shareInvoice(controller);
-                      }
-                    },
-                    icon: Icon(
-                      Icons.share,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      if (controller.orderModel != null &&
-                          controller.orderDetailsModel != null) {
-                        _shareInvoiceAsImage(controller);
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        Images.downloadIcon,
-                        height: 30,
-                        width: 30,
+              return Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  end: Dimensions.paddingSizeSmall,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
                         color: Theme.of(context).primaryColor,
                       ),
+                      onSelected: (String result) {
+                        if (controller.orderModel != null &&
+                            controller.orderDetailsModel != null) {
+                          if (result == 'share') {
+                            _shareInvoice(controller);
+                          } else if (result == 'download') {
+                            _shareInvoiceAsImage(controller);
+                          }
+                        }
+                      },
+                      itemBuilder:
+                          (BuildContext context) => <PopupMenuEntry<String>>[
+                            PopupMenuItem<String>(
+                              value: 'share',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.share_outlined,
+                                    size: 20,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text('share'.tr),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'download',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.file_download_outlined,
+                                    size: 20,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text('download'.tr),
+                                ],
+                              ),
+                            ),
+                          ],
                     ),
-                  ),
-                ],
+                    if (controller.orderModel != null &&
+                        _canStoreCancelOrder(
+                          controller.orderModel!,
+                          cancelPermission,
+                        ))
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 6,
+                          end: 4,
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            controller.setOrderCancelReason('');
+                            Get.dialog(
+                              CancellationDialogueWidget(
+                                orderId: controller.orderModel!.id,
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.radiusSmall,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(
+                                Dimensions.radiusSmall,
+                              ),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.4),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.red,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'cancel'.tr,
+                                  style: robotoMedium.copyWith(
+                                    color: Colors.red,
+                                    fontSize: Dimensions.fontSizeSmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               );
             },
           ),
@@ -683,17 +763,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                                         .orderDetailsModel![index],
                                                               ),
                                                             ),
-                                                            if ([
-                                                              'pending',
-                                                              'accepted',
-                                                              'confirmed',
-                                                              'processing',
-                                                              'cooking',
-                                                            ].contains(
-                                                              orderController
-                                                                  .orderModel!
-                                                                  .orderStatus,
-                                                            ))
+                                                            if (orderController
+                                                                    .orderModel!
+                                                                    .orderStatus !=
+                                                                'delivered' &&
+                                                            orderController
+                                                                    .orderModel!
+                                                                    .orderStatus !=
+                                                                'canceled' &&
+                                                            orderController
+                                                                    .orderModel!
+                                                                    .orderStatus !=
+                                                                'failed' &&
+                                                            orderController
+                                                                    .orderModel!
+                                                                    .orderStatus !=
+                                                                'refunded')
                                                               PopupMenuButton<
                                                                 String
                                                               >(
@@ -3459,7 +3544,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                               } else if (controllerOrderModel
                                                       .orderStatus ==
                                                   'handover') {
-                                                if (!selfDelivery) {
+                                                if (controllerOrderModel
+                                                        .orderType ==
+                                                    'take_away') {
+                                                  Get.find<OrderController>()
+                                                      .updateOrderStatus(
+                                                        controllerOrderModel.id,
+                                                        AppConstants.delivered,
+                                                      );
+                                                } else if (!selfDelivery) {
                                                   Get.dialog(
                                                     DriverNameInputDialogWidget(
                                                       onPressed: (driverName) {
@@ -3637,8 +3730,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                           selfDelivery))
                                                   ? (order!.moduleType ==
                                                             'grocery'
-                                                        ? 'swipe_if_ready_for_handover'
-                                                              .tr
+                                                        ? (controllerOrderModel
+                                                                    .orderType ==
+                                                                'take_away'
+                                                            ? 'swipe_if_ready_for_pickup'
+                                                                .tr
+                                                            : 'swipe_if_ready_for_handover'
+                                                                .tr)
                                                         : 'swipe_to_confirm_order'
                                                               .tr)
                                                   : (order!.moduleType ==
@@ -3655,8 +3753,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                             controllerOrderModel
                                                                     .orderStatus ==
                                                                 'processing'))
-                                                  ? 'swipe_if_ready_for_handover'
-                                                        .tr
+                                                  ? (controllerOrderModel
+                                                             .orderType ==
+                                                         'take_away'
+                                                     ? 'swipe_if_ready_for_pickup'
+                                                         .tr
+                                                     : 'swipe_if_ready_for_handover'
+                                                         .tr)
                                                   : (order!.moduleType !=
                                                             'grocery' &&
                                                         (controllerOrderModel
@@ -3680,12 +3783,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                                         (controllerOrderModel
                                                                 .orderStatus ==
                                                             'processing'))
-                                                  ? 'swipe_if_ready_for_handover'
-                                                        .tr
+                                                  ? (controllerOrderModel.orderType == 'take_away' ? 'swipe_if_ready_for_pickup'.tr : 'swipe_if_ready_for_handover'.tr)
                                                   : (controllerOrderModel
                                                             .orderStatus ==
                                                         'handover')
-                                                  ? 'swipe_to_picked_up'.tr
+                                                   ? (controllerOrderModel
+                                                             .orderType ==
+                                                         'take_away'
+                                                     ? 'swipe_to_handover_to_customer'
+                                                         .tr
+                                                     : 'swipe_to_picked_up'.tr)
                                                   : (controllerOrderModel
                                                             .orderStatus ==
                                                         'picked_up')
@@ -3737,63 +3844,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             ).primaryColor,
                                           ),
                                         ),
-                                        // زر إلغاء الطلب أسفل السلايدر
-                                        if (_canStoreCancelOrder(
-                                          controllerOrderModel,
-                                          cancelPermission,
-                                        ))
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: Dimensions.paddingSizeSmall,
-                                              left: Dimensions.paddingSizeSmall,
-                                              right:
-                                                  Dimensions.paddingSizeSmall,
-                                            ),
-                                            child: SizedBox(
-                                              width: double.infinity,
-                                              child: OutlinedButton.icon(
-                                                onPressed: () {
-                                                  orderController
-                                                      .setOrderCancelReason('');
-                                                  Get.dialog(
-                                                    CancellationDialogueWidget(
-                                                      orderId: order!.id,
-                                                    ),
-                                                  );
-                                                },
-                                                icon: const Icon(
-                                                  Icons.cancel_outlined,
-                                                  color: Colors.red,
-                                                  size: 18,
-                                                ),
-                                                label: Text(
-                                                  'cancel_order'.tr,
-                                                  style: robotoMedium.copyWith(
-                                                    color: Colors.red,
-                                                    fontSize: Dimensions
-                                                        .fontSizeDefault,
-                                                  ),
-                                                ),
-                                                style: OutlinedButton.styleFrom(
-                                                  side: const BorderSide(
-                                                    color: Colors.red,
-                                                    width: 1.5,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          Dimensions
-                                                              .radiusSmall,
-                                                        ),
-                                                  ),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 10,
-                                                      ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                       ],
                                     )
                                   : const SizedBox()
