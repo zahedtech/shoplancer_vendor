@@ -4,6 +4,7 @@ import 'package:shoplancer_vendor/features/category/domain/models/category_model
 import 'package:flutter/cupertino.dart';
 import 'package:shoplancer_vendor/common/widgets/pos_style_barcode_scanner_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:shoplancer_vendor/common/widgets/custom_button_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/item_shimmer_widget.dart';
 import 'package:shoplancer_vendor/features/splash/controllers/splash_controller.dart';
 import 'package:shoplancer_vendor/features/store/controllers/store_controller.dart';
@@ -192,191 +193,17 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                                 Icons.playlist_add_check,
                                 size: 28,
                               ),
-                              onPressed: () {
-                                final List<Item> selectedItems = storeController
-                                    .itemList!
-                                    .where(
-                                      (item) => storeController.selectedItemList
-                                          .contains(item.id),
-                                    )
-                                    .toList();
-
-                                if (selectedItems.isEmpty) return;
-
-                                List<Map<String, dynamic>>
-                                productsPayload = selectedItems.map((item) {
-                                  return {
-                                    'product_id': item.id,
-                                    'price': item.price ?? 0,
-                                    if (item.stock != null && item.stock! > 0)
-                                      'stock': item.stock,
-                                    if (item.stock != null && item.stock! > 0)
-                                      'manage_stock': true,
-                                    if (item.discount != null &&
-                                        item.discount! > 0)
-                                      'discount': item.discount,
-                                    if (item.discountType != null &&
-                                        item.discountType!.isNotEmpty)
-                                      'discount_type':
-                                          item.discountType == 'amount'
-                                          ? 'flat'
-                                          : item.discountType,
-                                    'status': true,
-                                  };
-                                }).toList();
-
-                                storeController.bulkAssignProducts(
-                                  productsPayload,
-                                  categoryId: storeController.categoryId,
-                                  type: storeController.type,
-                                );
-                              },
+                              onPressed: () =>
+                                  _bulkAddSelectedItems(storeController),
                               tooltip: 'add_selected_to_store'.tr,
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit_note, size: 30),
-                              onPressed: () {
-                                final List<Item> selectedItems = storeController
-                                    .itemList!
-                                    .where(
-                                      (item) => storeController.selectedItemList
-                                          .contains(item.id),
-                                    )
-                                    .toList();
-
-                                final Map<int, TextEditingController>
-                                priceControllers = {};
-                                final Map<int, TextEditingController>
-                                stockControllers = {};
-
-                                for (var item in selectedItems) {
-                                  priceControllers[item.id!] =
-                                      TextEditingController(
-                                        text: item.price.toString(),
-                                      );
-                                  stockControllers[item.id!] =
-                                      TextEditingController(
-                                        text: item.stock.toString(),
-                                      );
-                                }
-
-                                Get.dialog(
-                                  AlertDialog(
-                                    title: Text('bulk_update'.tr),
-                                    content: SizedBox(
-                                      width: double.maxFinite,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: selectedItems.length,
-                                        itemBuilder: (context, index) {
-                                          final item = selectedItems[index];
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom:
-                                                  Dimensions.paddingSizeDefault,
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  item.name ?? '',
-                                                  style: robotoMedium,
-                                                ),
-                                                const SizedBox(
-                                                  height: Dimensions
-                                                      .paddingSizeExtraSmall,
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: TextField(
-                                                        controller:
-                                                            priceControllers[item
-                                                                .id!],
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'price'.tr,
-                                                          isDense: true,
-                                                          border:
-                                                              const OutlineInputBorder(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: Dimensions
-                                                          .paddingSizeSmall,
-                                                    ),
-                                                    Expanded(
-                                                      child: TextField(
-                                                        controller:
-                                                            stockControllers[item
-                                                                .id!],
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        decoration: InputDecoration(
-                                                          labelText: 'stock'.tr,
-                                                          isDense: true,
-                                                          border:
-                                                              const OutlineInputBorder(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                const Divider(),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Get.back(),
-                                        child: Text('cancel'.tr),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          List<Map<String, dynamic>> updates =
-                                              [];
-                                          for (var item in selectedItems) {
-                                            double? newPrice = double.tryParse(
-                                              priceControllers[item.id!]!.text,
-                                            );
-                                            int? newStock = int.tryParse(
-                                              stockControllers[item.id!]!.text,
-                                            );
-
-                                            if (newPrice != null ||
-                                                newStock != null) {
-                                              updates.add(
-                                                storeController
-                                                    .buildStockUpdateData(
-                                                      item,
-                                                      price: newPrice,
-                                                      stock: newStock,
-                                                    ),
-                                              );
-                                            }
-                                          }
-                                          if (updates.isNotEmpty) {
-                                            Get.back();
-                                            storeController.bulkItemsUpdate(
-                                              updates,
-                                            );
-                                          }
-                                        },
-                                        child: Text('update'.tr),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              tooltip: 'bulk_update'.tr,
+                              onPressed: () => _openBulkEditAndAddDialog(
+                                context,
+                                storeController,
+                              ),
+                              tooltip: 'edit_and_add_selected'.tr,
                             ),
                           ],
                         )
@@ -386,16 +213,116 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
                             IconButton(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               icon: Icon(
+                                Icons.checklist_rtl_rounded,
+                                color: Theme.of(context).primaryColor,
+                                size: 27,
+                              ),
+                              tooltip: 'bulk_add_from_catalog'.tr,
+                              onPressed: () =>
+                                  storeController.toggleSelectionMode(),
+                            ),
+                            IconButton(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              icon: Icon(
                                 Icons.add_circle_outline,
                                 color: Theme.of(context).primaryColor,
                                 size: 27,
                               ),
+                              tooltip: 'add_item'.tr,
                               onPressed: () =>
                                   Get.to(() => const QuickAddItemScreen()),
                             ),
                           ],
                         ),
                 ),
+
+                bottomNavigationBar: storeController.isSelectionMode
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.paddingSizeDefault,
+                          vertical: Dimensions.paddingSizeSmall,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, -3),
+                            ),
+                          ],
+                        ),
+                        child: SafeArea(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CustomButtonWidget(
+                                  fontSize: Dimensions.fontSizeDefault,
+                                  buttonText:
+                                      '${'add_selected_to_store'.tr} (${storeController.selectedItemList.length})',
+                                  onPressed:
+                                      storeController.selectedItemList.isEmpty ||
+                                              storeController.isLoading
+                                          ? null
+                                          : () => _bulkAddSelectedItems(
+                                                storeController,
+                                              ),
+                                ),
+                              ),
+                              const SizedBox(width: Dimensions.paddingSizeSmall),
+                              InkWell(
+                                onTap: storeController.selectedItemList.isEmpty ||
+                                        storeController.isLoading
+                                    ? null
+                                    : () => _openBulkEditAndAddDialog(
+                                          context,
+                                          storeController,
+                                        ),
+                                borderRadius:
+                                    BorderRadius.circular(Dimensions.radiusSmall),
+                                child: Container(
+                                  height: 45,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: Dimensions.paddingSizeSmall,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusSmall,
+                                    ),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .primaryColor
+                                          .withValues(alpha: 0.3),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.edit_note,
+                                        color: Theme.of(context).primaryColor,
+                                        size: 24,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'edit_and_add_selected'.tr,
+                                        style: robotoMedium.copyWith(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: Dimensions.fontSizeSmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : null,
 
                 body: store != null
                     ? CustomScrollView(
@@ -767,6 +694,159 @@ class _AllItemsScreenState extends State<AllItemsScreen> {
       search: '',
       categoryId: 0,
       moduleId: _moduleId(),
+    );
+  }
+
+  void _bulkAddSelectedItems(StoreController storeController) {
+    if (storeController.itemList == null) return;
+    final List<Item> selectedItems = storeController.itemList!
+        .where((item) => storeController.selectedItemList.contains(item.id))
+        .toList();
+
+    if (selectedItems.isEmpty) return;
+
+    List<Map<String, dynamic>> productsPayload = selectedItems.map((item) {
+      return {
+        'product_id': item.id,
+        'price': item.price ?? 0,
+        if (item.stock != null && item.stock! > 0) 'stock': item.stock,
+        if (item.stock != null && item.stock! > 0) 'manage_stock': true,
+        if (item.discount != null && item.discount! > 0)
+          'discount': item.discount,
+        if (item.discountType != null && item.discountType!.isNotEmpty)
+          'discount_type':
+              item.discountType == 'amount' ? 'flat' : item.discountType,
+        'status': true,
+      };
+    }).toList();
+
+    storeController.bulkAssignProducts(
+      productsPayload,
+      categoryId: storeController.categoryId,
+      type: storeController.type,
+    );
+  }
+
+  void _openBulkEditAndAddDialog(
+    BuildContext context,
+    StoreController storeController,
+  ) {
+    if (storeController.itemList == null) return;
+    final List<Item> selectedItems = storeController.itemList!
+        .where((item) => storeController.selectedItemList.contains(item.id))
+        .toList();
+
+    if (selectedItems.isEmpty) return;
+
+    final Map<int, TextEditingController> priceControllers = {};
+    final Map<int, TextEditingController> stockControllers = {};
+
+    for (var item in selectedItems) {
+      priceControllers[item.id!] = TextEditingController(
+        text: (item.price ?? 0).toString(),
+      );
+      stockControllers[item.id!] = TextEditingController(
+        text: (item.stock != null && item.stock! > 0 ? item.stock! : 100)
+            .toString(),
+      );
+    }
+
+    Get.dialog(
+      AlertDialog(
+        title: Text('edit_and_add_selected'.tr),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: selectedItems.length,
+            itemBuilder: (context, index) {
+              final item = selectedItems[index];
+              return Padding(
+                padding: const EdgeInsets.only(
+                  bottom: Dimensions.paddingSizeDefault,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.name ?? '', style: robotoMedium),
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: priceControllers[item.id!],
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'price'.tr,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                        Expanded(
+                          child: TextField(
+                            controller: stockControllers[item.id!],
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'stock'.tr,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+          TextButton(
+            onPressed: () {
+              List<Map<String, dynamic>> productsPayload = [];
+              for (var item in selectedItems) {
+                double? price = double.tryParse(
+                  priceControllers[item.id!]?.text.trim() ?? '',
+                );
+                int? stock = int.tryParse(
+                  stockControllers[item.id!]?.text.trim() ?? '',
+                );
+
+                productsPayload.add({
+                  'product_id': item.id,
+                  'price': price ?? item.price ?? 0,
+                  if (stock != null && stock > 0) 'stock': stock,
+                  if (stock != null && stock > 0) 'manage_stock': true,
+                  if (item.discount != null && item.discount! > 0)
+                    'discount': item.discount,
+                  if (item.discountType != null &&
+                      item.discountType!.isNotEmpty)
+                    'discount_type': item.discountType == 'amount'
+                        ? 'flat'
+                        : item.discountType,
+                  'status': true,
+                });
+              }
+              if (productsPayload.isNotEmpty) {
+                Get.back();
+                storeController.bulkAssignProducts(
+                  productsPayload,
+                  categoryId: storeController.categoryId,
+                  type: storeController.type,
+                );
+              }
+            },
+            child: Text('add'.tr),
+          ),
+        ],
+      ),
     );
   }
 

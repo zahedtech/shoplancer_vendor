@@ -273,9 +273,11 @@
   "product_updated_successfully": "Product updated successfully",
   "product_deleted_successfully": "Product deleted successfully",
   "are_you_sure_want_to_delete_this_product": "Are you sure want to delete this product?",
-  "swipe_to_deliver_order": "Swipe to Deliver Order",
-  "swipe_to_confirm_order": "Swipe to Confirm Order",
-  "swipe_to_picked_up": "Swipe to Picked Up",
+  "swipe_to_deliver_order": "Swipe to complete delivery",
+  "swipe_to_confirm_order": "Swipe to confirm order",
+  "swipe_to_picked_up": "Swipe to handover to deliveryman",
+  "swipe_if_ready_for_pickup": "Swipe if ready for customer pickup",
+  "swipe_to_handover_to_customer": "Swipe to handover to customer",
   "are_you_sure_to_confirm": "Are you sure to confirm?",
   "you_want_to_confirm_this_order": "You want to confirm this order?",
   "only_for_restaurant_owner": "Only for restaurant owner",
@@ -1751,5 +1753,9 @@
   "gallery": "Gallery",
   "camera": "Camera",
   "store_suspended_prepaid_desc": "You have exceeded your allowed negative balance limit. Please top-up your wallet to reactivate your store and process orders.",
-  "recharge_now": "Recharge Now"
+  "recharge_now": "Recharge Now",
+  "bulk_add_from_catalog": "Bulk Add from Catalog",
+  "edit_and_add_selected": "Edit & Add Selected",
+  "quick_add_selected": "Quick Add Selected",
+  "items_selected": "Items Selected"
 }

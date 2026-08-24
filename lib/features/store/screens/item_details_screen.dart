@@ -45,17 +45,21 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
   bool _isStockLoading = false;
 
   void _initStockPriceControllers() {
-    _stockController.text = (item.stock ?? 0).toString();
-    _priceController.text = (item.price ?? 0.0).toString();
+    _stockController.text = (item.stock != null && item.stock != 0) ? item.stock.toString() : '';
+    _priceController.text = (item.price != null && item.price != 0 && item.price != 0.0) ? item.price.toString() : '';
     _variationStockControllers = [];
     _variationPriceControllers = [];
     if (item.variations != null) {
       for (var variation in item.variations!) {
         _variationStockControllers.add(
-          TextEditingController(text: (variation.stock ?? 0).toString()),
+          TextEditingController(
+            text: (variation.stock != null && variation.stock != 0) ? variation.stock.toString() : '',
+          ),
         );
         _variationPriceControllers.add(
-          TextEditingController(text: (variation.price ?? 0.0).toString()),
+          TextEditingController(
+            text: (variation.price != null && variation.price != 0 && variation.price != 0.0) ? variation.price.toString() : '',
+          ),
         );
       }
     }
@@ -66,7 +70,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     super.initState();
     item = widget.product;
     _hasDiscount = item.discount != null && item.discount! > 0;
-    _discountController.text = (item.discount ?? 0).toString();
+    _discountController.text = (item.discount != null && item.discount != 0 && item.discount != 0.0) ? item.discount.toString() : '';
     _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
     _initStockPriceControllers();
   }
@@ -141,7 +145,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
           setState(() {
             item = updatedItem;
             _hasDiscount = item.discount != null && item.discount! > 0;
-            _discountController.text = (item.discount ?? 0).toString();
+            _discountController.text = (item.discount != null && item.discount != 0 && item.discount != 0.0) ? item.discount.toString() : '';
             _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
             _initStockPriceControllers();
           });
@@ -281,7 +285,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
           setState(() {
             item = updatedItem;
             _hasDiscount = item.discount != null && item.discount! > 0;
-            _discountController.text = (item.discount ?? 0).toString();
+            _discountController.text = (item.discount != null && item.discount != 0 && item.discount != 0.0) ? item.discount.toString() : '';
             _discountTypeIndex = item.discountType == 'percent' ? 0 : 1;
             _initStockPriceControllers();
           });
