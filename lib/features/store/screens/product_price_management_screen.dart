@@ -23,11 +23,13 @@ class ProductPriceManagementScreen extends StatefulWidget {
   /// editor opens pre-filtered to this category instead of showing all items.
   final int? initialCategoryId;
   final String? initialCategoryName;
+  final String? initialSort;
 
   const ProductPriceManagementScreen({
     super.key,
     this.initialCategoryId,
     this.initialCategoryName,
+    this.initialSort,
   });
 
   @override
@@ -55,6 +57,7 @@ class _ProductPriceManagementScreenState
   bool _isSaving = false;
   bool _isLoadingMore = false;
   bool _pendingAdvanceNext = false;
+  late String _currentSort;
 
   int get _activeCategoryId {
     if (_selectedSubCategoryId != null) {
@@ -73,6 +76,7 @@ class _ProductPriceManagementScreenState
     final storeController = Get.find<StoreController>();
     final categoryController = Get.find<CategoryController>();
 
+    _currentSort = widget.initialSort ?? 'low_to_high';
     _selectedSubCategoryId = null;
     _loadLocalDraft();
 
@@ -110,7 +114,7 @@ class _ProductPriceManagementScreenState
         type: 'active',
         search: '',
         categoryId: targetCategoryId,
-        sort: 'low_to_high',
+        sort: _currentSort,
         willUpdate: true,
       );
 
@@ -385,7 +389,7 @@ class _ProductPriceManagementScreenState
             search: _searchController.text.trim(),
             categoryId: _activeCategoryId,
             barcode: _barcodeSearch,
-            sort: 'low_to_high',
+            sort: _currentSort,
           )
           .then((_) {
             _isLoadingMore = false;
@@ -457,7 +461,7 @@ class _ProductPriceManagementScreenState
       search: '',
       categoryId: _activeCategoryId,
       barcode: barcode,
-      sort: 'low_to_high',
+      sort: _currentSort,
     );
   }
 
@@ -472,7 +476,7 @@ class _ProductPriceManagementScreenState
         type: 'active',
         search: '',
         categoryId: _activeCategoryId,
-        sort: 'low_to_high',
+        sort: _currentSort,
       );
     } else {
       setState(() {});
@@ -672,7 +676,7 @@ class _ProductPriceManagementScreenState
           updates,
           categoryId: _activeCategoryId,
           type: 'active',
-          sort: 'low_to_high',
+          sort: _currentSort,
         );
         if (mounted) {
           setState(() {
@@ -1162,6 +1166,46 @@ class _ProductPriceManagementScreenState
                 ),
               ),
 
+              // Sort / Filter Selection Bar (Low to High, High to Low, Recently Updated)
+              Container(
+                height: 38,
+                margin: const EdgeInsets.only(
+                  bottom: Dimensions.paddingSizeSmall,
+                ),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeSmall,
+                  ),
+                  children: [
+                    _buildSortFilterChip(
+                      context: context,
+                      storeController: storeController,
+                      title: 'الأقل سعراً',
+                      sortKey: 'low_to_high',
+                      icon: Icons.arrow_upward_rounded,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildSortFilterChip(
+                      context: context,
+                      storeController: storeController,
+                      title: 'الأعلى سعراً',
+                      sortKey: 'high_to_low',
+                      icon: Icons.arrow_downward_rounded,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildSortFilterChip(
+                      context: context,
+                      storeController: storeController,
+                      title: 'المعدلة مؤخراً',
+                      sortKey: 'recently_price_updated',
+                      icon: Icons.history_toggle_off_rounded,
+                      isSpecial: true,
+                    ),
+                  ],
+                ),
+              ),
+
               // Note: the main category selector bar was intentionally
               // removed from this screen — category selection now happens
               // on the dedicated category-picker screen shown before
@@ -1217,7 +1261,7 @@ class _ProductPriceManagementScreenState
                                 search: _searchController.text.trim(),
                                 categoryId: targetCatId,
                                 barcode: _barcodeSearch,
-                                sort: 'low_to_high',
+                                sort: _currentSort,
                               );
                             },
                             child: Container(
@@ -1470,6 +1514,57 @@ class _ProductPriceManagementScreenState
                                                 ),
                                               ],
                                             ),
+                                            // Previous Price (if available and different)
+                                            if (item.previousPrice != null &&
+                                                item.previousPrice != 0 &&
+                                                item.previousPrice != item.price) ...[
+                                              const SizedBox(height: 2),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'السعر السابق: ',
+                                                    style: robotoRegular.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeExtraSmall,
+                                                      color: Colors.orange[800],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    PriceConverterHelper.convertPrice(
+                                                      item.previousPrice,
+                                                    ),
+                                                    style: robotoRegular.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeExtraSmall,
+                                                      color: Colors.orange[800],
+                                                      decoration: TextDecoration.lineThrough,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                            // Price updated at timestamp
+                                            if (item.priceUpdatedAt != null &&
+                                                item.priceUpdatedAt!.isNotEmpty) ...[
+                                              const SizedBox(height: 3),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.access_time_rounded,
+                                                    size: 11,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    'آخر تعديل: ${_formatPriceUpdatedAt(item.priceUpdatedAt)}',
+                                                    style: robotoRegular.copyWith(
+                                                      fontSize: 10,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
@@ -1657,5 +1752,94 @@ class _ProductPriceManagementScreenState
         );
       },
     );
+  }
+
+  Widget _buildSortFilterChip({
+    required BuildContext context,
+    required StoreController storeController,
+    required String title,
+    required String sortKey,
+    IconData? icon,
+    bool isSpecial = false,
+  }) {
+    final bool isSelected = _currentSort == sortKey;
+    final Color activeColor = isSpecial
+        ? Colors.amber[800]!
+        : Theme.of(context).primaryColor;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+      onTap: () {
+        if (_currentSort == sortKey) return;
+        setState(() {
+          _currentSort = sortKey;
+          _currentIndex = 0;
+        });
+        storeController.setOffset(1);
+        storeController.getItemList(
+          offset: '1',
+          type: 'active',
+          search: _searchController.text.trim(),
+          categoryId: _activeCategoryId,
+          barcode: _barcodeSearch,
+          sort: _currentSort,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? activeColor.withOpacity(0.12)
+              : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+          border: Border.all(
+            color: isSelected
+                ? activeColor
+                : Theme.of(context).disabledColor.withOpacity(0.25),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).disabledColor,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              title,
+              style: robotoMedium.copyWith(
+                fontSize: Dimensions.fontSizeExtraSmall,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatPriceUpdatedAt(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '';
+    try {
+      DateTime dt;
+      if (dateStr.contains('T')) {
+        dt = DateTime.parse(dateStr).toLocal();
+      } else {
+        dt = DateTime.parse(dateStr);
+      }
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (e) {
+      return dateStr;
+    }
   }
 }

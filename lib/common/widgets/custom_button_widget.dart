@@ -37,34 +37,45 @@ class CustomButtonWidget extends StatelessWidget {
       ),
     );
 
+    Widget button = TextButton(
+      onPressed: isLoading ? null : onPressed as void Function()?,
+      style: flatButtonStyle,
+      child: isLoading ? Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min, children: [
+        SizedBox(
+          height: 15, width: 15,
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(textColor ?? Colors.white),
+            strokeWidth: 2,
+          ),
+        ),
+        const SizedBox(width: Dimensions.paddingSizeSmall),
+
+        Text('loading'.tr, style: robotoMedium.copyWith(color: textColor ?? Colors.white)),
+      ]),
+      ) : Row(mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min, children: [
+        icon != null ? Icon(icon, color: transparent ? Theme.of(context).primaryColor : iconColor ?? Theme.of(context).cardColor) : const SizedBox(),
+        SizedBox(width: icon != null ? Dimensions.paddingSizeSmall : 0),
+        Flexible(
+          fit: FlexFit.loose,
+          child: Text(buttonText, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: robotoBold.copyWith(
+            color: textColor ?? (transparent || isViewReply ? Theme.of(context).primaryColor : Theme.of(context).cardColor),
+            fontSize: fontSize ?? Dimensions.fontSizeLarge, fontWeight: fontWeight,
+          )),
+        ),
+      ]),
+    );
+
+    if (width != null || height != null) {
+      button = SizedBox(
+        width: width,
+        height: height,
+        child: button,
+      );
+    }
+
     return Padding(
       padding: margin == null ? const EdgeInsets.all(0) : margin!,
-      child: TextButton(
-        onPressed: isLoading ? null : onPressed as void Function()?,
-        style: flatButtonStyle,
-        child: isLoading ? Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          SizedBox(
-            height: 15, width: 15,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(textColor ?? Colors.white),
-              strokeWidth: 2,
-            ),
-          ),
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-
-          Text('loading'.tr, style: robotoMedium.copyWith(color: textColor ?? Colors.white)),
-        ]),
-        ) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          icon != null ? Icon(icon, color: transparent ? Theme.of(context).primaryColor : iconColor ?? Theme.of(context).cardColor) : const SizedBox(),
-          SizedBox(width: icon != null ? Dimensions.paddingSizeSmall : 0),
-          Flexible(
-            child: Text(buttonText, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: robotoBold.copyWith(
-              color: textColor ?? (transparent || isViewReply ? Theme.of(context).primaryColor : Theme.of(context).cardColor),
-              fontSize: fontSize ?? Dimensions.fontSizeLarge, fontWeight: fontWeight,
-            )),
-          ),
-        ]),
-      ),
+      child: button,
     );
   }
 }
