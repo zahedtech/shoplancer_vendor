@@ -26,9 +26,20 @@ class DateConverterHelper {
   }
 
   static String dateTimeStringToDateOnly(String dateTime) {
-    return DateFormat(
-      'd/M/yyyy',
-    ).format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTime));
+    try {
+      if (dateTime.contains('T')) {
+        return DateFormat('d/M/yyyy').format(DateTime.parse(dateTime).toLocal());
+      }
+      return DateFormat(
+        'd/M/yyyy',
+      ).format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTime));
+    } catch (e) {
+      try {
+        return DateFormat('d/M/yyyy').format(DateTime.parse(dateTime));
+      } catch (_) {
+        return dateTime;
+      }
+    }
   }
 
   static DateTime dateTimeStringToDate(String dateTime) {

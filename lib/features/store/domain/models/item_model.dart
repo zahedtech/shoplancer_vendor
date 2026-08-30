@@ -126,6 +126,8 @@ class Item {
   String? metaTitle;
   String? metaDescription;
   String? metaImageFullUrl;
+  double? previousPrice;
+  String? priceUpdatedAt;
   MetaSeoData? metaData;
 
   Item({
@@ -190,6 +192,8 @@ class Item {
     this.metaDescription,
     this.metaImageFullUrl,
     this.metaData,
+    this.previousPrice,
+    this.priceUpdatedAt,
   });
 
   Item.fromJson(Map<String, dynamic> json) {
@@ -346,6 +350,10 @@ class Item {
       }
     }
     price = json['price']?.toDouble();
+    previousPrice = json['previous_price'] != null
+        ? double.tryParse(json['previous_price'].toString())
+        : null;
+    priceUpdatedAt = json['price_updated_at']?.toString();
     tax = json['tax']?.toDouble();
     discount = json['discount']?.toDouble();
     discountType = json['discount_type'] == 'flat'
@@ -643,6 +651,12 @@ class Item {
     if (metaData != null) {
       data['meta_data'] = metaData!.toJson();
     }
+    if (previousPrice != null) {
+      data['previous_price'] = previousPrice;
+    }
+    if (priceUpdatedAt != null) {
+      data['price_updated_at'] = priceUpdatedAt;
+    }
     return data;
   }
 }
@@ -673,13 +687,25 @@ class Variation {
   String? type;
   double? price;
   int? stock;
+  double? previousPrice;
+  String? priceUpdatedAt;
 
-  Variation({this.type, this.price, this.stock});
+  Variation({
+    this.type,
+    this.price,
+    this.stock,
+    this.previousPrice,
+    this.priceUpdatedAt,
+  });
 
   Variation.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     price = json['price']?.toDouble();
     stock = json['stock'];
+    previousPrice = json['previous_price'] != null
+        ? double.tryParse(json['previous_price'].toString())
+        : null;
+    priceUpdatedAt = json['price_updated_at']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -687,6 +713,12 @@ class Variation {
     data['type'] = type;
     data['price'] = price;
     data['stock'] = stock;
+    if (previousPrice != null) {
+      data['previous_price'] = previousPrice;
+    }
+    if (priceUpdatedAt != null) {
+      data['price_updated_at'] = priceUpdatedAt;
+    }
     return data;
   }
 }

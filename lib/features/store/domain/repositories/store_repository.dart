@@ -48,7 +48,7 @@ class StoreRepository implements StoreRepositoryInterface {
         ? '&max_price=${Uri.encodeQueryComponent(maxPrice.trim())}'
         : '';
     final String sortQuery = sort != null && sort.trim().isNotEmpty && sort != 'none'
-        ? '&sort=${Uri.encodeQueryComponent(sort.trim())}&sort_by_price=${Uri.encodeQueryComponent(sort.trim())}&order=${Uri.encodeQueryComponent(sort.trim())}'
+        ? '&sort=${Uri.encodeQueryComponent(sort.trim())}&sort_by_price=${Uri.encodeQueryComponent(sort.trim())}&order=${Uri.encodeQueryComponent(sort.trim())}&filter=${Uri.encodeQueryComponent(sort.trim())}'
         : '';
 
     if (moduleId != null) {

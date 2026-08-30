@@ -278,6 +278,56 @@ class ItemWidget extends StatelessWidget {
                           ),
                         ],
                       ),
+
+                      if (item.previousPrice != null &&
+                          item.previousPrice != 0 &&
+                          item.previousPrice != item.price) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              'السعر السابق: ',
+                              style: robotoRegular.copyWith(
+                                fontSize: 10,
+                                color: Colors.orange[800],
+                              ),
+                            ),
+                            Text(
+                              PriceConverterHelper.convertPrice(
+                                item.previousPrice,
+                              ),
+                              style: robotoRegular.copyWith(
+                                fontSize: 10,
+                                color: Colors.orange[800],
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      if (item.priceUpdatedAt != null &&
+                          item.priceUpdatedAt!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 10,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'آخر تعديل: ${DateConverterHelper.dateTimeStringToDateOnly(item.priceUpdatedAt!)}',
+                              style: robotoRegular.copyWith(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
                       const SizedBox(height: Dimensions.paddingSizeSmall),
                     ],
                   ),

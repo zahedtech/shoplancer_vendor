@@ -47,6 +47,7 @@ class _ProductPriceCategorySelectionScreenState
               padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
               children: [
                 _buildAllProductsCard(context),
+                _buildRecentlyUpdatedCard(context),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
                 if (categories.isEmpty)
                   Padding(
@@ -125,6 +126,72 @@ class _ProductPriceCategorySelectionScreenState
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
                 color: Theme.of(context).primaryColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentlyUpdatedCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.amber.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        border: Border.all(color: Colors.amber.withOpacity(0.4)),
+      ),
+      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        onTap: () => Get.to(
+          () => const ProductPriceManagementScreen(
+            initialSort: 'recently_price_updated',
+            initialCategoryName: 'المنتجات المعدلة مؤخراً',
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          child: Row(
+            children: [
+              Container(
+                height: 55,
+                width: 55,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                ),
+                child: Icon(
+                  Icons.history_toggle_off_rounded,
+                  color: Colors.amber[800],
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: Dimensions.paddingSizeSmall),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'المنتجات المعدلة مؤخراً',
+                      style: robotoBold.copyWith(color: Colors.amber[900]),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'عرض وتدقيق أحدث المنتجات التي تم تعديل أسعارها',
+                      style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeExtraSmall,
+                        color: Theme.of(context).disabledColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Colors.amber[800],
               ),
             ],
           ),

@@ -41,6 +41,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
   CategoryModel? _selectedCategory;
   CategoryModel? _selectedSubCategory;
   bool _isViewingProducts = false;
+  String _selectedSort = 'none';
 
   bool _showScanner = false;
   bool _speechEnabled = false;
@@ -192,6 +193,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       type: 'all',
       search: name,
       categoryId: _activeCategoryId,
+      sort: _selectedSort != 'none' ? _selectedSort : null,
     );
   }
 
@@ -212,6 +214,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: '',
       barcode: cleanBarcode,
       categoryId: _activeCategoryId,
+      sort: _selectedSort != 'none' ? _selectedSort : null,
     );
   }
 
@@ -222,6 +225,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: _barcodeSearch == null ? _searchController.text.trim() : '',
       barcode: _barcodeSearch,
       categoryId: _activeCategoryId,
+      sort: _selectedSort != 'none' ? _selectedSort : null,
     );
   }
 
@@ -297,6 +301,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     setState(() {
       _selectedCategory = null;
       _selectedSubCategory = null;
+      _selectedSort = 'none';
       _isViewingProducts = true;
     });
     final storeController = Get.find<StoreController>();
@@ -306,6 +311,24 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: _searchController.text.trim(),
       categoryId: 0,
       barcode: _barcodeSearch,
+    );
+  }
+
+  void _onSelectRecentlyUpdatedProducts() {
+    setState(() {
+      _selectedCategory = null;
+      _selectedSubCategory = null;
+      _selectedSort = 'recently_price_updated';
+      _isViewingProducts = true;
+    });
+    final storeController = Get.find<StoreController>();
+    storeController.getItemList(
+      offset: '1',
+      type: 'all',
+      search: _searchController.text.trim(),
+      categoryId: 0,
+      barcode: _barcodeSearch,
+      sort: 'recently_price_updated',
     );
   }
 
@@ -331,6 +354,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: _searchController.text.trim(),
       categoryId: _selectedCategory?.id ?? 0,
       barcode: _barcodeSearch,
+      sort: _selectedSort != 'none' ? _selectedSort : null,
     );
   }
 
@@ -346,6 +370,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       search: _searchController.text.trim(),
       categoryId: subCategory.id ?? 0,
       barcode: _barcodeSearch,
+      sort: _selectedSort != 'none' ? _selectedSort : null,
     );
   }
 
@@ -375,7 +400,10 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
               },
               borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
@@ -393,7 +421,9 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      _selectedCategory != null ? 'الفئات الفرعية'.tr : 'تغيير الفئة'.tr,
+                      _selectedCategory != null
+                          ? 'الفئات الفرعية'.tr
+                          : 'تغيير الفئة'.tr,
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.fontSizeSmall,
                         color: Theme.of(context).primaryColor,
@@ -436,7 +466,10 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
               },
               borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
@@ -547,6 +580,67 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     );
   }
 
+  Widget _buildRecentlyUpdatedCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.amber.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        border: Border.all(color: Colors.amber.withOpacity(0.4)),
+      ),
+      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        onTap: _onSelectRecentlyUpdatedProducts,
+        child: Padding(
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          child: Row(
+            children: [
+              Container(
+                height: 55,
+                width: 55,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                ),
+                child: Icon(
+                  Icons.history_toggle_off_rounded,
+                  color: Colors.amber[800],
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: Dimensions.paddingSizeSmall),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'المنتجات المعدلة مؤخراً',
+                      style: robotoBold.copyWith(color: Colors.amber[900]),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'عرض وتدقيق أحدث المنتجات التي تم تعديل أسعارها',
+                      style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeExtraSmall,
+                        color: Theme.of(context).disabledColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Colors.amber[800],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCategoryCard(BuildContext context, CategoryModel category) {
     final bool isActive = (category.status ?? 1) == 1;
 
@@ -634,10 +728,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     );
   }
 
-  Widget _buildAllInCategoryCard(
-    BuildContext context,
-    CategoryModel category,
-  ) {
+  Widget _buildAllInCategoryCard(BuildContext context, CategoryModel category) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor.withOpacity(0.06),
@@ -812,6 +903,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
         padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
         children: [
           _buildAllProductsCard(context),
+          _buildRecentlyUpdatedCard(context),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           if (categories.isEmpty)
             Padding(
@@ -842,8 +934,9 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
     return RefreshIndicator(
       onRefresh: () async {
         if (_selectedCategory?.id != null) {
-          await Get.find<CategoryController>()
-              .getSubCategoryList(_selectedCategory!.id!);
+          await Get.find<CategoryController>().getSubCategoryList(
+            _selectedCategory!.id!,
+          );
         }
       },
       child: ListView(
@@ -876,8 +969,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
             )
           else
             ...subCategories.map(
-              (subCategory) =>
-                  _buildSubCategoryCard(context, subCategory),
+              (subCategory) => _buildSubCategoryCard(context, subCategory),
             ),
         ],
       ),
@@ -930,8 +1022,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                       size: 26,
                     ),
                     tooltip: 'إضافة منتج'.tr,
-                    onPressed: () =>
-                        Get.to(() => const QuickAddItemScreen()),
+                    onPressed: () => Get.to(() => const QuickAddItemScreen()),
                   ),
                 ),
                 floatingActionButton: _updatedPrices.isNotEmpty
@@ -966,12 +1057,12 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                 child: CustomTextFieldWidget(
                                   controller: _searchController,
                                   hintText: _isViewingProducts
-                                      ? 'ابحث في المنتجات بالاسم أو الباركود...'.tr
+                                      ? 'ابحث في المنتجات بالاسم أو الباركود...'
+                                            .tr
                                       : 'ابحث عن أي منتج مباشرة...'.tr,
                                   prefixIcon: Icons.search,
                                   inputAction: TextInputAction.search,
-                                  suffixChild: _searchController
-                                          .text.isNotEmpty
+                                  suffixChild: _searchController.text.isNotEmpty
                                       ? Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -986,8 +1077,9 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                                 size: 20,
                                                 color: _isListening
                                                     ? Colors.red
-                                                    : Theme.of(context)
-                                                        .primaryColor,
+                                                    : Theme.of(
+                                                        context,
+                                                      ).primaryColor,
                                               ),
                                               onPressed: _toggleVoiceSearch,
                                             ),
@@ -996,8 +1088,9 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                               icon: Icon(
                                                 Icons.search,
                                                 size: 20,
-                                                color: Theme.of(context)
-                                                    .primaryColor,
+                                                color: Theme.of(
+                                                  context,
+                                                ).primaryColor,
                                               ),
                                               onPressed: _submitSearch,
                                             ),
@@ -1014,8 +1107,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                                   offset: '1',
                                                   type: 'all',
                                                   search: '',
-                                                  categoryId:
-                                                      _activeCategoryId,
+                                                  categoryId: _activeCategoryId,
                                                 );
                                               },
                                             ),
@@ -1032,13 +1124,13 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                             size: 20,
                                             color: _isListening
                                                 ? Colors.red
-                                                : Theme.of(context)
-                                                    .primaryColor,
+                                                : Theme.of(
+                                                    context,
+                                                  ).primaryColor,
                                           ),
                                           onPressed: _toggleVoiceSearch,
                                         ),
-                                  onChanged: (val) =>
-                                      _onSearchChanged(val),
+                                  onChanged: (val) => _onSearchChanged(val),
                                   onSubmit: (val) => _submitSearch(val),
                                 ),
                               ),
@@ -1054,9 +1146,9 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                                   decoration: BoxDecoration(
                                     color: _showScanner
                                         ? Theme.of(context).primaryColor
-                                        : Theme.of(context)
-                                            .primaryColor
-                                            .withOpacity(0.1),
+                                        : Theme.of(
+                                            context,
+                                          ).primaryColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(
                                       Dimensions.radiusDefault,
                                     ),
@@ -1073,16 +1165,13 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                             ],
                           ),
                           if (_showScanner) ...[
-                            const SizedBox(
-                              height: Dimensions.paddingSizeSmall,
-                            ),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
                             PosStyleBarcodeScannerWidget(
                               onBarcodeScanned: (barcode) {
                                 _onBarcodeScanned(barcode);
                               },
-                              onClose: () => setState(
-                                () => _showScanner = false,
-                              ),
+                              onClose: () =>
+                                  setState(() => _showScanner = false),
                             ),
                           ],
                         ],
@@ -1092,22 +1181,67 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                     // Breadcrumb navigation header
                     _buildBreadcrumbHeader(),
 
+                    if (_isViewingProducts)
+                      Container(
+                        height: 38,
+                        margin: const EdgeInsets.symmetric(
+                          vertical: Dimensions.paddingSizeExtraSmall,
+                        ),
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Dimensions.paddingSizeSmall,
+                          ),
+                          children: [
+                            _buildSortFilterChip(
+                              context: context,
+                              storeController: storeController,
+                              title: 'الكل',
+                              sortKey: 'none',
+                              icon: Icons.grid_view_rounded,
+                            ),
+                            const SizedBox(width: 8),
+                            _buildSortFilterChip(
+                              context: context,
+                              storeController: storeController,
+                              title: 'الأقل سعراً',
+                              sortKey: 'low_to_high',
+                              icon: Icons.arrow_upward_rounded,
+                            ),
+                            const SizedBox(width: 8),
+                            _buildSortFilterChip(
+                              context: context,
+                              storeController: storeController,
+                              title: 'الأعلى سعراً',
+                              sortKey: 'high_to_low',
+                              icon: Icons.arrow_downward_rounded,
+                            ),
+                            const SizedBox(width: 8),
+                            _buildSortFilterChip(
+                              context: context,
+                              storeController: storeController,
+                              title: 'المعدلة مؤخراً',
+                              sortKey: 'recently_price_updated',
+                              icon: Icons.history_toggle_off_rounded,
+                              isSpecial: true,
+                            ),
+                          ],
+                        ),
+                      ),
+
                     const Divider(height: 1),
 
                     // Main Content Area
                     Expanded(
                       child: _isViewingProducts
                           ? (storeController.itemList == null
-                              ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                              : _buildProductsList(
-                                  context,
-                                  storeController,
-                                ))
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : _buildProductsList(context, storeController))
                           : (_selectedCategory != null
-                              ? _buildSubCategoriesList(categoryController)
-                              : _buildCategoriesList(categoryController)),
+                                ? _buildSubCategoriesList(categoryController)
+                                : _buildCategoriesList(categoryController)),
                     ),
 
                     // Bottom Save Staged Prices Floating Bar
@@ -1141,8 +1275,7 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                               width: 140,
                               height: 44,
                               isLoading: _isSaving,
-                              onPressed: () =>
-                                  _saveAllChanges(storeController),
+                              onPressed: () => _saveAllChanges(storeController),
                             ),
                           ],
                         ),
@@ -1366,6 +1499,56 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                       ],
                     ),
                   ),
+
+                  // Previous Price (if available and different)
+                  if (item.previousPrice != null &&
+                      item.previousPrice != 0 &&
+                      item.previousPrice != item.price) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          'السعر السابق: ',
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeExtraSmall,
+                            color: Colors.orange[800],
+                          ),
+                        ),
+                        Text(
+                          PriceConverterHelper.convertPrice(item.previousPrice),
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeExtraSmall,
+                            color: Colors.orange[800],
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  // Price updated at timestamp
+                  if (item.priceUpdatedAt != null &&
+                      item.priceUpdatedAt!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 11,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'آخر تعديل: ${_formatPriceUpdatedAt(item.priceUpdatedAt)}',
+                          style: robotoRegular.copyWith(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -1810,5 +1993,93 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildSortFilterChip({
+    required BuildContext context,
+    required StoreController storeController,
+    required String title,
+    required String sortKey,
+    IconData? icon,
+    bool isSpecial = false,
+  }) {
+    final bool isSelected = _selectedSort == sortKey;
+    final Color activeColor = isSpecial
+        ? Colors.amber[800]!
+        : Theme.of(context).primaryColor;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+      onTap: () {
+        if (_selectedSort == sortKey) return;
+        setState(() {
+          _selectedSort = sortKey;
+        });
+        storeController.setOffset(1);
+        storeController.getItemList(
+          offset: '1',
+          type: 'all',
+          search: _searchController.text.trim(),
+          categoryId: _activeCategoryId,
+          barcode: _barcodeSearch,
+          sort: _selectedSort != 'none' ? _selectedSort : null,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? activeColor.withOpacity(0.12)
+              : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+          border: Border.all(
+            color: isSelected
+                ? activeColor
+                : Theme.of(context).disabledColor.withOpacity(0.25),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).disabledColor,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              title,
+              style: robotoMedium.copyWith(
+                fontSize: Dimensions.fontSizeExtraSmall,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatPriceUpdatedAt(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '';
+    try {
+      DateTime dt;
+      if (dateStr.contains('T')) {
+        dt = DateTime.parse(dateStr).toLocal();
+      } else {
+        dt = DateTime.parse(dateStr);
+      }
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (e) {
+      return dateStr;
+    }
   }
 }
