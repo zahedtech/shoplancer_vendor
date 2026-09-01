@@ -46,7 +46,6 @@ class _ProductPriceCategorySelectionScreenState
             child: ListView(
               padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
               children: [
-                _buildAllProductsCard(context),
                 _buildRecentlyUpdatedCard(context),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
                 if (categories.isEmpty)
@@ -70,69 +69,7 @@ class _ProductPriceCategorySelectionScreenState
     );
   }
 
-  Widget _buildAllProductsCard(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        border: Border.all(
-          color: Theme.of(context).primaryColor.withOpacity(0.3),
-        ),
-      ),
-      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        onTap: () => Get.to(() => const ProductPriceManagementScreen()),
-        child: Padding(
-          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          child: Row(
-            children: [
-              Container(
-                height: 55,
-                width: 55,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                ),
-                child: Icon(
-                  Icons.grid_view_rounded,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(width: Dimensions.paddingSizeSmall),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'all_items'.tr,
-                      style: robotoBold.copyWith(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'عرض كل المنتجات بدون تصفية بفئة معيّنة',
-                      style: robotoRegular.copyWith(
-                        fontSize: Dimensions.fontSizeExtraSmall,
-                        color: Theme.of(context).disabledColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Theme.of(context).primaryColor,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildRecentlyUpdatedCard(BuildContext context) {
     return Container(
