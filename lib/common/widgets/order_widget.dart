@@ -197,16 +197,14 @@ class OrderWidget extends StatelessWidget {
                         color: isOver4Hours
                             ? Colors.red.withValues(alpha: 0.15)
                             : (orderModel.orderStatus == 'pending' ||
-                                (orderModel.moduleType == 'grocery' &&
-                                    (orderModel.orderStatus == 'confirmed' ||
-                                        orderModel.orderStatus == 'processing' ||
-                                        orderModel.orderStatus == 'cooking')))
-                            ? Colors.blueAccent.withValues(alpha: 0.1)
-                            : (orderModel.orderStatus == 'confirmed' ||
+                                  orderModel.orderStatus == 'confirmed' ||
                                   orderModel.orderStatus == 'processing' ||
                                   orderModel.orderStatus == 'cooking')
-                            ? Colors.teal.withValues(alpha: 0.1)
-                            : orderModel.orderStatus == 'delivered'
+                            ? Colors.blueAccent.withValues(alpha: 0.1)
+                            : orderModel.orderStatus == 'handover'
+                            ? Colors.amber.withValues(alpha: 0.1)
+                            : (orderModel.orderStatus == 'picked_up' ||
+                                  orderModel.orderStatus == 'delivered')
                             ? Colors.indigo.withValues(alpha: 0.1)
                             : Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
@@ -220,10 +218,10 @@ class OrderWidget extends StatelessWidget {
                       child: Text(
                         orderModel.orderStatus == 'picked_up'
                             ? 'item'.tr + ' ' + 'on_the_way'.tr
-                            : (orderModel.moduleType == 'grocery' &&
-                                  (orderModel.orderStatus == 'confirmed' ||
-                                      orderModel.orderStatus == 'processing' ||
-                                      orderModel.orderStatus == 'cooking'))
+                            : (orderModel.orderStatus == 'pending' ||
+                                  orderModel.orderStatus == 'confirmed' ||
+                                  orderModel.orderStatus == 'processing' ||
+                                  orderModel.orderStatus == 'cooking')
                             ? 'pending'.tr
                             : (orderModel.orderStatus ?? '').tr,
                         style: robotoMedium.copyWith(
@@ -231,16 +229,14 @@ class OrderWidget extends StatelessWidget {
                           color: isOver4Hours
                               ? Colors.red
                               : (orderModel.orderStatus == 'pending' ||
-                                  (orderModel.moduleType == 'grocery' &&
-                                      (orderModel.orderStatus == 'confirmed' ||
-                                          orderModel.orderStatus == 'processing' ||
-                                          orderModel.orderStatus == 'cooking')))
-                              ? Colors.blueAccent
-                              : (orderModel.orderStatus == 'confirmed' ||
+                                    orderModel.orderStatus == 'confirmed' ||
                                     orderModel.orderStatus == 'processing' ||
                                     orderModel.orderStatus == 'cooking')
-                              ? Colors.teal
-                              : orderModel.orderStatus == 'delivered'
+                              ? Colors.blueAccent
+                              : orderModel.orderStatus == 'handover'
+                              ? Colors.amber[800]
+                              : (orderModel.orderStatus == 'picked_up' ||
+                                    orderModel.orderStatus == 'delivered')
                               ? Colors.indigo
                               : Colors.red,
                         ),

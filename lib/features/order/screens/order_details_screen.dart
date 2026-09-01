@@ -216,15 +216,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   Text(
                     controller.orderModel!.orderStatus! == 'picked_up'
                         ? 'on_the_way'.tr
-                        : (controller.orderModel!.moduleType == 'grocery' &&
-                              (controller.orderModel!.orderStatus ==
-                                      'confirmed' ||
-                                  controller.orderModel!.orderStatus ==
-                                      'processing' ||
-                                  controller.orderModel!.orderStatus ==
-                                      'cooking'))
-                        ? 'pending'.tr
-                        : controller.orderModel!.orderStatus!.tr,
+                        : (controller.orderModel!.orderStatus == 'pending' ||
+                                controller.orderModel!.orderStatus == 'confirmed' ||
+                                controller.orderModel!.orderStatus == 'processing' ||
+                                controller.orderModel!.orderStatus == 'cooking')
+                            ? 'pending'.tr
+                            : controller.orderModel!.orderStatus!.tr,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -3386,160 +3383,32 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                             action: () {
                                               if (controllerOrderModel
                                                           .orderStatus ==
-                                                      'pending' &&
+                                                      'pending' ||
+                                                  controllerOrderModel
+                                                          .orderStatus ==
+                                                      'confirmed' ||
+                                                  controllerOrderModel
+                                                          .orderStatus ==
+                                                      'processing' ||
+                                                  controllerOrderModel
+                                                          .orderStatus ==
+                                                      'cooking' ||
                                                   (controllerOrderModel
-                                                              .orderType ==
-                                                          'take_away' ||
-                                                      restConfModel ||
-                                                      selfDelivery)) {
-                                                if (order!.moduleType ==
-                                                    'grocery') {
+                                                              .orderStatus ==
+                                                          'accepted' &&
+                                                      controllerOrderModel
+                                                              .confirmed !=
+                                                          null)) {
+                                                if (controllerOrderModel
+                                                            .orderType ==
+                                                        'take_away' ||
+                                                    restConfModel ||
+                                                    selfDelivery) {
                                                   orderController
                                                       .updateOrderStatus(
                                                         widget.orderId,
                                                         AppConstants.handover,
                                                       );
-                                                } else {
-                                                  Get.dialog(
-                                                    ConfirmationDialogWidget(
-                                                      icon: Images.warning,
-                                                      title:
-                                                          'are_you_sure_to_confirm'
-                                                              .tr,
-                                                      description:
-                                                          'you_want_to_confirm_this_order'
-                                                              .tr,
-                                                      onYesPressed: () {
-                                                        orderController
-                                                            .updateOrderStatus(
-                                                              widget.orderId,
-                                                              AppConstants
-                                                                  .confirmed,
-                                                            );
-                                                      },
-                                                      onNoPressed: () {
-                                                        if (cancelPermission!) {
-                                                          Get.back();
-                                                          orderController
-                                                              .setOrderCancelReason(
-                                                                '',
-                                                              );
-                                                          Get.dialog(
-                                                            CancellationDialogueWidget(
-                                                              orderId: widget
-                                                                  .orderId,
-                                                            ),
-                                                          );
-                                                        } else {
-                                                          Get.back();
-                                                        }
-                                                      },
-                                                    ),
-                                                    barrierDismissible: false,
-                                                  );
-                                                }
-                                              } else if (order!.moduleType ==
-                                                      'grocery' &&
-                                                  (controllerOrderModel
-                                                              .orderStatus ==
-                                                          'confirmed' ||
-                                                      (controllerOrderModel
-                                                                  .orderStatus ==
-                                                              'accepted' &&
-                                                          controllerOrderModel
-                                                                  .confirmed !=
-                                                              null) ||
-                                                      controllerOrderModel
-                                                              .orderStatus ==
-                                                          'processing')) {
-                                                Get.find<OrderController>()
-                                                    .updateOrderStatus(
-                                                      widget.orderId,
-                                                      AppConstants.handover,
-                                                    );
-                                              } else if (order!.moduleType !=
-                                                      'grocery' &&
-                                                  controllerOrderModel
-                                                          .orderStatus ==
-                                                      'processing') {
-                                                Get.find<OrderController>()
-                                                    .updateOrderStatus(
-                                                      widget.orderId,
-                                                      AppConstants.handover,
-                                                    );
-                                              } else if (order!.moduleType !=
-                                                      'grocery' &&
-                                                  (controllerOrderModel
-                                                              .orderStatus ==
-                                                          'confirmed' ||
-                                                      (controllerOrderModel
-                                                                  .orderStatus ==
-                                                              'accepted' &&
-                                                          controllerOrderModel
-                                                                  .confirmed !=
-                                                              null))) {
-                                                if (Get.find<SplashController>()
-                                                        .getModuleConfig(
-                                                          order?.moduleType,
-                                                        )
-                                                        .newVariation ??
-                                                    false) {
-                                                  Get.dialog(
-                                                    InputDialogWidget(
-                                                      icon: Images.warning,
-                                                      title:
-                                                          'are_you_sure_to_confirm'
-                                                              .tr,
-                                                      description:
-                                                          'enter_processing_time_in_minutes'
-                                                              .tr,
-                                                      onPressed: (String? time) {
-                                                        Get.find<
-                                                              OrderController
-                                                            >()
-                                                            .updateOrderStatus(
-                                                              controllerOrderModel
-                                                                  .id,
-                                                              AppConstants
-                                                                  .processing,
-                                                              processingTime:
-                                                                  time,
-                                                            )
-                                                            .then((success) {
-                                                              Get.back();
-                                                              if (success) {
-                                                                Get.find<
-                                                                      ProfileController
-                                                                    >()
-                                                                    .getProfile();
-                                                                Get.find<
-                                                                      OrderController
-                                                                    >()
-                                                                    .getCurrentOrders();
-                                                              }
-                                                            });
-                                                      },
-                                                    ),
-                                                  );
-                                                } else {
-                                                  Get.find<OrderController>()
-                                                      .updateOrderStatus(
-                                                        controllerOrderModel.id,
-                                                        AppConstants.processing,
-                                                      )
-                                                      .then((success) {
-                                                        Get.back();
-                                                        if (success) {
-                                                          Get.find<
-                                                                ProfileController
-                                                              >()
-                                                              .getProfile();
-                                                          Get.find<
-                                                                OrderController
-                                                              >()
-                                                              .getCurrentOrders();
-                                                        }
-                                                      });
                                                 }
                                               } else if (controllerOrderModel
                                                       .orderStatus ==
@@ -3720,84 +3589,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                                               }
                                             },
                                             label: Text(
-                                              (controllerOrderModel
-                                                              .orderStatus ==
-                                                          'pending' &&
-                                                      (controllerOrderModel
-                                                                  .orderType ==
-                                                              'take_away' ||
-                                                          restConfModel ||
-                                                          selfDelivery))
-                                                  ? (order!.moduleType ==
-                                                            'grocery'
-                                                        ? (controllerOrderModel
-                                                                    .orderType ==
-                                                                'take_away'
-                                                            ? 'swipe_if_ready_for_pickup'
-                                                                .tr
-                                                            : 'swipe_if_ready_for_handover'
-                                                                .tr)
-                                                        : 'swipe_to_confirm_order'
-                                                              .tr)
-                                                  : (order!.moduleType ==
-                                                            'grocery' &&
-                                                        (controllerOrderModel
-                                                                    .orderStatus ==
-                                                                'confirmed' ||
-                                                            (controllerOrderModel
-                                                                        .orderStatus ==
-                                                                    'accepted' &&
-                                                                controllerOrderModel
-                                                                        .confirmed !=
-                                                                    null) ||
-                                                            controllerOrderModel
-                                                                    .orderStatus ==
-                                                                'processing'))
-                                                  ? (controllerOrderModel
-                                                             .orderType ==
-                                                         'take_away'
-                                                     ? 'swipe_if_ready_for_pickup'
-                                                         .tr
-                                                     : 'swipe_if_ready_for_handover'
-                                                         .tr)
-                                                  : (order!.moduleType !=
-                                                            'grocery' &&
-                                                        (controllerOrderModel
-                                                                    .orderStatus ==
-                                                                'confirmed' ||
-                                                            (controllerOrderModel
-                                                                        .orderStatus ==
-                                                                    'accepted' &&
-                                                                controllerOrderModel
-                                                                        .confirmed !=
-                                                                    null)))
-                                                  ? Get.find<SplashController>()
-                                                            .configModel!
-                                                            .moduleConfig!
-                                                            .module!
-                                                            .showRestaurantText!
-                                                        ? 'swipe_to_cooking'.tr
-                                                        : 'swipe_to_process'.tr
-                                                  : (order!.moduleType !=
-                                                            'grocery' &&
-                                                        (controllerOrderModel
-                                                                .orderStatus ==
-                                                            'processing'))
-                                                  ? (controllerOrderModel.orderType == 'take_away' ? 'swipe_if_ready_for_pickup'.tr : 'swipe_if_ready_for_handover'.tr)
-                                                  : (controllerOrderModel
-                                                            .orderStatus ==
-                                                        'handover')
-                                                   ? (controllerOrderModel
-                                                             .orderType ==
-                                                         'take_away'
-                                                     ? 'swipe_to_handover_to_customer'
-                                                         .tr
-                                                     : 'swipe_to_picked_up'.tr)
-                                                  : (controllerOrderModel
-                                                            .orderStatus ==
-                                                        'picked_up')
-                                                  ? 'swipe_to_deliver_order'.tr
-                                                  : '',
+                                              (controllerOrderModel.orderStatus == 'pending' ||
+                                                      controllerOrderModel.orderStatus == 'confirmed' ||
+                                                      controllerOrderModel.orderStatus == 'processing' ||
+                                                      controllerOrderModel.orderStatus == 'cooking' ||
+                                                      (controllerOrderModel.orderStatus == 'accepted' &&
+                                                          controllerOrderModel.confirmed != null))
+                                                  ? (controllerOrderModel.orderType == 'take_away'
+                                                      ? 'swipe_if_ready_for_pickup'.tr
+                                                      : 'swipe_if_ready_for_handover'.tr)
+                                                  : (controllerOrderModel.orderStatus == 'handover')
+                                                      ? (controllerOrderModel.orderType == 'take_away'
+                                                          ? 'swipe_to_handover_to_customer'.tr
+                                                          : 'swipe_to_picked_up'.tr)
+                                                      : (controllerOrderModel.orderStatus == 'picked_up')
+                                                          ? 'swipe_to_deliver_order'.tr
+                                                          : '',
                                               style: robotoMedium.copyWith(
                                                 fontSize:
                                                     Dimensions.fontSizeLarge,

@@ -57,7 +57,19 @@ class _ProductPriceManagementScreenState
   bool _isSaving = false;
   bool _isLoadingMore = false;
   bool _pendingAdvanceNext = false;
-  late String _currentSort;
+  String _mainFilter = 'all';
+  String _priceSort = 'none';
+
+  String? get _combinedSortQuery {
+    if (_mainFilter == 'recently_price_updated' && _priceSort != 'none') {
+      return 'filter=recently_price_updated&sort=$_priceSort&sort_by_price=$_priceSort&order=$_priceSort';
+    } else if (_mainFilter == 'recently_price_updated') {
+      return 'recently_price_updated';
+    } else if (_priceSort != 'none') {
+      return _priceSort;
+    }
+    return null;
+  }
 
   int get _activeCategoryId {
     if (_selectedSubCategoryId != null) {
@@ -76,7 +88,16 @@ class _ProductPriceManagementScreenState
     final storeController = Get.find<StoreController>();
     final categoryController = Get.find<CategoryController>();
 
-    _currentSort = widget.initialSort ?? 'low_to_high';
+    if (widget.initialSort == 'recently_price_updated') {
+      _mainFilter = 'recently_price_updated';
+      _priceSort = 'none';
+    } else if (widget.initialSort == 'high_to_low' || widget.initialSort == 'low_to_high') {
+      _mainFilter = 'all';
+      _priceSort = widget.initialSort!;
+    } else {
+      _mainFilter = 'all';
+      _priceSort = 'none';
+    }
     _selectedSubCategoryId = null;
     _loadLocalDraft();
 
@@ -114,7 +135,7 @@ class _ProductPriceManagementScreenState
         type: 'active',
         search: '',
         categoryId: targetCategoryId,
-        sort: _currentSort,
+        sort: _combinedSortQuery,
         willUpdate: true,
       );
 
@@ -389,7 +410,7 @@ class _ProductPriceManagementScreenState
             search: _searchController.text.trim(),
             categoryId: _activeCategoryId,
             barcode: _barcodeSearch,
-            sort: _currentSort,
+            sort: _combinedSortQuery,
           )
           .then((_) {
             _isLoadingMore = false;
@@ -461,7 +482,7 @@ class _ProductPriceManagementScreenState
       search: '',
       categoryId: _activeCategoryId,
       barcode: barcode,
-      sort: _currentSort,
+      sort: _combinedSortQuery,
     );
   }
 
@@ -476,7 +497,7 @@ class _ProductPriceManagementScreenState
         type: 'active',
         search: '',
         categoryId: _activeCategoryId,
-        sort: _currentSort,
+        sort: _combinedSortQuery,
       );
     } else {
       setState(() {});
@@ -676,7 +697,7 @@ class _ProductPriceManagementScreenState
           updates,
           categoryId: _activeCategoryId,
           type: 'active',
-          sort: _currentSort,
+          sort: _combinedSortQuery,
         );
         if (mounted) {
           setState(() {
@@ -1166,42 +1187,79 @@ class _ProductPriceManagementScreenState
                 ),
               ),
 
-              // Sort / Filter Selection Bar (Low to High, High to Low, Recently Updated)
-              Container(
-                height: 38,
-                margin: const EdgeInsets.only(
-                  bottom: Dimensions.paddingSizeSmall,
+              // Sort / Filter Selection (Level 1: Main Filter, Level 2: Price Sort)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dimensions.paddingSizeSmall,
                 ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Dimensions.paddingSizeSmall,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSortFilterChip(
-                      context: context,
-                      storeController: storeController,
-                      title: 'الأقل سعراً',
-                      sortKey: 'low_to_high',
-                      icon: Icons.arrow_upward_rounded,
+                    // 1. Main Filter Row (الكل / المعدلة مؤخراً)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildMainFilterChip(
+                            context: context,
+                            storeController: storeController,
+                            title: 'الكل',
+                            filterKey: 'all',
+                            icon: Icons.grid_view_rounded,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildMainFilterChip(
+                            context: context,
+                            storeController: storeController,
+                            title: 'المعدلة مؤخراً',
+                            filterKey: 'recently_price_updated',
+                            icon: Icons.history_toggle_off_rounded,
+                            isSpecial: true,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    _buildSortFilterChip(
-                      context: context,
-                      storeController: storeController,
-                      title: 'الأعلى سعراً',
-                      sortKey: 'high_to_low',
-                      icon: Icons.arrow_downward_rounded,
+
+                    const SizedBox(height: 6),
+
+                    // 2. Price Sort Sub-filter Row (الافتراضي / الأقل سعراً / الأعلى سعراً)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          Text(
+                            'ترتيب حسب السعر: ',
+                            style: robotoRegular.copyWith(
+                              fontSize: 11,
+                              color: Theme.of(context).disabledColor,
+                            ),
+                          ),
+                          _buildPriceSortChip(
+                            context: context,
+                            storeController: storeController,
+                            title: 'الافتراضي',
+                            sortKey: 'none',
+                          ),
+                          const SizedBox(width: 6),
+                          _buildPriceSortChip(
+                            context: context,
+                            storeController: storeController,
+                            title: 'الأقل سعراً',
+                            sortKey: 'low_to_high',
+                            icon: Icons.arrow_upward_rounded,
+                          ),
+                          const SizedBox(width: 6),
+                          _buildPriceSortChip(
+                            context: context,
+                            storeController: storeController,
+                            title: 'الأعلى سعراً',
+                            sortKey: 'high_to_low',
+                            icon: Icons.arrow_downward_rounded,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    _buildSortFilterChip(
-                      context: context,
-                      storeController: storeController,
-                      title: 'المعدلة مؤخراً',
-                      sortKey: 'recently_price_updated',
-                      icon: Icons.history_toggle_off_rounded,
-                      isSpecial: true,
-                    ),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -1261,7 +1319,7 @@ class _ProductPriceManagementScreenState
                                 search: _searchController.text.trim(),
                                 categoryId: targetCatId,
                                 barcode: _barcodeSearch,
-                                sort: _currentSort,
+                                sort: _combinedSortQuery,
                               );
                             },
                             child: Container(
@@ -1754,15 +1812,15 @@ class _ProductPriceManagementScreenState
     );
   }
 
-  Widget _buildSortFilterChip({
+  Widget _buildMainFilterChip({
     required BuildContext context,
     required StoreController storeController,
     required String title,
-    required String sortKey,
+    required String filterKey,
     IconData? icon,
     bool isSpecial = false,
   }) {
-    final bool isSelected = _currentSort == sortKey;
+    final bool isSelected = _mainFilter == filterKey;
     final Color activeColor = isSpecial
         ? Colors.amber[800]!
         : Theme.of(context).primaryColor;
@@ -1770,9 +1828,9 @@ class _ProductPriceManagementScreenState
     return InkWell(
       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
       onTap: () {
-        if (_currentSort == sortKey) return;
+        if (_mainFilter == filterKey) return;
         setState(() {
-          _currentSort = sortKey;
+          _mainFilter = filterKey;
           _currentIndex = 0;
         });
         storeController.setOffset(1);
@@ -1782,11 +1840,11 @@ class _ProductPriceManagementScreenState
           search: _searchController.text.trim(),
           categoryId: _activeCategoryId,
           barcode: _barcodeSearch,
-          sort: _currentSort,
+          sort: _combinedSortQuery,
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
               ? activeColor.withOpacity(0.12)
@@ -1810,12 +1868,83 @@ class _ProductPriceManagementScreenState
                     ? activeColor
                     : Theme.of(context).disabledColor,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 5),
             ],
             Text(
               title,
               style: robotoMedium.copyWith(
-                fontSize: Dimensions.fontSizeExtraSmall,
+                fontSize: Dimensions.fontSizeSmall,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriceSortChip({
+    required BuildContext context,
+    required StoreController storeController,
+    required String title,
+    required String sortKey,
+    IconData? icon,
+  }) {
+    final bool isSelected = _priceSort == sortKey;
+    final Color activeColor = Theme.of(context).primaryColor;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+      onTap: () {
+        if (_priceSort == sortKey) return;
+        setState(() {
+          _priceSort = sortKey;
+          _currentIndex = 0;
+        });
+        storeController.setOffset(1);
+        storeController.getItemList(
+          offset: '1',
+          type: 'active',
+          search: _searchController.text.trim(),
+          categoryId: _activeCategoryId,
+          barcode: _barcodeSearch,
+          sort: _combinedSortQuery,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? activeColor.withOpacity(0.1)
+              : Theme.of(context).disabledColor.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+          border: Border.all(
+            color: isSelected
+                ? activeColor
+                : Theme.of(context).disabledColor.withOpacity(0.2),
+            width: isSelected ? 1.2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 12,
+                color: isSelected
+                    ? activeColor
+                    : Theme.of(context).disabledColor,
+              ),
+              const SizedBox(width: 3),
+            ],
+            Text(
+              title,
+              style: robotoMedium.copyWith(
+                fontSize: 11,
                 color: isSelected
                     ? activeColor
                     : Theme.of(context).textTheme.bodyMedium?.color,

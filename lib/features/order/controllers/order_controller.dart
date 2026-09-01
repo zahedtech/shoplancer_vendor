@@ -207,32 +207,11 @@ class OrderController extends GetxController implements GetxService {
         .getCurrentOrders();
     if (runningOrderList != null) {
       _runningOrderList = [];
-      bool isGrocery = Get.find<SplashController>().moduleType == 'grocery';
-      if (isGrocery) {
-        _runningOrders = [
-          RunningOrderModel(status: 'pending', orderList: []),
-          RunningOrderModel(status: 'ready_for_handover', orderList: []),
-          RunningOrderModel(status: 'food_on_the_way', orderList: []),
-        ];
-      } else {
-        _runningOrders = [
-          RunningOrderModel(status: 'pending', orderList: []),
-          RunningOrderModel(status: 'confirmed', orderList: []),
-          RunningOrderModel(
-            status:
-                Get.find<SplashController>()
-                    .configModel!
-                    .moduleConfig!
-                    .module!
-                    .showRestaurantText!
-                ? 'cooking'
-                : 'processing',
-            orderList: [],
-          ),
-          RunningOrderModel(status: 'ready_for_handover', orderList: []),
-          RunningOrderModel(status: 'food_on_the_way', orderList: []),
-        ];
-      }
+      _runningOrders = [
+        RunningOrderModel(status: 'pending', orderList: []),
+        RunningOrderModel(status: 'ready_for_handover', orderList: []),
+        RunningOrderModel(status: 'food_on_the_way', orderList: []),
+      ];
       _runningOrderList!.addAll(runningOrderList);
       _campaignOnly = true;
       if (_orderIndex >= _runningOrders!.length) {
@@ -513,61 +492,33 @@ class OrderController extends GetxController implements GetxService {
 
   void toggleCampaignOnly() {
     _campaignOnly = !_campaignOnly;
-    bool isGrocery = Get.find<SplashController>().moduleType == 'grocery';
 
     for (int i = 0; i < _runningOrders!.length; i++) {
       _runningOrders![i].orderList = [];
     }
 
     for (var order in _runningOrderList!) {
-      if (isGrocery) {
-        if ((order.orderStatus == 'pending' ||
-                order.orderStatus == 'confirmed' ||
-                order.orderStatus == 'processing' ||
-                (order.orderStatus == 'accepted' && order.confirmed != null)) &&
-            (Get.find<SplashController>().configModel!.orderConfirmationModel !=
-                    'deliveryman' ||
-                order.orderType == 'take_away' ||
-                Get.find<ProfileController>()
-                        .profileModel!
-                        .stores![0]
-                        .selfDeliverySystem ==
-                    1) &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![0].orderList.add(order);
-        } else if (order.orderStatus == 'handover' &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![1].orderList.add(order);
-        } else if (order.orderStatus == 'picked_up' &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![2].orderList.add(order);
-        }
-      } else {
-        if (order.orderStatus == 'pending' &&
-            (Get.find<SplashController>().configModel!.orderConfirmationModel !=
-                    'deliveryman' ||
-                order.orderType == 'take_away' ||
-                Get.find<ProfileController>()
-                        .profileModel!
-                        .stores![0]
-                        .selfDeliverySystem ==
-                    1) &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![0].orderList.add(order);
-        } else if ((order.orderStatus == 'confirmed' ||
-                (order.orderStatus == 'accepted' && order.confirmed != null)) &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![1].orderList.add(order);
-        } else if (order.orderStatus == 'processing' &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![2].orderList.add(order);
-        } else if (order.orderStatus == 'handover' &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![3].orderList.add(order);
-        } else if (order.orderStatus == 'picked_up' &&
-            (_campaignOnly ? order.itemCampaign == 1 : true)) {
-          _runningOrders![4].orderList.add(order);
-        }
+      if ((order.orderStatus == 'pending' ||
+              order.orderStatus == 'confirmed' ||
+              order.orderStatus == 'processing' ||
+              order.orderStatus == 'cooking' ||
+              (order.orderStatus == 'accepted' && order.confirmed != null)) &&
+          (Get.find<SplashController>().configModel!.orderConfirmationModel !=
+                  'deliveryman' ||
+              order.orderType == 'take_away' ||
+              Get.find<ProfileController>()
+                      .profileModel!
+                      .stores![0]
+                      .selfDeliverySystem ==
+                  1) &&
+          (_campaignOnly ? order.itemCampaign == 1 : true)) {
+        _runningOrders![0].orderList.add(order);
+      } else if (order.orderStatus == 'handover' &&
+          (_campaignOnly ? order.itemCampaign == 1 : true)) {
+        _runningOrders![1].orderList.add(order);
+      } else if (order.orderStatus == 'picked_up' &&
+          (_campaignOnly ? order.itemCampaign == 1 : true)) {
+        _runningOrders![2].orderList.add(order);
       }
     }
     _sortRunningOrderGroups();
