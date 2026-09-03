@@ -1,37 +1,44 @@
 class StoreSectionModel {
   int? id;
   String? sectionKey;
-  String? defaultName;
-  String? customName;
+  String? name;
   int? isActive;
   int? sortOrder;
 
   StoreSectionModel({
     this.id,
     this.sectionKey,
-    this.defaultName,
-    this.customName,
+    this.name,
     this.isActive,
     this.sortOrder,
   });
 
   StoreSectionModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    sectionKey = json['section_key'];
-    defaultName = json['default_name'];
-    customName = json['custom_name'];
-    isActive = json['is_active'] != null ? int.tryParse(json['is_active'].toString()) : 1;
-    sortOrder = json['sort_order'] != null ? int.tryParse(json['sort_order'].toString()) : 0;
+    id = json['id'] != null
+        ? int.tryParse(json['id'].toString())
+        : (json['section_id'] != null
+            ? int.tryParse(json['section_id'].toString())
+            : null);
+    sectionKey = json['section_key']?.toString();
+    name = json['name']?.toString() ??
+        json['custom_name']?.toString() ??
+        json['default_name']?.toString();
+    isActive = json['is_active'] != null
+        ? int.tryParse(json['is_active'].toString())
+        : 1;
+    sortOrder = json['sort_order'] != null
+        ? int.tryParse(json['sort_order'].toString())
+        : 0;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['section_key'] = sectionKey;
-    data['default_name'] = defaultName;
-    data['custom_name'] = customName;
-    data['is_active'] = isActive;
-    data['sort_order'] = sortOrder;
+    if (id != null) data['id'] = id;
+    if (id != null) data['section_id'] = id;
+    if (sectionKey != null) data['section_key'] = sectionKey;
+    if (name != null) data['name'] = name;
+    data['is_active'] = isActive ?? 1;
+    data['sort_order'] = sortOrder ?? 0;
     return data;
   }
 }
