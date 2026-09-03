@@ -2908,61 +2908,64 @@ class StoreController extends GetxController implements GetxService {
 
   List<StoreSectionModel>? _storeSectionList;
   List<StoreSectionModel>? get storeSectionList => _storeSectionList;
+  bool _isSectionLoading = false;
+  bool get isSectionLoading => _isSectionLoading;
+  bool _isSectionSaving = false;
+  bool get isSectionSaving => _isSectionSaving;
 
   Future<void> getStoreSections() async {
-    _isLoading = true;
+    _isSectionLoading = true;
     update();
     Response response = await storeServiceInterface.getStoreSections();
-    _isLoading = false;
+    _isSectionLoading = false;
     if (response.statusCode == 200 && response.body != null) {
       _storeSectionList = [];
-      List<dynamic> list = response.body is List
-          ? response.body
-          : (response.body['data'] ?? []);
+      List<dynamic> list = [];
+      if (response.body is List) {
+        list = response.body;
+      } else if (response.body is Map && response.body['data'] != null) {
+        list = response.body['data'] is List ? response.body['data'] : [];
+      }
       for (var item in list) {
         _storeSectionList!.add(StoreSectionModel.fromJson(item));
       }
+      _storeSectionList!.sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
     } else {
       // Fallback default sections if backend is not ready yet
       _storeSectionList = [
         StoreSectionModel(
-          id: 1,
+          id: 11,
           sectionKey: 'main_banner',
-          defaultName: 'البانر الرئيسي',
-          customName: 'البانر الرئيسي',
+          name: 'البانر الرئيسي',
           isActive: 1,
           sortOrder: 1,
         ),
         StoreSectionModel(
-          id: 2,
+          id: 12,
           sectionKey: 'featured_categories',
-          defaultName: 'الأقسام المميزة',
-          customName: 'الأقسام المميزة',
+          name: 'الأقسام المميزة',
           isActive: 1,
           sortOrder: 2,
         ),
         StoreSectionModel(
-          id: 3,
+          id: 13,
           sectionKey: 'popular_items',
-          defaultName: 'الأكثر مبيعاً',
-          customName: 'الأكثر مبيعاً',
+          name: 'الأكثر مبيعاً',
           isActive: 1,
           sortOrder: 3,
         ),
         StoreSectionModel(
-          id: 4,
+          id: 14,
           sectionKey: 'discounted_items',
-          defaultName: 'العروض والتخفيضات',
-          customName: 'العروض والتخفيضات',
+          name: 'منتجات عليها خصم',
           isActive: 1,
           sortOrder: 4,
         ),
         StoreSectionModel(
-          id: 5,
+          id: 15,
           sectionKey: 'new_arrivals',
-          defaultName: 'وصل حديثاً',
-          customName: 'وصل حديثاً',
-          isActive: 1,
+          name: 'وصل حديثاً',
+          isActive: 0,
           sortOrder: 5,
         ),
       ];
@@ -2989,15 +2992,9 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
-  void updateStoreSectionCustomName(int index, String name) {
-    if (_storeSectionList == null) return;
-    _storeSectionList![index].customName = name;
-    update();
-  }
-
   Future<bool> saveStoreSections() async {
     if (_storeSectionList == null) return false;
-    _isLoading = true;
+    _isSectionSaving = true;
     update();
 
     List<Map<String, dynamic>> payload = _storeSectionList!
@@ -3006,11 +3003,11 @@ class StoreController extends GetxController implements GetxService {
     Response response = await storeServiceInterface.updateStoreSections(
       payload,
     );
-    _isLoading = false;
+    _isSectionSaving = false;
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       showCustomSnackBar(
-        'تم حفظ ترتيب وترتيب السكاشن بنجاح'.tr,
+        'تم حفظ ترتيب وحالة السكاشن بنجاح'.tr,
         isError: false,
       );
       update();
