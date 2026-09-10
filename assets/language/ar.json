@@ -1,4 +1,10 @@
 {
+  "products_control": "التحكم في المنتجات",
+  "total_products": "إجمالي المنتجات",
+  "add_new_product": "إضافة منتج جديد",
+  "quick_price_update": "تعديل الأسعار السريع",
+  "inactive_products": "المنتجات غير النشطة",
+  "brands_management": "الماركات",
   "products_assigned_successfully": "تمت إضافة المنتجات من الكتالوج بنجاح",
   "add_selected_to_store": "إضافة المحدد إلى المتجر",
   "visit_store": "الانتقال للمتجر",
@@ -238,6 +244,7 @@
   "contact_number": "رقم الاتصال",
   "address": "عنوان",
   "minimum_order_amount": "الحد الأدنى لمبلغ الطلب",
+  "minimum_order_amount_tooltip": "الحد الأدنى لقيمة المشتريات التي يجب أن يصل إليها العميل ليتمكن من إتمام الطلب من متجرك.",
   "open_time": "الوقت المفتوح",
   "open_24_hours": "مفتوح 24 ساعة",
   "open_24_hours_description": "فتح المتجر طوال اليوم وتعطيل إضافة الساعات.",

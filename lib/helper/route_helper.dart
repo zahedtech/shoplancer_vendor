@@ -67,6 +67,7 @@ import 'package:shoplancer_vendor/features/store/screens/pending_item_screen.dar
 import 'package:shoplancer_vendor/features/store/screens/store_link_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/store_settings_screen.dart';
+import 'package:shoplancer_vendor/features/store/screens/product_hub_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_price_management_screen.dart';
 import 'package:shoplancer_vendor/features/store/screens/product_price_category_selection_screen.dart';
@@ -176,6 +177,7 @@ class RouteHelper {
       '/product-price-update-categories';
   static const String productStatus = '/product-status';
   static const String productManagement = '/product-management';
+  static const String productHub = '/product-hub';
   static const String inactiveProducts = '/inactive-products';
   static const String brands = '/brands';
   static const String socialMedia = '/social-media';
@@ -398,6 +400,7 @@ class RouteHelper {
       productPriceUpdateCategories;
   static String getProductStatusRoute() => productStatus;
   static String getProductManagementRoute() => productManagement;
+  static String getProductHubRoute() => productHub;
   static String getInactiveProductsRoute() => inactiveProducts;
   static String getBrandsRoute() => brands;
   static String getSocialMediaRoute() => socialMedia;
@@ -826,6 +829,7 @@ class RouteHelper {
       name: productManagement,
       page: () => const ProductManagementScreen(),
     ),
+    GetPage(name: productHub, page: () => const ProductHubScreen()),
     GetPage(name: inactiveProducts, page: () => const InactiveProductsScreen()),
     GetPage(name: brands, page: () => const BrandScreen()),
     GetPage(name: socialMedia, page: () => const SocialMediaScreen()),

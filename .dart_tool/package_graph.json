@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "shoplancer_vendor",
-      "version": "1.0.13+19",
+      "version": "1.0.15+20",
       "dependencies": [
         "audioplayers",
         "cached_network_image",

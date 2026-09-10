@@ -1238,6 +1238,10 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                                   ),
                                                 ],
                                               ),
+                                              const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeExtraSmall,
+                                              ),
 
                                               CustomTextFieldWidget(
                                                 hintText:
@@ -1257,17 +1261,50 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                                     const SizedBox(
                                       height: Dimensions.paddingSizeExtraLarge,
                                     ),
-                                    CustomTextFieldWidget(
-                                      hintText: 'minimum_order_amount'.tr,
-                                      labelText:
-                                          '${'minimum_order_amount'.tr} (${Get.find<SplashController>().configModel!.currencySymbol})',
-                                      controller: _orderAmountController,
-                                      focusNode: _orderAmountNode,
-                                      nextFocus: _store.selfDeliverySystem == 1
-                                          ? _deliveryChargePerKmNode
-                                          : _deliveryPriceFocusNode,
-                                      inputType: TextInputType.number,
-                                      isAmount: true,
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '${'minimum_order_amount'.tr} (${Get.find<SplashController>().configModel!.currencySymbol})',
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeSmall,
+                                                color: Theme.of(
+                                                  context,
+                                                ).disabledColor,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: Dimensions
+                                                  .paddingSizeExtraSmall,
+                                            ),
+                                            CustomToolTip(
+                                              preferredDirection:
+                                                  AxisDirection.up,
+                                              message:
+                                                  'minimum_order_amount_tooltip'
+                                                      .tr,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: Dimensions
+                                              .paddingSizeExtraSmall,
+                                        ),
+                                        CustomTextFieldWidget(
+                                          hintText: 'minimum_order_amount'.tr,
+                                          controller: _orderAmountController,
+                                          focusNode: _orderAmountNode,
+                                          nextFocus: _store.selfDeliverySystem == 1
+                                              ? _deliveryChargePerKmNode
+                                              : _deliveryPriceFocusNode,
+                                          inputType: TextInputType.number,
+                                          isAmount: true,
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

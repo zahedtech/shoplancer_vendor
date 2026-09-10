@@ -9,7 +9,13 @@ class OrderButtonWidget extends StatelessWidget {
   final int index;
   final OrderController orderController;
   final bool fromHistory;
-  const OrderButtonWidget({super.key, required this.title, required this.index, required this.orderController, required this.fromHistory});
+  const OrderButtonWidget({
+    super.key,
+    required this.title,
+    required this.index,
+    required this.orderController,
+    required this.fromHistory,
+  });
 
   Color _getStatusColor(BuildContext context, String status) {
     Color baseColor;
@@ -50,10 +56,10 @@ class OrderButtonWidget extends StatelessWidget {
     int selectedIndex;
     int length = 0;
     String status = '';
-    if(fromHistory) {
+    if (fromHistory) {
       selectedIndex = orderController.historyIndex;
       status = orderController.statusList[index];
-    }else {
+    } else {
       selectedIndex = orderController.orderIndex;
       status = orderController.runningOrders![index].status;
       length = orderController.runningOrders![index].orderList.length;
@@ -62,16 +68,23 @@ class OrderButtonWidget extends StatelessWidget {
     Color baseColor = _getStatusColor(context, status);
 
     return Padding(
-      padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+      padding: const EdgeInsetsDirectional.only(end: 6),
       child: CustomInkWellWidget(
         radius: Dimensions.radiusLarge,
-        onTap: () => fromHistory ? orderController.setHistoryIndex(index) : orderController.setOrderIndex(index),
+        onTap: () => fromHistory
+            ? orderController.setHistoryIndex(index)
+            : orderController.setOrderIndex(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
           decoration: BoxDecoration(
-            color: isSelected ? baseColor : baseColor.withOpacity(0.12),
+            color: isSelected
+                ? baseColor
+                : baseColor.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
-            border: Border.all(color: baseColor.withOpacity(0.4), width: 1),
+            border: Border.all(
+              color: baseColor.withValues(alpha: isSelected ? 1.0 : 0.35),
+              width: 1,
+            ),
           ),
           alignment: Alignment.center,
           child: Row(
@@ -82,24 +95,34 @@ class OrderButtonWidget extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: robotoBold.copyWith(
-                  fontSize: Dimensions.fontSizeSmall,
+                  fontSize: Dimensions.fontSizeExtraSmall,
                   color: isSelected ? Colors.white : baseColor,
                 ),
               ),
-              if (!fromHistory)
+              if (!fromHistory) ...[
+                const SizedBox(width: 4),
                 Container(
-                  margin: const EdgeInsets.only(left: Dimensions.paddingSizeExtraSmall),
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.white.withValues(alpha: 0.25)
+                        : baseColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Text(
-                    '($length)',
+                    '$length',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: robotoBold.copyWith(
-                      fontSize: Dimensions.fontSizeSmall,
+                      fontSize: 10,
                       color: isSelected ? Colors.white : baseColor,
                     ),
                   ),
                 ),
+              ],
             ],
           ),
         ),
