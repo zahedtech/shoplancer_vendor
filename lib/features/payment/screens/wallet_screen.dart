@@ -61,7 +61,10 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWidget(title: 'wallet'.tr, isBackButtonExist: false),
+      appBar: CustomAppBarWidget(
+        title: 'wallet'.tr,
+        isBackButtonExist: Navigator.canPop(context),
+      ),
 
       body: GetBuilder<ProfileController>(
         builder: (profileController) {

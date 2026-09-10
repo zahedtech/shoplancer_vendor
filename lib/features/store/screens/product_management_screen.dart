@@ -977,19 +977,6 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                     onPressed: () => Get.to(() => const QuickAddItemScreen()),
                   ),
                 ),
-                floatingActionButton: _updatedPrices.isNotEmpty
-                    ? null
-                    : FloatingActionButton(
-                        heroTag: 'product_mgmt_add_item_fab',
-                        onPressed: () =>
-                            Get.to(() => const QuickAddItemScreen()),
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
                 body: Column(
                   children: [
                     // Search & Scanner Header

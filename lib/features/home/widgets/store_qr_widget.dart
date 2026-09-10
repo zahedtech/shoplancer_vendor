@@ -435,8 +435,8 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
         is10PercentOrLessLeft || balance < 0 || (profile?.isSuspended == true);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
-      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
@@ -466,7 +466,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                 Screenshot(
                   controller: screenshotController,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -475,7 +475,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                     child: _buildQrCodeWidget(
                       storeQrCode,
                       storeUrl,
-                      80,
+                      70,
                       context,
                     ),
                   ),
@@ -501,7 +501,7 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
               ],
             ),
           ),
-          const SizedBox(width: Dimensions.paddingSizeDefault),
+          const SizedBox(width: Dimensions.paddingSizeSmall),
 
           // Right side: Info and Action Buttons
           Expanded(
@@ -526,12 +526,12 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                       const SizedBox(width: 8),
                       InkWell(
                         onTap: () =>
-                            Get.offAllNamed(RouteHelper.getMainRoute('wallet')),
+                            Get.toNamed(RouteHelper.getPrepaidWalletRoute()),
                         borderRadius: BorderRadius.circular(18),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
-                            vertical: 6,
+                            vertical: 5,
                           ),
                           decoration: BoxDecoration(
                             color: isRedWarning
@@ -577,43 +577,6 @@ class _StoreQrWidgetState extends State<StoreQrWidget> {
                       ),
                     ],
                   ],
-                ),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: () async {
-                    if (storeUrl.isNotEmpty &&
-                        await canLaunchUrl(Uri.parse(storeUrl))) {
-                      await launchUrl(
-                        Uri.parse(storeUrl),
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.storefront_outlined,
-                        size: 16,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'visit_store'.tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(context).primaryColor,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.open_in_new,
-                        size: 13,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
 

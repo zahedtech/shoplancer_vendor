@@ -27,101 +27,15 @@ class MenuScreen extends StatelessWidget {
 
     final List<MenuModel> menuList = [];
 
-    bool isEcommerce = store?.module?.moduleType == 'ecommerce';
-
     // ------------------- 1. Products & Inventory (المنتجات والمخزون) -------------------
-    if (modulePermission!.item!) {
+    if (modulePermission!.item! || modulePermission.category!) {
       menuList.add(
         MenuModel(
           icon: '',
-          iconData: Icons.inventory_rounded,
-          title: 'إدارة المنتجات',
-          route: RouteHelper.getProductManagementRoute(),
+          iconData: Icons.inventory_2_rounded,
+          title: 'products_control'.tr,
+          route: RouteHelper.getProductHubRoute(),
           isBlocked: !(store?.itemSection ?? false),
-        ),
-      );
-
-      menuList.add(
-        MenuModel(
-          icon: '',
-          iconData: Icons.price_change_rounded,
-          title: 'تعديل الأسعار السريع',
-          route: RouteHelper.getProductPriceUpdateCategoriesRoute(),
-          isBlocked: !(store?.itemSection ?? false),
-        ),
-      );
-
-      menuList.add(
-        MenuModel(
-          icon: '',
-          iconData: Icons.pause_circle_outline_rounded,
-          title: 'المنتجات غير النشطة',
-          route: RouteHelper.getInactiveProductsRoute(),
-          isBlocked: !(store?.itemSection ?? false),
-        ),
-      );
-
-      if (!isEcommerce) {
-        menuList.add(
-          MenuModel(
-            icon: '',
-            iconData: Icons.grid_view_rounded,
-            title: 'all_items'.tr,
-            route: RouteHelper.getAllItemsRoute(),
-            isBlocked: !store!.itemSection!,
-          ),
-        );
-      }
-    }
-
-    if (modulePermission.category!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.categories,
-          title: 'categories'.tr,
-          route: RouteHelper.getCategoriesRoute(),
-        ),
-      );
-
-      menuList.add(
-        MenuModel(
-          icon: '',
-          iconData: Icons.branding_watermark_rounded,
-          title: 'الماركات',
-          route: RouteHelper.getBrandsRoute(),
-        ),
-      );
-    }
-
-    if (store?.module!.moduleType != 'food') {
-      menuList.add(
-        MenuModel(
-          icon: Images.warning,
-          iconColor: Colors.white,
-          title: 'low_stock'.tr,
-          route: RouteHelper.getLowStockRoute(),
-        ),
-      );
-    }
-
-    if (modulePermission.item!) {
-      if (!isEcommerce) {
-        menuList.add(
-          MenuModel(
-            icon: Images.pendingItemIcon,
-            title: 'pending_item'.tr,
-            route: RouteHelper.getPendingItemRoute(),
-          ),
-        );
-      }
-    }
-
-    if (store?.module!.moduleType == 'food' && modulePermission.addon!) {
-      menuList.add(
-        MenuModel(
-          icon: Images.addon,
-          title: 'addons'.tr,
-          route: RouteHelper.getAddonsRoute(),
         ),
       );
     }
@@ -215,8 +129,8 @@ class MenuScreen extends StatelessWidget {
       menuList.add(
         MenuModel(
           icon: '',
-          iconData: Icons.group_work_rounded,
-          title: 'إدارة السكاشن'.tr,
+          iconData: Icons.layers_rounded,
+          title: 'إدارة الاقسام'.tr,
           route: RouteHelper.getStoreSectionsRoute(),
         ),
       );

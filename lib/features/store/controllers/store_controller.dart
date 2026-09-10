@@ -2992,6 +2992,55 @@ class StoreController extends GetxController implements GetxService {
     update();
   }
 
+  void reorderSectionCategories(int sectionIndex, int oldIndex, int newIndex) {
+    if (_storeSectionList == null ||
+        sectionIndex < 0 ||
+        sectionIndex >= _storeSectionList!.length) {
+      return;
+    }
+    final categories = _storeSectionList![sectionIndex].categories;
+    if (categories == null) return;
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = categories.removeAt(oldIndex);
+    categories.insert(newIndex, item);
+    for (int i = 0; i < categories.length; i++) {
+      categories[i].sortOrder = i + 1;
+    }
+    update();
+  }
+
+  void toggleSectionCategoryActive(
+    int sectionIndex,
+    int categoryIndex,
+    bool isActive,
+  ) {
+    if (_storeSectionList == null ||
+        sectionIndex < 0 ||
+        sectionIndex >= _storeSectionList!.length) {
+      return;
+    }
+    final categories = _storeSectionList![sectionIndex].categories;
+    if (categories == null ||
+        categoryIndex < 0 ||
+        categoryIndex >= categories.length) {
+      return;
+    }
+    categories[categoryIndex].isActive = isActive ? 1 : 0;
+    update();
+  }
+
+  void updateSectionCategories(int index, List<SectionCategoryModel> categories) {
+    if (_storeSectionList == null ||
+        index < 0 ||
+        index >= _storeSectionList!.length) {
+      return;
+    }
+    _storeSectionList![index].categories = categories;
+    update();
+  }
+
   Future<bool> saveStoreSections() async {
     if (_storeSectionList == null) return false;
     _isSectionSaving = true;

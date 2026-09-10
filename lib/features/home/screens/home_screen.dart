@@ -14,6 +14,8 @@ import 'package:shoplancer_vendor/common/widgets/order_shimmer_widget.dart';
 import 'package:shoplancer_vendor/common/widgets/order_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/order_button_widget.dart';
 import 'package:shoplancer_vendor/features/home/widgets/store_qr_widget.dart';
+import 'package:shoplancer_vendor/features/profile/domain/models/profile_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -172,18 +174,73 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: GetBuilder<ProfileController>(
             builder: (profileController) {
-              String storeName = '';
-              if (profileController.profileModel != null &&
-                  profileController.profileModel!.stores != null &&
-                  profileController.profileModel!.stores!.isNotEmpty) {
-                storeName =
-                    profileController.profileModel!.stores![0].name ?? '';
-              }
-              return Text(
-                storeName,
-                style: robotoBold.copyWith(
-                  fontSize: Dimensions.fontSizeLarge,
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
+              final ProfileModel? profile = profileController.profileModel;
+              final Store? store =
+                  (profile?.stores != null && profile!.stores!.isNotEmpty)
+                      ? profile.stores![0]
+                      : null;
+              final String? rawSlug =
+                  (store?.slug?.trim().isNotEmpty ?? false)
+                      ? store!.slug
+                      : store?.name;
+              final String storeUrl =
+                  (profile?.storeUrl?.trim().isNotEmpty ?? false)
+                      ? profile!.storeUrl!.trim()
+                      : ((rawSlug != null && rawSlug.trim().isNotEmpty)
+                          ? 'https://store.shoplanser.com/${Uri.encodeComponent(rawSlug.trim())}'
+                          : '');
+
+              return InkWell(
+                onTap: () async {
+                  if (storeUrl.isNotEmpty &&
+                      await canLaunchUrl(Uri.parse(storeUrl))) {
+                    await launchUrl(
+                      Uri.parse(storeUrl),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                },
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.storefront_outlined,
+                        size: 18,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'visit_store'.tr,
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.open_in_new,
+                        size: 13,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -317,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: Dimensions.paddingSizeLarge),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
 
                             StoreQrWidget(profileController: profileController),
 
@@ -328,24 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     profileController: profileController,
                                   )
                                 : const SizedBox(),
-                            SizedBox(
-                              height: !isEmployee &&
-                                      profileController.modulePermission !=
-                                          null &&
-                                      profileController
-                                          .modulePermission!
-                                          .wallet!
-                                  ? Dimensions.paddingSizeSmall
-                                  : 0,
-                            ),
-
-                            profileController.modulePermission != null &&
-                                    profileController
-                                        .modulePermission!
-                                        .advertisement!
-                                ? const SizedBox() //const AdsSectionWidget()
-                                : const SizedBox(),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -371,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     'ongoing_orders'.tr,
                                                     style: robotoBold.copyWith(
                                                       fontSize: Dimensions
-                                                          .fontSizeLarge,
+                                                          .fontSizeDefault,
                                                     ),
                                                   ),
                                                 ),
@@ -382,79 +422,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     context,
                                                     orderController,
                                                   ),
-                                                // const Spacer(),
-
-                                                // orderController.runningOrders !=
-                                                //         null
-                                                //     ? Padding(
-                                                //         padding: const EdgeInsets.only(
-                                                //           top: Dimensions
-                                                //               .paddingSizeDefault,
-                                                //           bottom: Dimensions
-                                                //               .paddingSizeSmall,
-                                                //         ),
-                                                //         child: InkWell(
-                                                //           onTap: () =>
-                                                //               orderController
-                                                //                   .toggleCampaignOnly(),
-                                                //           child: Row(
-                                                //             children: [
-                                                //               SizedBox(
-                                                //                 height: 24,
-                                                //                 width: 24,
-                                                //                 child: Checkbox(
-                                                //                   side: BorderSide(
-                                                //                     color: Theme.of(
-                                                //                       context,
-                                                //                     ).disabledColor,
-                                                //                     width: 1,
-                                                //                   ),
-                                                //                   activeColor:
-                                                //                       Theme.of(
-                                                //                         context,
-                                                //                       ).primaryColor,
-                                                //                   value: orderController
-                                                //                       .campaignOnly,
-                                                //                   onChanged:
-                                                //                       (
-                                                //                         isActive,
-                                                //                       ) => orderController
-                                                //                           .toggleCampaignOnly(),
-                                                //                 ),
-                                                //               ),
-                                                //               const SizedBox(
-                                                //                 width: Dimensions
-                                                //                     .paddingSizeSmall,
-                                                //               ),
-
-                                                //               Text(
-                                                //                 'campaign_orders_only'
-                                                //                     .tr,
-                                                //                 style: robotoRegular.copyWith(
-                                                //                   fontSize:
-                                                //                       Dimensions
-                                                //                           .fontSizeSmall,
-                                                //                   color: Theme.of(
-                                                //                     context,
-                                                //                   ).disabledColor,
-                                                //                 ),
-                                                //               ),
-                                                //             ],
-                                                //           ),
-                                                //         ),
-                                                //       )
-                                                //     : const SizedBox(),
                                               ],
                                             ),
                                             const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeExtraSmall,
+                                              height: 6,
                                             ),
 
                                             orderController.runningOrders !=
                                                     null
                                                 ? SizedBox(
-                                                    height: 40,
+                                                    height: 30,
                                                     child: ListView.builder(
                                                       scrollDirection:
                                                           Axis.horizontal,
@@ -649,9 +626,9 @@ class _HomeScreenState extends State<HomeScreen> {
     OrderController orderController,
   ) {
     return Container(
-      height: 36,
+      height: 28,
       padding: const EdgeInsets.symmetric(
-        horizontal: Dimensions.paddingSizeSmall,
+        horizontal: Dimensions.paddingSizeExtraSmall,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -666,11 +643,11 @@ class _HomeScreenState extends State<HomeScreen> {
           isDense: true,
           icon: Icon(
             Icons.keyboard_arrow_down,
-            size: 18,
+            size: 16,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
           style: robotoMedium.copyWith(
-            fontSize: Dimensions.fontSizeSmall,
+            fontSize: Dimensions.fontSizeExtraSmall,
             color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
